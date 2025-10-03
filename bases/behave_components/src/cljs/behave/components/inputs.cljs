@@ -227,6 +227,22 @@
     [icon (if selected? "minus" "plus")]]
    label])
 
+(defn- multi-select-on-select
+  [selections-atom selection disable-multi-valued-input?]
+  (let [[_label value on-deselect on-select] selection]
+    (if (contains? @selections-atom selection)
+      (do
+        (reset! selections-atom (disj @selections-atom selection))
+        (when on-deselect (on-deselect value)))
+      (if disable-multi-valued-input?
+        (do
+          (when on-deselect (doseq [[_ value on-deselect] @selections-atom] (on-deselect value)))
+          (when on-select (on-select value))
+          (reset! selections-atom (into (sorted-set) [selection])))
+        (do
+          (when on-select (on-select value))
+          (reset! selections-atom (conj @selections-atom selection)))))))
+
 (defmulti multi-select-input
   "Creates a multi-select input component with the following options:
   - `input-label`: text to display as the label for the input.
@@ -298,21 +314,11 @@
                                       (and filter-tags @selected-tag)
                                       (filter (fn [id] (contains? (:tags id) @selected-tag))))]
             ^{:key label}
-            (let [selection [label value on-deselect]]
+            (let [selection [label value on-deselect on-select]]
               [multi-select-option {:selected? (contains? @selections selection)
                                     :color-tag color-tag
                                     :label     label
-                                    :on-click  #(do (if (contains? @selections selection)
-                                                      (do
-                                                        (reset! selections (disj @selections selection))
-                                                        (when on-deselect (on-deselect value)))
-                                                      (do
-                                                        (if disable-multi-valued-input?
-                                                          (reset! selections (into (sorted-set) [selection]))
-                                                          (do
-                                                            (reset! selections (conj @selections selection))
-                                                            (when on-select
-                                                              (on-select value)))))))}])))]])
+                                    :on-click  #(multi-select-on-select selections selection disable-multi-valued-input?)}])))]])
      [:div.multi-select__selections
       [:div.multi-select__selections__header
        [:div (gstring/format "Selected %s" input-label)]
@@ -397,14 +403,8 @@
       [text-input {:label        "Search"
                    :on-key-press (on-enter (fn []
                                              (when-let [{:keys [label value on-deselect on-select]} (first @filtered-options)]
-                                               (if disable-multi-valued-input?
-                                                 (do
-                                                   (when on-deselect (doseq [[_ value on-deselect] @selections] (on-deselect value)))
-                                                   (when on-select (on-select value))
-                                                   (reset! selections (into (sorted-set) [[label value on-deselect]])))
-                                                 (do
-                                                   (when on-select (on-select value))
-                                                   (reset! selections (conj @selections [label value on-deselect]))))
+                                               (let [selection [label value on-deselect on-select]]
+                                                 (multi-select-on-select selections selection disable-multi-valued-input?))
                                                (reset! search nil))))
                    :on-change    #(do (reset! search (input-value %))
                                       (reset! filtered-options (filter (fn [option]
@@ -423,18 +423,10 @@
                                      options
                                      @filtered-options)]
            ^{:key label}
-           (let [selection [label value on-deselect]]
+           (let [selection [label value on-deselect on-select]]
              [multi-select-option {:selected? (contains? @selections selection)
                                    :color-tag color-tag
                                    :label     label
-                                   :on-click  #(do (if (contains? @selections selection)
-                                                     (do
-                                                       (reset! selections (disj @selections selection))
-                                                       (when on-deselect (on-deselect value)))
-                                                     (if disable-multi-valued-input?
-                                                       (reset! selections (into (sorted-set) [selection]))
-                                                       (do
-                                                         (reset! selections (conj @selections selection))
-                                                         (when on-select
-                                                           (on-select value)))))
-                                                   (reset! search nil))}])))])]))
+                                   :on-click  #(do
+                                                 (multi-select-on-select selections selection disable-multi-valued-input?)
+                                                 (reset! search nil))}])))])]))

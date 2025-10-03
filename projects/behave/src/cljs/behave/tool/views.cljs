@@ -1,13 +1,13 @@
 (ns behave.tool.views
   (:require [behave.components.core :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [behave.translate       :refer [<t bp]]
-            [dom-utils.interface    :refer [input-value]]
-            [reagent.core           :as r]
-            [number-utils.interface :refer [parse-int]]
-            [map-utils.interface    :refer [index-by]]
-            [string-utils.interface :refer [->kebab]]
-            [re-frame.core          :as rf]))
+            [behave.translate        :refer [<t bp]]
+            [dom-utils.interface     :refer [input-value]]
+            [reagent.core            :as r]
+            [number-utils.interface  :refer [parse-int parse-float to-precision]]
+            [map-utils.interface     :refer [index-by]]
+            [string-utils.interface  :refer [->kebab]]
+            [re-frame.core           :as rf]))
 
 (defn tool-selector
   "A Modal used for selecting a tool"
@@ -145,17 +145,18 @@
 
 (defmethod tool-output :continuous
   [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
-  (let [{sv-uuid           :bp/uuid
-         domain-uuid       :variable/domain-uuid
-         var-name          :variable/name
-         var-kind          :variable/kind
-         dimension-uuid    :variable/dimension-uuid
-         native-unit-uuid  :variable/native-unit-uuid
-         english-unit-uuid :variable/english-unit-uuid
-         metric-unit-uuid  :variable/metric-unit-uuid
-         help-key          :subtool-variable/help-key} variable
-        *domain                                        (rf/subscribe [:vms/entity-from-uuid domain-uuid])
-        value                                          (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])]
+  (let [{sv-uuid              :bp/uuid
+         domain-uuid          :variable/domain-uuid
+         var-name             :variable/name
+         dimension-uuid       :variable/dimension-uuid
+         native-unit-uuid     :variable/native-unit-uuid
+         native-decimals      :variable/native-decimals
+         english-unit-uuid    :variable/english-unit-uuid
+         metric-unit-uuid     :variable/metric-unit-uuid
+         help-key             :subtool-variable/help-key} variable
+        *domain                                           (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+        *value                                            (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
+        value                 (when @*value (to-precision (parse-float @*value) (or (:domain/decimals @*domain) native-decimals)))]
     [:div.tool-output
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-output__output
@@ -163,7 +164,7 @@
       [c/text-input {:id        sv-uuid
                      :disabled? true
                      :label     var-name
-                     :value     (or @value "")}]]
+                     :value     (or value "")}]]
      [unit-display
       domain-uuid
       nil

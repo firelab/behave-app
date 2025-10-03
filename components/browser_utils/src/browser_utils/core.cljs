@@ -169,9 +169,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Format International Number
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn format-intl-number [locale number & [significant-digits]]
+(defn format-intl-number
+  "Formats a number according to it's international number format (with significant digits).
+
+  Usage:
+  `(format-intl-number \"en-US\" 0.09393923 2) ; => 0.09`
+  "
+  [locale number & [significant-digits]]
   (.format (js/Intl.NumberFormat. locale #js {:maximumSignificantDigits (or significant-digits 3)})
            number))
 
-;; Usage
-;; (format-intl-number "en-US" 0.09393923 2) ; => 0.09
