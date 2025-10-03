@@ -145,8 +145,15 @@
 
 (defmethod construct-result-matrices 2
   [{:keys [sub-title ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters]}]
-  (let [[row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
-        [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
+  (let [graph-settings                              @(subscribe [:worksheet/graph-settings ws-uuid])
+        x-axis-group-variable-uuid                  (:graph-settings/x-axis-group-variable-uuid graph-settings)
+        z-axis-group-variable-uuid                  (:graph-settings/z-axis-group-variable-uuid graph-settings)
+        [row-name row-units row-gv-uuid row-values] (->> multi-valued-inputs
+                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid x-axis-group-variable-uuid)))
+                                                         first)
+        [col-name col-units col-gv-uuid col-values] (->> multi-valued-inputs
+                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid z-axis-group-variable-uuid)))
+                                                         first)
         map-units-settings-entity                   @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units                                   (:map-units-settings/units map-units-settings-entity)
         map-rep-frac                                (:map-units-settings/map-rep-fraction map-units-settings-entity)
