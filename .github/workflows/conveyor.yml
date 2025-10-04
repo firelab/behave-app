@@ -73,7 +73,6 @@ jobs:
             mkdir -p ${{ env.cache_path }}/install
             tar xzvf conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz -C ${{ env.cache_path }}/install
           fi
-          # export PATH="$PATH:${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin"
           echo "${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin" >> $GITHUB_PATH
           # echo $(which conveyor)
           # echo $GITHUB_PATH
@@ -82,9 +81,9 @@ jobs:
       - name: Test Conveyor
         shell: bash
         run: |
-          ls ${{ env.cache_}}/install/conveyor-${{ env.conveyor_version }}/bin
-          cat $GITHUB_PATH
-          echo $PATH
+          ls "${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin"
+          echo "$PATH"
+          echo "$(which conveyor)"
 
       # - name: Checkout code
       #   uses: actions/checkout@v3
