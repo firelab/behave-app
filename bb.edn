@@ -63,5 +63,8 @@
                       url     "datomic:sql://?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic"]
                   (shell (format "%s -p %d db %s" console port url)))}
 
+  path-test (let [curr-shell (System/getenv "SHELL")]
+               (shell (str curr-shell " -c 'echo \"PATH from $0:\n$PATH\"'")))
+
   conveyor-test (let [curr-shell (System/getenv "SHELL")]
                   (shell (str curr-shell " -c 'conveyor --version'")))}}
