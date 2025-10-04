@@ -113,6 +113,7 @@ jobs:
           export PATH="$PATH:${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin"
           bb '(System/getenv "SHELL")'
           bb path-test
+          bb which-test
           # bb conveyor-test
 
       # - name: Set the date
