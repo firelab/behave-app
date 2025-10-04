@@ -71,8 +71,8 @@
 
   which-test    (let [curr-shell (System/getenv "SHELL")
                       path       (System/getenv "PATH")]
-                  (shell {:extra-env {"PATH" path}} "echo \"conveyor PATH: $(which conveyor)\""))
+                  (shell {:extra-env {"PATH" path}} "echo \"conveyor PATH: $(which conveyor)\"")
                   (shell {:extra-env {"PATH" path}} (str curr-shell " -c 'echo \"/bin/bash conveyor PATH: $(which conveyor)\"'")))
 
-  conveyor-test (let [curr-shell (System/getenv "SHELL")
+  conveyor-test (let [curr-shell (System/getenv "SHELL")]
                   (:out (shell {:out :string} "cd $HOME/.local/bin && ./conveyor --version")))}}
