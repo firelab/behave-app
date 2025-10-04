@@ -61,4 +61,7 @@
                 (let [console (io/file -datomic "console")
                       port    (or (:port (cli/parse-opts *command-line-args* {:coerce {:port :int}})) 8000)
                       url     "datomic:sql://?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic"]
-                  (shell (format "%s -p %d db %s" console port url)))}}}
+                  (shell (format "%s -p %d db %s" console port url)))}
+
+  conveyor-test (let [curr-shell (System/getenv "SHELL")]
+                  (shell (str curr-shell " -c 'conveyor --version'")))}}

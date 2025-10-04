@@ -49,38 +49,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # - name: Check cache
-      #   id: check_cache
-      #   shell: bash
-      #   run: |
-      #     [ -d "${{ env.cache_path }}" ] && FOUND=true || FOUND=false
-      #     echo "found=$FOUND" >> "$GITHUB_OUTPUT"
+      - name: Check cache
+        id: check_cache
+        shell: bash
+        run: |
+          [ -d "${{ env.cache_path }}" ] && FOUND=true || FOUND=false
+          echo "found=$FOUND" >> "$GITHUB_OUTPUT"
 
-      # - name: Load cache
-      #   if: ${{ steps.check_cache.outputs.found != 'true' }}
-      #   uses: actions/cache@v4
-      #   with:
-      #     key: ${{ env.cache_key }}-${{ github.run_id }}
-      #     path: ${{ env.cache_path }}
-      #     restore-keys: ${{ env.cache_key }}
+      - name: Load cache
+        if: ${{ steps.check_cache.outputs.found != 'true' }}
+        uses: actions/cache@v4
+        with:
+          key: ${{ env.cache_key }}-${{ github.run_id }}
+          path: ${{ env.cache_path }}
+          restore-keys: ${{ env.cache_key }}
 
-      # - name: Cache clojure dependencies
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ~/.m2/repository
-      #       ~/.gitlibs
-      #     key: cljdeps-${{ hashFiles('deps.edn', 'bb.edn', '**/deps.edn', '**/bb.edn') }}
-      #     restore-keys: cljdeps-
+      - name: Cache clojure dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+          key: cljdeps-${{ hashFiles('deps.edn', 'bb.edn', '**/deps.edn', '**/bb.edn') }}
+          restore-keys: cljdeps-
 
-      # - name: Setup Conveyor
-      #   shell: bash
-      #   run: |
-      #     if [ ! -d "${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}" ]; then
-      #       wget https://downloads.hydraulic.dev/conveyor/conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz
-      #       mkdir -p ${{ env.cache_path }}/install
-      #       tar xzvf conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz -C ${{ env.cache_path }}/install
-      #     fi
+      - name: Setup Conveyor
+        shell: bash
+        run: |
+          if [ ! -d "${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}" ]; then
+            wget https://downloads.hydraulic.dev/conveyor/conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz
+            mkdir -p ${{ env.cache_path }}/install
+            tar xzvf conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz -C ${{ env.cache_path }}/install
+          fi
 
       # - name: Checkout code
       #   uses: actions/checkout@v3
@@ -110,10 +110,9 @@ jobs:
         id: check_shell
         shell: bash
         run: |
-          echo "$0"
-          ls /usr/bin
-          ls /bin
+          export PATH="$PATH:${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin"
           bb '(System/getenv "SHELL")'
+          bb conveyor-test
 
       # - name: Set the date
       #   run: |
