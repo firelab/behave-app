@@ -75,4 +75,4 @@
                   (shell {:extra-env {"PATH" path}} (str curr-shell " -c 'echo \"/bin/bash conveyor PATH: $(which conveyor)\"'")))
 
   conveyor-test (let [curr-shell (System/getenv "SHELL")]
-                  (:out (shell {:out :string} "cd $HOME/.local/bin && ./conveyor --version")))}}
+                  (:out (shell {:out :string} (str curr-shell "-c 'cd $HOME/.local/bin && ./conveyor --version'"))))}}
