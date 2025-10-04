@@ -67,7 +67,7 @@
                   (shell (str curr-shell " -c 'echo \"PATH from $0:\n$PATH\"'")))
 
   ls-test       (let [curr-shell (System/getenv "SHELL")]
-                  (shell (str curr-shell " -c 'echo \"ls $HOME/.local/bin/\"'")))
+                  (shell (str curr-shell " -c 'echo \"Local Bin: $(ls $HOME/.local/bin/)\"'")))
 
   which-test     (let [curr-shell (System/getenv "SHELL")]
                   (shell (str curr-shell " -c 'echo \"Conveyor PATH: $(which conveyor)\"'")))
