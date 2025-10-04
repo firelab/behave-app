@@ -73,69 +73,71 @@ jobs:
             mkdir -p ${{ env.cache_path }}/install
             tar xzvf conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz -C ${{ env.cache_path }}/install
           fi
-          PATH="$PATH:${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin"
+          echo "${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin" >> $GITHUB_PATH
+          echo $(which conveyor)
+          echo $GITHUB_PATH
 
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # - name: Checkout code
+      #   uses: actions/checkout@v3
 
-      - name: Prepare java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      # - name: Prepare java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '21'
 
-      - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@13.1
-        with:
-          cli: 'latest'
+      # - name: Install clojure tools
+      #   uses: DeLaGuardo/setup-clojure@13.1
+      #   with:
+      #     cli: 'latest'
 
-      - name: Setup Babashka
-        uses: turtlequeue/setup-babashka@v1.7.0
-        with:
-          babashka-version: 1.3.189
+      # - name: Setup Babashka
+      #   uses: turtlequeue/setup-babashka@v1.7.0
+      #   with:
+      #     babashka-version: 1.3.189
 
-      - name: Set the version
-        run: |
-          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
-          echo "version=$VERSION" >> "$GITHUB_ENV"
+      # - name: Set the version
+      #   run: |
+      #     VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
+      #     echo "version=$VERSION" >> "$GITHUB_ENV"
 
-      - name: Set the date
-        run: |
-          DATE=$( echo $(date '+%Y-%m-%d'))
-          echo "date=$DATE" >> "$GITHUB_ENV"
+      # - name: Set the date
+      #   run: |
+      #     DATE=$( echo $(date '+%Y-%m-%d'))
+      #     echo "date=$DATE" >> "$GITHUB_ENV"
 
-      - name: Set release name
-        run: |
-          RELEASE=$(echo "$version ($date)")
-          echo "release=$RELEASE" >> "$GITHUB_ENV"
+      # - name: Set release name
+      #   run: |
+      #     RELEASE=$(echo "$version ($date)")
+      #     echo "release=$RELEASE" >> "$GITHUB_ENV"
 
-      - name: Download VMS [DEV]
-        if: ${{ env.environment == 'dev' }}
-        env:
-          VMS_URL: ${{ secrets.DEV_VMS_URL }}
-          VMS_AUTH_TOKEN: ${{ secrets.DEV_VMS_SECRET_TOKEN }}
-        run: |
-          cd projects/behave
-          clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
+      # - name: Download VMS [DEV]
+      #   if: ${{ env.environment == 'dev' }}
+      #   env:
+      #     VMS_URL: ${{ secrets.DEV_VMS_URL }}
+      #     VMS_AUTH_TOKEN: ${{ secrets.DEV_VMS_SECRET_TOKEN }}
+      #   run: |
+      #     cd projects/behave
+      #     clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
 
-      - name: Download VMS [PROD]
-        if: ${{ env.environment == 'prod' }}
-        env:
-          VMS_URL: ${{ secrets.VMS_URL }}
-          VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
-        run: |
-          cd projects/behave
-          clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
+      # - name: Download VMS [PROD]
+      #   if: ${{ env.environment == 'prod' }}
+      #   env:
+      #     VMS_URL: ${{ secrets.VMS_URL }}
+      #     VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
+      #   run: |
+      #     cd projects/behave
+      #     clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
 
-      - name: Build Executables
-        run: |
-          cd projects/behave
-          mv resources/config.standalone.edn resources/config.edn
-          echo "{:version $version}" > resources/version.edn
-          bb conveyor
+      # - name: Build Executables
+      #   run: |
+      #     cd projects/behave
+      #     mv resources/config.standalone.edn resources/config.edn
+      #     echo "{:version $version}" > resources/version.edn
+      #     bb conveyor
 
-      - name: Upload Executables
-        uses: actions/upload-artifact@v4
-        with:
-          name: executables
-          path: project/behave/output
+      # - name: Upload Executables
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: executables
+      #     path: project/behave/output
