@@ -70,4 +70,4 @@
                   (shell (str curr-shell " -c 'echo \"Conveyor PATH: $(which conveyor)\"'")))
 
   conveyor-test (let [curr-shell (System/getenv "SHELL")]
-                  (shell (str curr-shell " -c 'conveyor --version'")))}}
+                  (shell (str curr-shell " -c '$HOME/.local/bin/conveyor --version'")))}}

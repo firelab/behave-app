@@ -122,7 +122,7 @@ jobs:
           bb '(System/getenv "SHELL")'
           bb path-test
           bb which-test
-          # bb conveyor-test
+          bb conveyor-test
 
       # - name: Set the date
       #   run: |
