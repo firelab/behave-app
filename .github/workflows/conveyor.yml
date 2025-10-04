@@ -1,43 +1,50 @@
 name: Conveyor Executables
 
 on:
-  workflow_dispatch:
-    inputs:
-      signed:
-        description: 'Sign Executables'
-        required: true
-        type: boolean
-        default: false
+  push
+  # workflow_dispatch:
+  #   inputs:
+  #     signed:
+  #       description: 'Sign Executables'
+  #       required: true
+  #       type: boolean
+  #       default: false
 
-      environment:
-        description: 'Environment'
-        required: true
-        default: 'dev'
-        type: choice
-        options:
-          - dev
-          - prod
+  #     environment:
+  #       description: 'Environment'
+  #       required: true
+  #       default: 'dev'
+  #       type: choice
+  #       options:
+  #         - dev
+  #         - prod
 
-      cache_key:
-        description: Optional cache key used to store the Conveyor installation and task cache.
-        type: string
-        required: false
-        default: 'conveyor'
+  #     cache_key:
+  #       description: Optional cache key used to store the Conveyor installation and task cache.
+  #       type: string
+  #       required: false
+  #       default: 'conveyor'
 
-      cache_path:
-        description: Optional path to the location where Conveyor will be installed and keep the task cache.
-        type: string
-        required: false
-        default: '.conveyor'
+  #     cache_path:
+  #       description: Optional path to the location where Conveyor will be installed and keep the task cache.
+  #       type: string
+  #       required: false
+  #       default: '.conveyor'
 
-      conveyor_version:
-        description: Version of Conveyor to run.
-        type: string
-        required: false
-        default: '20.0'
+  #     conveyor_version:
+  #       description: Version of Conveyor to run.
+  #       type: string
+  #       required: false
+  #       default: '20.0'
 
 env:
   CONVEYOR_AGREE_TO_LICENSE: 1
+  environment: "dev"
+  cache_path: ".conveyor"
+  cache_key: "conveyor"
+  sign_executables: false
+  conveyor_version: "20.0"
+  
 
 jobs:
   build:
@@ -47,26 +54,26 @@ jobs:
         id: check_cache
         shell: bash
         run: |
-          [ -d "${{ inputs.cache_path }}" ] && FOUND=true || FOUND=false
+          [ -d "${{ env.cache_path }}" ] && FOUND=true || FOUND=false
           echo "found=$FOUND" >> "$GITHUB_OUTPUT"
 
       - name: Load cache
         if: ${{ steps.check_cache.outputs.found != 'true' }}
         uses: actions/cache@v4
         with:
-          key: ${{ inputs.cache_key }}-${{ github.run_id }}
-          path: ${{ inputs.cache_path }}
-          restore-keys: ${{ inputs.cache_key }}
+          key: ${{ env.cache_key }}-${{ github.run_id }}
+          path: ${{ env.cache_path }}
+          restore-keys: ${{ env.cache_key }}
 
       - name: Setup Conveyor
         shell: bash
         run: |
-          if [ ! -d "${{ inputs.cache_path }}/install/conveyor-${{ inputs.conveyor_version }}" ]; then
-            wget https://downloads.hydraulic.dev/conveyor/conveyor-${{ inputs.conveyor_version }}-linux-amd64.tar.gz
-            mkdir -p ${{ inputs.cache_path }}/install
-            tar xzvf conveyor-${{ inputs.conveyor_version }}-linux-amd64.tar.gz -C ${{ inputs.cache_path }}/install
+          if [ ! -d "${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}" ]; then
+            wget https://downloads.hydraulic.dev/conveyor/conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz
+            mkdir -p ${{ env.cache_path }}/install
+            tar xzvf conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz -C ${{ env.cache_path }}/install
           fi
-          PATH="$PATH:${{ inputs.cache_path }}/install/conveyor-${{ inputs.conveyor_version }}/bin"
+          PATH="$PATH:${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin"
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -103,7 +110,7 @@ jobs:
           echo "release=$RELEASE" >> "$GITHUB_ENV"
 
       - name: Download VMS [DEV]
-        if: ${{ inputs.environment == 'dev' }}
+        if: ${{ env.environment == 'dev' }}
         env:
           VMS_URL: ${{ secrets.DEV_VMS_URL }}
           VMS_AUTH_TOKEN: ${{ secrets.DEV_VMS_SECRET_TOKEN }}
@@ -112,7 +119,7 @@ jobs:
           clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
 
       - name: Download VMS [PROD]
-        if: ${{ inputs.environment == 'prod' }}
+        if: ${{ env.environment == 'prod' }}
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
           VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
