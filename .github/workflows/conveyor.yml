@@ -81,6 +81,7 @@ jobs:
             mkdir -p ${{ env.cache_path }}/install
             tar xzvf conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz -C ${{ env.cache_path }}/install
           fi
+          ln -s ${{ env.cache_path }}/install/conveyor-${{env.conveyor_version }}/bin/conveyor $HOME/.local/bin/conveyor
 
       - name: Checkout code
         uses: actions/checkout@v3
