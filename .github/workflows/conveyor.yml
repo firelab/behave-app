@@ -81,8 +81,14 @@ jobs:
             mkdir -p ${{ env.cache_path }}/install
             tar xzvf conveyor-${{ env.conveyor_version }}-linux-amd64.tar.gz -C ${{ env.cache_path }}/install
           fi
+          echo "What is inside '${{env.cache_path}}/install/conveyor-${{env.conveyor_version}}/bin':"
           ls ${{env.cache_path}}/install/conveyor-${{env.conveyor_version}}/bin
-          ln -s ${{ env.cache_path }}/install/conveyor-${{env.conveyor_version }}/bin/conveyor /home/runner/.local/bin/
+          echo "HOME: $HOME"
+          echo "GH Workspace: ${{ github.workspace }}"
+          mkdir -p $HOME/.local/bin
+          ln -s ${{ env.cache_path }}/install/conveyor-${{env.conveyor_version }}/bin/conveyor $HOME/.local/bin/
+          echo '$HOME/.local/bin'
+          ls $HOME/.local/bin
 
       - name: Checkout code
         uses: actions/checkout@v3
