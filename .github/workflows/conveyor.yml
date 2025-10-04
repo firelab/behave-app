@@ -118,6 +118,9 @@ jobs:
         id: check_shell
         shell: bash
         run: |
+          ls $HOME/.local/bin
+          which conveyor
+          echo "Conveyor Version: $(./$HOME/.local/bin/conveyor --version)"
           export PATH="$PATH:${{ env.cache_path }}/install/conveyor-${{ env.conveyor_version }}/bin"
           bb '(System/getenv "SHELL")'
           bb path-test
