@@ -1,46 +1,56 @@
 {:tasks 
- {:requires  ([clojure.string :as str]
-              [babashka.fs :as fs])
-  -project   "cljweb-behave"
-  reload     (shell "systemctl --user daemon-reload")
-  status     {:depends [-project]
-              :task (shell (format "systemctl --user status %s" -project))}
-  start      {:depends [-project]
-              :task (shell (format "systemctl --user start %s" -project))}
-  stop       {:depends [-project]
-              :task (shell (format "systemctl --user stop %s" -project))}
-  build-js   (clojure "-M:compile-cljs")
-  uber       (clojure "-X:build-uberjar")
-  pull       (do
-               (shell "git pull")
-               (shell "git submodule init")
-               (shell "git submodule update")
-               (shell "git submodule status"))
-  restart    (do
-               (run 'stop)
-               (run 'start))
-  deploy     (do
-               (run 'stop)
-               (run 'pull)
-               (run 'build-js)
-               ;; (run 'uber)
-               (run 'start))
+ {:requires     ([clojure.string :as str]
+                 [babashka.fs :as fs])
+  -project      "cljweb-behave"
+  reload        (shell "systemctl --user daemon-reload")
+  status        {:depends [-project]
+                 :task (shell (format "systemctl --user status %s" -project))}
+  start         {:depends [-project]
+                 :task (shell (format "systemctl --user start %s" -project))}
+  stop          {:depends [-project]
+                 :task (shell (format "systemctl --user stop %s" -project))}
+  build-js      (clojure "-M:compile-cljs")
+  uber          (clojure "-X:build-uberjar")
+  pull          (do
+                  (shell "git pull")
+                  (shell "git submodule init")
+                  (shell "git submodule update")
+                  (shell "git submodule status"))
+  restart       (do
+                  (run 'stop)
+                  (run 'start))
+  deploy        (do
+                  (run 'stop)
+                  (run 'pull)
+                  (run 'build-js)
+                  ;; (run 'uber)
+                  (run 'start))
 
-  rename-jar (fs/move (first (fs/glob "./target" "behave7-*.jar")) "target/behave7.jar")
+  rename-jar    (fs/move (first (fs/glob "./target" "behave7-*.jar")) "target/behave7.jar")
 
-  paths      (let [classpath (with-out-str (clojure "-A:server -Spath"))]
-               (->> (str/split classpath (re-pattern ":"))
-                    (filter (fn [p] (str/ends-with? p "jar")))
-                    (map (fn [p] (format "app.inputs += \"%s\"" p)))
-                    (str/join "\n")
-                    (spit "classpath.conf")))
+  paths         (let [classpath (with-out-str (clojure "-A:server -Spath"))]
+                  (->> (str/split classpath (re-pattern ":"))
+                       (filter (fn [p] (str/ends-with? p "jar")))
+                       (map (fn [p] (format "app.inputs += \"%s\"" p)))
+                       (str/join "\n")
+                       (spit "classpath.conf")))
 
-  conveyor   (do
-               (when (fs/exists? "target/behave7.jar")
-                 (fs/delete "target/behave7.jar"))
-               (run 'build-js)
-               (run 'uber)
-               (run 'rename-jar)
-               (shell "conveyor make app -o output/osx --overwrite")
-               (shell "conveyor make windows-zip -o output/windows --overwrite")
-               (shell "conveyor make debian-package -o output/deb --overwrite"))}}
+  conveyor      (do
+                  (when (fs/exists? "target/behave7.jar")
+                    (fs/delete "target/behave7.jar"))
+                  (run 'build-js)
+                  (run 'uber)
+                  (run 'rename-jar)
+                  (shell "conveyor make app -o output/osx --overwrite")
+                  (shell "conveyor make windows-zip -o output/windows --overwrite")
+                  (shell "conveyor make debian-package -o output/deb --overwrite"))
+
+  conveyor-sign (do
+                  (when (fs/exists? "target/behave7.jar")
+                    (fs/delete "target/behave7.jar"))
+                  (run 'build-js)
+                  (run 'uber)
+                  (run 'rename-jar)
+                  (shell "conveyor -f signed.conveyor.conf make app -o output/osx --overwrite")
+                  (shell "conveyor -f signed.conveyor.conf make windows-zip -o output/windows --overwrite")
+                  (shell "conveyor -f signed.conveyor.conf make debian-package -o output/deb --overwrite"))}}

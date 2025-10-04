@@ -43,13 +43,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Check cache
+        id: check_cache
+        shell: bash
+        run: |
+          [ -d "${{ inputs.cache_path }}" ] && FOUND=true || FOUND=false
+          echo "found=$FOUND" >> "$GITHUB_OUTPUT"
+
+      - name: Load cache
+        if: ${{ steps.check_cache.outputs.found != 'true' }}
+        uses: actions/cache@v4
+        with:
+          key: ${{ inputs.cache_key }}-${{ github.run_id }}
+          path: ${{ inputs.cache_path }}
+          restore-keys: ${{ inputs.cache_key }}
+
       - name: Setup Conveyor
         shell: bash
         run: |
           if [ ! -d "${{ inputs.cache_path }}/install/conveyor-${{ inputs.conveyor_version }}" ]; then
             wget https://downloads.hydraulic.dev/conveyor/conveyor-${{ inputs.conveyor_version }}-linux-amd64.tar.gz
             mkdir -p ${{ inputs.cache_path }}/install
-            tar xzvf conveyor-${{ inputs.conveyor_version }}-linux-amd64.tar.gz -C ${{ inputs.cache_path }}/install      
+            tar xzvf conveyor-${{ inputs.conveyor_version }}-linux-amd64.tar.gz -C ${{ inputs.cache_path }}/install
           fi
           PATH="$PATH:${{ inputs.cache_path }}/install/conveyor-${{ inputs.conveyor_version }}/bin"
 
@@ -115,5 +130,5 @@ jobs:
       - name: Upload Executables
         uses: actions/upload-artifact@v4
         with:
-          name: code-coverage-report
+          name: executables
           path: project/behave/output
