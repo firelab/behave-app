@@ -1324,6 +1324,10 @@ body {
   width: 40px;
 }
 
+.settings__general-units__units-system-selection {
+  padding: 10px;
+}
+
 .settings__body {
   overflow-x: scroll;
   overflow-y: scroll;

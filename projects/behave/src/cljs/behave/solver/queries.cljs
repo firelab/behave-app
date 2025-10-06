@@ -45,9 +45,9 @@
 (defn parsed-value [group-variable-uuid value]
   (let [kind (variable-kind group-variable-uuid)]
     (condp = kind
-      :discrete       (if (is-digit? value) (parse-int value) value)
-      :continuous     (parse-float value)
-      :text           value)))
+      :discrete   (if (is-digit? value) (parse-int value) value)
+      :continuous (parse-float value)
+      :text       value)))
 
 (defn fn-params
   "Given an Function entity id, return a sequence of parameter info.
@@ -71,17 +71,30 @@
       variable
       :bp/uuid))
 
-(defn variable-native-units-uuid
-  "Given a uuid for a group-variable return either the native-unit uuid from its associated domain
+(defn variable-units-uuid
+  "Given a uuid  and a keyword #{:native :english :metric} for a group-variable return either the native-unit uuid from its associated domain
   entity or from it's assocated variable entity."
-  [group-variable-uuid]
+  [group-variable-uuid units-system]
   (let [var-entity (variable group-variable-uuid)]
-    (or (-> var-entity
-            :variable/domain-uuid
-            uuid->entity
-            :domain/native-unit-uuid)
-        (-> var-entity
-            :variable/native-unit-uuid))))
+    (case units-system
+      :native  (or (-> var-entity
+                       :variable/domain-uuid
+                       uuid->entity
+                       :domain/native-unit-uuid)
+                   (-> var-entity
+                       :variable/native-unit-uuid))
+      :english (or (-> var-entity
+                       :variable/domain-uuid
+                       uuid->entity
+                       :domain/english-unit-uuid)
+                   (-> var-entity
+                       :variable/english-unit-uuid))
+      :metric  (or (-> var-entity
+                      :variable/domain-uuid
+                      uuid->entity
+                      :domain/metric-unit-uuid)
+                  (-> var-entity
+                      :variable/metric-unit-uuid)))))
 
 (defn unit-uuid->enum-value
   "Given a uuid to a unit entity return the enum value for that unit."
@@ -153,14 +166,14 @@
   "Given a prameter entity id return the uuid for it's associated group variable."
   [parameter-id]
   (let [param-uuid (->> parameter-id
-                       (d/entity @@vms-conn)
-                       :bp/uuid)]
+                        (d/entity @@vms-conn)
+                        :bp/uuid)]
     (d/q '[:find  ?gv-uuid .
            :in    $ ?p-uuid
            :where
            [?gv :group-variable/cpp-parameter ?p-uuid]
            [?gv :bp/uuid ?gv-uuid]]
-          @@vms-conn param-uuid)))
+         @@vms-conn param-uuid)))
 
 (defn class-to-group-variables
   "Given a class-name (i.e. SIGSurface), return a list of group-variable uuids that belong to that
@@ -174,7 +187,7 @@
           [?c :bp/uuid ?c-uuid]
           [?gv :group-variable/cpp-class ?c-uuid]
           [?gv :bp/uuid ?gv-uuid]]
-         @@vms-conn class-name)))
+        @@vms-conn class-name)))
 
 (defn class-to-subtool-variables
   "Given a class-name (i.e. SIGSlopeTool), return a list of subtool-variable uuids that belong to that
@@ -188,7 +201,7 @@
           [?c :bp/uuid ?c-uuid]
           [?sv :subtool-variable/cpp-class-uuid ?c-uuid]
           [?sv :bp/uuid ?sv-uuid]]
-         @@vms-conn class-name)))
+        @@vms-conn class-name)))
 
 (defn source-links
   "Given a colleciton of group-variable uuids return a map of the given uuids to it's associated `:link/destination`."

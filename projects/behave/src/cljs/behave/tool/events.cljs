@@ -54,7 +54,7 @@
                            subtool-uuid
                            :tool/outputs
                            variable-uuid
-                           :output/units-uuid]
+                           :output/units-uuid-uuid]
                           unit-uuid)}
      auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
 

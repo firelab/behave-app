@@ -94,7 +94,7 @@
             :input-group/repeat-id  repeat-id
             :input-group/inputs     [{:input/group-variable-uuid group-variable-uuid
                                       :input/value               value
-                                      :input/units               units}]}))))
+                                      :input/units-uuid          units}]}))))
 
 (deftest upsert-input-variable-with-non-existing-group-uuid-test
   (let [*worksheet                   (rf/subscribe [:worksheet fx/test-ws-uuid])
