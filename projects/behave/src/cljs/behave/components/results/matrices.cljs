@@ -6,6 +6,10 @@
             [goog.string :as gstring]
             [re-frame.core :refer [subscribe]]))
 
+;;==============================================================================
+;; Helpers
+;;==============================================================================
+
 (defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
   (let [[_ mmin mmax enabled?] (first (filter
                                        (fn [[gv-uuid]]
@@ -99,6 +103,10 @@
    {}
    matrix-data-raw))
 
+;;==============================================================================
+;; construct-result-matrices
+;;==============================================================================
+
 (defmulti construct-result-matrices
   "Constructs Result matrices based on how many multi-valued inputs there are"
   (fn [{:keys [multi-valued-inputs]}]
@@ -113,7 +121,7 @@
                         (count multi-valued-inputs))])
 
 (defmethod construct-result-matrices 0
-  [{:keys [ws-uuid process-map-units? output-entities formatters title]}]
+  [{:keys [ws-uuid process-map-units? output-entities formatters]}]
   (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units                 (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
@@ -307,6 +315,10 @@
           :formatters            formatters
           :table-setting-filters table-setting-filters}]])]))
 
+;;==============================================================================
+;; View for Result Matrices
+;;==============================================================================
+
 (defn result-matrices [ws-uuid]
   (let [directions                      @(subscribe [:worksheet/output-directions ws-uuid])
         map-units-settings-entity       @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -325,8 +337,7 @@
                                              (sort-by #(.indexOf gv-order %)))
         non-directional-output-gv-uuids (remove #(contains? directional-uuids %) all-output-gv-uuids)
         directional-gv-uuids            (filter #(contains? directional-uuids %) all-output-gv-uuids)
-        multi-valued-inputs             @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-        results-label                   @(<t (bp "results"))]
+        multi-valued-inputs             @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])]
     (when (seq all-output-gv-uuids)
       [:div.wizard-results
        (when (seq directional-gv-uuids)
@@ -351,7 +362,7 @@
                formatters      @(subscribe [:worksheet/result-table-formatters non-directional-output-gv-uuids])]
            [construct-result-matrices
             {:ws-uuid               ws-uuid
-             :title                 results-label
+             :title                 @(<t (bp "results"))
              :process-map-units?    (fn [v-uuid] (and map-units-enabled? (map-unit-convertible-variables v-uuid)))
              :multi-valued-inputs   multi-valued-inputs
              :output-gv-uuids       non-directional-output-gv-uuids
