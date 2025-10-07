@@ -1,9 +1,9 @@
 (ns behave.print.subs
-  (:require [behave.store           :as s]
-            [clojure.string         :as str]
-            [datascript.core        :as d]
-            [re-frame.core          :as rf]
-            [re-posh.core           :as rp]
+  (:require [behave.store :as s]
+            [clojure.string :as str]
+            [datascript.core :as d]
+            [re-frame.core :as rf]
+            [re-posh.core :as rp]
             [string-utils.interface :refer [split-commas-or-spaces]]))
 
 (rf/reg-sub
@@ -26,7 +26,7 @@
  (fn [[_ ws-uuid row-gv-uuid row-values output-gv-uuids]]
    (rf/subscribe [:query
                   '[:find ?i ?j ?value-j
-                    :in $ ?ws-uuid ?row-gv-uuid [?i ... ] [?j ...]
+                    :in $ ?ws-uuid ?row-gv-uuid [?i ...] [?j ...]
                     :where
                     [?w :worksheet/uuid ?ws-uuid]
                     [?w :worksheet/result-table ?rt]
@@ -56,10 +56,10 @@
 
 (rf/reg-sub
  :print/matrix-table-two-multi-valued-inputs
- (fn [_ [_ ws-uuid row-gv-uuid row-values col-gv-uuid col-values output-gv-uuid]]
+ (fn [_ [_ {:keys [ws-uuid row-gv-uuid row-values col-gv-uuid col-values output-gv-uuid]}]]
    (let [table-data (d/q
                      '[:find ?i ?j ?value
-                       :in $ ?ws-uuid ?row-gv-uuid [?i ... ] ?col-gv-uuid [?j ... ] ?output-gv-uuid
+                       :in $ ?ws-uuid ?row-gv-uuid [?i ...] ?col-gv-uuid [?j ...] ?output-gv-uuid
                        :where
                        [?w :worksheet/uuid ?ws-uuid]
                        [?w :worksheet/result-table ?rt]
@@ -94,10 +94,10 @@
 
 (rf/reg-sub
  :print/matrix-table-three-multi-valued-inputs
- (fn [_ [_ ws-uuid row-gv-uuid row-values col-gv-uuid col-values output-gv-uuid  submatrix-gv-uuid submatrix-value]]
+ (fn [_ [_ {:keys [ws-uuid row-gv-uuid row-values col-gv-uuid col-values output-gv-uuid submatrix-gv-uuid submatrix-value]}]]
    (let [table-data (d/q
                      '[:find ?i ?j ?value
-                       :in $ ?ws-uuid ?row-gv-uuid [?i ... ] ?col-gv-uuid [?j ... ] ?output-gv-uuid ?submatrix-gv-uuid ?submatrix-value
+                       :in $ ?ws-uuid ?row-gv-uuid [?i ...] ?col-gv-uuid [?j ...] ?output-gv-uuid ?submatrix-gv-uuid ?submatrix-value
                        :where
                        [?w :worksheet/uuid ?ws-uuid]
                        [?w :worksheet/result-table ?rt]
@@ -159,33 +159,3 @@
              ;;get value
              [?c :result-cell/value ?value]]
     :variables [ws-uuid gv-uuid]}))
-
-(comment
-  (require '[goog.string      :as gstring])
-
-  (def ws-uuid "64f9f2b9-d73d-4240-840e-439f4b3efa6b")
-
-  (rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-
-  (let [ws-uuid                                     "64f9f2b9-d73d-4240-840e-439f4b3efa6b"
-        multi-valued-inputs                         @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-        [row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
-        [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
-        output-uuids                                @(rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])]
-
-    #_(rf/subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
-                     row-gv-uuid
-                     (str/split row-values ",")
-                     col-gv-uuid
-                     (str/split col-values ",")
-                     (first output-uuids)])
-    row-gv-uuid
-    (str/split row-values ",")
-    col-gv-uuid
-    (str/split col-values ",")
-    (first output-uuids)
-    )
-
-  (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])
-
-  )
