@@ -1,11 +1,10 @@
 (ns behave.components.results.matrices
   (:require [behave.components.core  :as c]
-            [behave.units-conversion :refer [to-map-units]]
             [behave.translate        :refer [<t bp]]
+            [behave.units-conversion :refer [to-map-units]]
+            [clojure.string          :as str]
             [goog.string             :as gstring]
-            [re-frame.core           :refer [subscribe]]
-            [clojure.string :as str]
-            [re-frame.core :as rf]))
+            [re-frame.core           :refer [subscribe]]))
 
 (defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
   (let [[_ mmin mmax enabled?] (first (filter
@@ -144,7 +143,11 @@
                       :data           final-data})]))
 
 (defmethod construct-result-matrices 2
-  [{:keys [sub-title ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters]}]
+  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters
+           sub-title
+           submatrix-value
+           submatrix-gv-uuid]}]
+  (prn "construct Matrix")
   (let [graph-settings                              @(subscribe [:worksheet/graph-settings ws-uuid])
         x-axis-group-variable-uuid                  (:graph-settings/x-axis-group-variable-uuid graph-settings)
         z-axis-group-variable-uuid                  (:graph-settings/z-axis-group-variable-uuid graph-settings)
@@ -159,12 +162,21 @@
         map-rep-frac                                (:map-units-settings/map-rep-fraction map-units-settings-entity)
         input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])
         row-cols-to-shade-set                       (reduce (fn [acc {output-gv-uuid :bp/uuid}]
-                                                              (let [matrix-data-raw @(subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
-                                                                                                 row-gv-uuid
-                                                                                                 row-values
-                                                                                                 col-gv-uuid
-                                                                                                 col-values
-                                                                                                 output-gv-uuid])]
+                                                              (let [matrix-data-raw (if (and submatrix-value submatrix-gv-uuid)
+                                                                                      @(subscribe [:print/matrix-table-three-multi-valued-inputs ws-uuid
+                                                                                                   row-gv-uuid
+                                                                                                   row-values
+                                                                                                   col-gv-uuid
+                                                                                                   col-values
+                                                                                                   output-gv-uuid
+                                                                                                   submatrix-gv-uuid
+                                                                                                   submatrix-value])
+                                                                                      @(subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
+                                                                                                   row-gv-uuid
+                                                                                                   row-values
+                                                                                                   col-gv-uuid
+                                                                                                   col-values
+                                                                                                   output-gv-uuid]))]
                                                                 (into acc
                                                                       (reduce-kv
                                                                        (fn [acc [row col] value]
@@ -182,12 +194,21 @@
              output-fmt-fn   (get formatters output-gv-uuid identity)
              row-fmt-fn      (get input-formatters row-gv-uuid identity)
              col-fmt-fn      (get input-formatters col-gv-uuid identity)
-             matrix-data-raw @(subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
-                                          row-gv-uuid
-                                          row-values
-                                          col-gv-uuid
-                                          col-values
-                                          output-gv-uuid])
+             matrix-data-raw (if (and submatrix-value submatrix-gv-uuid)
+                               @(subscribe [:print/matrix-table-three-multi-valued-inputs ws-uuid
+                                            row-gv-uuid
+                                            row-values
+                                            col-gv-uuid
+                                            col-values
+                                            output-gv-uuid
+                                            submatrix-gv-uuid
+                                            submatrix-value])
+                               @(subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
+                                            row-gv-uuid
+                                            row-values
+                                            col-gv-uuid
+                                            col-values
+                                            output-gv-uuid]))
              output-values   (map second matrix-data-raw)]
          (when (not (every? #(= "-1" %) output-values))
            (let [matrix-data-formatted (reduce-kv
@@ -257,6 +278,8 @@
                                    (gstring/format "%s: %s"
                                                    var-name
                                                    @(subscribe [:vms/resolve-enum-translation gv-uuid value])))
+          :submatrix-value value
+          :submatrix-gv-uuid gv-uuid
           :process-map-units?    process-map-units?
           :multi-valued-inputs   rest-multi-valued-inputs
           :output-entities       output-entities
