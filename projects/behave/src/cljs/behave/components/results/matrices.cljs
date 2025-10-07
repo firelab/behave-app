@@ -222,10 +222,10 @@
         x-axis-gv-uuid                              (:graph-settings/x-axis-group-variable-uuid graph-settings)
         z-axis-gv-uuid                              (:graph-settings/z-axis-group-variable-uuid graph-settings)
         [row-name row-units row-gv-uuid row-values] (->> multi-valued-inputs
-                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid x-axis-gv-uuid)))
+                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid z-axis-gv-uuid)))
                                                          first)
         [col-name col-units col-gv-uuid col-values] (->> multi-valued-inputs
-                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid z-axis-gv-uuid)))
+                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid x-axis-gv-uuid)))
                                                          first)
         {:keys [units rep-fraction]}                (fetch-map-units-settings ws-uuid)
         input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])
