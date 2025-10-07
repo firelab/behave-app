@@ -147,7 +147,6 @@
            sub-title
            submatrix-value
            submatrix-gv-uuid]}]
-  (prn "construct Matrix")
   (let [graph-settings                              @(subscribe [:worksheet/graph-settings ws-uuid])
         x-axis-group-variable-uuid                  (:graph-settings/x-axis-group-variable-uuid graph-settings)
         z-axis-group-variable-uuid                  (:graph-settings/z-axis-group-variable-uuid graph-settings)
