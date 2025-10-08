@@ -1970,6 +1970,18 @@ p {
   background-color: var(--medblue-3);
 }
 
+.table__sub-title {
+  border: 1px solid var(--lightblue-5);
+  text-align: center;
+  color: var(--white);
+  background-color: var(--darkblue-2);
+}
+
+.table__title th,
+.table__sub-title th {
+  padding: 10px;
+}
+
 .table-cell {
   padding: 10px;
   border: 1px solid var(--lightblue-5);
