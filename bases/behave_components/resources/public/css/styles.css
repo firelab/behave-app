@@ -1977,6 +1977,11 @@ p {
   background-color: var(--darkblue-2);
 }
 
+.table__title th,
+.table__sub-title th {
+  padding: 10px;
+}
+
 .table-cell {
   padding: 10px;
   border: 1px solid var(--lightblue-5);
