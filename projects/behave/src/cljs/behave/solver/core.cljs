@@ -134,7 +134,7 @@
              *var-entity          (rf/subscribe [:vms/entity-from-uuid var-uuid])
              domain-uuid          (:variable/domain-uuid @*var-entity)
              *cached-unit         (rf/subscribe [:settings/cached-unit domain-uuid])
-             worksheet-units-uuid (rf/subscribe [:settings/cached-unit ws-uuid group-variable-uuid])
+             worksheet-units-uuid (rf/subscribe [:worksheet/output-unit-uuid ws-uuid group-variable-uuid])
              unit-uuid            (or @worksheet-units-uuid
                                       @*cached-unit
                                       (q/variable-units-uuid group-variable-uuid units-system)
