@@ -299,7 +299,7 @@
    (let [units-system-attr (case units-system
                              :english :domain/english-unit-uuid
                              :metric  :domain/metric-unit-uuid
-                             :variable/native-unit-uuid)]
+                             :domain/native-unit-uuid)]
      (into []
            (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
                   :in    $ $ws % ?ws-uuid ?units-system-attr
@@ -401,15 +401,9 @@
           variable-native-units
           worksheet-saved-units
           settings-cached-units
-          native-domain-units
-          english-domain-units
-          metric-domain-units] (map make-tree sub-results)]
+          all-domain-level-units] (map make-tree sub-results)]
      (->> (merge variable-native-units
-                 ;; native-domain-units
-                 (case (last sub-results)
-                   :english english-domain-units
-                   :metric  metric-domain-units
-                   native-domain-units)
+                 all-domain-level-units
                  settings-cached-units
                  worksheet-saved-units)
           (merge-with (comp vec concat) inputs)
