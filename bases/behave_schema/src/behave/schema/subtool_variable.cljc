@@ -12,6 +12,7 @@
 (s/def :subtool-variable/order              zero-pos?)
 (s/def :subtool-variable/translation-key    valid-key?)
 (s/def :subtool-variable/io                 valid-io?)
+(s/def :subtool-variable/dynamic-units? boolean?)
 
 (s/def :behave/subtool-variable (s/keys :req [:bp/uuid
                                               :subtool-variable/io

@@ -1,12 +1,12 @@
 (ns behave.tool.views
   (:require
    [behave.components.core :as c]
-   [behave.translate       :refer [<t bp]]
-   [dom-utils.interface    :refer [input-value]]
-   [map-utils.interface    :refer [index-by]]
+   [behave.translate :refer [<t bp]]
+   [dom-utils.interface :refer [input-value]]
+   [map-utils.interface :refer [index-by]]
    [number-utils.interface :refer [parse-float parse-int to-precision]]
-   [re-frame.core          :as rf]
-   [reagent.core           :as r]
+   [re-frame.core :as rf]
+   [reagent.core :as r]
    [string-utils.interface :refer [->kebab]]))
 
 (defn- unit-selector
@@ -31,7 +31,7 @@
 
 (defn unit-display
   "Displays the units for a continuous variable, and enables unit selection."
-  [domain-uuid *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid & [on-change-units]]
+  [domain-uuid *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid dynamic-units? & [on-change-units]]
   (let [domain            @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
         dimension         @(rf/subscribe [:vms/entity-from-uuid dimension-uuid])
         filtered-units    (set (:domain/filtered-unit-uuids domain))
@@ -56,7 +56,7 @@
                              (reset! show-selector? false))
         pre-selected-unit (or (get units-by-uuid *unit-uuid) default-unit)]
     [:div.wizard-input__units
-     (if (or (>= 1 (count units)) (nil? dimension))
+     (if (or (>= 1 (count units)) (nil? dimension) (not dynamic-units?))
        [:div.wizard-input__units__text
         (str @(<t (bp "units_used")) " " (:unit/short-code pre-selected-unit))]
        [unit-selector (:bp/uuid pre-selected-unit) units on-click])]))
@@ -126,6 +126,7 @@
          native-unit-uuid  :variable/native-unit-uuid
          english-unit-uuid :variable/english-unit-uuid
          metric-unit-uuid  :variable/metric-unit-uuid
+         dynamic-units?    :subtool-variable/dynamic-units?
          help-key          :subtool-variable/help-key} variable
         domain                                         @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
         unit-uuid                                      @(rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
@@ -153,6 +154,7 @@
       (or (:domain/native-unit-uuid domain) native-unit-uuid)
       (or (:domain/english-unit-uuid domain) english-unit-uuid)
       (or (:domain/metric-unit-uuid domain) metric-unit-uuid)
+      dynamic-units?
       #(rf/dispatch [:tool/update-input-units
                      tool-uuid
                      subtool-uuid
@@ -168,17 +170,17 @@
          help-key :subtool-variable/help-key
          v-list   :variable/list} variable
         selected                  @(rf/subscribe [:tool/input-value
-                                                  tool-uuid
-                                                  subtool-uuid
-                                                  sv-uuid])
+                                                tool-uuid
+                                                subtool-uuid
+                                                sv-uuid])
         options                   (:list/options v-list)
         default-option            (first (filter #(true? (:list-option/default %)) options))
         on-change                 #(rf/dispatch [:tool/upsert-input-value
-                                                 tool-uuid
-                                                 subtool-uuid
-                                                 sv-uuid
-                                                 (input-value %)
-                                                 auto-compute?])
+                                               tool-uuid
+                                               subtool-uuid
+                                               sv-uuid
+                                               (input-value %)
+                                               auto-compute?])
         num-options               (count options)
         ->option                  (fn [{value               :list-option/value
                                         t-key               :list-option/translation-key
@@ -233,6 +235,7 @@
          native-decimals   :variable/native-decimals
          english-unit-uuid :variable/english-unit-uuid
          metric-unit-uuid  :variable/metric-unit-uuid
+         dynamic-units?    :subtool-variable/dynamic-units?
          help-key          :subtool-variable/help-key} variable
         domain                                         @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
         output-value                                   @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
@@ -252,6 +255,7 @@
       (or (:domain/native-unit-uuid domain) native-unit-uuid)
       (or (:domain/english-unit-uuid domain) english-unit-uuid)
       (or (:domain/metric-unit-uuid domain) metric-unit-uuid)
+      dynamic-units?
       #(rf/dispatch [:tool/update-output-units
                      tool-uuid
                      subtool-uuid
