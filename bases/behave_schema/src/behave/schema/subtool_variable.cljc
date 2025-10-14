@@ -36,6 +36,11 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :subtool-variable/dynamic-units?
+    :db/doc         "Whether a subtool variable allow units change dropdown"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :subtool-variable/cpp-namespace-uuid
     :db/doc         "subtool variable's uuid ref to it's C++ namespace."
     :db/valueType   :db.type/string

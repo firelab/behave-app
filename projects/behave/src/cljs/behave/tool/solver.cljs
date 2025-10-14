@@ -59,9 +59,9 @@
 
 (defn- run-tool
   [{:keys [fns inputs outputs compute-fn]}]
-  (let [init-fn     (fns "init")
-        tool-obj    (init-fn)
-        units-system @(rf/subscribe [:settings/units-system])]
+  (let [init-fn      (fns "init")
+        tool-obj     (init-fn)
+        units-system @(rf/subscribe [:settings/tool-units-system])]
 
     ;; Set inputs
     (doseq [[sv-uuid variable] inputs]
@@ -81,7 +81,7 @@
                                         (q/variable-units-uuid output-uuid units-system))
                        units-enum   (q/unit-uuid->enum-value units-uuid)
                        output-value (apply-output-cpp-fn fns tool-obj output-uuid units-enum)]
-                   [output-uuid {:output/value      (format-intl-number "en-US" output-value 2)
+                   [output-uuid {:output/value           (format-intl-number "en-US" output-value 2)
                                  :output/units-uuid-uuid units-uuid}]))
                outputs))))
 
