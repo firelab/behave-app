@@ -128,7 +128,7 @@
     :domain-set/domains -1}])
 
 ;; ===========================================================================================================
-;; 4. Update Variable and Remove Old Attributes
+;; 4. Update Vapor Pressure Deficit variable and remove old attributes
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
