@@ -75,7 +75,8 @@
        (d/db conn)))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def vpd-output-eid (sm/t-key->eid conn "behaveplus:vapor-pressure-deficit:vapor-pressure-deficit:vapor-pressure-deficit"))
+(def vpd-output-eid
+  (sm/t-key->eid conn "behaveplus:vapor-pressure-deficit:vapor-pressure-deficit:vapor-pressure-deficit"))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def hectopascal-unit-eid
