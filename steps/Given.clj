@@ -12,7 +12,7 @@
    [:surface :mortality] "Surface and Mortality"
    [:mortality]          "Mortality Only"})
 
-(defn- select-independent-worksheet
+(defn- select-new-worksheet-in-guided
   [modules {:keys [driver url]}]
   (w/maximize driver)
 
@@ -20,17 +20,33 @@
     (w/execute-script! driver "window.location.href = window.location.href")
     (w/goto driver url))
 
+  ;; Wait for Working Area component to load
   (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (by/css ".card__header"))))
+    (.until wait (w/presence-of (by/css ".working-area"))))
 
-  ;; Select Standard Workflow
-  (-> (e/find-el driver (by/attr= :text "Standard Workflow"))
+  ;; Click New Run button
+  (-> (e/find-el driver (by/attr= :text "New Run"))
       (e/click!))
 
+  (Thread/sleep 500)
+
+  ;; Click Next button
   (-> (e/find-el driver (by/css ".button--highlight"))
       (e/click!))
 
-  (Thread/sleep 1000)
+  (Thread/sleep 500)
+
+  ;; Click "Open using Guided workflow" button
+  (-> (e/find-el driver (by/attr= :text "Open using Guided Workflow"))
+      (e/click!))
+
+  (Thread/sleep 500)
+
+  ;; Click Next button
+  (-> (e/find-el driver (by/css ".button--highlight"))
+      (e/click!))
+
+  (Thread/sleep 500)
   ;; Select Surface Only worksheet
   (-> (e/find-el driver (by/attr= :text (get worksheet-modules (or modules [:surface]))))
       (e/click!))
@@ -38,18 +54,19 @@
   (let [el (e/find-el driver (by/css ".button--highlight"))]
     (w/execute-script! driver "arguments[0].scrollIntoView(true)" el))
 
+  ;; Click Next button
   (-> (e/find-el driver (by/css ".button--highlight"))
       (e/click!))
 
   (w/execute-script! driver "window.scrollTo(0,0)")
   {:driver driver})
 
-(Given "I have started a Surface Worksheet" (partial select-independent-worksheet [:surface]))
+(Given "I have started a new Surface Worksheet in Guided Mode"
+       (partial  select-new-worksheet-in-guided  [:surface]))
 
-(Given "I have started a Surface & Crown Worksheet" (partial select-independent-worksheet [:surface :crown]))
+(Given "I have started a new Surface & Mortality Worksheet in Guided Mode"
+       (partial  select-new-worksheet-in-guided  [:surface :mortality]))
 
-(Given "I have started a Surface and Contain Worksheet" (partial select-independent-worksheet [:surface :contain]))
+;; (Given "I have started a new Surface & Crown Worksheet in Guided Mode" (partial  select-new-worksheet-in-guided  [:surface :crown]))
+;; (Given "I have started a new Surface & Contain Worksheet in Guided Mode" (partial  select-new-worksheet-in-guided  [:surface :contain]))
 
-(Given "I have started a Surface and Mortality Worksheet" (partial select-independent-worksheet [:surface :mortality]))
-
-(Given "I have started a Mortality Worksheet" (partial select-independent-worksheet [:mortality]))
