@@ -50,7 +50,7 @@
       ;; Quit Driver
       (when-not debug?
         (w/quit driver))
-      results)))
+      (:tegere.runner/outcome-summary-report results))))
 
 
 (comment

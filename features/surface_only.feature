@@ -6,15 +6,15 @@ As a user when I create a new worksheet and have Selected Surface Only in the Mo
     Given I have started a new Surface Worksheet in Guided Mode
     When I select these outputs Submodule > Group > Output:
       """
-      - Fire Behavior > Direction Mode > Heading
-      - Fire Behavior > Surface Fire > Rate of Spread
+      -- Fire Behavior > Direction Mode > Heading
+      -- Fire Behavior > Surface Fire > Rate of Spread
       """
     Then the following input Submodule > Groups are displayed:
       """
-      - Fuel Model > Standard > Fuel Model
-      - Fuel Moisture > Moisture Input Mode
-      - Wind and Slope > Wind and slope are
-      - Wind and Slope > Slope
+      -- Fuel Model > Standard > Fuel Model
+      -- Fuel Moisture > Moisture Input Mode
+      -- Wind and Slope > Wind and slope are
+      -- Wind and Slope > Slope
       """
 
       # - Wind and Slope > Wind measured at: @kenny this fails because Wind measured at: has a
@@ -24,11 +24,11 @@ As a user when I create a new worksheet and have Selected Surface Only in the Mo
     Given I have started a new Surface Worksheet in Guided Mode
     When I select these outputs Submodule > Group > Output:
       """
-      - Size > Surface - Fire Size > Fire Area
+      -- Size > Surface - Fire Size > Fire Area
       """
     Then the following input Submodule > Groups are displayed:
       """
-      - Size > Elapsed Time
+      -- Size > Elapsed Time
       """
 
   # Scenario: Length-to-Width Output Selected

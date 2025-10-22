@@ -6,11 +6,11 @@
    [cucumber.webdriver :as w]))
 
 (def ^:private worksheet-modules
-  {[:surface]            "Surface Only"
-   [:surface :contain]   "Surface and Contain"
-   [:surface :crown]     "Surface & Crown"
+  {[:surface] "Surface Only"
+   [:surface :contain] "Surface and Contain"
+   [:surface :crown] "Surface & Crown"
    [:surface :mortality] "Surface and Mortality"
-   [:mortality]          "Mortality Only"})
+   [:mortality] "Mortality Only"})
 
 (defn- select-new-worksheet-in-guided
   [modules {:keys [driver url]}]
@@ -62,11 +62,11 @@
   {:driver driver})
 
 (Given "I have started a new Surface Worksheet in Guided Mode"
-       (partial  select-new-worksheet-in-guided  [:surface]))
+       (partial select-new-worksheet-in-guided [:surface]))
 
 (Given "I have started a new Surface & Mortality Worksheet in Guided Mode"
-       (partial  select-new-worksheet-in-guided  [:surface :mortality]))
+       (partial select-new-worksheet-in-guided [:surface :mortality]))
 
-;; (Given "I have started a new Surface & Crown Worksheet in Guided Mode" (partial  select-new-worksheet-in-guided  [:surface :crown]))
-;; (Given "I have started a new Surface & Contain Worksheet in Guided Mode" (partial  select-new-worksheet-in-guided  [:surface :contain]))
+(Given "I have started a new Surface & Crown Worksheet in Guided Mode" (partial select-new-worksheet-in-guided [:surface :crown]))
+(Given "I have started a new Surface & Contain Worksheet in Guided Mode" (partial select-new-worksheet-in-guided [:surface :contain]))
 

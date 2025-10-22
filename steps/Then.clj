@@ -10,7 +10,7 @@
   [submodule-groups]
   (-> submodule-groups
       (str/replace "\"\"\"" "")
-      (str/split #"- ")
+      (str/split #"-- ")
       (->> (map str/trim)
            (remove empty?)
            (map #(str/split % #" > ")))))

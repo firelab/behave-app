@@ -1,4 +1,33 @@
-(ns user)
+(ns user
+  (:require [cucumber.runner :refer [run-cucumber-tests]]))
+
+(comment
+  ;; Headless mode (no visible browser)
+  (run-cucumber-tests
+   {:headless true
+    :browser  :chrome
+    :features "features"
+    :steps    "steps"
+    :url      "http://localhost:8081/worksheets"})
+
+  ;; Normal mode (visible browser)
+  (run-cucumber-tests
+   {:debug?   true
+    :features "features"
+    :steps    "steps"
+    :browser  :chrome
+    :url      "http://localhost:8081/worksheets"})
+
+
+
+  )
+
+#_(run-cucumber-tests {:debug?       true
+                     :features     "./../../features"
+                     :steps        "./../../steps"
+                     :browser      :chrome
+                     :browser-path "/usr/bin/google-chrome"
+                     :url          "http://localhost:8081/worksheets"})
 
 (comment
   (require '[behave.server :as server]
@@ -93,7 +122,7 @@
 
   (defn generate-snippet [title help-key body-as-hiccup]
     (let [body (if (empty? body-as-hiccup) nil body-as-hiccup)]
-      (insert-topic-doctype 
+      (insert-topic-doctype
        (xml/indent-str
         (xml/sexp-as-element
          [:topic {:id title}
@@ -133,14 +162,13 @@
        [:map
         (map gen-topic-ref dita-topics)]))))
 
-   (gen-ditamap [{:href   "Content/Modules/Modules.dita"
-                  :title  "Modules"
-                  :topics [{:href  "Content/Modules/Surface.dita"
-                            :title "Surface"}]}])
-
+  (gen-ditamap [{:href   "Content/Modules/Modules.dita"
+                 :title  "Modules"
+                 :topics [{:href  "Content/Modules/Surface.dita"
+                           :title "Surface"}]}])
 
   ;; Markdown to Hiccup
-  
+
   db
 
   ;; Generate DITA Project Layout
@@ -163,8 +191,6 @@
   ;;    - Mortality
   ;;      - Outputs
   ;;      - Inputs
-  
-
 
   module-help-pages
   (map #(let [submodule %]
@@ -206,19 +232,15 @@
                       [snippet-name help-key]))]
 
               (spit submodule-topic-file
-                (generate-topic
-                 (str/replace submodule #" " "_")
-                 submodule
-                 (->snake submodule)
-                 
-                 (concat 
-                  '([:h1 submodule])
-                  (map #(let [[snippet-name help-key] %
-                              ref                     (str "../../../../Resources/Snippets/Variables/" snippet-name ".dita#" )]
-                          [:p {:conref %}])))
-                 []
-                 [:h1 "Hello World"])
+                    (generate-topic
+                     (str/replace submodule #" " "_")
+                     submodule
+                     (->snake submodule)
 
-
-                )))))))
-  )
+                     (concat
+                      '([:h1 submodule])
+                      (map #(let [[snippet-name help-key] %
+                                  ref                     (str "../../../../Resources/Snippets/Variables/" snippet-name ".dita#")]
+                              [:p {:conref %}])))
+                     []
+                     [:h1 "Hello World"])))))))))
