@@ -2,18 +2,8 @@
   (:require [cucumber.runner :refer [run-cucumber-tests]]))
 
 (comment
-  ;; Headless mode (no visible browser)
   (run-cucumber-tests
-   {:debug? false
-    :headless true
-    :browser  :chrome
-    :features "features"
-    :steps    "steps"
-    :url      "http://localhost:8081/worksheets"})
-
-  ;; Normal mode (visible browser)
-  (run-cucumber-tests
-   {:debug?   true
+   {:debug?   false
     :features "features"
     :steps    "steps"
     :browser  :chrome

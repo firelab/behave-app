@@ -1,4 +1,4 @@
-Feature: Surface Only Worksheets
+Feature: Surface Only Output Selection Conditionals
   
 As a user when I create a new worksheet and have Selected Surface Only in the Module Selection Page and I've chosen certain outputs in the outputs page I expect certain inputs to be available to me in the inputs page.
 
