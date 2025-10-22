@@ -72,12 +72,12 @@
   (let [options (ChromeOptions.)]
     (when browser-path (.setBinary options browser-path))
     (.addArguments options (into-array
-                            ["start-maximized"
-                             "disable-infobars"
-                             "--disable-extensions"
-                             "--disable-gpu"
-                             "--disable-dev-shm-usage"
-                             "--no-sandbox"
+                            ["start-maximized"         ; // open Browser in maximized mode
+                             "disable-infobars"        ; // disabling infobars
+                             "--disable-extensions"    ; // disabling extensions
+                             "--disable-gpu"           ; // applicable to windows os only
+                             "--disable-dev-shm-usage" ; // overcome limited resource problems
+                             "--no-sandbox"            ; // Bypass OS security model
                              "--remote-debugging-port=9222"]))
     (System/setProperty "webdriver.chrome.driver" "/usr/local/bin/chromedriver")
     (ChromeDriver. options)))
