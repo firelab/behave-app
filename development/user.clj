@@ -4,7 +4,8 @@
 (comment
   ;; Headless mode (no visible browser)
   (run-cucumber-tests
-   {:headless true
+   {:debug? false
+    :headless true
     :browser  :chrome
     :features "features"
     :steps    "steps"
@@ -18,24 +19,16 @@
     :browser  :chrome
     :url      "http://localhost:8081/worksheets"})
 
-
-
   )
 
-#_(run-cucumber-tests {:debug?       true
-                     :features     "./../../features"
-                     :steps        "./../../steps"
-                     :browser      :chrome
-                     :browser-path "/usr/bin/google-chrome"
-                     :url          "http://localhost:8081/worksheets"})
-
 (comment
-  (require '[behave.server :as server]
-           '[behave.handlers :refer [vms-sync!]]
-           '[config.interface :refer [get-config load-config]])
+  (do
+    (require '[behave.server :as server]
+              '[behave.handlers :refer [vms-sync!]]
+              '[config.interface :refer [get-config load-config]])
 
-  (server/init-config!)
-  (server/init-db! (get-config :database :config))
+    (server/init-config!)
+    (server/init-db! (get-config :database :config)))
 
   (vms-sync!)
 

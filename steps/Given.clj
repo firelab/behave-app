@@ -20,41 +20,35 @@
     (w/execute-script! driver "window.location.href = window.location.href")
     (w/goto driver url))
 
-  ;; Wait for Working Area component to load
   (let [wait (w/wait driver 5000)]
     (.until wait (w/presence-of (by/css ".working-area"))))
 
-  ;; Click New Run button
   (-> (e/find-el driver (by/attr= :text "New Run"))
       (e/click!))
 
-  (Thread/sleep 500)
+  (Thread/sleep 100)
 
-  ;; Click Next button
   (-> (e/find-el driver (by/css ".button--highlight"))
       (e/click!))
 
-  (Thread/sleep 500)
+  (Thread/sleep 100)
 
-  ;; Click "Open using Guided workflow" button
   (-> (e/find-el driver (by/attr= :text "Open using Guided Workflow"))
       (e/click!))
 
-  (Thread/sleep 500)
+  (Thread/sleep 100)
 
-  ;; Click Next button
   (-> (e/find-el driver (by/css ".button--highlight"))
       (e/click!))
 
-  (Thread/sleep 500)
-  ;; Select Surface Only worksheet
+  (Thread/sleep 100)
+
   (-> (e/find-el driver (by/attr= :text (get worksheet-modules (or modules [:surface]))))
       (e/click!))
 
   (let [el (e/find-el driver (by/css ".button--highlight"))]
     (w/execute-script! driver "arguments[0].scrollIntoView(true)" el))
 
-  ;; Click Next button
   (-> (e/find-el driver (by/css ".button--highlight"))
       (e/click!))
 

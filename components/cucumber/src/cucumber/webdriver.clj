@@ -68,25 +68,17 @@
 
 (defn chrome-driver
   "Instatiate a Chrome WebDriver."
-  [{:keys [browser-path headless]}]
-  (let [options (ChromeOptions.)
-        args (if headless
-               ["--headless=new"
-                "--window-size=1920,1080"
-                "disable-infobars"
-                "--disable-extensions"
-                "--disable-gpu"
-                "--disable-dev-shm-usage"
-                "--no-sandbox"]
-               ["start-maximized"
-                "disable-infobars"
-                "--disable-extensions"
-                "--disable-gpu"
-                "--disable-dev-shm-usage"
-                "--no-sandbox"
-                "--remote-debugging-port=9222"])]
+  [{:keys [browser-path]}]
+  (let [options (ChromeOptions.)]
     (when browser-path (.setBinary options browser-path))
-    (.addArguments options (into-array args))
+    (.addArguments options (into-array
+                            ["start-maximized"
+                             "disable-infobars"
+                             "--disable-extensions"
+                             "--disable-gpu"
+                             "--disable-dev-shm-usage"
+                             "--no-sandbox"
+                             "--remote-debugging-port=9222"]))
     (System/setProperty "webdriver.chrome.driver" "/usr/local/bin/chromedriver")
     (ChromeDriver. options)))
 
