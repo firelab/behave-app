@@ -184,5 +184,5 @@
                    (when (not (:ws-uuid route-params)) (announcement-banner))
                    [:div#app]
                    (cljs-init init-params figwheel?)
-                   (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
+                   (include-js "/js/behave-min.js" "js/sqlite.js" "/js/katex.min.js" "/js/bodymovin.js")
                    (when figwheel? (include-js (find-app-js)))])})))
