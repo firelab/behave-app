@@ -1205,7 +1205,7 @@ ${val.stack}`;
       }
     }
     if (typeof module_or_path === "undefined") {
-      module_or_path = new URL("/js/sqlite.wasm", import.meta.url);
+      module_or_path = new URL("/js/sqlite.wasm");
     }
     const imports = __wbg_get_imports();
     if (typeof module_or_path === "string" || typeof Request === "function" && module_or_path instanceof Request || typeof URL === "function" && module_or_path instanceof URL) {
@@ -1216,4 +1216,5 @@ ${val.stack}`;
     return __wbg_finalize_init(instance, module);
   }
   var sqlite_default = __wbg_init;
+  window.sqlite = exports_sqlite;
 })();
