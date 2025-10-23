@@ -2,7 +2,7 @@ Feature: Surface Only Output Selection Conditionals
   
 As a user when I create a new worksheet and have Selected Surface Only in the Module Selection Page and I've chosen certain outputs in the outputs page I expect certain inputs to be available to me in the inputs page.
 
-  Scenario: Fire Behavior Output Selected
+  Scenario: Heading Rate of Spread is Selected
     Given I have started a new Surface Worksheet in Guided Mode
     When I select these outputs Submodule > Group > Output:
       """
@@ -20,11 +20,33 @@ As a user when I create a new worksheet and have Selected Surface Only in the Mo
       # - Wind and Slope > Wind measured at: @kenny this fails because Wind measured at: has a
       # - trailing space in the dom and (extract-submodule-groups) trims this.
       
-  Scenario: Size Submodule Outputs Selected
+  Scenario: Fire Area is Selected
     Given I have started a new Surface Worksheet in Guided Mode
     When I select these outputs Submodule > Group > Output:
       """
       -- Size > Surface - Fire Size > Fire Area
+      """
+    Then the following input Submodule > Groups are displayed:
+      """
+      -- Size > Elapsed Time
+      """
+      
+  Scenario: Fire Perimeter is Selected
+    Given I have started a new Surface Worksheet in Guided Mode
+    When I select these outputs Submodule > Group > Output:
+      """
+      -- Size > Surface - Fire Size > Fire Perimeter
+      """
+    Then the following input Submodule > Groups are displayed:
+      """
+      -- Size > Elapsed Time
+      """
+
+  Scenario: Spread Distance is Selected
+    Given I have started a new Surface Worksheet in Guided Mode
+    When I select these outputs Submodule > Group > Output:
+      """
+      -- Size > Surface - Fire Size > Spread Distance
       """
     Then the following input Submodule > Groups are displayed:
       """
