@@ -1,0 +1,289 @@
+(ns steps.helpers
+  "Shared utility functions for Cucumber step definitions.
+
+   This namespace provides reusable helper functions for common operations
+   in BDD tests including navigation, element selection, waiting, and parsing."
+  (:require [cucumber.by :as by]
+            [cucumber.element :as e]
+            [cucumber.webdriver :as w]
+            [clojure.string :as str]))
+
+;;; =============================================================================
+;;; Parsing Utilities
+;;; =============================================================================
+
+(defn parse-multiline-list
+  "Parse triple-quoted multiline list into vector of vectors.
+
+   Converts Gherkin multiline strings into structured data for processing.
+
+   Example:
+     Input:  \"\"\"
+             -- Fire Behavior > Direction Mode > Heading
+             -- Fire Behavior > Surface Fire > Rate of Spread
+             \"\"\"
+     Output: [[\"Fire Behavior\" \"Direction Mode\" \"Heading\"]
+              [\"Fire Behavior\" \"Surface Fire\" \"Rate of Spread\"]]"
+  [text]
+  (-> text
+      (str/replace "\"\"\"" "")
+      (str/split #"-- ")
+      (->> (map str/trim)
+           (remove empty?)
+           (map #(str/split % #" > ")))))
+
+;;; =============================================================================
+;;; Element Finding
+;;; =============================================================================
+
+(defn selector->by
+  "Convert a selector map to a Selenium By object.
+
+   This function provides the bridge between our map-based selector API
+   and Selenium's By objects for use in WebDriverWait conditions.
+
+   Selector Types:
+   - :id        - Find by element ID
+   - :css       - Find by CSS selector
+   - :xpath     - Find by XPath expression
+   - :tag       - Find by tag name
+   - :class     - Find by class name
+   - :text      - Find by exact text content
+   - :name      - Find by name attribute
+
+   Args:
+     selector - Map with a single selector key/value pair
+
+   Returns:
+     Selenium By object
+
+   Throws:
+     ExceptionInfo if selector type is unknown
+
+   Examples:
+     (selector->by {:id \"submit-button\"})      ; => By.id(\"submit-button\")
+     (selector->by {:css \".wizard-header\"})    ; => By.cssSelector(\".wizard-header\")
+     (selector->by {:text \"New Run\"})          ; => By with xpath for text
+     (selector->by {:tag :div})                  ; => By.tagName(\"div\")"
+  [selector]
+  (cond
+    (:id selector)    (by/id (:id selector))
+    (:css selector)   (by/css (:css selector))
+    (:xpath selector) (by/xpath (:xpath selector))
+    (:tag selector)   (by/tag-name (name (:tag selector)))
+    (:class selector) (by/class-name (:class selector))
+    (:text selector)  (by/attr= :text (:text selector))
+    (:name selector)  (by/input-name (:name selector))
+    :else             (throw (ex-info "Unknown selector type" {:selector selector}))))
+
+(defn find-element
+  "Find an element using various selector strategies.
+
+   This function provides a unified interface for finding elements using
+   different selector types. It delegates to selector->by for converting
+   the selector map to a Selenium By object.
+
+   Selector Types:
+   - :id        - Find by element ID
+   - :css       - Find by CSS selector
+   - :xpath     - Find by XPath expression
+   - :tag       - Find by tag name
+   - :class     - Find by class name
+   - :text      - Find by exact text content
+   - :name      - Find by name attribute
+
+   Args:
+     driver   - WebDriver instance
+     selector - Map with a single selector key/value pair
+
+   Returns:
+     WebElement if found
+
+   Throws:
+     NoSuchElementException if element not found
+     ExceptionInfo if selector type is unknown
+
+   Examples:
+     (find-element driver {:id \"submit-button\"})
+     (find-element driver {:css \".wizard-header\"})
+     (find-element driver {:xpath \"//button[text()='Next']\"})
+     (find-element driver {:tag :div})
+     (find-element driver {:class \"button--highlight\"})
+     (find-element driver {:text \"New Run\"})
+     (find-element driver {:name \"username\"})
+
+   See also:
+     selector->by - For converting selectors to Selenium By objects"
+  [driver selector]
+  (e/find-el driver (selector->by selector)))
+
+;;; =============================================================================
+;;; Navigation
+;;; =============================================================================
+
+(defn navigate-to-tab
+  "Navigate to a specific tab in the wizard interface.
+
+   Args:
+     driver   - WebDriver instance
+     tab-name - Name of the tab (e.g., \"Inputs\", \"Outputs\")"
+  [driver tab-name]
+  (-> (find-element driver {:css ".wizard-header__io-tabs"})
+      (e/find-el (by/attr= :text tab-name))
+      (e/click!)))
+
+(defn navigate-to-inputs
+  "Navigate to the Inputs tab in the wizard."
+  [driver]
+  (navigate-to-tab driver "Inputs"))
+
+(defn navigate-to-outputs
+  "Navigate to the Outputs tab in the wizard."
+  [driver]
+  (navigate-to-tab driver "Outputs"))
+
+;;; =============================================================================
+;;; Submodule Selection
+;;; =============================================================================
+
+(defn select-submodule
+  "Select a submodule within a given container.
+
+   Args:
+     driver    - WebDriver instance
+     submodule - Name of the submodule to select
+     selector  - Selector map (e.g., {:css \".wizard\"})"
+  [driver submodule selector]
+  (-> (find-element driver selector)
+      (e/find-el (by/attr= :text submodule))
+      (e/click!)))
+
+(defn select-submodule-in-wizard
+  "Select a submodule in the wizard header.
+
+   Used primarily in the Outputs tab for selecting submodules."
+  [driver submodule]
+  (select-submodule driver submodule {:css ".wizard-header__submodules"}))
+
+(defn select-submodule-in-page
+  "Select a submodule in the wizard page body.
+
+   Used primarily in the Inputs tab for selecting submodules."
+  [driver submodule]
+  (select-submodule driver submodule {:css ".wizard"}))
+
+;;; =============================================================================
+;;; Waiting Utilities
+;;; =============================================================================
+
+(defn wait-for-wizard
+  "Wait for the wizard interface to be present (up to 5 seconds)."
+  [driver]
+  (let [wait (w/wait driver 5000)]
+    (.until wait (w/presence-of (selector->by {:css ".wizard"})))))
+
+(defn wait-for-working-area
+  "Wait for the working area to be present (up to 5 seconds)."
+  [driver]
+  (let [wait (w/wait driver 5000)]
+    (.until wait (w/presence-of (selector->by {:css ".working-area"})))))
+
+(defn wait-for-nested-element
+  "Wait for a nested element to appear within a parent element.
+
+   Args:
+     driver          - WebDriver instance
+     parent-selector - Selector map for parent element (e.g., {:css \".wizard\"})
+     text            - Text content to search for in child element
+     timeout-ms      - Maximum wait time in milliseconds
+
+   Examples:
+     (wait-for-nested-element driver {:css \".wizard-group__header\"} \"Fire Behavior\" 300)"
+  [driver parent-selector text timeout-ms]
+  (let [wait (w/wait driver timeout-ms)]
+    (.until wait (w/presence-of-nested-elements
+                  (selector->by parent-selector)
+                  (selector->by {:text text})))))
+
+(defn wait-for-groups
+  "Wait for groups to appear as properly nested elements in hierarchical order.
+
+   This function verifies that groups form a parent-child chain in the DOM.
+   For example, if groups = [\"Fire Behavior\" \"Direction Mode\" \"Heading\"],
+   it ensures:
+   1. \"Fire Behavior\" exists under .wizard-page__body
+   2. \"Direction Mode\" is nested within \"Fire Behavior\"
+   3. \"Heading\" is nested within \"Direction Mode\"
+
+   Args:
+     driver - WebDriver instance
+     groups - Collection of group names in hierarchical order (parent to child)
+
+   Example:
+     (wait-for-groups driver [\"parent-a\" \"parent-b\" \"parent-c\" \"last-child\"])"
+  [driver groups]
+  (when (seq groups)
+    (wait-for-nested-element driver
+                             {:css ".wizard-page__body"}
+                             (first groups)
+                             300)
+    (doseq [[parent child] (partition 2 1 groups)]
+      (let [wait (w/wait driver 300)]
+        (.until wait (w/presence-of-nested-elements
+                      (selector->by {:text parent})
+                      (selector->by {:text child})))))))
+
+;;; =============================================================================
+;;; Output Selection
+;;; =============================================================================
+
+(defn select-output
+  "Select an output in the wizard outputs section.
+
+   Args:
+     driver - WebDriver instance
+     output - Name of the output to select"
+  [driver output]
+  (-> (find-element driver {:css ".wizard-group__outputs"})
+      (find-element {:text output})
+      (e/click!)))
+
+;;; =============================================================================
+;;; Button Operations
+;;; =============================================================================
+
+(defn click-highlighted-button
+  "Click the highlighted button in the current view.
+
+   This is typically the primary action button (e.g., Next, Finish)."
+  [driver]
+  (-> (find-element driver {:css ".button--highlight"})
+      (e/click!)))
+
+(defn click-button-with-text
+  "Click a button with specific text content.
+
+   Args:
+     driver - WebDriver instance
+     text   - Text content of the button to click"
+  [driver text]
+  (-> (find-element driver {:text text})
+      (e/click!)))
+
+;;; =============================================================================
+;;; Scrolling
+;;; =============================================================================
+
+(defn scroll-to-element
+  "Scroll the page so that the given element is visible.
+
+   Args:
+     driver  - WebDriver instance
+     element - WebElement to scroll to"
+  [driver element]
+  (w/execute-script! driver "arguments[0].scrollIntoView(true)" element))
+
+(defn scroll-to-top
+  "Scroll the page to the top."
+  [driver]
+  (w/execute-script! driver "window.scrollTo(0,0)"))
