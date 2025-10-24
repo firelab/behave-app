@@ -3,7 +3,8 @@
 
    This namespace handles selecting outputs in the worksheet wizard,
    including navigating submodules, waiting for groups, and clicking outputs."
-  (:require [steps.helpers :as h]))
+  (:require [steps.helpers :as h]
+            [cucumber.element :as e]))
 
 ;;; =============================================================================
 ;;; Private Helper Functions
@@ -43,7 +44,7 @@
 
    Args:
      context      - Map containing :driver key with WebDriver instance
-     outputs-text - Multiline string in format:
+     paths-text - Multiline string in format:
                     \"\"\"
                     -- Submodule > Group > Output
                     -- Submodule > Group > Output
@@ -58,9 +59,50 @@
                      -- Fire Behavior > Direction Mode > Heading
                      -- Fire Behavior > Surface Fire > Rate of Spread
                      \"\"\")"
-  [{:keys [driver]} outputs-text]
+  [{:keys [driver]} paths-text]
   (h/wait-for-wizard driver)
-  (let [outputs (h/parse-multiline-list outputs-text)]
+  (let [outputs (h/parse-multiline-list paths-text)]
     (doseq [output outputs]
       (select-single-output driver output))
+    {:driver driver}))
+
+(defn verify-outputs-not-selected
+  "Verify that specified outputs are NOT currently selected.
+
+   This function checks that each output in the list is not checked/selected.
+   If any output is found to be selected, it throws an assertion error.
+
+   Args:
+     context      - Map containing :driver key with WebDriver instance
+     paths-text - Multiline string in format:
+                    \"\"\"
+                    -- Submodule > Group > Output
+                    -- Submodule > Group > Output
+                    \"\"\"
+
+   Returns:
+     Map with :driver key for passing to next step
+
+   Throws:
+     ExceptionInfo if any output is found to be selected
+
+   Example:
+     (verify-outputs-not-selected {:driver driver}
+                                   \"\"\"
+                                   -- Fire Behavior > Direction Mode > Heading
+                                   -- Fire Behavior > Surface Fire > Rate of Spread
+                                   \"\"\")"
+  [{:keys [driver]} paths-text]
+  (h/wait-for-wizard driver)
+  (let [parsed-paths (h/parse-multiline-list paths-text)]
+    (doseq [path parsed-paths]
+      (let [[submodule & groups] path
+            output-name          (last path)
+            last-group           (h/navigate-to-group driver path)
+            is-checked?          (h/output-checked? last-group)]
+        (when is-checked?
+          (throw (ex-info (str "Output should NOT be selected but was: " output-name)
+                          {:output    output-name
+                           :submodule submodule
+                           :groups    groups})))))
     {:driver driver}))

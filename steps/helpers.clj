@@ -118,31 +118,6 @@
   (e/find-el driver (selector->by selector)))
 
 ;;; =============================================================================
-;;; Navigation
-;;; =============================================================================
-
-(defn navigate-to-tab
-  "Navigate to a specific tab in the wizard interface.
-
-   Args:
-     driver   - WebDriver instance
-     tab-name - Name of the tab (e.g., \"Inputs\", \"Outputs\")"
-  [driver tab-name]
-  (-> (find-element driver {:css ".wizard-header__io-tabs"})
-      (e/find-el (by/attr= :text tab-name))
-      (e/click!)))
-
-(defn navigate-to-inputs
-  "Navigate to the Inputs tab in the wizard."
-  [driver]
-  (navigate-to-tab driver "Inputs"))
-
-(defn navigate-to-outputs
-  "Navigate to the Outputs tab in the wizard."
-  [driver]
-  (navigate-to-tab driver "Outputs"))
-
-;;; =============================================================================
 ;;; Submodule Selection
 ;;; =============================================================================
 
@@ -271,6 +246,53 @@
       (e/click!)))
 
 ;;; =============================================================================
+;;; Checkbox Utilities
+;;; =============================================================================
+
+(defn output-checked?
+  "Check if an output checkbox is checked by looking for 'input-checkbox--checked' class on parent elements.
+
+   This function takes an element and walks up the DOM tree checking parent divs
+   for the 'input-checkbox--checked' class. It stops when it finds the class,
+   reaches a .wizard-output parent, or runs out of parents.
+
+   Args:
+     element - WebElement to start checking from
+
+   Returns:
+     Boolean - true if checked (class found), false otherwise
+
+   Example:
+     (let [output-elem (h/find-element driver {:text \"Rate of Spread\"})]
+       (h/output-checked? output-elem))
+     ; => true if the Rate of Spread output is checked"
+  [element]
+  (try
+    (loop [current-element element
+           iterations 0]
+      (if (and current-element (< iterations 20))  ; Safety limit
+        (let [class-attr (.getAttribute current-element "class")
+              classes    (when class-attr (str/split class-attr #"\s+"))]
+          (cond
+            ;; Found the checked class
+            (some #(= "input-checkbox--checked" %) classes)
+            true
+
+            ;; Reached the wizard-output boundary
+            (some #(= "wizard-output" %) classes)
+            false
+
+            ;; Keep walking up
+            :else
+            (let [parent (try
+                           (e/find-el current-element (by/xpath ".."))
+                           (catch Exception _ nil))]
+              (recur parent (inc iterations)))))
+        false))
+    (catch Exception _
+      false)))
+
+;;; =============================================================================
 ;;; Scrolling
 ;;; =============================================================================
 
@@ -287,3 +309,65 @@
   "Scroll the page to the top."
   [driver]
   (w/execute-script! driver "window.scrollTo(0,0)"))
+
+;;; =============================================================================
+;;; Navigation
+;;; =============================================================================
+
+(defn navigate-to-tab
+  "Navigate to a specific tab in the wizard interface.
+
+   Args:
+     driver   - WebDriver instance
+     tab-name - Name of the tab (e.g., \"Inputs\", \"Outputs\")"
+  [driver tab-name]
+  (-> (find-element driver {:css ".wizard-header__io-tabs"})
+      (e/find-el (by/attr= :text tab-name))
+      (e/click!)))
+
+(defn navigate-to-inputs
+  "Navigate to the Inputs tab in the wizard."
+  [driver]
+  (navigate-to-tab driver "Inputs"))
+
+(defn navigate-to-outputs
+  "Navigate to the Outputs tab in the wizard."
+  [driver]
+  (navigate-to-tab driver "Outputs"))
+
+(defn navigate-to-group
+  "Navigate through submodule and groups in Outputs wizard, returning driver and last group element.
+
+   This helper navigates to a specific group by:
+   1. Selecting the submodule in the wizard header
+   2. Waiting for all groups in the hierarchy to appear
+   3. Finding and returning the last group element
+
+   Args:
+     driver             - WebDriver instance
+     submodule+groups   - Collection where:
+                         - First element is the submodule name
+                         - Remaining elements are group names in hierarchical order
+                         Example: [\"Fire Behavior\" \"Direction Mode\"]
+
+   Returns:
+     Map with:
+       :driver        - The WebDriver instance
+       :group-element - The DOM element of the last group
+
+   Example:
+     (navigate-to-group driver [\"Fire Behavior\" \"Direction Mode\"])
+     ; => {:driver driver, :group-element <WebElement for Direction Mode>}
+
+     ;; Use in a step definition:
+     (let [{:keys [driver group-element]} (navigate-to-group driver [\"Fire Behavior\" \"Direction Mode\"])]
+       (e/find-el group-element (by/css \".some-class\")))"
+  [driver submodule+groups]
+  (let [[submodule & groups] submodule+groups]
+    (select-submodule-in-wizard driver submodule)
+    (if (seq groups)
+      (do (wait-for-groups driver groups)
+          (let [last-group-name (last groups)]
+            (find-element driver {:text last-group-name})))
+      (find-element driver {:text submodule}))))
+

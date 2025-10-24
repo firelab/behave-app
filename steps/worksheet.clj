@@ -3,9 +3,7 @@
 
    This namespace handles the creation of new worksheets in guided mode,
    including navigating through the workflow wizard and selecting module types."
-  (:require [cucumber.by :as by]
-            [cucumber.element :as e]
-            [cucumber.webdriver :as w]
+  (:require [cucumber.webdriver :as w]
             [steps.helpers :as h]))
 
 ;;; =============================================================================
@@ -80,10 +78,10 @@
   (h/click-button-with-text driver (get worksheet-modules modules))
 
   ;; Scroll to the next button and click it
-  (let [el (h/find-element driver {:css ".button--highlight"})]
+  (let [el (h/find-element driver {:text "Next"})]
     (h/scroll-to-element driver el))
 
-  (h/click-highlighted-button driver)
+  (h/click-button-with-text driver "Next")
   (h/scroll-to-top driver)
 
   {:driver driver})

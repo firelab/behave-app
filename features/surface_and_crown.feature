@@ -2,7 +2,7 @@ Feature: Surface and Crown Worksheets
 
   Scenario: Probability of Ignition Output Selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When I select these outputs Submodule > Group > Output:
+    When these outputs are selected Submodule > Group > Output:
     """
     -- Fire Behavior > Ignition > Probability of Ignition
     """

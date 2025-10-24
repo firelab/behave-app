@@ -3,19 +3,17 @@
 
 (comment
   (run-cucumber-tests
-   {:debug?   false
+   {:debug? false
     :features "features"
-    :steps    "steps"
-    :browser  :chrome
-    :url      "http://localhost:8081/worksheets"})
-
-  )
+    :steps "steps"
+    :browser :chrome
+    :url "http://localhost:8081/worksheets"}))
 
 (comment
   (do
     (require '[behave.server :as server]
-              '[behave.handlers :refer [vms-sync!]]
-              '[config.interface :refer [get-config load-config]])
+             '[behave.handlers :refer [vms-sync!]]
+             '[config.interface :refer [get-config load-config]])
 
     (server/init-config!)
     (server/init-db! (get-config :database :config)))
@@ -92,11 +90,11 @@
 
   (def module-help-pages (map (partial get-module-help-pages db) modules))
 
-  (def DOCTYPES {:map   "<!DOCTYPE map PUBLIC \"-//OASIS//DTD DITA Map//EN\" \"map.dtd\">"
+  (def DOCTYPES {:map "<!DOCTYPE map PUBLIC \"-//OASIS//DTD DITA Map//EN\" \"map.dtd\">"
                  :topic "<!DOCTYPE topic PUBLIC \"-//OASIS//DTD DITA Topic//EN\" \"topic.dtd\">"})
 
   (defn insert-doctype [doctype xml]
-    (let [lines  (str/split-lines xml)
+    (let [lines (str/split-lines xml)
           result (concat (take 1 lines) [(get DOCTYPES doctype)] (drop 1 lines))]
       (str/join "\n" result)))
 
@@ -145,9 +143,9 @@
        [:map
         (map gen-topic-ref dita-topics)]))))
 
-  (gen-ditamap [{:href   "Content/Modules/Modules.dita"
-                 :title  "Modules"
-                 :topics [{:href  "Content/Modules/Surface.dita"
+  (gen-ditamap [{:href "Content/Modules/Modules.dita"
+                 :title "Modules"
+                 :topics [{:href "Content/Modules/Surface.dita"
                            :title "Surface"}]}])
 
   ;; Markdown to Hiccup
@@ -223,7 +221,31 @@
                      (concat
                       '([:h1 submodule])
                       (map #(let [[snippet-name help-key] %
-                                  ref                     (str "../../../../Resources/Snippets/Variables/" snippet-name ".dita#")]
+                                  ref (str "../../../../Resources/Snippets/Variables/" snippet-name ".dita#")]
                               [:p {:conref %}])))
                      []
                      [:h1 "Hello World"])))))))))
+
+;; ===========================================================================================================
+;; Test Matrix Generator
+;; ===========================================================================================================
+;; Generate comprehensive test matrix report for all :group/conditionals in the schema
+;; This helps identify which conditionals need Cucumber tests
+
+(comment
+  ;; Initialize CMS database first
+  (require '[behave-cms.server :as cms])
+  (cms/init-db!)
+
+  ;; Load test matrix generator
+  (require '[test-matrix-generator :as tmg] :reload)
+
+  ;; Print quick summary
+  (tmg/print-summary)
+
+  ;; Generate full test matrix report (Markdown + EDN)
+  ;; Creates: development/test_matrix_report.md and development/test_matrix_data.edn
+  (tmg/generate-test-matrix!)
+
+  ;; Generate with custom paths
+  (tmg/generate-test-matrix! "custom-report.md" "custom-data.edn"))

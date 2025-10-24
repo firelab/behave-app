@@ -2,7 +2,7 @@ Feature: Surface Only Output Selection Conditionals
 
   Scenario: Heading Rate of Spread is Selected
     Given I have started a new Surface Worksheet in Guided Mode
-    When I select these outputs Submodule > Group > Output:
+    When these outputs are selected Submodule > Group > Output:
       """
       -- Fire Behavior > Direction Mode > Heading
       -- Fire Behavior > Surface Fire > Rate of Spread
@@ -20,7 +20,7 @@ Feature: Surface Only Output Selection Conditionals
 
   Scenario: Fire Area is Selected
     Given I have started a new Surface Worksheet in Guided Mode
-    When I select these outputs Submodule > Group > Output:
+    When these outputs are selected Submodule > Group > Output:
       """
       -- Size > Surface - Fire Size > Fire Area
       """
@@ -31,7 +31,7 @@ Feature: Surface Only Output Selection Conditionals
 
   Scenario: Fire Perimeter is Selected
     Given I have started a new Surface Worksheet in Guided Mode
-    When I select these outputs Submodule > Group > Output:
+    When these outputs are selected Submodule > Group > Output:
       """
       -- Size > Surface - Fire Size > Fire Perimeter
       """
@@ -42,13 +42,42 @@ Feature: Surface Only Output Selection Conditionals
 
   Scenario: Spread Distance is Selected
     Given I have started a new Surface Worksheet in Guided Mode
-    When I select these outputs Submodule > Group > Output:
+    When these outputs are selected Submodule > Group > Output:
       """
       -- Size > Surface - Fire Size > Spread Distance
       """
     Then the following input Submodule > Groups are displayed:
       """
       -- Size > Elapsed Time
+      """
+
+  Scenario: Spot Submodule Should Appear
+    Given I have started a new Surface Worksheet in Guided Mode
+    When these outputs are selected Submodule > Group > Output:
+      """
+      -- Spot > Maximum Spotting Distance > Wind-Driven Surface Fire
+      """
+    And these outputs are NOT selected Submodule > Group > Output:
+      """
+      -- Fire Behavior > Direction Mode > Direction of Interest
+      -- Fire Behavior > Direction Mode > Heading
+      -- Fire Behavior > Direction Mode > Heading, Flanking, Backing
+      """
+
+    Then the following input Submodule > Groups are displayed:
+      """
+      -- Spot
+      """
+
+  Scenario: Spot Submodule Should Not Appear when Direction Mode Heading is Selected
+    Given I have started a new Surface Worksheet in Guided Mode
+    When these outputs are selected Submodule > Group > Output:
+      """
+      -- Fire Behavior > Direction Mode > Direction of Interest
+      """
+    Then the following input Submodule > Groups are NOT displayed:
+      """
+      -- Spot
       """
 
       # Scenario: Burning Pile is Selected
