@@ -19,11 +19,11 @@
    - [:surface :crown]     - Surface and crown fire modeling
    - [:surface :mortality] - Surface fire with tree mortality
    - [:mortality]          - Tree mortality only"
-  {[:surface]            "Surface Only"
-   [:surface :contain]   "Surface and Contain"
-   [:surface :crown]     "Surface & Crown"
+  {[:surface] "Surface Only"
+   [:surface :contain] "Surface and Contain"
+   [:surface :crown] "Surface & Crown"
    [:surface :mortality] "Surface and Mortality"
-   [:mortality]          "Mortality Only"})
+   [:mortality] "Mortality Only"})
 
 ;;; =============================================================================
 ;;; Worksheet Creation
@@ -36,10 +36,11 @@
    1. Maximizes the browser window
    2. Navigates to the application URL
    3. Waits for the working area to load
-   4. Clicks through the 'New Run' wizard
-   5. Selects 'Guided Workflow' mode
-   6. Selects the specified module type(s)
-   7. Completes the wizard
+   4. Dismisses any disclaimer popup
+   5. Clicks through the 'New Run' wizard
+   6. Selects 'Guided Workflow' mode
+   7. Selects the specified module type(s)
+   8. Completes the wizard
 
    Args:
      modules - Vector of module keywords (e.g., [:surface :crown])
@@ -57,6 +58,18 @@
   (w/goto driver url)
 
   (h/wait-for-working-area driver)
+
+  ;; Dismiss disclaimer popup if it appears
+  (try
+    (let [disclaimer-button (h/find-element driver {:text "I Understand"})]
+      (h/scroll-to-element driver disclaimer-button)
+      (Thread/sleep 200)
+      (.click disclaimer-button))
+    (catch Exception _
+      ;; No disclaimer present, continue
+      nil))
+
+  (Thread/sleep 300)
 
   ;; Click "New Run" button
   (h/click-button-with-text driver "New Run")

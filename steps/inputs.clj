@@ -54,9 +54,99 @@
       ;; This is good - the element doesn't exist as expected
       nil)))
 
+(defn- enter-single-input
+  "Enter a single input value or select a radio/dropdown/multi-select option.
+
+   Uses DOM inspection to detect multi-select components after navigation,
+   making the logic more robust and less dependent on path structure.
+
+   Args:
+     driver - WebDriver instance
+     path   - Vector of path elements, e.g.:
+              [\"Fuel Model\" \"Standard\" \"Fuel Model\" \"FB1/1 - Short grass (Static)\"]
+              [\"Fuel Moisture\" \"By Size Class\" \"1-h Fuel Moisture\" \"1\"]
+              [\"Fuel Moisture\" \"Moisture Input Mode\" \"Individual Size Class\"]
+
+   Flow:
+     1. Check if last element is a value (numeric or multi-value)
+     2. If value: Navigate to field group, enter value
+     3. If option: Navigate to option group, check DOM for multi-select
+        - If multi-select exists: Click 'Select More', then click option
+        - Otherwise: Click option directly (radio/dropdown)
+
+   Examples:
+     (enter-single-input driver [\"Fuel Model\" \"Standard\" \"Fuel Model\" \"FB1/1 - Short grass (Static)\"])
+     ; => Navigates to [\"Fuel Model\" \"Standard\" \"Fuel Model\"], detects multi-select, expands, clicks option
+
+     (enter-single-input driver [\"Fuel Moisture\" \"By Size Class\" \"1-h Fuel Moisture\" \"1\"])
+     ; => Navigates to [\"Fuel Moisture\" \"By Size Class\"], enters value \"1\" in field
+
+     (enter-single-input driver [\"Fuel Moisture\" \"Moisture Input Mode\" \"Individual Size Class\"])
+     ; => Navigates to [\"Fuel Moisture\" \"Moisture Input Mode\"], clicks radio option directly"
+  [driver path]
+  (let [last-element (last path)
+        is-value?    (h/numeric-or-multi-value? last-element)]
+    (if is-value?
+      ;; Case 1: Value input - navigate to field and enter value
+      (let [field-name      (nth path (- (count path) 2))
+            value           last-element
+            navigation-path (vec (drop-last 2 path))]
+        (h/navigate-to-group driver navigation-path)
+        (h/enter-text-value driver field-name value))
+      ;; Case 2: Option selection - navigate to group and click option
+      ;; Check DOM to determine if multi-select expansion is needed
+      (let [option-name     last-element
+            navigation-path (vec (drop-last path))]
+        (h/navigate-to-group driver navigation-path)
+        (if (h/multi-select-exists? driver)
+          ;; Multi-select: expand options first, then click
+          (do
+            (h/click-select-more-button driver)
+            (h/click-radio-or-dropdown-option driver option-name))
+          ;; Radio/dropdown: click directly
+          (h/click-radio-or-dropdown-option driver option-name))))))
+
 ;;; =============================================================================
 ;;; Public API
 ;;; =============================================================================
+
+(defn enter-inputs
+  "Enter input values and select options from a multiline Gherkin string.
+
+   This function handles two types of input operations:
+   1. Value entry: Enter numeric values into text input fields
+   2. Option selection: Select radio buttons or dropdown options
+
+   The function navigates to the Inputs tab, parses the multiline text,
+   and processes each input line by navigating through the submodule/group
+   hierarchy and either entering a value or selecting an option.
+
+   Args:
+     context     - Map containing :driver key with WebDriver instance
+     inputs-text - Multiline string in format:
+                   \"\"\"
+                   --- Submodule > Group > Input Name > Value
+                   --- Submodule > Group > Option Name
+                   \"\"\"
+                   Note: Uses '---' (three dashes) delimiter
+
+   Returns:
+     Map with :driver key for passing to next step
+
+   Examples:
+     (enter-inputs {:driver driver}
+                   \"\"\"
+                   --- Fuel Moisture > Moisture Input Mode > Individual Size Class
+                   --- Fuel Moisture > By Size Class > 1-h Fuel Moisture > 1
+                   --- Fuel Moisture > By Size Class > Live Woody Fuel Moisture > 5, 10, 15
+                   \"\"\")"
+  [{:keys [driver]} inputs-text]
+  (h/navigate-to-inputs driver)
+  (h/wait-for-wizard driver)
+  (let [inputs (h/parse-input-multiline-list inputs-text)]
+    (doseq [input inputs]
+      (enter-single-input driver input))
+    {:driver driver}))
 
 (defn verify-input-groups-are-displayed
   "Verify that expected input groups are displayed in the Inputs tab.

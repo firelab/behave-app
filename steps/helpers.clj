@@ -32,6 +32,50 @@
            (remove empty?)
            (map #(str/split % #" > ")))))
 
+(defn parse-input-multiline-list
+  "Parse triple-quoted multiline list for inputs into vector of vectors.
+
+   Similar to parse-multiline-list, but uses '---' (three dashes) as delimiter
+   instead of '--' (two dashes). This is specifically for input entry steps.
+
+   Example:
+     Input:  \"\"\"
+             --- Fuel Moisture > Moisture Input Mode > Individual Size Class
+             --- Fuel Moisture > By Size Class > 1-h Fuel Moisture > 1
+             \"\"\"
+     Output: [[\"Fuel Moisture\" \"Moisture Input Mode\" \"Individual Size Class\"]
+              [\"Fuel Moisture\" \"By Size Class\" \"1-h Fuel Moisture\" \"1\"]]"
+  [text]
+  (-> text
+      (str/replace "\"\"\"" "")
+      (str/split #"--- ")
+      (->> (map str/trim)
+           (remove empty?)
+           (map #(str/split % #" > ")))))
+
+(defn numeric-or-multi-value?
+  "Check if a string looks like a numeric value or comma-separated values.
+
+   Returns true if the string contains only digits, spaces, commas, decimal points,
+   and minus signs. This helps distinguish input values from field/option names.
+
+   Args:
+     s - String to check
+
+   Returns:
+     Boolean - true if it looks like a value to enter
+
+   Examples:
+     (numeric-or-multi-value? \"1\")         ; => true
+     (numeric-or-multi-value? \"3.14\")     ; => true
+     (numeric-or-multi-value? \"1, 2, 3\")  ; => true
+     (numeric-or-multi-value? \"10.5, 20\") ; => true
+     (numeric-or-multi-value? \"Individual Size Class\") ; => false"
+  [s]
+  (and (string? s)
+       (not (str/blank? s))
+       (re-matches #"^[0-9.,\s-]+$" (str/trim s))))
+
 ;;; =============================================================================
 ;;; Element Finding
 ;;; =============================================================================
@@ -67,14 +111,14 @@
      (selector->by {:tag :div})                  ; => By.tagName(\"div\")"
   [selector]
   (cond
-    (:id selector)    (by/id (:id selector))
-    (:css selector)   (by/css (:css selector))
+    (:id selector) (by/id (:id selector))
+    (:css selector) (by/css (:css selector))
     (:xpath selector) (by/xpath (:xpath selector))
-    (:tag selector)   (by/tag-name (name (:tag selector)))
+    (:tag selector) (by/tag-name (name (:tag selector)))
     (:class selector) (by/class-name (:class selector))
-    (:text selector)  (by/attr= :text (:text selector))
-    (:name selector)  (by/input-name (:name selector))
-    :else             (throw (ex-info "Unknown selector type" {:selector selector}))))
+    (:text selector) (by/attr= :text (:text selector))
+    (:name selector) (by/input-name (:name selector))
+    :else (throw (ex-info "Unknown selector type" {:selector selector}))))
 
 (defn find-element
   "Find an element using various selector strategies.
@@ -116,6 +160,28 @@
      selector->by - For converting selectors to Selenium By objects"
   [driver selector]
   (e/find-el driver (selector->by selector)))
+
+(defn find-input-by-label
+  "Find an input element (text field, radio, or dropdown) by its label text.
+
+   This function searches for a label with the given text and returns the
+   associated input element. Works with text inputs, radio buttons, and dropdowns.
+
+   Args:
+     driver - WebDriver instance
+     label-text - The label text to search for
+
+   Returns:
+     WebElement of the input field
+
+   Throws:
+     NoSuchElementException if label or input not found
+
+   Examples:
+     (find-input-by-label driver \"1-h Fuel Moisture\")
+     (find-input-by-label driver \"Air Temperature\")"
+  [driver label-text]
+  (find-element driver {:text label-text}))
 
 ;;; =============================================================================
 ;;; Submodule Selection
@@ -246,6 +312,97 @@
       (e/click!)))
 
 ;;; =============================================================================
+;;; Input Operations
+;;; =============================================================================
+
+(defn enter-text-value
+  "Enter a value into a text input field.
+
+   This function finds the input field by searching for text content,
+   then finding the nearest input element.
+
+   Args:
+     driver     - WebDriver instance
+     label-text - The label text of the input field
+     value      - The value to enter (string, can be comma-separated)
+
+   Examples:
+     (enter-text-value driver \"1-h Fuel Moisture\" \"1\")
+     (enter-text-value driver \"Air Temperature\" \"77\")
+     (enter-text-value driver \"Wind Speed\" \"5, 10, 15\")"
+  [driver label-text value]
+  ;; Use XPath to find input that's near any element containing the label text
+  ;; This is more flexible than requiring a <label> tag specifically
+  (let [xpath (str "//*[contains(text(), '" label-text "')]/ancestor::div[contains(@class, 'wizard-input')]//input | "
+                   "//*[contains(text(), '" label-text "')]/following-sibling::*//input[1] | "
+                   "//*[contains(text(), '" label-text "')]/following::input[1]")
+        input-element (find-element driver {:xpath xpath})]
+    (e/clear! input-element)
+    ;; Call sendKeys directly to avoid the into-array bug in e/send-keys!
+    (.sendKeys input-element (into-array String [value]))))
+
+(defn click-radio-or-dropdown-option
+  "Click a radio button or dropdown option by text.
+
+   This function assumes options are already visible. For multi-select components,
+   use click-select-more-button first to expand options before calling this.
+
+   Args:
+     driver      - WebDriver instance
+     option-text - The text of the option to select
+
+   Examples:
+     (click-radio-or-dropdown-option driver \"Individual Size Class\")
+     (click-radio-or-dropdown-option driver \"GR4\")"
+  [driver option-text]
+  (try
+    (-> (find-element driver {:text option-text})
+        (e/click!))
+    (catch Exception e
+      (throw (ex-info (str "Could not find or select option: " option-text)
+                      {:option option-text :error e})))))
+
+(defn multi-select-exists?
+  "Check if a multi-select component exists in the current wizard group.
+
+   Looks for the presence of a .multi-select element within .wizard-group__inputs.
+
+   Args:
+     driver - WebDriver instance
+
+   Returns:
+     Boolean - true if multi-select component is found, false otherwise
+
+   Example:
+     (multi-select-exists? driver) ; => true or false"
+  [driver]
+  (try
+    (find-element driver {:css ".wizard-group__inputs .multi-select"})
+    true
+    (catch Exception _
+      false)))
+
+(defn click-select-more-button
+  "Click the 'Select More' button in a multi-select component to expand options.
+
+   Finds the expand button in the multi-select header and clicks it, then waits
+   for the expansion animation to complete.
+
+   Args:
+     driver - WebDriver instance
+
+   Example:
+     (click-select-more-button driver)"
+  [driver]
+  (try
+    (let [expand-btn (find-element driver {:css ".multi-select__selections__header__button button"})]
+      (e/click! expand-btn)
+      (Thread/sleep 500)) ; Wait for expansion animation and options to load
+    (catch Exception e
+      (throw (ex-info "Could not find or click 'Select More' button"
+                      {:error e})))))
+
+;;; =============================================================================
 ;;; Checkbox Utilities
 ;;; =============================================================================
 
@@ -270,9 +427,9 @@
   (try
     (loop [current-element element
            iterations 0]
-      (if (and current-element (< iterations 20))  ; Safety limit
+      (if (and current-element (< iterations 20)) ; Safety limit
         (let [class-attr (.getAttribute current-element "class")
-              classes    (when class-attr (str/split class-attr #"\s+"))]
+              classes (when class-attr (str/split class-attr #"\s+"))]
           (cond
             ;; Found the checked class
             (some #(= "input-checkbox--checked" %) classes)
@@ -352,7 +509,6 @@
 
    Returns:
      Map with:
-       :driver        - The WebDriver instance
        :group-element - The DOM element of the last group
 
    Example:
