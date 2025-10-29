@@ -15,9 +15,36 @@
             [ds-schema-utils.interface   :refer [->ds-schema]]
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]
+            [promesa.core                :as p]
             [string-utils.interface      :refer [->str]]))
 
 ;;; State
+
+(defonce initalized? (atom false))
+(defonce sqlite-db (atom nil))
+
+(defn- init-sqlite [db-name]
+  (when @sqlite-db
+    (.close @sqlite-db)
+    (reset! sqlite-db nil))
+  (-> (.default js/sqlite)
+      (p/handle (fn [_result error]
+                  (if error
+                    (js/alert "Unable to start SQLite DB")
+                    (js/sqlite.Database.newDatabase db-name))))
+      (p/then #(reset! sqlite-db %))))
+
+(comment 
+  (init-sqlite "new.db")
+  (init-sqlite "users.db")
+
+  @sqlite-db
+  (p/then (.execute @sqlite-db "SELECT * FROM sqlite_master WHERE type='table'")
+          #(println %))
+  (.execute @sqlite-db "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)")
+
+  (.close @sqlite-db)
+)
 
 (defonce conn (atom nil))
 (defonce my-txs (atom #{}))
