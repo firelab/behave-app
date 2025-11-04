@@ -7,6 +7,49 @@
    [datascript.storage :as storage]
    [promesa.core       :as p]))
 
+;;; State
+
+(defonce sqlite-db (atom nil))
+(defonce datasource (atom nil))
+
+;;; Protocol
+
+(defprotocol IStorage
+  :extend-via-metadata true
+  
+  (-store [_ addr+data-seq]
+    "Gives you a sequence of `[addr data]` pairs to serialize and store.
+     
+     `addr`s are 64 bit integers.
+     `data`s are clojure-serializable data structure (maps, keywords, lists, integers etc)")
+  
+  (-restore [_ addr]
+    "Read back and deserialize data stored under single `addr`")
+  
+  (-list-addresses [_]
+    "Return seq that lists all addresses currently stored in your storage.
+     Will be used during GC to remove keys that are no longer used.")
+  
+  (-delete [_ addrs-seq]
+    "Delete data stored under `addrs` (seq). Will be called during GC"))
+
+;;; Helpers
+
+(defn serializable-datom [^Datom d]
+  [(.-e d) (.-a d) (.-v d) (.-tx d)])
+
+(def ^:private root-addr
+  0)
+
+(def ^:private tail-addr
+  1)
+
+(defonce ^:private *max-addr
+  (volatile! 1000000))
+
+(defn- gen-addr []
+  (vswap! *max-addr inc))
+
 (defn execute! [conn sql]
   (.execute conn sql))
 
@@ -35,28 +78,30 @@
                       (sql-replace sql (freeze-str data))
                       (sql-replace sql (freeze-str content))))))))
 
-(defn restore-impl [^Connection conn opts addr]
+(defn restore-impl [conn opts addr on-restore]
   (let [{:keys [table binary? thaw-str thaw-bytes]} opts
         sql (str "select content from " table " where addr = ?")]
-    (let [results (execute-query (sql-replace sql addr))]
-      (thaw-str (p/then ))))))))
+    (-> (execute-query (sql-replace sql addr))
+        (p/then #(on-restore (thaw-str %))))))
 
-(defn list-impl [^Connection conn opts]
-  (with-open [stmt (.prepareStatement conn (str "select addr from " (:table opts)))
-              rs   (.executeQuery stmt)]
-    (loop [res (transient [])]
-      (if (.next rs)
-        (recur (conj! res (.getLong rs 1)))
-        (persistent! res)))))
+(defn list-impl [conn opts on-list]
+  (let [sql (str "select addr from " (:table opts))]
 
-(defn delete-impl [^Connection conn opts addr-seq]
-  (with-tx conn
-    (with-open [stmt (.prepareStatement conn (str "delete from " (:table opts) " where addr = ?"))]
-      (doseq [part (partition-all (:batch-size opts) addr-seq)]
-        (doseq [addr part]
-          (.setLong stmt 1 addr)
-          (.addBatch stmt))
-        (.executeBatch stmt)))))
+    (-> (execute-query (sql-replace sql addr))
+        (p/then #(on-list (map thaw-str %))))))
+
+;;    (loop [res (transient [])]
+;;      (if (.next rs)
+;;        (recur (conj! res (.getLong rs 1)))
+;;        (persistent! res)))))
+
+(defn delete-impl [conn opts addr-seq]
+  (let [sql (str "delete from " (:table opts) " where addr = ?")]
+    (doseq [part (partition-all (:batch-size opts) addr-seq)]
+      (doseq [addr part]
+        (.setLong stmt 1 addr)
+        (.addBatch stmt))
+      (.executeBatch stmt))))
 
 (defn ddl [{:keys [table]}]
   (str
@@ -76,11 +121,7 @@
     (merge {:ddl (ddl opts)} opts)))
 
 (defn make
-  "Create new DataScript storage from javax.sql.DataSource.
-   
-   Mandatory opts:
-   
-     :dbtype       :: keyword, one of :h2, :mysql, :postgresql or :sqlite
+  "Create new DataScript storage from Database Connection.
    
    Optional opts:
    
@@ -94,140 +135,62 @@
    
    :freeze-str and :thaw-str, :freeze-bytes and :thaw-bytes should come in pairs, and are mutually exclusive
    (it’s either binary or string serialization)"
-  ([datasource]
-   {:pre [(instance? DataSource datasource)]}
-   (make datasource {}))
-  ([datasource opts]
+  ([conn]
+   (make conn {}))
+  ([conn opts]
    (let [opts (merge-opts opts)]
-     (with-conn [conn datasource]
-       (execute! conn (:ddl opts)))
+     (execute! conn (:ddl opts)))
      (with-meta
-       {:datasource datasource}
+       {:conn conn}
        {'datascript.storage/-store
         (fn [_ addr+data-seq]
-          (with-conn [conn datasource]
-            (store-impl conn opts addr+data-seq)))
+          (store-impl conn opts addr+data-seq))
         
         'datascript.storage/-restore
         (fn [_ addr]
-          (with-conn [conn datasource]
-            (restore-impl conn opts addr)))
+          (restore-impl conn opts addr))
         
         'datascript.storage/-list-addresses
         (fn [_]
-          (with-conn [conn datasource]
-            (list-impl conn opts)))
+          (list-impl conn opts))
         
         'datascript.storage/-delete
         (fn [_ addr-seq]
-          (with-conn [conn datasource]
-            (delete-impl conn opts addr-seq)))}))))
+          (delete-impl conn opts addr-seq))})))
 
-(defn close
+(defn close!
   "If storage was created with DataSource that also implements AutoCloseable,
    it will close that DataSource"
-  [storage]
-  (let [datasource (:datasource storage)]
-    (when (instance? AutoCloseable datasource)
-      (.close ^AutoCloseable datasource))))
+  [datasource]
+  (let [conn (meta datasource :conn)]
+    (.close conn)
+    (reset! sqlite-db nil)))
 
-(defmacro with-lock [lock & body]
-  `(let [^Lock lock# ~lock]
-     (try
-       (.lock lock#)
-       ~@body
-       (finally
-         (.unlock lock#)))))
+(defn init!
+  "Initializes SQLite DB with `db-name` (should end in `.db`)"
+  [db-name]
+  (when @sqlite-db
+    (.close @sqlite-db)
+    (reset! sqlite-db nil))
+  (-> (.default js/sqlite)
+      (p/handle (fn [_result error]
+                  (if error
+                    (js/alert "Unable to start SQLite DB")
+                    (js/sqlite.Database.newDatabase db-name))))
+      (p/then #(reset! sqlite-db %))
+      (p/then #(reset! datasource (make %)))))
 
-(defrecord Pool [*atom ^Lock lock ^Condition condition ^DataSource datasource opts]
-  AutoCloseable
-  (close [_]
-    (let [[{:keys [taken free]} _] (swap-vals! *atom #(-> % (update :taken empty) (update :idle empty)))]
-      (doseq [conn (concat free taken)]
-        (try
-          (.close ^Connection conn)
-          (catch Exception e
-            (.printStackTrace e))))))
+(comment 
+  (init! "datascript-test.db")
+
+  @sqlite-db
+  @datasource
   
-  DataSource
-  (getConnection [this]
-    (let [^Connection conn (with-lock lock
-                             (loop []
-                               (let [atom @*atom]
-                                 (cond
-                                   ;; idle connections available
-                                   (> (count (:idle atom)) 0)
-                                   (let [conn (peek (:idle atom))]
-                                     (swap! *atom #(-> %
-                                                     (update :taken conj conn)
-                                                     (update :idle pop)))
-                                     conn)
-                       
-                                   ;; has space for new connection
-                                   (< (count (:taken atom)) (:max-conn opts))
-                                   (let [conn (.getConnection datasource)]
-                                     (swap! *atom update :taken conj conn)
-                                     conn)
-                       
-                                   ;; already at limit
-                                   :else
-                                   (do
-                                     (.await condition)
-                                     (recur))))))
-          *closed? (volatile! false)]
-      (Proxy/newProxyInstance
-        (.getClassLoader Connection)
-        (into-array Class [Connection])
-        (reify InvocationHandler
-          (invoke [this proxy method args]
-            (let [method ^Method method]
-              (case (.getName method)
-                "close"
-                (do
-                  (when-not (.getAutoCommit conn)
-                    (.rollback conn)
-                    (.setAutoCommit conn true))
-                  (vreset! *closed? true)
-                  (with-lock lock
-                    (if (< (count (:idle @*atom)) (:max-idle-conn opts))
-                      ;; normal return to pool
-                      (do
-                        (swap! *atom #(-> %
-                                        (update :taken disj conn)
-                                        (update :idle conj conn)))
-                        (.signal condition))
-                      ;; excessive idle conn
-                      (do
-                        (swap! *atom update :taken disj conn)
-                        (.close conn))))
-                  nil)
-                
-                "isClosed"
-                (or @*closed? (.invoke method conn args))
-                
-                ;; else
-                (.invoke method conn args)))))))))
+  (p/then (.execute @sqlite-db "SELECT * FROM sqlite_master WHERE type='table'")
+          #(println %))
+  (js/console.log @sqlite-db)
 
-(defn pool
-  "Simple connection pool.
-   
-   Accepts javax.sql.DataSource, returns javax.sql.DataSource implementation
-   that creates java.sql.Connection on demand, up to :max-conn, and keeps up
-   to :max-idle-conn when no demand.
-   
-   Implements AutoCloseable, which closes all pooled connections."
-  (^DataSource [datasource]
-    (pool datasource {}))
-  (^DataSource [datasource opts]
-    {:pre [(instance? DataSource datasource)]}
-    (let [lock (ReentrantLock.)]
-      (Pool.
-        (atom {:taken #{}
-               :idle  []})
-        lock
-        (.newCondition lock)
-        datasource
-        (merge
-          {:max-idle-conn 4
-           :max-conn      10}
-          opts)))))
+  (require '[me.tonsky.persistent_sorted_set ANode])
+
+  (close! @sqlite-db)
+)

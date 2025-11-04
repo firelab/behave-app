@@ -9,6 +9,7 @@
             [behave.help.views         :refer [help-area]]
             [behave.settings.views     :as settings]
             [behave.store              :refer [load-store!]]
+            [behave.sqlite-store       :as ds-sqlite]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t bp]]
             [behave.vms.store          :refer [load-vms!]]
