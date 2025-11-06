@@ -67,6 +67,15 @@
    "behaveplus:list-option:fuel-moisture-tool-dry-bulb-index:>-109-of"   {:english "behaveplus:list-option:fuel-moisture-tool-dry-bulb-index:greater-than-one-hundred-nine-degrees-farenheight"
                                                                           :metric  "behaveplus:list-option:fuel-moisture-tool-dry-bulb-index:greater-than-forty-three-degrees-celsius"}})
 
+(def wind-speed-class-keys-to-update
+  {"behaveplus:list-option:wind-speed-class:light"    {:english "behaveplus:list-option:wind-speed-class:zero-to-ten-miles-per-hour"
+                                                       :metric  "behaveplus:list-option:wind-speed-class:zero-to-four-point-five-meters-per-second"}
+   "behaveplus:list-option:wind-speed-class:moderate" {:english "behaveplus:list-option:wind-speed-class:eleven-to-20-miles-per-hour"
+                                                       :metric  "behaveplus:list-option:wind-speed-class:four-point-six-to-eight-point-nine-meters-per-second"}
+   "behaveplus:list-option:wind-speed-class:high"     {:english "behaveplus:list-option:wind-speed-class:greater-than-20-miles-per-hour"
+                                                       :metric  "behaveplus:list-option:wind-speed-class:greater-thanl-eight-point-nine-meters-per-second"}}
+  )
+
 (defn add-translation-keys [conn translation-keys-map]
   (for [[old-key new-keys] translation-keys-map]
     (let [{:keys [english metric]} new-keys
@@ -84,7 +93,7 @@
 ;; (def payload (add-translation-keys conn dry-bulb-index-keys-to-update))
 ;; @(d/transact conn payload)
 
-(def translation-spayload
+(def translation-payload
   (sm/build-translations-payload
    conn
    {"behaveplus:list-option:fuel-moisture-tool-dry-bulb-index:ten-to-twenty-nine-degrees-farenheight"              "10 - 29 oF"
@@ -105,6 +114,12 @@
     "behaveplus:list-option:fuel-moisture-tool-elevation-index:below-three-hundred-four-to-six-hundred-ten-meters" "Below (304 - 610 m)"
     "behaveplus:list-option:fuel-moisture-tool-elevation-index:level-within-six-hundred-four-meters"               "Level (within 604 m)"
     "behaveplus:list-option:fuel-moisture-tool-elevation-index:above-three-hundred-four-to-six-hundred-ten-meters" "Above (304 - 610 m)"
+    "behaveplus:list-option:wind-speed-class:zero-to-ten-miles-per-hour" "Light (0 - 10 mi/h)"
+    "behaveplus:list-option:wind-speed-class:zero-to-four-point-five-meters-per-second" "Light (0 - 4.5 m/s)"
+    "behaveplus:list-option:wind-speed-class:eleven-to-20-miles-per-hour" "Moderate (11 - 20 mi/h)"
+    "behaveplus:list-option:wind-speed-class:four-point-six-to-eight-point-nine-meters-per-second" "Moderate (4.6 - 8.9 m/s)"
+    "behaveplus:list-option:wind-speed-class:greater-than-20-miles-per-hour" "High (> 20 mi/h)"
+    "behaveplus:list-option:wind-speed-class:greater-thanl-eight-point-nine-meters-per-second" "High (> 8.9 m/s)"
     "behaveplus:english"                                                                                           "English"
     "behaveplus:metric"                                                                                            "Metric"
     "behaveplus:units_system"                                                                                      "Units System"}))
@@ -113,7 +128,8 @@
 (def payload (concat
               (add-translation-keys conn dry-bulb-index-keys-to-update)
               (add-translation-keys conn elevation-index-keys-to-update)
-              translation-spayload))
+              (add-translation-keys conn wind-speed-class-keys-to-update)
+              translation-payload))
 
 ;; ===========================================================================================================
 ;; Transact Payload
