@@ -527,6 +527,26 @@
         (map first))))
 
 (rf/reg-sub
+ :worksheet/graphed-output-uuids
+ (fn [_ [_ ws-uuid]]
+   (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
+               :in    $ $ws % ?ws-uuid
+               :where
+               [$ws ?w :worksheet/uuid ?ws-uuid]
+               [$ws ?w :worksheet/outputs ?o]
+               [$ws ?o :output/group-variable-uuid ?uuid]
+               [$ws ?o :output/enabled? true]
+               (lookup ?uuid ?gv)
+               [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]
+               [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]]
+             @@vms-conn
+             @@s/conn
+             rules
+             ws-uuid)
+        (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
+        (map first))))
+
+(rf/reg-sub
  :worksheet/all-output-uuids
  (fn [_ [_ ws-uuid]]
    (->> (d/q '[:find  [?uuid ...]

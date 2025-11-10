@@ -18,6 +18,7 @@
 (s/def :group-variable/order           zero-pos?)
 (s/def :group-variable/translation-key valid-key?)
 (s/def :group-variable/research?       boolean?)
+(s/def :group-variable/hide-graph?     boolean?)
 (s/def :group-variable/direction       valid-direction?)
 
 
@@ -32,6 +33,7 @@
                                             :group-variable/cpp-function]
                                       :opt [:group-variable/cpp-parameter
                                             :group-variable/research?
+                                            :group-variable/hide-graph?
                                             :group-variable/direction]))
 
 ;;; Schema
@@ -143,14 +145,15 @@
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
-
-
    {:db/ident       :group-variable/hide-csv?
     :db/doc         "Whether a Group Variable is excluded from the csv export"
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
-   ])
+   {:db/ident       :group-variable/hide-graph?
+    :db/doc         "Whether a Group Variable is excluded from being graphed."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}])
 
 ;;; Tests
 
