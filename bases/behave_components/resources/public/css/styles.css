@@ -1440,6 +1440,112 @@ p {
 
 /* -- End Radio Group -- */
 
+/* -- Toggle Switch -- */
+.input-toggle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.input-toggle__label {
+  font-family: var(--font-family-roboto);
+  font-weight: var(--font-weight-500);
+  color: var(--black);
+}
+
+.input-toggle__container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.input-toggle__side-label {
+  font-family: var(--font-family-roboto);
+  font-weight: var(--font-weight-400);
+  font-size: var(--font-size-14);
+  color: var(--black);
+}
+
+.input-toggle__switch {
+  position: relative;
+  display: inline-block;
+  height: 32px;
+}
+
+.input-toggle__input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.input-toggle__slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--gray-4);
+  transition: 0.3s;
+  border-radius: 32px;
+}
+
+.input-toggle__slider__text {
+  position: absolute;
+  font-family: var(--font-family-roboto);
+  font-weight: var(--font-weight-500);
+  font-size: var(--font-size-12);
+  color: var(--white);
+  user-select: none;
+  transition: 0.3s;
+  left: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.input-toggle__slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--white);
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.input-toggle__input:checked + .input-toggle__slider {
+  background-color: var(--darkblue-4);
+}
+
+.input-toggle__input:checked + .input-toggle__slider:before {
+  transform: translateX(var(--slider-translate));
+}
+
+.input-toggle__input:checked + .input-toggle__slider .input-toggle__slider__text {
+  left: 8px;
+  right: auto;
+}
+
+.input-toggle__input:focus + .input-toggle__slider {
+  box-shadow: 0 0 1px var(--darkblue-4);
+}
+
+.input-toggle--disabled .input-toggle__label,
+.input-toggle--disabled .input-toggle__side-label {
+  color: var(--gray-4);
+}
+
+.input-toggle--disabled .input-toggle__slider {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+/* -- End Toggle Switch -- */
+
 /* - End Inputs - */
 
 /* - Progress - */

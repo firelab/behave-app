@@ -269,7 +269,7 @@
 (rf/reg-sub
  :worksheet/all-variable-level-units
  (fn [_]
-   (rf/subscribe [:settings/units-system]))
+   (rf/subscribe [:settings/application-units-system]))
  (fn [units-system [_ ws-uuid]]
    (let [units-system-attr (case units-system
                              :native  :variable/native-unit-uuid
@@ -294,7 +294,7 @@
 (rf/reg-sub
  :worksheet/all-domain-level-units
  (fn [_]
-   (rf/subscribe [:settings/units-system]))
+   (rf/subscribe [:settings/application-units-system]))
  (fn [units-system [_ ws-uuid]]
    (let [units-system-attr (case units-system
                              :english :domain/english-unit-uuid

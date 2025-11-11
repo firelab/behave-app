@@ -237,12 +237,12 @@
       (ds/transact conn newdata))))
 
 (defn- insert-bp-uuid [x]
-  (if (map? x)
+  (if (and (map? x) (nil? (:bp/uuid x)))
     (assoc x :bp/uuid (str (squuid)))
     x))
 
 (defn- insert-bp-nid [x]
-  (if (map? x)
+  (if (and (map? x) (nil? (:bp/nid x)))
     (assoc x :bp/nid (nano-id))
     x))
 
