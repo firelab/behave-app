@@ -13,9 +13,7 @@
             [number-utils.core           :refer [parse-float]]
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]
-            [string-utils.interface      :refer [->kebab ->str]]
-            [behave.solver.queries :as q]
-            ))
+            [string-utils.interface      :refer [->kebab ->str]]))
 
 ;; Helpers
 (defn make-tree
@@ -1220,3 +1218,15 @@
         @@s/conn
         ws-uuid
         gv-uuid)))
+
+(rf/reg-sub
+ :worksheet/repeat-groups?
+ (fn [_ [_ ws-uuid]]
+   (some pos? (d/q '[:find [?rid ...]
+                     :in  $ ?ws-uuid
+                     :where
+                     [?w :worksheet/uuid ?ws-uuid]
+                     [?w :worksheet/input-groups ?g]
+                     [?g :input-group/group-uuid ?g-uuid]
+                     [?g :input-group/repeat-id ?rid]]
+                   @@s/conn ws-uuid))))
