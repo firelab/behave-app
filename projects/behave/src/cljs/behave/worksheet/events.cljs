@@ -767,7 +767,7 @@
                                                            :arrow/rotation  wind-direction
                                                            :arrow/color     "blue"}
 
-                                                          {:arrow/legend-id "Direction of Max Spread"
+                                                          {:arrow/legend-id "Max Spread"
                                                            :arrow/length    semi-major-axis
                                                            :arrow/rotation  direction-of-max-spread
                                                            :arrow/color     "black"}
