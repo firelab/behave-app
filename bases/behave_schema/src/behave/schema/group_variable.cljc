@@ -26,13 +26,13 @@
                                             :bp/nid
                                             :group-variable/order
                                             :group-variable/translation-key
-                                            :group-variable/help-key
-                                            :group-variable/cpp-class
-                                            :group-variable/cpp-namespace
-                                            :group-variable/cpp-function]
+                                            :group-variable/help-key]
                                       :opt [:group-variable/cpp-parameter
                                             :group-variable/research?
-                                            :group-variable/direction]))
+                                            :group-variable/direction
+                                            :group-variable/cpp-class
+                                            :group-variable/cpp-namespace
+                                            :group-variable/cpp-function]))
 
 ;;; Schema
 
