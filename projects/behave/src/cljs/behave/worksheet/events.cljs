@@ -765,7 +765,8 @@
                                                            ;; arrow points much further out of othe ellipse.
                                                            ;; Discuss if if we should use this or not.
                                                            :arrow/rotation  wind-direction
-                                                           :arrow/color     "blue"}
+                                                           :arrow/color     "blue"
+                                                           :arrow/dashed?   true}
 
                                                           {:arrow/legend-id "Max Spread"
                                                            :arrow/length    semi-major-axis
