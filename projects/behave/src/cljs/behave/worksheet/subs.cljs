@@ -528,7 +528,9 @@
 
 (rf/reg-sub
  :worksheet/graphed-output-uuids
- (fn [_ [_ ws-uuid]]
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+ (fn [worksheet [_ ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
                :in    $ $ws % ?ws-uuid
                :where
@@ -544,7 +546,14 @@
              rules
              ws-uuid)
         (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
-        (map first))))
+        (map first)
+        (map (fn [gv-uuid] @(rf/subscribe [:vms/entity-from-uuid gv-uuid])))
+        (remove #(if (seq (:group-variable/hide-result-conditionals %))
+                   (all-conditionals-pass? worksheet
+                                           (:group-variable/hide-result-conditional-operator %)
+                                           (:group-variable/hide-result-conditionals %))
+                   false))
+        (map :bp/uuid))))
 
 (rf/reg-sub
  :worksheet/all-output-uuids
@@ -585,10 +594,12 @@
 
 (rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
- (fn [_ [_ ws-uuid]]
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/graphed-output-uuids ws-uuid]))
+ (fn [graph-output-uuids [_ ws-uuid]]
    {:type      :query
     :query     '[:find ?group-var-uuid ?min ?max
-                 :in   $ ?ws-uuid
+                 :in   $ ?ws-uuid [?group-var-uuid ...]
                  :where
                  [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/graph-settings ?g]
@@ -597,9 +608,8 @@
                  [?y :y-axis-limit/min ?min]
                  [?y :y-axis-limit/max ?max]
                  [?w :worksheet/outputs ?o]
-                 [?o :output/group-variable-uuid ?group-var-uuid]
-                 [?o :output/enabled? true]]
-    :variables [ws-uuid]}))
+                 [?o :output/group-variable-uuid ?group-var-uuid]]
+    :variables [ws-uuid graph-output-uuids]}))
 
 (rf/reg-sub
  :worksheet/graph-settings-y-axis-limits-filtered
