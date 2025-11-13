@@ -30,15 +30,10 @@
                                             :group-variable/help-key]
                                       :opt [:group-variable/cpp-parameter
                                             :group-variable/research?
-<<<<<<< HEAD
-                                            :group-variable/hide-graph?
-                                            :group-variable/direction]))
-=======
                                             :group-variable/direction
                                             :group-variable/cpp-class
                                             :group-variable/cpp-namespace
                                             :group-variable/cpp-function]))
->>>>>>> a8a37f9c45cb43ceecb47404ff5e97f22ae6b05a
 
 ;;; Schema
 
