@@ -28,12 +28,13 @@
                                             :group-variable/order
                                             :group-variable/translation-key
                                             :group-variable/help-key]
-                                      :opt [:group-variable/cpp-parameter
-                                            :group-variable/research?
+                                      :opt [:group-variable/research?
+                                            :group-variable/hide-graph?
                                             :group-variable/direction
                                             :group-variable/cpp-class
                                             :group-variable/cpp-namespace
-                                            :group-variable/cpp-function]))
+                                            :group-variable/cpp-function
+                                            :group-variable/cpp-parameter]))
 
 ;;; Schema
 
