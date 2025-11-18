@@ -141,6 +141,7 @@
                    --- Fuel Moisture > By Size Class > Live Woody Fuel Moisture > 5, 10, 15
                    \"\"\")"
   [{:keys [driver]} inputs-text]
+  (h/wait-for-input-tab driver)
   (h/navigate-to-inputs driver)
   (h/wait-for-wizard driver)
   (let [inputs (h/parse-input-multiline-list inputs-text)]

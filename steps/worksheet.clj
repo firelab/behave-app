@@ -4,6 +4,7 @@
    This namespace handles the creation of new worksheets in guided mode,
    including navigating through the workflow wizard and selecting module types."
   (:require [cucumber.webdriver :as w]
+            [cucumber.element :as e]
             [steps.helpers :as h]))
 
 ;;; =============================================================================
@@ -22,7 +23,7 @@
   {[:surface] "Surface Only"
    [:surface :contain] "Surface and Contain"
    [:surface :crown] "Surface & Crown"
-   [:surface :mortality] "Surface and Mortality"
+   [:surface :mortality] "Surface & Mortality"
    [:mortality] "Mortality Only"})
 
 ;;; =============================================================================
@@ -60,12 +61,15 @@
   (h/wait-for-working-area driver)
 
   ;; Dismiss disclaimer popup if it appears
+
   (try
-    (let [disclaimer-button (h/find-element driver {:text "I Understand"})]
-      (h/scroll-to-element driver disclaimer-button)
-      (Thread/sleep 200)
-      (.click disclaimer-button))
-    (catch Exception _
+    (let [disclaimer-close-button (-> driver
+                                      (h/find-element {:class "modal__close"})
+                                      (h/find-element {:class "button"}))]
+      (h/scroll-to-element driver disclaimer-close-button)
+      (Thread/sleep 300)
+      (e/click! disclaimer-close-button))
+    (catch Exception e
       ;; No disclaimer present, continue
       nil))
 
@@ -76,7 +80,7 @@
   (Thread/sleep 100)
 
   ;; Proceed through initial dialog
-  (h/click-highlighted-button driver)
+  (h/click-button-with-text driver "Next")
   (Thread/sleep 100)
 
   ;; Select "Guided Workflow"

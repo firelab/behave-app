@@ -30,6 +30,7 @@
   [driver [submodule & groups]]
   (h/select-submodule-in-wizard driver submodule)
   (h/wait-for-groups driver (butlast groups))
+  (h/wait-for-element driver {:text (last groups)})
   (h/select-output driver (last groups)))
 
 ;;; =============================================================================

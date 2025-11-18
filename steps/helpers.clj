@@ -217,6 +217,18 @@
 ;;; Waiting Utilities
 ;;; =============================================================================
 
+(defn wait-for-element
+  "Wait for the wizard interface to be present (up to 5 seconds)."
+  [driver selector]
+  (let [wait (w/wait driver 5000)]
+    (.until wait (w/presence-of (selector->by selector)))))
+
+(defn wait-for-input-tab
+  "Wait for the wizard interface to be present (up to 5 seconds)."
+  [driver]
+  (let [wait (w/wait driver 5000)]
+    (.until wait (w/presence-of (selector->by {:css ".wizard-header__io-tabs"})))))
+
 (defn wait-for-wizard
   "Wait for the wizard interface to be present (up to 5 seconds)."
   [driver]
@@ -267,7 +279,7 @@
     (wait-for-nested-element driver
                              {:css ".wizard-page__body"}
                              (first groups)
-                             300)
+                             500)
     (doseq [[parent child] (partition 2 1 groups)]
       (let [wait (w/wait driver 300)]
         (.until wait (w/presence-of-nested-elements
