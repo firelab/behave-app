@@ -79,7 +79,7 @@
 (deftest test-output-line-formatting-adds-prefix
   (testing "format-output-line prefixes path with '-- '"
     (let [path ["Surface" "Fire Behavior" "Direction Mode"]
-          result (core/format-output-line path)]
+          result (gs/format-output-line path)]
       (is (= "-- Fire Behavior > Direction Mode" result)
           "Should prefix with '-- ' for output display"))))
 
@@ -87,7 +87,7 @@
   (testing "format-input-value-line prefixes path with '--- ' and appends value"
     (let [path ["Surface" "Fuel Model" "Standard" "Fuel Model"]
           value "FB2/2 - Timber grass"
-          result (core/format-input-value-line path value)]
+          result (gs/format-input-value-line path value)]
       (is (= "--- Fuel Model > Standard > Fuel Model > FB2/2 - Timber grass" result)
           "Should prefix with '--- ' and append value"))))
 
@@ -138,45 +138,46 @@
     (let [edn-path "development/test_matrix_data.edn"
           _ (core/generate-test-matrix! edn-path)
           data (gs/load-test-matrix edn-path)
-          groups (:groups data)]
+          all-entities (vals data)
+          groups (filter :group/translated-name all-entities)]
       (when (seq groups)
         (let [first-group (first groups)
-              paths (core/collect-all-paths-from-conditionals first-group)
-              modules (core/extract-modules-from-paths paths)]
+              paths (gs/collect-all-paths-from-conditionals data first-group)
+              modules (gs/extract-modules-from-paths paths)]
           (is (set? modules)
               "Should return a set of module keywords")
           (is (every? keyword? modules)
               "All modules should be keywords"))))))
 
 (deftest test-module-combination-determination
-  (testing "determine-module-combination maps module sets to worksheet types"
-    (is (= :surface (core/determine-module-combination #{:surface}))
-        "Single surface module should map to :surface")
+  (testing "determine-module-combination maps module sets to module combination sets"
+    (is (= #{:surface} (gs/determine-module-combination #{:surface}))
+        "Single surface module should map to #{:surface}")
 
-    (is (= :surface-crown (core/determine-module-combination #{:surface :crown}))
-        ":surface and :crown should map to :surface-crown")
+    (is (= #{:surface :crown} (gs/determine-module-combination #{:surface :crown}))
+        ":surface and :crown should map to #{:surface :crown}")
 
-    (is (= :surface-mortality (core/determine-module-combination #{:surface :mortality}))
-        ":surface and :mortality should map to :surface-mortality")
+    (is (= #{:surface :mortality} (gs/determine-module-combination #{:surface :mortality}))
+        ":surface and :mortality should map to #{:surface :mortality}")
 
-    (is (= :surface-contain (core/determine-module-combination #{:surface :contain}))
-        ":surface and :contain should map to :surface-contain")
+    (is (= #{:surface :contain} (gs/determine-module-combination #{:surface :contain}))
+        ":surface and :contain should map to #{:surface :contain}")
 
-    (is (= :unsupported (core/determine-module-combination #{:surface :crown :mortality}))
+    (is (= :unsupported (gs/determine-module-combination #{:surface :crown :mortality}))
         "3+ modules should map to :unsupported")))
 
 (deftest test-module-to-given-statement
   (testing "module-to-given-statement generates correct Given step text"
     (is (= "Given I have started a new Surface Worksheet in Guided Mode"
-           (core/module-to-given-statement :surface))
+           (gs/module-to-given-statement #{:surface}))
         "Surface module should generate correct Given statement")
 
     (is (= "Given I have started a new Surface & Crown Worksheet in Guided Mode"
-           (core/module-to-given-statement :surface-crown))
+           (gs/module-to-given-statement #{:surface :crown}))
         "Surface & Crown should generate correct Given statement")
 
     (is (= "Given I have started a new Surface & Mortality Worksheet in Guided Mode"
-           (core/module-to-given-statement :surface-mortality))
+           (gs/module-to-given-statement #{:surface :mortality}))
         "Surface & Mortality should generate correct Given statement")))
 
 (deftest test-research-dependency-detection

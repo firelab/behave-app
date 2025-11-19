@@ -356,80 +356,107 @@
       (set (concat main-modules ancestor-modules)))))
 
 (defn determine-module-combination
-  "Map a set of module keywords to supported worksheet type.
+  "Determine module combination from a set of modules.
+
+   Maps sets of modules to their corresponding module combination sets.
+   Returns set of modules for valid combinations, or :unsupported for invalid ones.
+
+   Valid combinations:
+   - Single surface: #{:surface}
+   - Surface & Crown: #{:surface :crown}
+   - Surface & Mortality: #{:surface :mortality}
+   - Surface & Contain: #{:surface :contain}
+
+   Note: Mortality and Contain always require Surface to be included.
 
    Arguments:
-   - modules: Set of module keywords like #{:surface :crown}
+   - modules: Set of module keywords (e.g., #{:surface :crown})
 
    Returns:
-   Keyword for worksheet type:
-   - :surface - Single surface module
-   - :crown - Crown only (mapped to :surface-crown in practice)
-   - :surface-crown - Surface and Crown
-   - :surface-mortality - Surface and Mortality
-   - :surface-contain - Surface and Contain
-   - :unsupported - 3+ modules or other unsupported combinations"
+   Set of modules for valid combinations, or :unsupported keyword for invalid"
   [modules]
   (let [module-count (count modules)]
     (cond
       ;; Single modules
-      (= modules #{:surface})
-      :surface
-
-      ;; (= modules #{:crown})
-      ;; :crown
-
-      (= modules #{:mortality})
-      :surface-mortality ; mortality always requires surface
-
-      (= modules #{:contain})
-      :surface-contain ; contain always requires surface
+      (= modules #{:surface}) #{:surface}
+      (= modules #{:crown}) #{:crown}
+      (= modules #{:mortality}) #{:surface :mortality} ; Always includes surface
+      (= modules #{:contain}) #{:surface :contain} ; Always includes surface
 
       ;; Two module combinations
-      (= modules #{:surface :crown})
-      :surface-crown
+      (= modules #{:surface :crown}) #{:surface :crown}
+      (= modules #{:surface :mortality}) #{:surface :mortality}
+      (= modules #{:surface :contain}) #{:surface :contain}
 
-      (= modules #{:surface :mortality})
-      :surface-mortality
+      ;; Unsupported combinations (3+ modules or invalid pairs)
+      (>= module-count 3) :unsupported
+      :else :unsupported)))
 
-      (= modules #{:surface :contain})
-      :surface-contain
-
-      ;; Three or more modules - unsupported
-      (>= module-count 3)
-      :unsupported
-
-      ;; Other combinations - unsupported
-      :else
-      :unsupported)))
-
-(defn module-to-given-statement
-  "Generate Gherkin 'Given' statement from module combination keyword.
+(defn module-set-to-string
+  "Convert module set to kebab-case string for filenames.
+   Sorts modules alphabetically for consistency.
 
    Arguments:
-   - module-combo: Keyword like :surface, :surface-crown, etc.
+   - module-set: Set of module keywords (e.g., #{:surface :crown})
 
    Returns:
-   String for Given step like 'Given I have started a new Surface Worksheet in Guided Mode'"
+   String representation for filenames
+
+   Examples:
+   #{:surface} -> \"surface\"
+   #{:surface :crown} -> \"crown-surface\"
+   #{:surface :mortality} -> \"mortality-surface\""
+  [module-set]
+  (str/join "-" (sort (map name module-set))))
+
+(defn module-set-to-title
+  "Convert module set to human-readable title with capitalization.
+
+   Arguments:
+   - module-set: Set of module keywords (e.g., #{:surface :crown})
+
+   Returns:
+   String representation for titles
+
+   Examples:
+   #{:surface} -> \"Surface\"
+   #{:surface :crown} -> \"Crown & Surface\"
+   #{:surface :mortality} -> \"Mortality & Surface\""
+  [module-set]
+  (let [sorted-modules (sort (map name module-set))
+        capitalized (map str/capitalize sorted-modules)]
+    (str/join " & " capitalized)))
+
+(defn module-to-given-statement
+  "Generate Gherkin 'Given' statement from module combination.
+
+   Maps module combination sets to their corresponding worksheet initialization statements.
+
+   Arguments:
+   - module-combo: Set of modules (e.g., #{:surface :crown}) or :unsupported keyword
+
+   Returns:
+   String containing the 'Given' step for starting the appropriate worksheet"
   [module-combo]
-  (case module-combo
-    :surface
+  (cond
+    (= module-combo #{:surface})
     "Given I have started a new Surface Worksheet in Guided Mode"
 
-    :crown
+    (= module-combo #{:crown})
     "Given I have started a new Crown Worksheet in Guided Mode"
 
-    :surface-crown
+    (= module-combo #{:surface :crown})
     "Given I have started a new Surface & Crown Worksheet in Guided Mode"
 
-    :surface-mortality
+    (= module-combo #{:surface :mortality})
     "Given I have started a new Surface & Mortality Worksheet in Guided Mode"
 
-    :surface-contain
+    (= module-combo #{:surface :contain})
     "Given I have started a new Surface & Contain Worksheet in Guided Mode"
 
-    ;; Default for unsupported
-    (str "Given I have started a new " (name module-combo) " Worksheet in Guided Mode")))
+    ;; Default for unsupported or unknown
+    :else
+    (str "Given I have started a new " (module-set-to-title module-combo) " Worksheet in Guided Mode")))
 
 ;; ===========================================================================================================
 ;; Research Filtering Functions (Task 5.6)
@@ -538,13 +565,15 @@
 
    Arguments:
    - path: Path vector like [\"Surface\" \"Fuel\" \"Standard\"]
-   - active-modules: Set of active module keywords like #{:surface :crown}
+   - active-modules: Set of active module keywords like #{:surface :crown}, or :unsupported
 
    Returns:
    Boolean true if path's module is in active modules"
   [path active-modules]
-  (when-let [path-module (extract-module-from-path path)]
-    (contains? (into #{} (map keyword (str/split (name active-modules) #"-"))) path-module)))
+  (if (= active-modules :unsupported)
+    false
+    (when-let [path-module (extract-module-from-path path)]
+      (contains? active-modules path-module))))
 
 (defn filter-conditionals-by-module
   "Remove conditionals with modules incompatible with active modules.
@@ -1021,10 +1050,18 @@
           ;; Generate scenario for each non-research combination
           scenarios (for [[ancestor-setup entity-setup] non-research-combinations]
                       ;; Determine module combo for THIS specific combination
-                      (let [module-combo (determine-module-combo-for-combination ancestor-setup entity-setup)]
+                      (let [module-combo (determine-module-combo-for-combination ancestor-setup entity-setup)
+                            module-conditionals (->> entity-setup
+                                                     (concat ancestor-setup)
+                                                     (filter #(= (:type %) :module))
+                                                     (map #(set (map keyword (:values %)))))
+                            all-matching-module-conditionals (every? #(= module-combo %) module-conditionals)]
 
+                        (when (seq module-conditionals)
+                          (prn "module-combo:" module-combo)
+                          (prn "module-conditionals:" module-conditionals))
                         ;; Skip unsupported module combinations
-                        (when (not= module-combo :unsupported)
+                        (when (and (not= module-combo :unsupported) all-matching-module-conditionals)
                           (let [;; Filter ancestor setup by this combination's module
                                 filtered-ancestor-setup (filter-conditionals-by-module ancestor-setup module-combo)
 
@@ -1134,13 +1171,15 @@
    Pattern: {module}-input_{parent-groups}_{target-group}.feature
 
    Arguments:
-   - module: Module keyword like :surface
+   - module: Module set like #{:surface} or module keyword (for backward compat)
    - path: Path vector like ['Surface' 'Fuel Moisture' 'By Size Class']
 
    Returns:
    String like 'surface-input_fuel-moisture_by-size-class.feature'"
   [module path]
-  (let [module-str (name module)
+  (let [module-str (if (set? module)
+                     (module-set-to-string module)
+                     (name module))
         ;; Skip module (first element) and filter out :io keywords from path
         path-without-module-and-io (remove keyword? (rest path))
         sanitized-parts (map sanitize-path-component path-without-module-and-io)
@@ -1152,13 +1191,15 @@
    Same pattern as filename but without .feature extension.
 
    Arguments:
-   - module: Module keyword
+   - module: Module set like #{:surface} or module keyword (for backward compat)
    - path: Path vector
 
    Returns:
    String like 'surface-input_fuel-moisture'"
   [module path]
-  (let [module-str (name module)
+  (let [module-str (if (set? module)
+                     (module-set-to-string module)
+                     (name module))
         ;; Skip module (first element) and filter out :io keywords from path
         path-without-module-and-io (remove keyword? (rest path))
         sanitized-parts (map sanitize-path-component path-without-module-and-io)
@@ -1187,13 +1228,15 @@
    Title includes module and target group path.
 
    Arguments:
-   - module: Module keyword
+   - module: Module set like #{:surface} or module keyword (for backward compat)
    - path: Path vector
 
    Returns:
    String like 'Feature: Surface Input - Fuel Moisture > By Size Class'"
   [module path]
-  (let [module-str (str/capitalize (name module))
+  (let [module-str (if (set? module)
+                     (module-set-to-title module)
+                     (str/capitalize (name module)))
         path-str (format-path-for-gherkin path)]
     (str "Feature: " module-str " Input - " path-str "\n")))
 
