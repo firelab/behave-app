@@ -58,6 +58,55 @@
   (let [parent-paths (collect-parent-groups entity-path)]
     (keep #(get all-data %) parent-paths)))
 
+(defn collect-all-ancestral-entities
+  "Recursively collect all entities referenced by conditionals' group-variable paths.
+   
+   When a conditional references a path like [\"Surface\" \"Fire Behavior\" :output \"Direction Mode\"],
+   this function:
+   1. Extracts ancestral paths (e.g., [\"Surface\" \"Fire Behavior\" :output])
+   2. Looks them up in all-data map
+   3. For any found entities with conditionals, recursively processes those too
+   4. Returns all ancestral entities, deduplicated by :path
+   
+   Arguments:
+   - all-data: Map with path vectors as keys, entity info as values
+   - conditionals: Sequence of conditionals to process
+   
+   Returns:
+   Vector of ancestral entity maps (deduplicated by :path)"
+  [all-data conditionals]
+  (letfn [(collect-from-conditional [cond seen-paths]
+            (let [path (get-in cond [:group-variable :path])]
+              (if (and path (not (contains? seen-paths path)))
+                ;; Extract ancestral paths from this conditional's path
+                (let [ancestral-paths (collect-parent-groups path)
+                      ;; Also check if the path itself exists (when it's a 3-element path with no parents)
+                      direct-path-entity (get all-data path)
+                      ;; Look up ancestral entities in all-data
+                      ancestral-entities (keep #(get all-data %) ancestral-paths)
+                      ;; Combine direct path entity (if exists) with ancestral entities
+                      all-found-entities (if direct-path-entity
+                                           (cons direct-path-entity ancestral-entities)
+                                           ancestral-entities)
+                      ;; Mark this path as seen
+                      updated-seen (conj seen-paths path)
+                      ;; Recursively process conditionals from all found entities
+                      nested-results (mapcat
+                                      (fn [entity]
+                                        (when-let [entity-conds (get-in entity [:conditionals :conditionals])]
+                                          (collect-from-conditional-seq entity-conds updated-seen)))
+                                      all-found-entities)]
+                  ;; Return all found entities plus any nested results
+                  (concat all-found-entities nested-results))
+                ;; No path or already seen, return empty
+                [])))
+          (collect-from-conditional-seq [cond-seq seen-paths]
+            (mapcat #(collect-from-conditional % seen-paths) cond-seq))]
+    ;; Start with empty seen set
+    (let [all-entities (collect-from-conditional-seq conditionals #{})]
+      ;; Deduplicate by path
+      (vec (vals (into {} (map (juxt :path identity) all-entities)))))))
+
 (defn find-group-by-path
   "Find a group/submodule in the data map by its path.
    Returns the entity map or nil if not found.
@@ -379,7 +428,7 @@
     (cond
       ;; Single modules
       (= modules #{:surface}) #{:surface}
-      (= modules #{:crown}) #{:crown}
+      (= modules #{:crown}) #{:surface :crown} ;Always includes surface
       (= modules #{:mortality}) #{:surface :mortality} ; Always includes surface
       (= modules #{:contain}) #{:surface :contain} ; Always includes surface
 
@@ -1016,8 +1065,18 @@
   (when-not (or (and (:group/translated-name entity) (should-skip-group? entity))
                 (and (:submodule/name entity) (should-skip-submodule? entity))
                 (has-only-module-conditionals? entity))
-    (let [;; Get ancestors from all-data map
-          ancestors (get-ancestors all-data (:path entity))
+    (let [;; Get direct ancestors from entity's own path
+          direct-ancestors (get-ancestors all-data (:path entity))
+
+          ;; Recursively collect ancestors from all direct ancestors' conditionals
+          all-direct-ancestors-conds (mapcat #(get-in % [:conditionals :conditionals]) direct-ancestors)
+          conditional-ancestors (when (seq all-direct-ancestors-conds)
+                                  (collect-all-ancestral-entities all-data all-direct-ancestors-conds))
+
+          ;; Combine and deduplicate all ancestors by :path BEFORE expansion
+          ;; This prevents combinatoric explosion from duplicate entities
+          ancestors (vec (vals (into {} (map (juxt :path identity)
+                                             (concat direct-ancestors conditional-ancestors)))))
 
           ;; Expand ancestor OR branches using cartesian product
           ancestor-branches (expand-ancestor-or-branches ancestors)
@@ -1309,7 +1368,7 @@
    (generate-feature-files! edn-path "features/"))
   ([edn-path features-dir]
    (try
-     ;; Load test matrix (now returns map with path keys)
+     ;; Load test matrix (returns map with path keys)
      (let [all-data (load-test-matrix edn-path)
 
            ;; Get all entities (groups and submodules) from map values
