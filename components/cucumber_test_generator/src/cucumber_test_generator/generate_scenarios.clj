@@ -926,7 +926,7 @@
                   (str/join "\n" (map #(str DOCSTRING-INDENT %) negative-output-lines))
                   (str DOCSTRING-INDENT "\"\"\"")])
                (when (seq input-lines)
-                 [(str STEP-INDENT "And these inputs are entered Submodule > Group > Input:")
+                 [(str STEP-INDENT "When these inputs are entered Submodule > Group > Input:")
                   (str DOCSTRING-INDENT "\"\"\"")
                   (str/join "\n" (map #(str DOCSTRING-INDENT %) input-lines))
                   (str DOCSTRING-INDENT "\"\"\"")])
