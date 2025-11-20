@@ -1068,10 +1068,17 @@
     (let [;; Get direct ancestors from entity's own path
           direct-ancestors (get-ancestors all-data (:path entity))
 
-          ;; Recursively collect ancestors from all direct ancestors' conditionals
+          ;; Recursively collect ancestors from BOTH:
+          ;; 1. Direct ancestors' conditionals
+          ;; 2. Entity's own conditionals (to capture references like Fuel Model)
           all-direct-ancestors-conds (mapcat #(get-in % [:conditionals :conditionals]) direct-ancestors)
-          conditional-ancestors (when (seq all-direct-ancestors-conds)
-                                  (collect-all-ancestral-entities all-data all-direct-ancestors-conds))
+          entity-own-conds (get-in entity [:conditionals :conditionals])
+
+          ;; Combine both sources for ancestral entity collection
+          all-conds-to-follow (concat all-direct-ancestors-conds entity-own-conds)
+
+          conditional-ancestors (when (seq all-conds-to-follow)
+                                  (collect-all-ancestral-entities all-data all-conds-to-follow))
 
           ;; Combine and deduplicate all ancestors by :path BEFORE expansion
           ;; This prevents combinatoric explosion from duplicate entities
