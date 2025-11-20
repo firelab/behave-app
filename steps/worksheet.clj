@@ -21,7 +21,7 @@
    - [:surface :mortality] - Surface fire with tree mortality
    - [:mortality]          - Tree mortality only"
   {[:surface] "Surface Only"
-   [:surface :contain] "Surface and Contain"
+   [:surface :contain] "Surface & Contain"
    [:surface :crown] "Surface & Crown"
    [:surface :mortality] "Surface & Mortality"
    [:mortality] "Mortality Only"})
