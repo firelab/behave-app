@@ -1115,10 +1115,6 @@
                                                      (filter #(= (:type %) :module))
                                                      (map #(set (map keyword (:values %)))))
                             all-matching-module-conditionals (every? #(= module-combo %) module-conditionals)]
-
-                        (when (seq module-conditionals)
-                          (prn "module-combo:" module-combo)
-                          (prn "module-conditionals:" module-conditionals))
                         ;; Skip unsupported module combinations
                         (when (and (not= module-combo :unsupported) all-matching-module-conditionals)
                           (let [;; Filter ancestor setup by this combination's module
