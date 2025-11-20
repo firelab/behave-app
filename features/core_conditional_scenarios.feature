@@ -1,6 +1,8 @@
+@core
 Feature: Core Conditional Scenarios
 
   # 1. Input Group should appear when output group is selected
+  @core
   Scenario: Heading Rate of Spread is Selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these outputs are selected Submodule > Group > Output:
@@ -17,6 +19,7 @@ Feature: Core Conditional Scenarios
       """
 
       # 5. Input Submodule should appear when Output Group is selected
+  @core
   Scenario: Elapsed Time should Appear in the Inputs when Fire Area Output is Selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these outputs are selected Submodule > Group > Output:
@@ -29,6 +32,7 @@ Feature: Core Conditional Scenarios
       """
 
       # 4. Input Group should appear when some Output Groups are selected and some Output Groups are NOT selected
+  @core
   Scenario: Spot Submodule Should Appear when
     Given I have started a new Surface Worksheet in Guided Mode
     When these outputs are selected Submodule > Group > Output:
@@ -48,6 +52,7 @@ Feature: Core Conditional Scenarios
       """
 
       # 2. Input Submodule should NOT appear when output group is selected
+  @core
   Scenario: Spot Submodule Should Not Appear when Direction Mode: Heading is Selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these outputs are selected Submodule > Group > Output:
@@ -60,6 +65,7 @@ Feature: Core Conditional Scenarios
       """
 
       # 3. Input Group should appear when another Input Group has a value is selected
+  @core
   Scenario: By Size Class Appears when Moisture Input Mode is Individual Size Class
     Given I have started a new Surface Worksheet in Guided Mode
     When these outputs are selected Submodule > Group > Output:
@@ -76,6 +82,7 @@ Feature: Core Conditional Scenarios
       """
 
       # - Input is displayed when Input is Selected
+  @core
   Scenario: 10-h, 100-h, and Live Herbaceous Fuel Moisture Inputs Appears when Fuel Model: FB1/2 is Selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these outputs are selected Submodule > Group > Output:

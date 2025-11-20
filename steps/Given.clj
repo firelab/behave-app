@@ -13,6 +13,3 @@
 
 (Given "I have started a new Surface & Contain Worksheet in Guided Mode"
        (partial ws/start-worksheet [:surface :contain]))
-
-(Given "I have started a new Mortality Only Worksheet in Guided Mode"
-       (partial ws/start-worksheet [:mortality]))

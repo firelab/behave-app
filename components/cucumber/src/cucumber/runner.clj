@@ -5,7 +5,9 @@
    [tegere.loader      :refer [load-feature-files]]
    [tegere.steps       :refer [registry]]
    [tegere.runner      :refer [run]]
-   [cucumber.webdriver :as w]))
+   [tegere.query :as query]
+   [cucumber.webdriver :as w]
+   ))
 
 ;; Debug
 
@@ -33,7 +35,7 @@
 
 (defn run-cucumber-tests
   "Runs cucumber tests "
-  [{:keys [features steps url debug?] :as opts}]
+  [{:keys [features steps url debug? query-string stop] :as opts}]
 
   (when steps
     (load-steps! (io/file steps)))
@@ -42,7 +44,9 @@
     (println [:WEBDRIVER ]driver)
     (let [results (run (load-feature-files (io/file features))
                     @registry
-                    {}
+                    (cond-> {}
+                      query-string (assoc ::query/query-tree query-string)
+                      stop         (assoc :tegere.runner/stop stop))
                     {:initial-ctx {:driver driver :url url}})]
 
       ;; Do something with output
@@ -84,9 +88,9 @@
                                                      :url          "http://localhost:8081/worksheets"}))
                               (range 10)))
           failed  (apply + (map #(get-in % [:tegere.runner/outcome-summary :tegere.runner/features-failed])
-                               results))
+                                results))
           passed  (apply + (map #(get-in % [:tegere.runner/outcome-summary :tegere.runner/features-passed])
-                               results))]
+                                results))]
       (prn "passed: " passed)
       (prn "failed: " failed)))
 
