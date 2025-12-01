@@ -74,7 +74,7 @@ Feature: Core Conditional Scenarios
       """
     And these inputs are entered Submodule > Group > Input:
       """
-      --- Fuel Moisture > Moisture Input Mode > Individual Size Class
+      -- Fuel Moisture > Moisture Input Mode > Individual Size Class
       """
     Then the following input Submodule > Groups are displayed:
       """
@@ -91,8 +91,8 @@ Feature: Core Conditional Scenarios
       """
     And these inputs are entered Submodule > Group > Input:
       """
-      --- Fuel Model > Standard > Fuel Model > FB2/2 - Timber grass and understory (Static)
-      --- Fuel Moisture > Moisture Input Mode > Individual Size Class
+      -- Fuel Model > Standard > Fuel Model > FB2/2 - Timber grass and understory (Static)
+      -- Fuel Moisture > Moisture Input Mode > Individual Size Class
       """
     Then the following input Submodule > Groups are displayed:
       """

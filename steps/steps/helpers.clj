@@ -281,9 +281,9 @@
      driver - WebDriver instance
      output - Name of the output to select"
   [driver output]
-  (-> (find-element driver {:css ".wizard-group__outputs"})
-      (find-element {:text output})
-      (e/click!)))
+  (let [outputs-container (find-element driver {:css ".wizard-group__outputs"})]
+    (-> (e/find-el outputs-container (selector->by {:text output}))
+        (e/click!))))
 
 ;;; =============================================================================
 ;;; Button Operations
