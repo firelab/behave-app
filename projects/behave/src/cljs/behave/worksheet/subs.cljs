@@ -13,9 +13,7 @@
             [number-utils.core           :refer [parse-float]]
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]
-            [string-utils.interface      :refer [->kebab ->str]]
-            [behave.solver.queries :as q]
-            ))
+            [string-utils.interface      :refer [->kebab ->str]]))
 
 ;; Helpers
 (defn make-tree
@@ -269,7 +267,7 @@
 (rf/reg-sub
  :worksheet/all-variable-level-units
  (fn [_]
-   (rf/subscribe [:settings/units-system]))
+   (rf/subscribe [:settings/application-units-system]))
  (fn [units-system [_ ws-uuid]]
    (let [units-system-attr (case units-system
                              :native  :variable/native-unit-uuid
@@ -294,7 +292,7 @@
 (rf/reg-sub
  :worksheet/all-domain-level-units
  (fn [_]
-   (rf/subscribe [:settings/units-system]))
+   (rf/subscribe [:settings/application-units-system]))
  (fn [units-system [_ ws-uuid]]
    (let [units-system-attr (case units-system
                              :english :domain/english-unit-uuid
@@ -527,6 +525,35 @@
         (map first))))
 
 (rf/reg-sub
+ :worksheet/graphed-output-uuids
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+ (fn [worksheet [_ ws-uuid]]
+   (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
+               :in    $ $ws % ?ws-uuid
+               :where
+               [$ws ?w :worksheet/uuid ?ws-uuid]
+               [$ws ?w :worksheet/outputs ?o]
+               [$ws ?o :output/group-variable-uuid ?uuid]
+               [$ws ?o :output/enabled? true]
+               (lookup ?uuid ?gv)
+               [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]
+               [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]]
+             @@vms-conn
+             @@s/conn
+             rules
+             ws-uuid)
+        (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
+        (map first)
+        (map (fn [gv-uuid] @(rf/subscribe [:vms/entity-from-uuid gv-uuid])))
+        (remove #(if (seq (:group-variable/hide-result-conditionals %))
+                   (all-conditionals-pass? worksheet
+                                           (:group-variable/hide-result-conditional-operator %)
+                                           (:group-variable/hide-result-conditionals %))
+                   false))
+        (map :bp/uuid))))
+
+(rf/reg-sub
  :worksheet/all-output-uuids
  (fn [_ [_ ws-uuid]]
    (->> (d/q '[:find  [?uuid ...]
@@ -565,10 +592,12 @@
 
 (rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
- (fn [_ [_ ws-uuid]]
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/graphed-output-uuids ws-uuid]))
+ (fn [graph-output-uuids [_ ws-uuid]]
    {:type      :query
     :query     '[:find ?group-var-uuid ?min ?max
-                 :in   $ ?ws-uuid
+                 :in   $ ?ws-uuid [?group-var-uuid ...]
                  :where
                  [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/graph-settings ?g]
@@ -577,9 +606,8 @@
                  [?y :y-axis-limit/min ?min]
                  [?y :y-axis-limit/max ?max]
                  [?w :worksheet/outputs ?o]
-                 [?o :output/group-variable-uuid ?group-var-uuid]
-                 [?o :output/enabled? true]]
-    :variables [ws-uuid]}))
+                 [?o :output/group-variable-uuid ?group-var-uuid]]
+    :variables [ws-uuid graph-output-uuids]}))
 
 (rf/reg-sub
  :worksheet/graph-settings-y-axis-limits-filtered
@@ -1220,3 +1248,15 @@
         @@s/conn
         ws-uuid
         gv-uuid)))
+
+(rf/reg-sub
+ :worksheet/repeat-groups?
+ (fn [_ [_ ws-uuid]]
+   (some pos? (d/q '[:find [?rid ...]
+                     :in  $ ?ws-uuid
+                     :where
+                     [?w :worksheet/uuid ?ws-uuid]
+                     [?w :worksheet/input-groups ?g]
+                     [?g :input-group/group-uuid ?g-uuid]
+                     [?g :input-group/repeat-id ?rid]]
+                   @@s/conn ws-uuid))))

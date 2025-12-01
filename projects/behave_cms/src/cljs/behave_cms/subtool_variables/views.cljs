@@ -1,11 +1,13 @@
 (ns behave-cms.subtool-variables.views
-  (:require [re-frame.core                      :as rf]
-            [behave-cms.components.common       :refer [accordion
-                                                        window]]
-            [behave-cms.components.cpp-editor   :refer [cpp-editor-form]]
-            [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
-            [behave-cms.components.translations :refer [all-translations]]
-            [behave-cms.help.views              :refer [help-editor]]))
+  (:require
+   [re-frame.core :as rf]
+   [behave-cms.components.common :refer [accordion
+                                         checkbox
+                                         window]]
+   [behave-cms.components.cpp-editor :refer [cpp-editor-form]]
+   [behave-cms.components.sidebar :refer [sidebar sidebar-width ->sidebar-links]]
+   [behave-cms.components.translations :refer [all-translations]]
+   [behave-cms.help.views :refer [help-editor]]))
 
 ;;; Constants
 
@@ -13,6 +15,21 @@
                           :cpp-fn    :subtool-variable/cpp-function-uuid
                           :cpp-ns    :subtool-variable/cpp-namespace-uuid
                           :cpp-param :subtool-variable/cpp-parameter-uuid})
+
+(defn- bool-setting [label attr entity]
+  (let [{id :db/id} entity
+        *value?     (atom (get entity attr))
+        update!     #(rf/dispatch [:api/update-entity {:db/id id attr @*value?}])]
+    [:div.mt-1
+     [checkbox
+      label
+      @*value?
+      #(do (swap! *value? not)
+           (update!))]]))
+
+(defn- settings [subtool-variable]
+  [:div.row.mt-2
+   [bool-setting "Dynamic Units?" :subtool-variable/dynamic-units? subtool-variable]])
 
 ;;; Public Views
 
@@ -53,4 +70,8 @@
         "CPP Functions"
         [:div.col-6
          [cpp-editor-form
-          (merge cpp-attrs {:id [:bp/nid nid] :editor-key :subtool-variables})]]]]]]))
+          (merge cpp-attrs {:id [:bp/nid nid] :editor-key :subtool-variables})]]]
+       [:hr]
+       [accordion
+        "Settings"
+        [settings @subtool-variable]]]]]))
