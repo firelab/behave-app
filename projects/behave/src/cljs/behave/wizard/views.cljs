@@ -663,6 +663,7 @@
         *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
+        repeat-groups?       @(subscribe [:worksheet/repeat-groups? ws-uuid])
         tabs                 (cond-> []
 
                                (seq @*notes)
@@ -739,7 +740,8 @@
            [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
-            (search-tables ws-uuid)
+            (when (not repeat-groups?)
+             (search-tables ws-uuid))
             [pivot-tables ws-uuid]
             [result-matrices ws-uuid]
             [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]

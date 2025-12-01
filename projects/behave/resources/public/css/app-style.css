@@ -1242,7 +1242,7 @@ body {
 
 .tool-output .input-text__label,
 .tool-input .input-radio-group__label,
-.tool-input > .input-dropdown > .input-dropdown__label,
+.tool-input__input > .input-dropdown > .input-dropdown__label,
 .tool-input .input-number__label {
   min-width: 250px;
   padding: 0px;
@@ -1308,6 +1308,14 @@ body {
 .tool__close > .button:hover {
   color: var(--darkblue-4);
   background-color: var(--white);
+}
+
+.tool__units-system-selector {
+  padding-left: 5px;
+}
+
+.tool__units-system-selector .input-toggle__label {
+  width: 235px;
 }
 
 /* -- End Tool -- */

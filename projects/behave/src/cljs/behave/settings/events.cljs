@@ -1,6 +1,6 @@
 (ns behave.settings.events
-  (:require [re-frame.core :as rf]
-            [re-posh.core     :as rp]
+  (:require [re-frame.core                 :as rf]
+            [re-posh.core                  :as rp]
             [vimsical.re-frame.cofx.inject :as inject]))
 
 (rp/reg-event-fx
@@ -78,10 +78,17 @@
      (vector? k)
      (assoc-in settings k v))))
 
-
 (rf/reg-event-fx
  :settings/set-units-system
  (fn [_ [_ units-system]]
-   {:fx [[:dispatch [:settings/set [:units-system] units-system]]
-         [:dispatch [:local-storage/update-in [:units-system] units-system]]
+   {:fx [[:dispatch [:settings/set [:application-units-system] units-system]]
+         [:dispatch [:local-storage/update-in [:application-units-system] units-system]]
          [:dispatch [:state/set [:tool :data] nil]]]}))
+
+(rf/reg-event-fx
+ :settings/set-tool-units-system
+ (fn [_ [_ tool-uuid subtool-uuid auto-compute? units-system]]
+   {:fx (cond-> [[:dispatch [:settings/set [:tool-units-system] units-system]]
+                 [:dispatch [:local-storage/update-in [:tool-units-system] units-system]]
+                 [:dispatch [:state/set [:tool :data] nil]]]
+          auto-compute? (conj [:dispatch [:tool/solve tool-uuid subtool-uuid]]))}))

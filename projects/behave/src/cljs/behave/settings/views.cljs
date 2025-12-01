@@ -1,15 +1,15 @@
 (ns behave.settings.views
-  (:require [behave.components.core  :as c]
-            [behave.settings.events]
-            [behave.translate        :refer [<t bp]]
-            [dom-utils.interface     :refer [input-value]]
-            [reagent.core            :as r]
-            [re-frame.core           :as rf]))
+  (:require
+   [behave.components.core :as c]
+   [behave.settings.events]
+   [behave.translate       :refer [<t bp]]
+   [dom-utils.interface    :refer [input-value]]
+   [reagent.core           :as r]
+   [re-frame.core          :as rf]))
 
 ;;==============================================================================
 ;; Fuel Model Set Selection Tab
 ;;==============================================================================
-
 
 (defn- fuel-model-tab []
   [:div "Coming soon!"])
@@ -43,7 +43,7 @@
                                 (sort-by :label))))}]]))
 
 (defn- build-rows [ws-uuid domain-set domain-unit-settings]
-  (let [cached-units-system @(rf/subscribe [:settings/units-system])]
+  (let [cached-units-system @(rf/subscribe [:settings/application-units-system])]
     (map
      (fn [[domain-uuid {:keys [domain-name
                                domain-dimension-uuid
@@ -83,15 +83,15 @@
           domain-sets     (sort-by first @*state-settings)]
       [:div.settings__general-units
        [:div.settings__general-units__units-system-selection
-        [c/radio-group
-         {:label   "Units System"
-          :name    "Units System"
-          :options [{:label     "English"
-                     :on-change #(rf/dispatch [:settings/set-units-system :english])
-                     :checked?  (= @(rf/subscribe [:settings/units-system]) :english)}
-                    {:label     "Metric"
-                     :on-change #(rf/dispatch [:settings/set-units-system :metric])
-                     :checked?  (= @(rf/subscribe [:settings/units-system]) :metric)}]}]]
+        [c/toggle
+         {:label       @(<t (bp "units_system"))
+          :left-label  @(<t (bp "english"))
+          :right-label @(<t (bp "metric"))
+          :checked?    (= @(rf/subscribe [:settings/application-units-system]) :metric)
+          :on-change   #(rf/dispatch [:settings/set-units-system
+                                      (if (= @(rf/subscribe [:settings/application-units-system]) :english)
+                                        :metric
+                                        :english)])}]]
        [:div.settings__general-units__table
         (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
                                          ^{:key domain-sets}
@@ -107,7 +107,6 @@
                                                                         (fn [[_ domain]]
                                                                           (:domain-name domain))
                                                                         domain-unit-settings))})})})]])))
-
 
 ;;==============================================================================
 ;; Root Component

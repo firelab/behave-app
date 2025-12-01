@@ -1,5 +1,5 @@
 (ns behave.settings.subs
-  (:require [re-frame.core    :as rf]
+  (:require [re-frame.core             :as rf]
             [datascript.core  :as d]
             [behave.vms.store :refer [vms-conn]]))
 
@@ -34,12 +34,20 @@
    (:decimals (get local-storage v-uuid))))
 
 (rf/reg-sub
- :settings/units-system
+ :settings/application-units-system
  (fn [_]
    (rf/subscribe [:local-storage/get]))
 
  (fn [local-storage _]
-   (or (:units-system local-storage) :native)))
+   (or (:application-units-system local-storage) :native)))
+
+(rf/reg-sub
+ :settings/tool-units-system
+ (fn [_]
+   (rf/subscribe [:local-storage/get]))
+
+ (fn [local-storage _]
+   (or (:tool-units-system local-storage) :native)))
 
 (rf/reg-sub
  :settings/all-units+decimals
