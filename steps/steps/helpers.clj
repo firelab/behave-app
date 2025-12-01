@@ -103,6 +103,12 @@
 ;;; Waiting Utilities
 ;;; =============================================================================
 
+(defn wait-for-element
+  "Wait for the wizard interface to be present (up to 5 seconds)."
+  [driver selector]
+  (let [wait (w/wait driver 5000)]
+    (.until wait (w/presence-of (selector->by selector)))))
+
 (defn wait-for-wizard-by-selector
   "Wait for the wizard interface to be present (up to 5 seconds)."
   [driver selector]
@@ -265,82 +271,6 @@
   (select-submodule driver submodule {:css ".wizard"}))
 
 ;;; =============================================================================
-<<<<<<< Updated upstream
-;;; Waiting Utilities
-;;; =============================================================================
-
-(defn wait-for-element
-  "Wait for the wizard interface to be present (up to 5 seconds)."
-  [driver selector]
-  (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (selector->by selector)))))
-
-(defn wait-for-input-tab
-  "Wait for the wizard interface to be present (up to 5 seconds)."
-  [driver]
-  (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (selector->by {:css ".wizard-header__io-tabs"})))))
-
-(defn wait-for-wizard
-  "Wait for the wizard interface to be present (up to 5 seconds)."
-  [driver]
-  (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (selector->by {:css ".wizard"})))))
-
-(defn wait-for-working-area
-  "Wait for the working area to be present (up to 5 seconds)."
-  [driver]
-  (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (selector->by {:css ".working-area"})))))
-
-(defn wait-for-nested-element
-  "Wait for a nested element to appear within a parent element.
-
-   Args:
-     driver          - WebDriver instance
-     parent-selector - Selector map for parent element (e.g., {:css \".wizard\"})
-     text            - Text content to search for in child element
-     timeout-ms      - Maximum wait time in milliseconds
-
-   Examples:
-     (wait-for-nested-element driver {:css \".wizard-group__header\"} \"Fire Behavior\" 300)"
-  [driver parent-selector text timeout-ms]
-  (let [wait (w/wait driver timeout-ms)]
-    (.until wait (w/presence-of-nested-elements
-                  (selector->by parent-selector)
-                  (selector->by {:text text})))))
-
-(defn wait-for-groups
-  "Wait for groups to appear as properly nested elements in hierarchical order.
-
-   This function verifies that groups form a parent-child chain in the DOM.
-   For example, if groups = [\"Fire Behavior\" \"Direction Mode\" \"Heading\"],
-   it ensures:
-   1. \"Fire Behavior\" exists under .wizard-page__body
-   2. \"Direction Mode\" is nested within \"Fire Behavior\"
-   3. \"Heading\" is nested within \"Direction Mode\"
-
-   Args:
-     driver - WebDriver instance
-     groups - Collection of group names in hierarchical order (parent to child)
-
-   Example:
-     (wait-for-groups driver [\"parent-a\" \"parent-b\" \"parent-c\" \"last-child\"])"
-  [driver groups]
-  (when (seq groups)
-    (wait-for-nested-element driver
-                             {:css ".wizard-page__body"}
-                             (first groups)
-                             500)
-    (doseq [[parent child] (partition 2 1 groups)]
-      (let [wait (w/wait driver 300)]
-        (.until wait (w/presence-of-nested-elements
-                      (selector->by {:text parent})
-                      (selector->by {:text child})))))))
-
-;;; =============================================================================
-=======
->>>>>>> Stashed changes
 ;;; Output Selection
 ;;; =============================================================================
 
