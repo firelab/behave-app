@@ -3,7 +3,8 @@
 
    This namespace handles verifying that expected input groups are displayed
    in the Inputs tab of the worksheet wizard."
-  (:require [steps.helpers :as h]))
+  (:require [steps.helpers :as h]
+            [cucumber.webdriver :as w]))
 
 ;;; =============================================================================
 ;;; Private Helper Functions
@@ -84,6 +85,7 @@
      (enter-single-input driver [\"Fuel Moisture\" \"Moisture Input Mode\" \"Individual Size Class\"])
      ; => Navigates to [\"Fuel Moisture\" \"Moisture Input Mode\"], clicks radio option directly"
   [driver path]
+  (w/wait-for-groups driver (butlast path))
   (let [last-element (last path)
         is-value?    (h/numeric-or-multi-value? last-element)]
     (if is-value?

@@ -103,29 +103,21 @@
 ;;; Waiting Utilities
 ;;; =============================================================================
 
-(defn wait-for-element
-  "Wait for the wizard interface to be present (up to 5 seconds)."
+(defn wait-for-element-by-selector
+  "Wait for the wizard interface to be present (up to 300 miliseconds)."
   [driver selector]
-  (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (selector->by selector)))))
-
-(defn wait-for-wizard-by-selector
-  "Wait for the wizard interface to be present (up to 5 seconds)."
-  [driver selector]
-  (let [wait (w/wait driver 1000)]
+  (let [wait (w/wait driver 300)]
     (.until wait (w/presence-of (selector->by selector)))))
 
 (defn wait-for-wizard
-  "Wait for the wizard interface to be present (up to 5 seconds)."
+  "Wait for the wizard interface to be present."
   [driver]
-  (let [wait (w/wait driver 1000)]
-    (.until wait (w/presence-of (selector->by {:css ".wizard"})))))
+  (wait-for-element-by-selector driver {:css ".wizard"}))
 
 (defn wait-for-working-area
-  "Wait for the working area to be present (up to 5 seconds)."
+  "Wait for the working area to be present."
   [driver]
-  (let [wait (w/wait driver 1000)]
-    (.until wait (w/presence-of (selector->by {:css ".working-area"})))))
+  (wait-for-element-by-selector driver {:css ".working-area"}))
 
 (defn wait-for-nested-element
   "Wait for a nested element to appear within a parent element.
@@ -215,7 +207,7 @@
    See also:
      selector->by - For converting selectors to Selenium By objects"
   [driver selector]
-  (wait-for-wizard-by-selector driver selector)
+  (wait-for-element-by-selector driver selector)
   (e/find-el driver (selector->by selector)))
 
 (defn find-input-by-label
