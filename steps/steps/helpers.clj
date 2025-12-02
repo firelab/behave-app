@@ -207,7 +207,7 @@
    See also:
      selector->by - For converting selectors to Selenium By objects"
   [driver selector]
-  (wait-for-element-by-selector driver selector)
+  ;; (wait-for-element-by-selector driver selector)
   (e/find-el driver (selector->by selector)))
 
 (defn find-input-by-label
@@ -244,8 +244,8 @@
      submodule - Name of the submodule to select
      selector  - Selector map (e.g., {:css \".wizard\"})"
   [driver submodule selector]
-  (-> (find-element driver selector)
-      (e/find-el (by/attr= :text submodule))
+  (find-element driver selector)
+  (-> (find-element driver {:text submodule})
       (e/click!)))
 
 (defn select-submodule-in-wizard
