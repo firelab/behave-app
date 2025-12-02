@@ -4,6 +4,7 @@
  {:dev
   {:extra-paths ["development"
                  "target"
+                 "steps"
 
                  ;; Components
                  "components/async_utils/src"
