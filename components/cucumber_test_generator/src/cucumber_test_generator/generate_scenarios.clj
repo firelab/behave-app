@@ -719,6 +719,11 @@
    For :or operator: each conditional creates separate branches.
    For :and or nil: conditionals are combined via cartesian product.
    Recursively handles nested sub-conditionals with :or operators.
+   
+   IMPORTANT: Filters out malformed conditionals that are missing required fields.
+   A valid conditional must have either:
+   - :type :module (module conditionals), OR
+   - :type :group-variable with a non-nil :group-variable map (output/input conditionals)
 
    Arguments:
    - conditionals-info: Map with :conditionals and :conditionals-operator
@@ -727,31 +732,355 @@
    Sequence of paths, where each path is a flat sequence of conditionals"
   [conditionals-info]
   (let [operator (:conditionals-operator conditionals-info)
-        conditionals (:conditionals conditionals-info)]
+        conditionals (:conditionals conditionals-info)
+
+        ;; Filter out malformed conditionals
+        valid-conditionals (filter
+                            (fn [cond]
+                              (or
+                                ;; Module conditionals are valid (have :type :module)
+                               (= (:type cond) :module)
+                                ;; Group-variable conditionals must have :group-variable map
+                               (and (= (:type cond) :group-variable)
+                                    (some? (:group-variable cond)))))
+                            conditionals)]
     (if (= operator :or)
       ;; :or operator - create separate branch for each conditional
       ;; Each conditional may have nested sub-conditionals that need flattening
-      (mapcat flatten-conditional-to-paths conditionals)
+      (mapcat flatten-conditional-to-paths valid-conditionals)
       ;; :and operator or nil - combine all conditionals
       ;; Create cartesian product of all conditional paths
-      (let [all-paths (map flatten-conditional-to-paths conditionals)]
+      (let [all-paths (map flatten-conditional-to-paths valid-conditionals)]
         (if (empty? all-paths)
           [[]] ; no conditionals
           (let [combinations (apply combo/cartesian-product all-paths)]
             (map #(apply concat %) combinations)))))))
 
-(defn expand-ancestor-or-branches
-  "Expand ancestors with :or operators using cartesian product strategy.
+(defn conditionals-equal?
+  "Check if two conditionals are equivalent.
+   
+   Compares type, operator, values, group-variable path, and translated-name
+   to determine equality. This is crucial for detecting overlapping conditionals
+   across different ancestors.
+   
+   The translated-name comparison is essential to distinguish between different
+   outputs in the same group (e.g., 'Flame Length' vs 'Fireline Intensity' both
+   in the 'Surface Fire' group)."
+  [cond1 cond2]
+  (and (= (:type cond1) (:type cond2))
+       (= (:operator cond1) (:operator cond2))
+       (= (set (:values cond1)) (set (:values cond2)))
+       (= (get-in cond1 [:group-variable :path])
+          (get-in cond2 [:group-variable :path]))
+       ;; Also compare the translated-name to distinguish different variables in the same group
+       (= (get-in cond1 [:group-variable :group-variable/translated-name])
+          (get-in cond2 [:group-variable :group-variable/translated-name]))))
 
-   Creates all combinations of ancestor branches to ensure comprehensive test coverage.
-   Each ancestor's conditionals are expanded (including nested sub-conditionals),
-   then all ancestor branches are combined via cartesian product.
+(defn find-overlapping-conditionals
+  "Find conditionals that appear in multiple ancestors' branches.
+   
+   Analyzes all expanded branches from all ancestors to identify which conditionals
+   are shared across different ancestors' :or lists. Uses conditional equality rather
+   than identity to detect overlaps.
+   
+   IMPORTANT: Excludes :module type conditionals from overlap detection. Module
+   conditionals represent different worksheet contexts (e.g., Surface vs. Contain+Surface)
+   and should always be included in cartesian products, not deduplicated.
+   
+   Arguments:
+   - expanded-branches: Sequence of sequences, one per ancestor, where each inner
+                        sequence contains all possible branches for that ancestor
+   
+   Returns:
+   Map of {conditional → #{ancestor-index-0 ancestor-index-1 ...}}
+   Only includes conditionals that appear in 2+ ancestors"
+  [expanded-branches]
+  (let [;; First, collect all unique conditionals by value (using conditionals-equal?)
+        ;; Build a map from "canonical" conditional to ancestor indices
+        conditional-to-ancestors
+        (reduce
+         (fn [acc [ancestor-idx branches]]
+           (reduce
+            (fn [acc2 branch]
+              (reduce
+               (fn [acc3 conditional]
+                 ;; Skip :module type conditionals - they should not be deduplicated
+                 (if (= (:type conditional) :module)
+                   acc3
+                   ;; Find if this conditional already exists (by value equality)
+                   (let [existing-key (some (fn [[k _v]]
+                                              (when (conditionals-equal? k conditional)
+                                                k))
+                                            acc3)]
+                     (if existing-key
+                       ;; Use existing key
+                       (update acc3 existing-key (fnil conj #{}) ancestor-idx)
+                       ;; New conditional
+                       (assoc acc3 conditional #{ancestor-idx})))))
+               acc2
+               branch))
+            acc
+            branches))
+         {}
+         (map-indexed vector expanded-branches))]
+    ;; Filter to only overlapping (appear in 2+ ancestors)
+    (into {}
+          (filter (fn [[_cond ancestor-set]]
+                    (>= (count ancestor-set) 2))
+                  conditional-to-ancestors))))
+
+(defn group-ancestors-by-overlaps
+  "Partition ancestors into groups based on shared overlapping conditionals.
+   
+   Ancestors that share ANY overlapping conditional belong to the same group.
+   Uses a union-find-like approach to build connected components.
+   
+   Arguments:
+   - num-ancestors: Total number of ancestors
+   - overlaps: Map from find-overlapping-conditionals {conditional → #{ancestor-indices}}
+   
+   Returns:
+   Vector of groups, where each group is:
+   {:ancestor-indices #{idx1 idx2 ...}
+    :shared-conditionals [cond1 cond2 ...]}
+   
+   Examples:
+   - 7 ancestors, conditionals appear in #{0 5} → [{:ancestor-indices #{0 5} :shared-conditionals [...]}
+                                                    {:ancestor-indices #{1} :shared-conditionals []}
+                                                    {:ancestor-indices #{2} :shared-conditionals []}
+                                                    ...]
+   - All ancestors overlap → [{:ancestor-indices #{0 1 2 3 4 5 6} :shared-conditionals [...]}]"
+  [num-ancestors overlaps]
+  (if (empty? overlaps)
+    ;; No overlaps - each ancestor is its own group
+    (mapv (fn [idx] {:ancestor-indices #{idx}
+                     :shared-conditionals []})
+          (range num-ancestors))
+    ;; Build connected components
+    (let [;; Start with each ancestor in its own group
+          initial-groups (vec (map (fn [idx] {:ancestor-indices #{idx}
+                                              :shared-conditionals []})
+                                   (range num-ancestors)))
+
+          ;; For each overlapping conditional, merge the groups containing those ancestors
+          merged-groups
+          (reduce
+           (fn [groups [conditional ancestor-set]]
+             (let [;; Find all groups that contain any of these ancestors
+                   affected-group-indices
+                   (keep-indexed (fn [idx group]
+                                   (when (some (:ancestor-indices group) ancestor-set)
+                                     idx))
+                                 groups)]
+               (if (<= (count affected-group-indices) 1)
+                 ;; Only one group affected (or none) - just add conditional to it
+                 (if (seq affected-group-indices)
+                   (update-in groups [(first affected-group-indices) :shared-conditionals]
+                              conj conditional)
+                   groups)
+                 ;; Multiple groups need to be merged
+                 (let [;; Get all affected groups
+                       affected-groups (map #(nth groups %) affected-group-indices)
+                       ;; Merge them
+                       merged-group {:ancestor-indices (apply clojure.set/union
+                                                              (map :ancestor-indices affected-groups))
+                                     :shared-conditionals (vec (concat [conditional]
+                                                                       (mapcat :shared-conditionals affected-groups)))}
+                       ;; Remove old groups and add merged one
+                       remaining-groups (keep-indexed (fn [idx group]
+                                                        (when-not (some #{idx} affected-group-indices)
+                                                          group))
+                                                      groups)]
+                   (conj (vec remaining-groups) merged-group)))))
+           initial-groups
+           overlaps)]
+
+      ;; Remove duplicate conditionals from shared-conditionals lists
+      (mapv (fn [group]
+              (update group :shared-conditionals
+                      #(vec (distinct %))))
+            merged-groups))))
+
+(defn create-minimal-ancestor-branches
+  "Create minimal branches by deduplicating overlapping conditionals.
+   
+   For each overlapping conditional:
+   1. Create a branch with just that conditional
+   2. Determine which ancestors it doesn't satisfy
+   3. Combine with non-overlapping branches from unsatisfied ancestors
+   
+   This ensures each overlapping conditional creates minimal branches that satisfy
+   all ancestors, avoiding redundant scenario combinations.
+   
+   Arguments:
+   - ancestors: Sequence of ancestor maps
+   - expanded-branches: Expanded branches for each ancestor (from expand-or-conditionals)
+   - overlaps: Map from find-overlapping-conditionals {conditional → #{ancestor-indices}}
+   
+   Returns:
+   Sequence of minimal ancestor setups (flat lists of conditionals)"
+  [ancestors expanded-branches overlaps]
+  (if (empty? overlaps)
+    ;; No overlaps - use cartesian product as before
+    (let [combinations (apply combo/cartesian-product expanded-branches)]
+      (map #(apply concat %) combinations))
+    ;; Has overlaps - create minimal branches per overlapping conditional
+    (let [num-ancestors (count ancestors)
+
+          ;; Get branches that don't contain ANY overlapping conditional, per ancestor
+          non-overlapping-by-ancestor
+          (map-indexed
+           (fn [idx branches]
+             (filter (fn [branch]
+                       (not-any? (fn [cond]
+                                   (contains? overlaps cond))
+                                 branch))
+                     branches))
+           expanded-branches)
+
+          ;; For each overlapping conditional, create branches
+          overlapping-branches
+          (for [[cond ancestor-indices] overlaps]
+            (let [uncovered-ancestors (clojure.set/difference (set (range num-ancestors))
+                                                              ancestor-indices)
+                  uncovered-branches (map #(nth non-overlapping-by-ancestor %)
+                                          uncovered-ancestors)
+                  uncovered-branches-filtered (remove empty? uncovered-branches)]
+              (if (empty? uncovered-ancestors)
+                ;; Conditional satisfies ALL ancestors
+                [[cond]]
+                ;; Conditional satisfies SOME ancestors - combine with uncovered
+                (if (empty? uncovered-branches-filtered)
+                  ;; No non-overlapping branches in uncovered ancestors - skip this
+                  []
+                  ;; Cartesian product with uncovered branches
+                  (let [uncovered-combos (apply combo/cartesian-product uncovered-branches-filtered)]
+                    (for [uncovered-combo uncovered-combos]
+                      (concat [cond] (apply concat uncovered-combo))))))))
+
+          overlapping-branches-flat (apply concat overlapping-branches)
+
+          ;; Also include pure non-overlapping (all ancestors use non-overlapping branches)
+          non-empty-non-overlapping (remove empty? non-overlapping-by-ancestor)
+          pure-non-overlapping (if (= (count non-empty-non-overlapping) num-ancestors)
+                                 (let [combos (apply combo/cartesian-product non-empty-non-overlapping)]
+                                   (map #(apply concat %) combos))
+                                 [])]
+
+      (concat overlapping-branches-flat pure-non-overlapping))))
+
+(defn find-overlapping-between-branch-sets
+  "Find conditionals that overlap between two sets of branches (e.g., ancestor branches and entity branches).
+   
+   Returns a map of overlapping conditionals to their locations:
+   {:conditional {:in-set-a boolean, :in-set-b boolean}}"
+  [branches-a branches-b]
+  (let [;; Collect all unique conditionals from set A
+        conditionals-a (into #{}
+                             (mapcat identity branches-a))
+        ;; Collect all unique conditionals from set B
+        conditionals-b (into #{}
+                             (mapcat identity branches-b))
+
+        ;; Find conditionals that appear in both sets (by value equality)
+        overlaps (for [cond-a conditionals-a
+                       cond-b conditionals-b
+                       :when (conditionals-equal? cond-a cond-b)]
+                   cond-a)]
+
+    (into #{} overlaps)))
+
+(defn create-minimal-combined-branches
+  "Create minimal branches by deduplicating overlapping conditionals between ancestor and entity branches.
+   
+   Algorithm:
+   1. Detect conditionals that overlap between ancestor branches and entity branches
+   2. For each overlapping conditional:
+      - Find ancestor branches containing it
+      - Find entity branches containing it
+      - Create ONE combined branch with the overlapping conditional + non-overlapping parts
+   3. For non-overlapping portions, do cartesian product as normal
+   
+   Arguments:
+   - ancestor-branches: Sequence of branches (each branch is a sequence of conditionals)
+   - entity-branches: Sequence of branches (each branch is a sequence of conditionals)
+   
+   Returns:
+   Sequence of combined branches [ancestor-setup entity-setup]"
+  [ancestor-branches entity-branches]
+  (if (or (empty? ancestor-branches) (empty? entity-branches))
+    ;; No combination possible if either is empty
+    (if (empty? entity-branches)
+      (map vector ancestor-branches (repeat []))
+      [])
+    (let [overlapping-conds (find-overlapping-between-branch-sets ancestor-branches entity-branches)]
+
+      (if (empty? overlapping-conds)
+        ;; No overlaps - traditional cartesian product
+        (for [ancestor-setup ancestor-branches
+              entity-setup entity-branches]
+          [ancestor-setup entity-setup])
+
+        ;; Has overlaps - create minimal branches
+        (let [;; For each overlapping conditional, create one minimal branch
+              overlapping-branches
+              (for [overlap-cond overlapping-conds]
+                ;; Find ANY ancestor branch containing this conditional
+                (let [ancestor-branch (some #(when (some (fn [c] (conditionals-equal? c overlap-cond)) %)
+                                               %)
+                                            ancestor-branches)
+                      ;; Find ANY entity branch containing this conditional
+                      entity-branch (some #(when (some (fn [c] (conditionals-equal? c overlap-cond)) %)
+                                             %)
+                                          entity-branches)]
+                  ;; Combine them, the overlapping conditional appears in both
+                  [ancestor-branch entity-branch]))
+
+              ;; Filter to get non-overlapping branches
+              non-overlapping-ancestor-branches
+              (filter (fn [branch]
+                        (not-any? (fn [cond]
+                                    (some #(conditionals-equal? cond %) overlapping-conds))
+                                  branch))
+                      ancestor-branches)
+
+              non-overlapping-entity-branches
+              (filter (fn [branch]
+                        (not-any? (fn [cond]
+                                    (some #(conditionals-equal? cond %) overlapping-conds))
+                                  branch))
+                      entity-branches)
+
+              ;; Do cartesian product on non-overlapping parts
+              non-overlapping-combos
+              (if (or (empty? non-overlapping-ancestor-branches)
+                      (empty? non-overlapping-entity-branches))
+                []
+                (for [ancestor-setup non-overlapping-ancestor-branches
+                      entity-setup non-overlapping-entity-branches]
+                  [ancestor-setup entity-setup]))]
+
+          ;; Combine overlapping branches with non-overlapping combinations
+          (concat overlapping-branches non-overlapping-combos))))))
+
+(defn expand-ancestor-or-branches
+  "Expand ancestors with :or operators using pre-cartesian deduplication.
+
+   IMPORTANT: Uses pre-cartesian deduplication to handle overlapping :or conditionals.
+   When multiple ancestors have the same conditional in their :or lists, creates
+   minimal branches where ONE conditional satisfies multiple ancestors.
+   
+   This fixes Bug #2: prevents redundant scenarios like selecting both 'Flame Length'
+   and 'Fireline Intensity' when either one alone would satisfy all ancestors.
+   
+   Maintains Bug #1 fix: special case for single ancestor to avoid intra-ancestor
+   cartesian product.
 
    Arguments:
    - ancestors: Sequence of ancestor maps with :conditionals
 
    Returns:
-   Sequence of ancestor setups, each is a flat list of conditionals from all ancestors"
+   Sequence of minimal ancestor setups, each is a flat list of conditionals"
   [ancestors]
   (if (empty? ancestors)
     [[]] ; no ancestors, return single empty setup
@@ -759,10 +1088,18 @@
           expanded-branches (map #(expand-or-conditionals (:conditionals %)) ancestors)]
       (if (every? empty? expanded-branches)
         [[]] ; all ancestors have no conditionals
-        ;; Create cartesian product of all ancestor branches
-        (let [combinations (apply combo/cartesian-product expanded-branches)]
-          ;; Flatten each combination into a single list of conditionals
-          (map #(apply concat %) combinations))))))
+        ;; Bug #1 fix: single ancestor special case (no cartesian product)
+        (if (= 1 (count expanded-branches))
+          (first expanded-branches)
+          ;; Multiple ancestors: use pre-cartesian deduplication for overlaps
+          (let [;; Find overlapping conditionals across ancestors
+                overlaps (find-overlapping-conditionals expanded-branches)]
+            (if (empty? overlaps)
+              ;; No overlaps - use traditional cartesian product
+              (let [combinations (apply combo/cartesian-product expanded-branches)]
+                (map #(apply concat %) combinations))
+              ;; Has overlaps - use minimal branch creation
+              (create-minimal-ancestor-branches ancestors expanded-branches overlaps))))))))
 
 (defn has-any-research-conditional?
   "Check if any conditional in a list has research dependencies.
@@ -776,8 +1113,19 @@
   (some has-research-dependency? conditionals))
 
 (defn deduplicate-ancestor-conditionals
-  "Remove duplicate setup requirements.
-   When multiple :or branches reference same output, include only once.
+  "Remove duplicate and redundant setup requirements.
+   
+   Performs two levels of deduplication:
+   1. Exact duplicates: Same path, translated-name, and value
+   2. :or group deduplication: Multiple conditionals from the same :or group
+      (same path, operator, value but different translated-names)
+   
+   For :or group deduplication, when multiple conditionals reference the same
+   group path with the same value (e.g., both 'Flame Length' and 'Fireline Intensity'
+   from 'Surface Fire' group), keep only the first one encountered.
+   
+   This prevents redundant scenarios like selecting both 'Flame Length' AND
+   'Fireline Intensity' when either one alone would satisfy the requirements.
 
    Arguments:
    - conditionals: Sequence of conditional maps
@@ -785,16 +1133,33 @@
    Returns:
    Deduplicated list maintaining order"
   [conditionals]
-  (let [seen (atom #{})
-        dedup-fn (fn [cond]
-                   (let [path (get-in cond [:group-variable :path])
-                         var-name (get-in cond [:group-variable :group-variable/translated-name])
-                         value (first (:values cond))
-                         key [path var-name value]]
-                     (when-not (@seen key)
-                       (swap! seen conj key)
-                       cond)))]
-    (keep dedup-fn conditionals)))
+  (into #{} conditionals)
+  #_(let [seen-exact (atom #{})
+          seen-or-groups (atom #{})
+          dedup-fn (fn [cond]
+                     (let [path (get-in cond [:group-variable :path])
+                           var-name (get-in cond [:group-variable :group-variable/translated-name])
+                           value (first (:values cond))
+                           operator (:operator cond)
+
+                         ;; Exact match key
+                           exact-key [path var-name value]
+
+                         ;; :or group key (path + operator + value, without var-name)
+                         ;; Only use for :equal operator with value "true" (typical :or conditionals)
+                           or-group-key (when (and (= operator :equal)
+                                                   (= value "true")
+                                                   path
+                                                   var-name)
+                                          [path operator value])]
+
+                       (when-not (or (@seen-exact exact-key)
+                                     (and or-group-key (@seen-or-groups or-group-key)))
+                         (swap! seen-exact conj exact-key)
+                         (when or-group-key
+                           (swap! seen-or-groups conj or-group-key))
+                         cond)))]
+      (keep dedup-fn conditionals)))
 
 ;; ===========================================================================================================
 ;; Setup Step Generation (Task 6.3)
@@ -921,7 +1286,7 @@
                   (str/join "\n" (map #(str DOCSTRING-INDENT %) output-lines))
                   (str DOCSTRING-INDENT "\"\"\"")])
                (when (seq negative-output-lines)
-                 [(str STEP-INDENT "And these outputs are NOT selected Submodule > Group > Output:")
+                 [(str STEP-INDENT "When these outputs are NOT selected Submodule > Group > Output:")
                   (str DOCSTRING-INDENT "\"\"\"")
                   (str/join "\n" (map #(str DOCSTRING-INDENT %) negative-output-lines))
                   (str DOCSTRING-INDENT "\"\"\"")])
@@ -1042,10 +1407,12 @@
     module-combo))
 
 (defn generate-scenarios-for-entity
-  "Generate all scenarios for one entity (group or submodule) using cartesian product.
+  "Generate all scenarios for one entity (group or submodule) using cartesian product with deduplication.
 
    Expands both ancestor conditionals and the target entity's own conditionals,
-   then creates cartesian product to generate all possible scenario combinations.
+   then creates cartesian product with overlap deduplication to generate minimal
+   scenario combinations. This prevents redundant scenarios like selecting both
+   'Flame Length' and 'Fireline Intensity' when either would satisfy all requirements.
    
    Module detection happens PER COMBINATION, not at entity level, since different
    combinations may require different worksheet types.
@@ -1085,7 +1452,7 @@
           ancestors (vec (vals (into {} (map (juxt :path identity)
                                              (concat direct-ancestors conditional-ancestors)))))
 
-          ;; Expand ancestor OR branches using cartesian product
+          ;; Expand ancestor OR branches using cartesian product with deduplication
           ancestor-branches (expand-ancestor-or-branches ancestors)
 
           ;; Deduplicate each ancestor branch
@@ -1098,14 +1465,9 @@
           ;; Deduplicate each entity branch
           deduped-entity-branches (map deduplicate-ancestor-conditionals entity-branches)
 
-          ;; Create cartesian product of ancestor branches × entity branches
-          all-combinations (if (empty? deduped-entity-branches)
-                             ;; No entity conditionals, just use ancestor branches
-                             (map vector deduped-ancestor-branches (repeat []))
-                             ;; Cartesian product of ancestors × entity
-                             (for [ancestor-setup deduped-ancestor-branches
-                                   entity-setup deduped-entity-branches]
-                               [ancestor-setup entity-setup]))
+          ;; Create cartesian product with overlap deduplication
+          ;; This fixes Bug #2 for the ancestor × entity combination
+          all-combinations (create-minimal-combined-branches deduped-ancestor-branches deduped-entity-branches)
 
           ;; Filter out combinations that contain ANY research dependencies
           non-research-combinations (remove (fn [[ancestor-setup entity-setup]]

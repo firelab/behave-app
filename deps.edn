@@ -11,6 +11,7 @@
                  "components/browser_utils/src"
                  "components/csv_parser/src"
                  "components/cucumber/src"
+                 "components/cucumber_test_generator/src"
                  "components/config/src"
                  "components/data_utils/src"
                  "components/date_utils/src"
@@ -52,6 +53,7 @@
                 net.coobird/thumbnailator               {:mvn/version "0.4.19"}
                 org.clj-commons/digest                  {:mvn/version "1.4.100"}
                 org.clojure/clojure                     {:mvn/version "1.11.1"}
+                org.clojure/math.combinatorics          {:mvn/version "0.3.0"}
                 org.clojure/data.json                   {:mvn/version "1.0.0"}
                 org.clojure/data.xml                    {:mvn/version "0.2.0-alpha7"}
                 org.mindrot/jbcrypt                     {:mvn/version "0.4"}
