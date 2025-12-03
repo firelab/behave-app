@@ -236,31 +236,14 @@
 ;;; Submodule Selection
 ;;; =============================================================================
 
-(defn select-submodule
-  "Select a submodule within a given container.
-
-   Args:
-     driver    - WebDriver instance
-     submodule - Name of the submodule to select
-     selector  - Selector map (e.g., {:css \".wizard\"})"
-  [driver submodule selector]
-  (find-element driver selector)
-  (-> (find-element driver {:text submodule})
-      (e/click!)))
-
-(defn select-submodule-in-wizard
+(defn select-submodule-tab
   "Select a submodule in the wizard header.
 
    Used primarily in the Outputs tab for selecting submodules."
   [driver submodule]
-  (select-submodule driver submodule {:css ".wizard-header__submodules"}))
-
-(defn select-submodule-in-page
-  "Select a submodule in the wizard page body.
-
-   Used primarily in the Inputs tab for selecting submodules."
-  [driver submodule]
-  (select-submodule driver submodule {:css ".wizard"}))
+  (-> (find-element driver {:css ".wizard-header__submodules"})
+      (find-element {:text submodule})
+      (e/click!)))
 
 ;;; =============================================================================
 ;;; Output Selection
@@ -273,9 +256,9 @@
      driver - WebDriver instance
      output - Name of the output to select"
   [driver output]
-  (let [outputs-container (find-element driver {:css ".wizard-group__outputs"})]
-    (-> (e/find-el outputs-container (selector->by {:text output}))
-        (e/click!))))
+  (-> (find-element driver {:css ".wizard-group__outputs"})
+      (find-element {:text output})
+      (e/click!)))
 
 ;;; =============================================================================
 ;;; Button Operations
@@ -468,7 +451,8 @@
   [driver tab-name]
   (-> (find-element driver {:css ".wizard-header__io-tabs"})
       (e/find-el (by/attr= :text tab-name))
-      (e/click!)))
+      (e/click!))
+  (wait-for-wizard driver))
 
 (defn navigate-to-inputs
   "Navigate to the Inputs tab in the wizard."
@@ -508,7 +492,7 @@
        (e/find-el group-element (by/css \".some-class\")))"
   [driver submodule+groups]
   (let [[submodule & groups] submodule+groups]
-    (select-submodule-in-wizard driver submodule)
+    (select-submodule-tab driver submodule)
     (if (seq groups)
       (do (wait-for-groups driver groups)
           (let [last-group-name (last groups)]

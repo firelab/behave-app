@@ -143,8 +143,8 @@
                    --- Fuel Moisture > By Size Class > Live Woody Fuel Moisture > 5, 10, 15
                    \"\"\")"
   [{:keys [driver]} inputs-text]
-  (h/navigate-to-inputs driver)
   (h/wait-for-wizard driver)
+  (h/navigate-to-inputs driver)
   (let [inputs (h/parse-multiline-list inputs-text)]
     (doseq [input inputs]
       (enter-single-input driver input))
@@ -178,8 +178,8 @@
                                         -- Fuel Moisture > Moisture Input Mode
                                         \"\"\")"
   [{:keys [driver]} submodule-groups-text]
-  (h/navigate-to-inputs driver)
   (h/wait-for-wizard driver)
+  (h/navigate-to-inputs driver)
 
   (let [submodule-groups (h/parse-multiline-list submodule-groups-text)]
     (doseq [sg submodule-groups]
