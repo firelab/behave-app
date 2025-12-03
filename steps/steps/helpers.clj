@@ -243,7 +243,8 @@
   [driver submodule]
   (-> (find-element driver {:css ".wizard-header__submodules"})
       (find-element {:text submodule})
-      (e/click!)))
+      (e/click!))
+  (wait-for-wizard driver))
 
 ;;; =============================================================================
 ;;; Output Selection
