@@ -1,11 +1,9 @@
 (ns cucumber-test-generator.generate-scenarios
-  (:require [datomic.api :as d]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.pprint :refer [pprint]]
-            [clojure.math.combinatorics :as combo]
-            [behave-cms.store :refer [default-conn]]))
+            [clojure.math.combinatorics :as combo]))
 
 ;; ===========================================================================================================
 ;; Gherkin Indentation Constants
@@ -38,8 +36,8 @@
    Sequence of parent paths, or nil if path has 2 or fewer elements"
   [path]
   (when (> (count path) 2)
-    (let [module (take 1 path)
-          rest-path (drop 1 path)
+    (let [module     (take 1 path)
+          rest-path  (drop 1 path)
           num-groups (count rest-path)]
       (-> (for [i (range 1 num-groups)]
             (vec (concat module (take i rest-path))))
@@ -47,11 +45,11 @@
 
 (defn get-ancestors
   "Get all ancestor entities for a given path by looking them up in the data map.
-  
+
    Arguments:
    - all-data: Map with path vectors as keys, entity info as values
    - entity-path: Path vector like ['Crown' 'Spot' :input 'Torching Trees']
-   
+
    Returns:
    Vector of ancestor entity maps (submodules and parent groups)"
   [all-data entity-path]
@@ -60,18 +58,18 @@
 
 (defn collect-all-ancestral-entities
   "Recursively collect all entities referenced by conditionals' group-variable paths.
-   
+
    When a conditional references a path like [\"Surface\" \"Fire Behavior\" :output \"Direction Mode\"],
    this function:
    1. Extracts ancestral paths (e.g., [\"Surface\" \"Fire Behavior\" :output])
    2. Looks them up in all-data map
    3. For any found entities with conditionals, recursively processes those too
    4. Returns all ancestral entities, deduplicated by :path
-   
+
    Arguments:
    - all-data: Map with path vectors as keys, entity info as values
    - conditionals: Sequence of conditionals to process
-   
+
    Returns:
    Vector of ancestral entity maps (deduplicated by :path)"
   [all-data conditionals]
@@ -79,7 +77,7 @@
             (let [path (get-in cond [:group-variable :path])]
               (if (and path (not (contains? seen-paths path)))
                 ;; Extract ancestral paths from this conditional's path
-                (let [ancestral-paths (collect-parent-groups path)
+                (let [ancestral-paths    (collect-parent-groups path)
                       ;; Also check if the path itself exists (when it's a 3-element path with no parents)
                       direct-path-entity (get all-data path)
                       ;; Look up ancestral entities in all-data
@@ -89,9 +87,9 @@
                                            (cons direct-path-entity ancestral-entities)
                                            ancestral-entities)
                       ;; Mark this path as seen
-                      updated-seen (conj seen-paths path)
+                      updated-seen       (conj seen-paths path)
                       ;; Recursively process conditionals from all found entities
-                      nested-results (mapcat
+                      nested-results     (mapcat
                                       (fn [entity]
                                         (when-let [entity-conds (get-in entity [:conditionals :conditionals])]
                                           (collect-from-conditional-seq entity-conds updated-seen)))
@@ -145,7 +143,7 @@
          (throw (ex-info (str "EDN file not found: " edn-path)
                          {:edn-path edn-path})))
        (let [content (slurp edn-path)
-             data (edn/read-string content)]
+             data    (edn/read-string content)]
          (when-not (map? data)
            (throw (ex-info "Malformed EDN: expected a map with path keys"
                            {:edn-path edn-path})))
@@ -240,9 +238,9 @@
    - :compound - Has :sub-conditionals
    - :skip - Cannot be categorized (should be filtered)"
   [conditional]
-  (let [cond-type (:type conditional)
-        values (:values conditional)
-        io (get-in conditional [:group-variable :io])
+  (let [cond-type            (:type conditional)
+        values               (:values conditional)
+        io                   (get-in conditional [:group-variable :io])
         has-sub-conditionals (seq (:sub-conditionals conditional))]
 
     (cond
@@ -287,14 +285,14 @@
    - :compound-scenario - Has sub-conditionals
    - :or-branches - OR operator, needs separate scenarios per branch"
   [group]
-  (let [conditionals-info (:conditionals group)
-        conditionals (:conditionals conditionals-info)
-        operator (:conditionals-operator conditionals-info)
-        categories (map categorize-conditional conditionals)
-        has-compound (some #(= :compound %) categories)
-        has-output-selected (some #(= :output-selected %) categories)
+  (let [conditionals-info       (:conditionals group)
+        conditionals            (:conditionals conditionals-info)
+        operator                (:conditionals-operator conditionals-info)
+        categories              (map categorize-conditional conditionals)
+        has-compound            (some #(= :compound %) categories)
+        has-output-selected     (some #(= :output-selected %) categories)
         has-output-not-selected (some #(= :output-not-selected %) categories)
-        has-input-value (some #(= :input-value %) categories)]
+        has-input-value         (some #(= :input-value %) categories)]
 
     (cond
       ;; Compound scenarios with sub-conditionals
@@ -354,7 +352,7 @@
    Set of all paths found in the group's conditionals and ancestors"
   [all-data group]
   (letfn [(collect-from-conditional [cond]
-            (let [path (get-in cond [:group-variable :path])
+            (let [path      (get-in cond [:group-variable :path])
                   sub-paths (when-let [subs (:sub-conditionals cond)]
                               (mapcat collect-from-conditional subs))]
               (if path
@@ -364,8 +362,8 @@
             (when-let [conds (:conditionals conds-info)]
               (mapcat collect-from-conditional conds)))]
 
-    (let [main-paths (collect-from-conditionals-info (:conditionals group))
-          ancestors (get-ancestors all-data (:path group))
+    (let [main-paths     (collect-from-conditionals-info (:conditionals group))
+          ancestors      (get-ancestors all-data (:path group))
           ancestor-paths (mapcat collect-from-conditionals-info
                                  (map :conditionals ancestors))]
       (set (concat main-paths ancestor-paths)))))
@@ -393,13 +391,13 @@
   [all-data group]
   (letfn [(find-module-conds [conds-info]
             (when-let [conds (:conditionals conds-info)]
-              (for [cond conds
+              (for [cond  conds
                     :when (= (:type cond) :module)
                     value (:values cond)]
                 (keyword value))))]
 
-    (let [main-modules (find-module-conds (:conditionals group))
-          ancestors (get-ancestors all-data (:path group))
+    (let [main-modules     (find-module-conds (:conditionals group))
+          ancestors        (get-ancestors all-data (:path group))
           ancestor-modules (mapcat find-module-conds
                                    (map :conditionals ancestors))]
       (set (concat main-modules ancestor-modules)))))
@@ -427,19 +425,19 @@
   (let [module-count (count modules)]
     (cond
       ;; Single modules
-      (= modules #{:surface}) #{:surface}
-      (= modules #{:crown}) #{:surface :crown} ;Always includes surface
+      (= modules #{:surface})   #{:surface}
+      (= modules #{:crown})     #{:surface :crown} ;Always includes surface
       (= modules #{:mortality}) #{:surface :mortality} ; Always includes surface
-      (= modules #{:contain}) #{:surface :contain} ; Always includes surface
+      (= modules #{:contain})   #{:surface :contain} ; Always includes surface
 
       ;; Two module combinations
-      (= modules #{:surface :crown}) #{:surface :crown}
+      (= modules #{:surface :crown})     #{:surface :crown}
       (= modules #{:surface :mortality}) #{:surface :mortality}
-      (= modules #{:surface :contain}) #{:surface :contain}
+      (= modules #{:surface :contain})   #{:surface :contain}
 
       ;; Unsupported combinations (3+ modules or invalid pairs)
       (>= module-count 3) :unsupported
-      :else :unsupported)))
+      :else               :unsupported)))
 
 (defn module-set-to-string
   "Convert module set to kebab-case string for filenames.
@@ -473,7 +471,7 @@
    #{:surface :mortality} -> \"Mortality & Surface\""
   [module-set]
   (let [sorted-modules (sort (map name module-set))
-        capitalized (map str/capitalize sorted-modules)]
+        capitalized    (map str/capitalize sorted-modules)]
     (str/join " & " capitalized)))
 
 (defn module-to-given-statement
@@ -523,9 +521,9 @@
    Returns:
    Boolean true if any research flag is true"
   [conditional]
-  (let [gv-research? (get-in conditional [:group-variable :group-variable/research?])
+  (let [gv-research?        (get-in conditional [:group-variable :group-variable/research?])
         submodule-research? (get-in conditional [:group-variable :submodule/research?])
-        sub-conds (:sub-conditionals conditional)]
+        sub-conds           (:sub-conditionals conditional)]
 
     (or (true? gv-research?)
         (true? submodule-research?)
@@ -568,16 +566,16 @@
    Boolean true if group should be skipped"
   [group]
   (let [;; Collect all conditionals from group and ancestors
-        group-conds (get-in group [:conditionals :conditionals] [])
+        group-conds    (get-in group [:conditionals :conditionals] [])
         ancestor-conds (mapcat #(get-in % [:conditionals :conditionals] [])
                                (:ancestors group []))
-        all-conds (concat group-conds ancestor-conds)
+        all-conds      (concat group-conds ancestor-conds)
 
         ;; Check if ALL conditionals are module-type
         all-module-type? (every? #(= :module (:type %)) all-conds)
 
         ;; Check if any module is contain/crown/mortality
-        skip-modules #{"contain" "crown" "mortality"}
+        skip-modules     #{"contain" "crown" "mortality"}
         has-skip-module? (boolean (some (fn [cond]
                                           (and (= :module (:type cond))
                                                (some skip-modules (:values cond))))
@@ -637,11 +635,11 @@
    Filtered sequence of conditionals"
   [conditionals active-modules]
   (keep (fn [cond]
-          (let [path (get-in cond [:group-variable :path])
+          (let [path        (get-in cond [:group-variable :path])
                 compatible? (if path
                               (is-path-compatible-with-modules? path active-modules)
                               true) ; module-type conditionals don't have paths
-                sub-conds (:sub-conditionals cond)]
+                sub-conds   (:sub-conditionals cond)]
 
             (when compatible?
               (if (seq sub-conds)
@@ -673,9 +671,9 @@
    - Conditional with sub-OR [s1 s2]: [[cond s1] [cond s2]]"
   [conditional]
   (let [sub-conditionals (:sub-conditionals conditional)
-        sub-operator (:sub-conditional-operator conditional)
-        values (:values conditional)
-        operator (:operator conditional)
+        sub-operator     (:sub-conditional-operator conditional)
+        values           (:values conditional)
+        operator         (:operator conditional)
         ;; Apply optimization for :in operator - use only first value
         optimized-values (if (and (= operator :in) (> (count values) 1))
                            [(first values)]
@@ -689,7 +687,7 @@
       ;; Sub-conditionals with :or operator - create separate branches
       (= sub-operator :or)
       (let [;; Recursively flatten each sub-conditional
-            sub-paths (map flatten-conditional-to-paths sub-conditionals)
+            sub-paths   (map flatten-conditional-to-paths sub-conditionals)
             ;; Parent conditional without sub-conditionals, with optimized values
             parent-cond (-> conditional
                             (dissoc :sub-conditionals :sub-conditional-operator)
@@ -701,16 +699,16 @@
       ;; Sub-conditionals with :and or nil - keep in same path
       :else
       (let [;; Recursively flatten each sub-conditional
-            sub-paths (map flatten-conditional-to-paths sub-conditionals)
+            sub-paths        (map flatten-conditional-to-paths sub-conditionals)
             ;; Create cartesian product of all sub-paths
             sub-combinations (apply combo/cartesian-product sub-paths)
             ;; Parent conditional without sub-conditionals, with optimized values
-            parent-cond (-> conditional
+            parent-cond      (-> conditional
                             (dissoc :sub-conditionals :sub-conditional-operator)
                             (assoc :values optimized-values))]
         ;; Create paths combining parent with each sub-combination
         (for [sub-combo sub-combinations
-              :let [flattened-subs (apply concat sub-combo)]]
+              :let      [flattened-subs (apply concat sub-combo)]]
           (cons parent-cond flattened-subs))))))
 
 (defn expand-or-conditionals
@@ -719,7 +717,7 @@
    For :or operator: each conditional creates separate branches.
    For :and or nil: conditionals are combined via cartesian product.
    Recursively handles nested sub-conditionals with :or operators.
-   
+
    IMPORTANT: Filters out malformed conditionals that are missing required fields.
    A valid conditional must have either:
    - :type :module (module conditionals), OR
@@ -731,16 +729,16 @@
    Returns:
    Sequence of paths, where each path is a flat sequence of conditionals"
   [conditionals-info]
-  (let [operator (:conditionals-operator conditionals-info)
+  (let [operator     (:conditionals-operator conditionals-info)
         conditionals (:conditionals conditionals-info)
 
         ;; Filter out malformed conditionals
         valid-conditionals (filter
                             (fn [cond]
                               (or
-                                ;; Module conditionals are valid (have :type :module)
+                               ;; Module conditionals are valid (have :type :module)
                                (= (:type cond) :module)
-                                ;; Group-variable conditionals must have :group-variable map
+                               ;; Group-variable conditionals must have :group-variable map
                                (and (= (:type cond) :group-variable)
                                     (some? (:group-variable cond)))))
                             conditionals)]
@@ -758,11 +756,11 @@
 
 (defn conditionals-equal?
   "Check if two conditionals are equivalent.
-   
+
    Compares type, operator, values, group-variable path, and translated-name
    to determine equality. This is crucial for detecting overlapping conditionals
    across different ancestors.
-   
+
    The translated-name comparison is essential to distinguish between different
    outputs in the same group (e.g., 'Flame Length' vs 'Fireline Intensity' both
    in the 'Surface Fire' group)."
@@ -778,19 +776,19 @@
 
 (defn find-overlapping-conditionals
   "Find conditionals that appear in multiple ancestors' branches.
-   
+
    Analyzes all expanded branches from all ancestors to identify which conditionals
    are shared across different ancestors' :or lists. Uses conditional equality rather
    than identity to detect overlaps.
-   
+
    IMPORTANT: Excludes :module type conditionals from overlap detection. Module
    conditionals represent different worksheet contexts (e.g., Surface vs. Contain+Surface)
    and should always be included in cartesian products, not deduplicated.
-   
+
    Arguments:
    - expanded-branches: Sequence of sequences, one per ancestor, where each inner
                         sequence contains all possible branches for that ancestor
-   
+
    Returns:
    Map of {conditional → #{ancestor-index-0 ancestor-index-1 ...}}
    Only includes conditionals that appear in 2+ ancestors"
@@ -831,19 +829,19 @@
 
 (defn group-ancestors-by-overlaps
   "Partition ancestors into groups based on shared overlapping conditionals.
-   
+
    Ancestors that share ANY overlapping conditional belong to the same group.
    Uses a union-find-like approach to build connected components.
-   
+
    Arguments:
    - num-ancestors: Total number of ancestors
    - overlaps: Map from find-overlapping-conditionals {conditional → #{ancestor-indices}}
-   
+
    Returns:
    Vector of groups, where each group is:
    {:ancestor-indices #{idx1 idx2 ...}
     :shared-conditionals [cond1 cond2 ...]}
-   
+
    Examples:
    - 7 ancestors, conditionals appear in #{0 5} → [{:ancestor-indices #{0 5} :shared-conditionals [...]}
                                                     {:ancestor-indices #{1} :shared-conditionals []}
@@ -853,12 +851,12 @@
   [num-ancestors overlaps]
   (if (empty? overlaps)
     ;; No overlaps - each ancestor is its own group
-    (mapv (fn [idx] {:ancestor-indices #{idx}
+    (mapv (fn [idx] {:ancestor-indices    #{idx}
                      :shared-conditionals []})
           (range num-ancestors))
     ;; Build connected components
     (let [;; Start with each ancestor in its own group
-          initial-groups (vec (map (fn [idx] {:ancestor-indices #{idx}
+          initial-groups (vec (map (fn [idx] {:ancestor-indices    #{idx}
                                               :shared-conditionals []})
                                    (range num-ancestors)))
 
@@ -880,12 +878,12 @@
                    groups)
                  ;; Multiple groups need to be merged
                  (let [;; Get all affected groups
-                       affected-groups (map #(nth groups %) affected-group-indices)
+                       affected-groups  (map #(nth groups %) affected-group-indices)
                        ;; Merge them
-                       merged-group {:ancestor-indices (apply clojure.set/union
-                                                              (map :ancestor-indices affected-groups))
-                                     :shared-conditionals (vec (concat [conditional]
-                                                                       (mapcat :shared-conditionals affected-groups)))}
+                       merged-group     {:ancestor-indices    (apply clojure.set/union
+                                                                  (map :ancestor-indices affected-groups))
+                                         :shared-conditionals (vec (concat [conditional]
+                                                                           (mapcat :shared-conditionals affected-groups)))}
                        ;; Remove old groups and add merged one
                        remaining-groups (keep-indexed (fn [idx group]
                                                         (when-not (some #{idx} affected-group-indices)
@@ -903,20 +901,20 @@
 
 (defn create-minimal-ancestor-branches
   "Create minimal branches by deduplicating overlapping conditionals.
-   
+
    For each overlapping conditional:
    1. Create a branch with just that conditional
    2. Determine which ancestors it doesn't satisfy
    3. Combine with non-overlapping branches from unsatisfied ancestors
-   
+
    This ensures each overlapping conditional creates minimal branches that satisfy
    all ancestors, avoiding redundant scenario combinations.
-   
+
    Arguments:
    - ancestors: Sequence of ancestor maps
    - expanded-branches: Expanded branches for each ancestor (from expand-or-conditionals)
    - overlaps: Map from find-overlapping-conditionals {conditional → #{ancestor-indices}}
-   
+
    Returns:
    Sequence of minimal ancestor setups (flat lists of conditionals)"
   [ancestors expanded-branches overlaps]
@@ -941,9 +939,9 @@
           ;; For each overlapping conditional, create branches
           overlapping-branches
           (for [[cond ancestor-indices] overlaps]
-            (let [uncovered-ancestors (clojure.set/difference (set (range num-ancestors))
+            (let [uncovered-ancestors         (clojure.set/difference (set (range num-ancestors))
                                                               ancestor-indices)
-                  uncovered-branches (map #(nth non-overlapping-by-ancestor %)
+                  uncovered-branches          (map #(nth non-overlapping-by-ancestor %)
                                           uncovered-ancestors)
                   uncovered-branches-filtered (remove empty? uncovered-branches)]
               (if (empty? uncovered-ancestors)
@@ -962,8 +960,8 @@
 
           ;; Also include pure non-overlapping (all ancestors use non-overlapping branches)
           non-empty-non-overlapping (remove empty? non-overlapping-by-ancestor)
-          pure-non-overlapping (if (= (count non-empty-non-overlapping) num-ancestors)
-                                 (let [combos (apply combo/cartesian-product non-empty-non-overlapping)]
+          pure-non-overlapping      (if (= (count non-empty-non-overlapping) num-ancestors)
+                                      (let [combos (apply combo/cartesian-product non-empty-non-overlapping)]
                                    (map #(apply concat %) combos))
                                  [])]
 
@@ -971,7 +969,7 @@
 
 (defn find-overlapping-between-branch-sets
   "Find conditionals that overlap between two sets of branches (e.g., ancestor branches and entity branches).
-   
+
    Returns a map of overlapping conditionals to their locations:
    {:conditional {:in-set-a boolean, :in-set-b boolean}}"
   [branches-a branches-b]
@@ -985,14 +983,14 @@
         ;; Find conditionals that appear in both sets (by value equality)
         overlaps (for [cond-a conditionals-a
                        cond-b conditionals-b
-                       :when (conditionals-equal? cond-a cond-b)]
+                       :when  (conditionals-equal? cond-a cond-b)]
                    cond-a)]
 
     (into #{} overlaps)))
 
 (defn create-minimal-combined-branches
   "Create minimal branches by deduplicating overlapping conditionals between ancestor and entity branches.
-   
+
    Algorithm:
    1. Detect conditionals that overlap between ancestor branches and entity branches
    2. For each overlapping conditional:
@@ -1000,11 +998,11 @@
       - Find entity branches containing it
       - Create ONE combined branch with the overlapping conditional + non-overlapping parts
    3. For non-overlapping portions, do cartesian product as normal
-   
+
    Arguments:
    - ancestor-branches: Sequence of branches (each branch is a sequence of conditionals)
    - entity-branches: Sequence of branches (each branch is a sequence of conditionals)
-   
+
    Returns:
    Sequence of combined branches [ancestor-setup entity-setup]"
   [ancestor-branches entity-branches]
@@ -1018,7 +1016,7 @@
       (if (empty? overlapping-conds)
         ;; No overlaps - traditional cartesian product
         (for [ancestor-setup ancestor-branches
-              entity-setup entity-branches]
+              entity-setup   entity-branches]
           [ancestor-setup entity-setup])
 
         ;; Has overlaps - create minimal branches
@@ -1030,7 +1028,7 @@
                                                %)
                                             ancestor-branches)
                       ;; Find ANY entity branch containing this conditional
-                      entity-branch (some #(when (some (fn [c] (conditionals-equal? c overlap-cond)) %)
+                      entity-branch   (some #(when (some (fn [c] (conditionals-equal? c overlap-cond)) %)
                                              %)
                                           entity-branches)]
                   ;; Combine them, the overlapping conditional appears in both
@@ -1057,7 +1055,7 @@
                       (empty? non-overlapping-entity-branches))
                 []
                 (for [ancestor-setup non-overlapping-ancestor-branches
-                      entity-setup non-overlapping-entity-branches]
+                      entity-setup   non-overlapping-entity-branches]
                   [ancestor-setup entity-setup]))]
 
           ;; Combine overlapping branches with non-overlapping combinations
@@ -1069,11 +1067,7 @@
    IMPORTANT: Uses pre-cartesian deduplication to handle overlapping :or conditionals.
    When multiple ancestors have the same conditional in their :or lists, creates
    minimal branches where ONE conditional satisfies multiple ancestors.
-   
-   This fixes Bug #2: prevents redundant scenarios like selecting both 'Flame Length'
    and 'Fireline Intensity' when either one alone would satisfy all ancestors.
-   
-   Maintains Bug #1 fix: special case for single ancestor to avoid intra-ancestor
    cartesian product.
 
    Arguments:
@@ -1088,7 +1082,6 @@
           expanded-branches (map #(expand-or-conditionals (:conditionals %)) ancestors)]
       (if (every? empty? expanded-branches)
         [[]] ; all ancestors have no conditionals
-        ;; Bug #1 fix: single ancestor special case (no cartesian product)
         (if (= 1 (count expanded-branches))
           (first expanded-branches)
           ;; Multiple ancestors: use pre-cartesian deduplication for overlaps
@@ -1112,55 +1105,6 @@
   [conditionals]
   (some has-research-dependency? conditionals))
 
-(defn deduplicate-ancestor-conditionals
-  "Remove duplicate and redundant setup requirements.
-   
-   Performs two levels of deduplication:
-   1. Exact duplicates: Same path, translated-name, and value
-   2. :or group deduplication: Multiple conditionals from the same :or group
-      (same path, operator, value but different translated-names)
-   
-   For :or group deduplication, when multiple conditionals reference the same
-   group path with the same value (e.g., both 'Flame Length' and 'Fireline Intensity'
-   from 'Surface Fire' group), keep only the first one encountered.
-   
-   This prevents redundant scenarios like selecting both 'Flame Length' AND
-   'Fireline Intensity' when either one alone would satisfy the requirements.
-
-   Arguments:
-   - conditionals: Sequence of conditional maps
-
-   Returns:
-   Deduplicated list maintaining order"
-  [conditionals]
-  (into #{} conditionals)
-  #_(let [seen-exact (atom #{})
-          seen-or-groups (atom #{})
-          dedup-fn (fn [cond]
-                     (let [path (get-in cond [:group-variable :path])
-                           var-name (get-in cond [:group-variable :group-variable/translated-name])
-                           value (first (:values cond))
-                           operator (:operator cond)
-
-                         ;; Exact match key
-                           exact-key [path var-name value]
-
-                         ;; :or group key (path + operator + value, without var-name)
-                         ;; Only use for :equal operator with value "true" (typical :or conditionals)
-                           or-group-key (when (and (= operator :equal)
-                                                   (= value "true")
-                                                   path
-                                                   var-name)
-                                          [path operator value])]
-
-                       (when-not (or (@seen-exact exact-key)
-                                     (and or-group-key (@seen-or-groups or-group-key)))
-                         (swap! seen-exact conj exact-key)
-                         (when or-group-key
-                           (swap! seen-or-groups conj or-group-key))
-                         cond)))]
-      (keep dedup-fn conditionals)))
-
 ;; ===========================================================================================================
 ;; Setup Step Generation (Task 6.3)
 ;; ===========================================================================================================
@@ -1178,9 +1122,9 @@
   [conditional]
   (when (and (= (get-in conditional [:group-variable :io]) :output)
              (= (:values conditional) ["true"]))
-    (let [path (get-in conditional [:group-variable :path])
+    (let [path          (get-in conditional [:group-variable :path])
           variable-name (get-in conditional [:group-variable :group-variable/translated-name])
-          full-path (conj path variable-name)]
+          full-path     (conj path variable-name)]
       (format-output-line full-path))))
 
 (defn generate-negative-output-step-line
@@ -1195,9 +1139,9 @@
   [conditional]
   (when (and (= (get-in conditional [:group-variable :io]) :output)
              (= (:values conditional) ["false"]))
-    (let [path (get-in conditional [:group-variable :path])
+    (let [path          (get-in conditional [:group-variable :path])
           variable-name (get-in conditional [:group-variable :group-variable/translated-name])
-          full-path (conj path variable-name)]
+          full-path     (conj path variable-name)]
       (format-output-line full-path))))
 
 (defn generate-input-step-line
@@ -1212,7 +1156,7 @@
   [conditional]
   (when (= (get-in conditional [:group-variable :io]) :input)
     (let [value (first (:values conditional))
-          path (get-in conditional [:group-variable :path])]
+          path  (get-in conditional [:group-variable :path])]
       (format-input-value-line path value))))
 
 (defn collect-and-sort-setup-steps
@@ -1227,22 +1171,22 @@
    Map with :outputs, :negative-outputs, :inputs keys"
   [conditionals]
   (let [;; Separate by type
-        outputs (filter #(and (= (get-in % [:group-variable :io]) :output)
+        outputs          (filter #(and (= (get-in % [:group-variable :io]) :output)
                               (= (:values %) ["true"]))
                         conditionals)
         negative-outputs (filter #(and (= (get-in % [:group-variable :io]) :output)
                                        (= (:values %) ["false"]))
                                  conditionals)
-        inputs (filter #(= (get-in % [:group-variable :io]) :input)
+        inputs           (filter #(= (get-in % [:group-variable :io]) :input)
                        conditionals)
         ;; Sort function
-        sort-fn (fn [conds]
+        sort-fn          (fn [conds]
                   (sort-by (juxt #(get-in % [:group-variable :submodule/order])
                                  #(get-in % [:group-variable :group/order]))
                            conds))]
-    {:outputs (sort-fn outputs)
+    {:outputs          (sort-fn outputs)
      :negative-outputs (sort-fn negative-outputs)
-     :inputs (sort-fn inputs)}))
+     :inputs           (sort-fn inputs)}))
 
 ;; ===========================================================================================================
 ;; Scenario Generation Functions (Task 6.4)
@@ -1269,10 +1213,10 @@
         all-conds ancestor-setup
 
         ;; Organize and sort setup steps
-        sorted-steps (collect-and-sort-setup-steps all-conds)
-        output-lines (keep generate-output-step-line (:outputs sorted-steps))
+        sorted-steps          (collect-and-sort-setup-steps all-conds)
+        output-lines          (keep generate-output-step-line (:outputs sorted-steps))
         negative-output-lines (keep generate-negative-output-step-line (:negative-outputs sorted-steps))
-        input-lines (keep generate-input-step-line (:inputs sorted-steps))
+        input-lines           (keep generate-input-step-line (:inputs sorted-steps))
 
         ;; Format target group
         target-line (format-input-group-line target-path)]
@@ -1397,7 +1341,7 @@
   [ancestor-setup entity-setup]
   (let [;; Collect all paths from both setups
         all-conditionals (concat ancestor-setup entity-setup)
-        all-paths (keep #(get-in % [:group-variable :path]) all-conditionals)
+        all-paths        (keep #(get-in % [:group-variable :path]) all-conditionals)
 
         ;; Extract modules from paths
         path-modules (extract-modules-from-paths all-paths)
@@ -1413,10 +1357,10 @@
    then creates cartesian product with overlap deduplication to generate minimal
    scenario combinations. This prevents redundant scenarios like selecting both
    'Flame Length' and 'Fireline Intensity' when either would satisfy all requirements.
-   
+
    Module detection happens PER COMBINATION, not at entity level, since different
    combinations may require different worksheet types.
-   
+
    Filters out any combinations that contain research dependencies to ensure
    all generated scenarios are completely free of research variables.
 
@@ -1439,7 +1383,7 @@
           ;; 1. Direct ancestors' conditionals
           ;; 2. Entity's own conditionals (to capture references like Fuel Model)
           all-direct-ancestors-conds (mapcat #(get-in % [:conditionals :conditionals]) direct-ancestors)
-          entity-own-conds (get-in entity [:conditionals :conditionals])
+          entity-own-conds           (get-in entity [:conditionals :conditionals])
 
           ;; Combine both sources for ancestral entity collection
           all-conds-to-follow (concat all-direct-ancestors-conds entity-own-conds)
@@ -1447,27 +1391,20 @@
           conditional-ancestors (when (seq all-conds-to-follow)
                                   (collect-all-ancestral-entities all-data all-conds-to-follow))
 
-          ;; Combine and deduplicate all ancestors by :path BEFORE expansion
+          ;; Combine all ancestors by :path BEFORE expansion
           ;; This prevents combinatoric explosion from duplicate entities
           ancestors (vec (vals (into {} (map (juxt :path identity)
                                              (concat direct-ancestors conditional-ancestors)))))
 
-          ;; Expand ancestor OR branches using cartesian product with deduplication
+          ;; Expand ancestor OR branches using cartesian product
           ancestor-branches (expand-ancestor-or-branches ancestors)
-
-          ;; Deduplicate each ancestor branch
-          deduped-ancestor-branches (map deduplicate-ancestor-conditionals ancestor-branches)
 
           ;; Expand target entity's own conditionals
           entity-conditionals (:conditionals entity)
-          entity-branches (expand-or-conditionals entity-conditionals)
-
-          ;; Deduplicate each entity branch
-          deduped-entity-branches (map deduplicate-ancestor-conditionals entity-branches)
+          entity-branches     (expand-or-conditionals entity-conditionals)
 
           ;; Create cartesian product with overlap deduplication
-          ;; This fixes Bug #2 for the ancestor × entity combination
-          all-combinations (create-minimal-combined-branches deduped-ancestor-branches deduped-entity-branches)
+          all-combinations (create-minimal-combined-branches ancestor-branches entity-branches)
 
           ;; Filter out combinations that contain ANY research dependencies
           non-research-combinations (remove (fn [[ancestor-setup entity-setup]]
@@ -1478,8 +1415,8 @@
           ;; Generate scenario for each non-research combination
           scenarios (for [[ancestor-setup entity-setup] non-research-combinations]
                       ;; Determine module combo for THIS specific combination
-                      (let [module-combo (determine-module-combo-for-combination ancestor-setup entity-setup)
-                            module-conditionals (->> entity-setup
+                      (let [module-combo                     (determine-module-combo-for-combination ancestor-setup entity-setup)
+                            module-conditionals              (->> entity-setup
                                                      (concat ancestor-setup)
                                                      (filter #(= (:type %) :module))
                                                      (map #(set (map keyword (:values %)))))
@@ -1492,25 +1429,24 @@
                                 ;; Filter entity setup by this combination's module
                                 filtered-entity-setup (filter-conditionals-by-module entity-setup module-combo)
 
-                                ;; Combine and deduplicate
+                                ;; Combine
                                 all-conditionals (concat filtered-ancestor-setup filtered-entity-setup)
-                                deduped-setup (deduplicate-ancestor-conditionals all-conditionals)
 
                                 ;; Generate scenario
                                 scenario-text (generate-output-enables-input-scenario
                                                {:conditionals {:conditionals filtered-entity-setup}
-                                                :path (:path entity)}
-                                               deduped-setup
+                                                :path         (:path entity)}
+                                               all-conditionals
                                                (:path entity)
                                                module-combo)
 
                                 ;; Generate scenario name (works for both groups and submodules)
-                                entity-name (or (:group/translated-name entity)
+                                entity-name   (or (:group/translated-name entity)
                                                 (:submodule/name entity))
                                 scenario-name (str "Scenario: " (build-scenario-name filtered-entity-setup entity-name))]
 
-                            {:text (wrap-scenario-with-header scenario-text scenario-name "")
-                             :module module-combo
+                            {:text       (wrap-scenario-with-header scenario-text scenario-name "")
+                             :module     module-combo
                              :group-path (:path entity)}))))]
 
       ;; Remove nil scenarios (from unsupported module combos)
@@ -1556,16 +1492,16 @@
                (let [scenario-count (count scenarios)]
                  (if (> scenario-count 15)
                    ;; Split into parts
-                   (let [parts (partition-all 15 scenarios)
+                   (let [parts     (partition-all 15 scenarios)
                          part-maps (map-indexed (fn [idx part-scenarios]
-                                                  {:scenarios part-scenarios
+                                                  {:scenarios   part-scenarios
                                                    :part-number (inc idx)
                                                    :total-parts (count parts)})
                                                 parts)]
                      [[module path] {:split? true
-                                     :parts part-maps}])
+                                     :parts  part-maps}])
                    ;; Keep as single file
-                   [[module path] {:split? false
+                   [[module path] {:split?    false
                                    :scenarios scenarios}])))
              feature-map)))
 
@@ -1601,13 +1537,13 @@
    Returns:
    String like 'surface-input_fuel-moisture_by-size-class.feature'"
   [module path]
-  (let [module-str (if (set? module)
+  (let [module-str                 (if (set? module)
                      (module-set-to-string module)
                      (name module))
         ;; Skip module (first element) and filter out :io keywords from path
         path-without-module-and-io (remove keyword? (rest path))
-        sanitized-parts (map sanitize-path-component path-without-module-and-io)
-        filename (str module-str "-input_" (str/join "_" sanitized-parts) ".feature")]
+        sanitized-parts            (map sanitize-path-component path-without-module-and-io)
+        filename                   (str module-str "-input_" (str/join "_" sanitized-parts) ".feature")]
     filename))
 
 (defn generate-split-directory-name
@@ -1621,13 +1557,13 @@
    Returns:
    String like 'surface-input_fuel-moisture'"
   [module path]
-  (let [module-str (if (set? module)
+  (let [module-str                 (if (set? module)
                      (module-set-to-string module)
                      (name module))
         ;; Skip module (first element) and filter out :io keywords from path
         path-without-module-and-io (remove keyword? (rest path))
-        sanitized-parts (map sanitize-path-component path-without-module-and-io)
-        dirname (str module-str "-input_" (str/join "_" sanitized-parts))]
+        sanitized-parts            (map sanitize-path-component path-without-module-and-io)
+        dirname                    (str module-str "-input_" (str/join "_" sanitized-parts))]
     dirname))
 
 (defn generate-part-filename
@@ -1661,7 +1597,7 @@
   (let [module-str (if (set? module)
                      (module-set-to-title module)
                      (str/capitalize (name module)))
-        path-str (format-path-for-gherkin path)]
+        path-str   (format-path-for-gherkin path)]
     (str "Feature: " module-str " Input - " path-str "\n")))
 
 (defn write-feature-file
@@ -1679,7 +1615,7 @@
   [file-path header scenarios]
   (io/make-parents file-path)
   (let [scenario-texts (map :text scenarios)
-        content (str header "\n" (str/join "\n\n" scenario-texts))]
+        content        (str header "\n" (str/join "\n\n" scenario-texts))]
     (spit file-path content)))
 
 (defn delete-old-generated-files
@@ -1692,8 +1628,8 @@
    Returns:
    Number of files deleted"
   [features-dir]
-  (let [dir (io/file features-dir)
-        files (file-seq dir)
+  (let [dir           (io/file features-dir)
+        files         (file-seq dir)
         feature-files (filter #(and (.isFile %)
                                     (str/ends-with? (.getName %) ".feature")
                                     (not= (.getName %) "core_conditional_scenarios.feature"))
@@ -1740,20 +1676,20 @@
            all-entities (vals all-data)
 
            ;; Separate groups from submodules
-           groups (filter :group/translated-name all-entities)
+           groups     (filter :group/translated-name all-entities)
            submodules (filter :submodule/name all-entities)
 
            ;; Filter out research groups and submodules
-           non-research-groups (remove should-skip-group? groups)
+           non-research-groups     (remove should-skip-group? groups)
            non-research-submodules (remove should-skip-submodule? submodules)
 
            ;; Delete old generated files
            _ (delete-old-generated-files features-dir)
 
            ;; Generate scenarios for all groups and submodules (pass all-data)
-           group-scenarios (mapcat #(generate-scenarios-for-group all-data %) non-research-groups)
+           group-scenarios     (mapcat #(generate-scenarios-for-group all-data %) non-research-groups)
            submodule-scenarios (mapcat #(generate-scenarios-for-submodule all-data %) non-research-submodules)
-           all-scenarios (concat group-scenarios submodule-scenarios)
+           all-scenarios       (concat group-scenarios submodule-scenarios)
 
            ;; Group scenarios by feature
            grouped-scenarios (group-scenarios-by-feature all-scenarios)
@@ -1762,7 +1698,7 @@
            split-features (split-large-feature-files grouped-scenarios)
 
            ;; Write files
-           files-written (atom 0)
+           files-written       (atom 0)
            scenarios-generated (atom 0)]
 
        (doseq [[[module path] feature-data] split-features]
@@ -1772,12 +1708,12 @@
              (let [dirname (generate-split-directory-name module path)]
                (doseq [part (:parts feature-data)]
                  (let [part-filename (generate-part-filename dirname (:part-number part))
-                       part-path (str features-dir part-filename)]
+                       part-path     (str features-dir part-filename)]
                    (write-feature-file part-path header (:scenarios part))
                    (swap! files-written inc)
                    (swap! scenarios-generated + (count (:scenarios part))))))
              ;; Write single file
-             (let [filename (generate-feature-filename module path)
+             (let [filename  (generate-feature-filename module path)
                    file-path (str features-dir filename)]
                (write-feature-file file-path header (:scenarios feature-data))
                (swap! files-written inc)
@@ -1785,12 +1721,12 @@
 
        (println (format "✓ Generated %d feature files with %d scenarios" @files-written @scenarios-generated))
 
-       {:features-dir features-dir
-        :files-written @files-written
+       {:features-dir        features-dir
+        :files-written       @files-written
         :scenarios-generated @scenarios-generated})
      (catch Exception e
        (println (str "Error generating feature files: " (.getMessage e)))
-       {:features-dir features-dir
-        :files-written 0
+       {:features-dir        features-dir
+        :files-written       0
         :scenarios-generated 0
-        :error (.getMessage e)}))))
+        :error               (.getMessage e)}))))

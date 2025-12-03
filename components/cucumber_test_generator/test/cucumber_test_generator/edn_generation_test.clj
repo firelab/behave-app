@@ -43,8 +43,9 @@
 
 (deftest test-edn-file-is-created
   (testing "EDN file is created at specified path"
-    (let [test-path "development/test_edn_generation_test.edn"
-          _ (core/generate-test-matrix! test-path)
+    (let [db (d/db (default-conn))
+          test-path "development/test_edn_generation_test.edn"
+          _ (core/generate-test-matrix! db test-path)
           file (io/file test-path)]
       (is (.exists file)
           "EDN file should be created")
@@ -54,8 +55,9 @@
 
 (deftest test-edn-contains-required-keys
   (testing "Generated EDN contains required top-level keys"
-    (let [test-path "development/test_edn_structure_test.edn"
-          _ (core/generate-test-matrix! test-path)
+    (let [db (d/db (default-conn))
+          test-path "development/test_edn_structure_test.edn"
+          _ (core/generate-test-matrix! db test-path)
           edn-data (edn/read-string (slurp test-path))]
       (is (contains? edn-data :generated-at)
           "Should contain :generated-at timestamp")
@@ -70,8 +72,9 @@
 
 (deftest test-group-contains-expected-fields
   (testing "Group entries contain expected fields"
-    (let [test-path "development/test_group_fields_test.edn"
-          _ (core/generate-test-matrix! test-path)
+    (let [db (d/db (default-conn))
+          test-path "development/test_group_fields_test.edn"
+          _ (core/generate-test-matrix! db test-path)
           edn-data (edn/read-string (slurp test-path))
           groups (:groups edn-data)]
       (when (seq groups)
@@ -96,7 +99,7 @@
           research-groups (filter #(:group/research? (core/pull-group-details db %)) all-groups)]
       (when (seq research-groups)
         (let [test-path "development/test_research_filter_test.edn"
-              _ (core/generate-test-matrix! test-path)
+              _ (core/generate-test-matrix! db test-path)
               edn-data (edn/read-string (slurp test-path))
               generated-groups (:groups edn-data)
               ;; Check if any generated group has research? true
@@ -108,8 +111,9 @@
 
 (deftest test-groups-with-nil-conditionals-filtered-out
   (testing "Groups that fail conditional processing are filtered out"
-    (let [test-path "development/test_nil_filter_test.edn"
-          _ (core/generate-test-matrix! test-path)
+    (let [db (d/db (default-conn))
+          test-path "development/test_nil_filter_test.edn"
+          _ (core/generate-test-matrix! db test-path)
           edn-data (edn/read-string (slurp test-path))
           groups (:groups edn-data)]
       ;; All groups in the EDN should have non-nil conditionals
@@ -122,8 +126,9 @@
 
 (deftest test-summary-contains-counts
   (testing "Summary section contains group and submodule counts"
-    (let [test-path "development/test_summary_test.edn"
-          _ (core/generate-test-matrix! test-path)
+    (let [db (d/db (default-conn))
+          test-path "development/test_summary_test.edn"
+          _ (core/generate-test-matrix! db test-path)
           edn-data (edn/read-string (slurp test-path))
           summary (:summary edn-data)]
       (is (contains? summary :total-groups)
@@ -144,8 +149,9 @@
 
 (deftest test-ancestors-are-pre-computed
   (testing "Groups with nested paths have ancestors pre-computed"
-    (let [test-path "development/test_ancestors_test.edn"
-          _ (core/generate-test-matrix! test-path)
+    (let [db (d/db (default-conn))
+          test-path "development/test_ancestors_test.edn"
+          _ (core/generate-test-matrix! db test-path)
           edn-data (edn/read-string (slurp test-path))
           groups (:groups edn-data)
           ;; Find groups with paths longer than 3 (should have potential ancestors)
@@ -166,8 +172,9 @@
 
 (deftest test-generate-test-matrix-returns-summary
   (testing "generate-test-matrix! returns summary map with counts"
-    (let [test-path "development/test_return_value_test.edn"
-          result (core/generate-test-matrix! test-path)]
+    (let [db (d/db (default-conn))
+          test-path "development/test_return_value_test.edn"
+          result (core/generate-test-matrix! db test-path)]
       (is (contains? result :edn-path)
           "Result should contain :edn-path")
       (is (contains? result :groups-count)

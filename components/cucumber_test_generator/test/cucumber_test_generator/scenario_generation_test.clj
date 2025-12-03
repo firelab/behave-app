@@ -23,6 +23,7 @@
             [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.edn :as edn]
+            [datomic.api :as d]
             [behave-cms.server :as cms]
             [behave-cms.store :refer [default-conn]]
             [cucumber-test-generator.core :as core]
@@ -45,8 +46,9 @@
 
 (deftest test-ancestor-expansion-with-or-operator
   (testing "expand-ancestor-or-branches uses cartesian product for :or operators"
-    (let [edn-path "development/test_matrix_data.edn"
-          _ (core/generate-test-matrix! edn-path)
+    (let [db (d/db (default-conn))
+          edn-path "development/test_matrix_data.edn"
+          _ (core/generate-test-matrix! db edn-path)
           data (gs/load-test-matrix edn-path)
           groups (:groups data)
           ;; Find a group with :or ancestors
@@ -281,8 +283,9 @@
 
 (deftest test-scenario-generation-for-output-enables-input
   (testing "Output-enables-input scenario generates valid Gherkin"
-    (let [edn-path "development/test_matrix_data.edn"
-          _ (core/generate-test-matrix! edn-path)
+    (let [db (d/db (default-conn))
+          edn-path "development/test_matrix_data.edn"
+          _ (core/generate-test-matrix! db edn-path)
           data (gs/load-test-matrix edn-path)
           groups (:groups data)
           ;; Find a simple output-enables-input group
@@ -319,9 +322,10 @@
 
 (deftest test-feature-file-generation-workflow
   (testing "generate-feature-files! creates feature files with correct content"
-    (let [edn-path "development/test_matrix_data.edn"
+    (let [db (d/db (default-conn))
+          edn-path "development/test_matrix_data.edn"
           test-features-dir "test-features-output/"
-          _ (core/generate-test-matrix! edn-path)
+          _ (core/generate-test-matrix! db edn-path)
           result (gs/generate-feature-files! edn-path test-features-dir)]
       (is (map? result)
           "Should return a map with statistics")
@@ -386,8 +390,8 @@
                          :group-variable {:io :output
                                           :path ["Surface" "Fire Behavior" "Rate of Spread"]}}]
           result (gs/deduplicate-ancestor-conditionals conditionals)]
-      (is (sequential? result)
-          "Should return a sequence")
+      (is (coll? result)
+          "Should return a collection (set)")
       (is (= 1 (count result))
           "Should remove duplicate conditionals")
       (is (= (get-in (first result) [:group-variable :path])

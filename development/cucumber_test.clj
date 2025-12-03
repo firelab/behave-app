@@ -1,6 +1,8 @@
 (ns cucumber-test
   (:require [cucumber-test-generator.core :as core]
-            [cucumber.runner :refer [run-cucumber-tests]]))
+            [cucumber.runner :refer [run-cucumber-tests]]
+            [datomic.api :as d]
+            [behave-cms.store :refer [default-conn]]))
 
 (comment
 
@@ -8,7 +10,7 @@
 
   (require '[cucumber-test-generator.generate-scenarios :as gs] :reload)
 
-  (core/generate-test-matrix!)
+  (core/generate-test-matrix! (d/db (default-conn)))
 
   (gs/generate-feature-files!)
 
@@ -17,6 +19,8 @@
     {:debug?    false
      :headless? false
      :features  "features"
+     ;; :features  "/home/kcheung/work/code/behave-polylith/features/crown-surface-input_fuel-moisture_dead-live-herb-and-live-woody-categories_dead-fuel-moisture.feature"
+     ;; :features "/home/kcheung/work/code/behave-polylith/features/surface-input_fuel-moisture_by-size-class_live-woody-fuel-moisture.feature"
      :steps     "steps"
      :stop      true
      :browser   :chrome

@@ -22,6 +22,7 @@
   (:require [clojure.test :refer [deftest is testing use-fixtures]]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
+            [datomic.api :as d]
             [behave-cms.server :as cms]
             [behave-cms.store :refer [default-conn]]
             [cucumber-test-generator.core :as core]
@@ -45,8 +46,9 @@
 (deftest test-load-test-matrix-returns-valid-data
   (testing "load-test-matrix reads and parses test_matrix_data.edn file"
     ;; First generate the EDN file
-    (let [edn-path "development/test_matrix_data.edn"
-          _ (core/generate-test-matrix! edn-path)
+    (let [db (d/db (default-conn))
+          edn-path "development/test_matrix_data.edn"
+          _ (core/generate-test-matrix! db edn-path)
           result (gs/load-test-matrix edn-path)]
       (is (map? result)
           "Should return a map")
@@ -135,8 +137,9 @@
 
 (deftest test-module-detection-from-real-data
   (testing "Module detection works with real data from test_matrix_data.edn"
-    (let [edn-path "development/test_matrix_data.edn"
-          _ (core/generate-test-matrix! edn-path)
+    (let [db (d/db (default-conn))
+          edn-path "development/test_matrix_data.edn"
+          _ (core/generate-test-matrix! db edn-path)
           data (gs/load-test-matrix edn-path)
           all-entities (vals data)
           groups (filter :group/translated-name all-entities)]
@@ -204,8 +207,9 @@
 
 (deftest test-should-skip-group-with-real-data
   (testing "should-skip-group? identifies groups to exclude from generation"
-    (let [edn-path "development/test_matrix_data.edn"
-          _ (core/generate-test-matrix! edn-path)
+    (let [db (d/db (default-conn))
+          edn-path "development/test_matrix_data.edn"
+          _ (core/generate-test-matrix! db edn-path)
           data (gs/load-test-matrix edn-path)
           groups (:groups data)]
       (when (seq groups)

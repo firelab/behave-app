@@ -17,8 +17,7 @@
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.pprint :refer [pprint]]
-            [clojure.math.combinatorics :as combo]
-            [behave-cms.store :refer [default-conn]]))
+            [clojure.math.combinatorics :as combo]))
 
 ;; ===========================================================================================================
 ;; Translation Resolution (Task 2.2)
@@ -576,11 +575,12 @@
 (defn generate-test-matrix!
   "Generate test_matrix_data.edn from Datomic database.
 
-   Queries the behave-cms database to find all groups and submodules with conditionals,
+   Queries the database to find all groups and submodules with conditionals,
    processes them with ancestor enrichment, and writes structured EDN data for
    feature file generation.
 
    Arguments:
+   - db: Datomic database value (from d/db)
    - edn-path (optional): Path to output EDN file
      Default: 'development/test_matrix_data.edn'
 
@@ -588,11 +588,10 @@
    Map with :edn-path, :groups-count, :submodules-count
 
    Implementation pattern from test_matrix_generator.clj lines 456-472"
-  ([]
-   (generate-test-matrix! "development/test_matrix_data.edn"))
-  ([edn-path]
-   (let [db (d/db (default-conn))
-         groups (find-all-groups-with-conditionals db)
+  ([db]
+   (generate-test-matrix! db "development/test_matrix_data.edn"))
+  ([db edn-path]
+   (let [groups (find-all-groups-with-conditionals db)
          submodules (find-all-submodules-with-conditionals db)
          edn-data (generate-edn-data db groups submodules)]
 

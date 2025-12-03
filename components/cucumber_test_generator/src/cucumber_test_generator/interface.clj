@@ -12,14 +12,15 @@
   (:require [cucumber-test-generator.core :as c]
             [cucumber-test-generator.generate-scenarios :as gs]))
 
-(def ^{:arglists '([] [edn-path])
+(def ^{:arglists '([db] [db edn-path])
        :doc "Generate test_matrix_data.edn from Datomic database.
 
-                  Queries the behave-cms database to find all groups and submodules
+                  Queries the database to find all groups and submodules
                   with conditionals, processes them with ancestor enrichment, and
                   writes structured EDN data for feature file generation.
 
                   Arguments:
+                  - db: Datomic database value (from d/db)
                   - edn-path (optional): Path to output EDN file
                     Default: 'development/test_matrix_data.edn'
 

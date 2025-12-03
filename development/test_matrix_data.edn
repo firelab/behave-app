@@ -281,7 +281,7 @@
       "Magnolia acuminata / MAAC (Cucumber - tree)"
       "Magnolia grandiflora / MAGR4 (Southern magnolia)"
       "Magnolia species / MAGSPP (Magnolias)"
-      "null (Prunus species)"
+      "Prunus species / MALPRU (cherry and plum species)"
       "Malus species / MALSPP (Apples)"
       "Magnolia macrophylla / MAMA2 (Bigleaf magnolia)"
       "Maclura pomifera / MAPO (Osage - orange)"
@@ -893,29 +893,6 @@
       :submodule/order 2,
       :submodule/research? nil,
       :group/order 1}}),
-   :conditionals-operator :or}},
- ["Surface" "Fuel Model" :input "Standard" "Wind Driven Fuel Model"]
- {:path
-  ["Surface" "Fuel Model" :input "Standard" "Wind Driven Fuel Model"],
-  :group/translated-name "Wind Driven Fuel Model",
-  :group/research? nil,
-  :group/hidden? nil,
-  :parent-submodule/io :input,
-  :group/order nil,
-  :submodule/order 0,
-  :conditionals
-  {:conditionals
-   ({:type :group-variable,
-     :operator :equal,
-     :values ["true"],
-     :group-variable
-     {:group-variable/translated-name "Wind-Driven Surface Fire",
-      :group-variable/research? false,
-      :io :output,
-      :path ["Surface" "Spot" :output "Maximum Spotting Distance"],
-      :submodule/order 2,
-      :submodule/research? nil,
-      :group/order 0}}),
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input "Wind Adjustment Factor"]
  {:path ["Mortality" "Scorch" :input "Wind Adjustment Factor"],
@@ -1656,6 +1633,28 @@
     {:type :module,
      :operator :equal,
      :values ["mortality" "surface"]}),
+   :conditionals-operator :or}},
+ ["Surface" "Fuel Model" :input "Standard" "Flame Length"]
+ {:path ["Surface" "Fuel Model" :input "Standard" "Flame Length"],
+  :group/translated-name "Flame Length",
+  :group/research? nil,
+  :group/hidden? nil,
+  :parent-submodule/io :input,
+  :group/order nil,
+  :submodule/order 0,
+  :conditionals
+  {:conditionals
+   ({:type :group-variable,
+     :operator :equal,
+     :values ["true"],
+     :group-variable
+     {:group-variable/translated-name "Wind-Driven Surface Fire",
+      :group-variable/research? false,
+      :io :output,
+      :path ["Surface" "Spot" :output "Maximum Spotting Distance"],
+      :submodule/order 2,
+      :submodule/research? nil,
+      :group/order 0}}),
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input "Wind Speed"]
  {:path ["Mortality" "Scorch" :input "Wind Speed"],
@@ -4228,7 +4227,7 @@
       "Magnolia acuminata / MAAC (Cucumber - tree)"
       "Magnolia grandiflora / MAGR4 (Southern magnolia)"
       "Magnolia species / MAGSPP (Magnolias)"
-      "null (Prunus species)"
+      "Prunus species / MALPRU (cherry and plum species)"
       "Malus species / MALSPP (Apples)"
       "Magnolia macrophylla / MAMA2 (Bigleaf magnolia)"
       "Maclura pomifera / MAPO (Osage - orange)"
@@ -5011,7 +5010,6 @@
       :submodule/order 1,
       :submodule/research? nil,
       :group/order 0}}
-    {:type :group-variable, :operator :equal, :values ["true"]}
     {:type :group-variable,
      :operator :equal,
      :values ["true"],
@@ -5561,7 +5559,7 @@
       "Magnolia acuminata / MAAC (Cucumber - tree)"
       "Magnolia grandiflora / MAGR4 (Southern magnolia)"
       "Magnolia species / MAGSPP (Magnolias)"
-      "null (Prunus species)"
+      "Prunus species / MALPRU (cherry and plum species)"
       "Malus species / MALSPP (Apples)"
       "Magnolia macrophylla / MAMA2 (Bigleaf magnolia)"
       "Maclura pomifera / MAPO (Osage - orange)"
