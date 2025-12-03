@@ -13,11 +13,7 @@
    - /home/kcheung/work/code/behave-polylith/development/test_matrix_generator.clj
    - /home/kcheung/work/code/behave-polylith/development/cucumber_test_generator.clj"
   (:require [datomic.api :as d]
-            [clojure.string :as str]
-            [clojure.edn :as edn]
-            [clojure.java.io :as io]
-            [clojure.pprint :refer [pprint]]
-            [clojure.math.combinatorics :as combo]))
+            [clojure.pprint :refer [pprint]]))
 
 ;; ===========================================================================================================
 ;; Translation Resolution (Task 2.2)
@@ -147,10 +143,10 @@
 
    Implementation pattern from test_matrix_generator.clj lines 99-117"
   [db group-eid]
-  (let [group (d/pull db '[:db/id
-                           :group/translation-key
-                           {:group/_children [:db/id :group/translation-key]}]
-                      group-eid)
+  (let [group      (d/pull db '[:db/id
+                                :group/translation-key
+                                {:group/_children [:db/id :group/translation-key]}]
+                           group-eid)
         group-name (get-translation db (:group/translation-key group))]
     (if-let [parent-group (:group/_children group)]
       ;; Has a parent, recur and prepend current name
@@ -227,31 +223,31 @@
                                                                                           :module/translation-key]}]}]}]
                    [:bp/uuid gv-uuid])]
     (when (seq gv)
-      (let [parent-group (:group/_group-variables gv)
+      (let [parent-group     (:group/_group-variables gv)
             parent-group-eid (:db/id parent-group)
             ;; Collect full hierarchy
-            group-hierarchy (collect-group-hierarchy db parent-group-eid)
+            group-hierarchy  (collect-group-hierarchy db parent-group-eid)
             ;; Use helper function to find the submodule by traversing up the group hierarchy
             parent-submodule (find-parent-submodule-for-group parent-group)
-            parent-module (:module/_submodules parent-submodule)
-            io (:submodule/io parent-submodule)
+            parent-module    (:module/_submodules parent-submodule)
+            io               (:submodule/io parent-submodule)
             ;; Build complete path: Module > Submodule > :io > Groups...
-            module-name (get-translation db (:module/translation-key parent-module))
-            submodule-name (:submodule/name parent-submodule)
-            base-path (filterv some? (concat [module-name submodule-name] group-hierarchy))
+            module-name      (get-translation db (:module/translation-key parent-module))
+            submodule-name   (:submodule/name parent-submodule)
+            base-path        (filterv some? (concat [module-name submodule-name] group-hierarchy))
             ;; Insert :io keyword before the last element (the variable's parent group)
-            full-path (if (> (count base-path) 2)
-                        (vec (concat (take 2 base-path) [io] (drop 2 base-path)))
-                        base-path)]
+            full-path        (if (> (count base-path) 2)
+                               (vec (concat (take 2 base-path) [io] (drop 2 base-path)))
+                               base-path)]
         ;; Only return if variable has valid name/code
         (when (:group-variable/translation-key gv)
           {:group-variable/translated-name (get-translation db (:group-variable/translation-key gv))
-           :group-variable/research? (:group-variable/research? gv)
-           :io io
-           :path full-path
-           :submodule/order (:submodule/order parent-submodule)
-           :submodule/research? (:submodule/research? parent-submodule)
-           :group/order (:group/order parent-group)})))))
+           :group-variable/research?       (:group-variable/research? gv)
+           :io                             io
+           :path                           full-path
+           :submodule/order                (:submodule/order parent-submodule)
+           :submodule/research?            (:submodule/research? parent-submodule)
+           :group/order                    (:group/order parent-group)})))))
 
 ;; ===========================================================================================================
 ;; Enum Value Resolution (Task 2.8)
@@ -272,14 +268,14 @@
 
    Implementation pattern from test_matrix_generator.clj lines 170-194"
   [db gv-uuid]
-  (let [gv (d/pull db
-                   '[{:variable/_group-variables
-                      [{:variable/list
-                        [{:list/options
-                          [:list-option/value
-                           :list-option/translation-key
-                           :list-option/order]}]}]}]
-                   [:bp/uuid gv-uuid])
+  (let [gv       (d/pull db
+                         '[{:variable/_group-variables
+                            [{:variable/list
+                              [{:list/options
+                                [:list-option/value
+                                 :list-option/translation-key
+                                 :list-option/order]}]}]}]
+                         [:bp/uuid gv-uuid])
         ;; :variable/_group-variables returns a vector, get first element
         variable (first (:variable/_group-variables gv))]
     (when-let [list-options (get-in variable [:variable/list :list/options])]
@@ -336,12 +332,12 @@
 
    Implementation pattern from test_matrix_generator.clj lines 223-257"
   [db conditional]
-  (let [cond-type (:conditional/type conditional)
-        operator (:conditional/operator conditional)
-        values (:conditional/values conditional)
-        gv-uuid (:conditional/group-variable-uuid conditional)
+  (let [cond-type        (:conditional/type conditional)
+        operator         (:conditional/operator conditional)
+        values           (:conditional/values conditional)
+        gv-uuid          (:conditional/group-variable-uuid conditional)
         sub-conditionals (:conditional/sub-conditionals conditional)
-        sub-operator (:conditional/sub-conditional-operator conditional)
+        sub-operator     (:conditional/sub-conditional-operator conditional)
 
         ;; Resolve group-variable info
         gv-info (when gv-uuid (resolve-group-variable-uuid db gv-uuid))
@@ -381,11 +377,11 @@
    Implementation pattern from test_matrix_generator.clj lines 259-270"
   [db group]
   (let [conditionals (:group/conditionals group)
-        operator (:group/conditionals-operator group)
+        operator     (:group/conditionals-operator group)
         ;; Process and filter out failed resolutions (nils)
-        processed (keep #(process-conditional db %) conditionals)]
+        processed    (keep #(process-conditional db %) conditionals)]
     (when (seq processed) ; only return if at least one conditional succeeded
-      {:conditionals processed
+      {:conditionals          processed
        :conditionals-operator operator})))
 
 (defn process-submodule-conditionals
@@ -403,11 +399,11 @@
    Implementation pattern from test_matrix_generator.clj lines 272-283"
   [db submodule]
   (let [conditionals (:submodule/conditionals submodule)
-        operator (:submodule/conditionals-operator submodule)
+        operator     (:submodule/conditionals-operator submodule)
         ;; Process and filter out failed resolutions (nils)
-        processed (keep #(process-conditional db %) conditionals)]
+        processed    (keep #(process-conditional db %) conditionals)]
     (when (seq processed) ; only return if at least one conditional succeeded
-      {:conditionals processed
+      {:conditionals          processed
        :conditionals-operator operator})))
 
 ;; ===========================================================================================================
@@ -453,31 +449,31 @@
 
    Implementation pattern from test_matrix_generator.clj lines 305-328"
   [db group-eid]
-  (let [group (pull-group-details db group-eid)
-        parent-submodule (find-parent-submodule db group-eid)
-        parent-module (:module/_submodules parent-submodule)
-        io (:submodule/io parent-submodule)
+  (let [group             (pull-group-details db group-eid)
+        parent-submodule  (find-parent-submodule db group-eid)
+        parent-module     (:module/_submodules parent-submodule)
+        io                (:submodule/io parent-submodule)
         ;; Collect full group hierarchy
-        group-hierarchy (collect-group-hierarchy db group-eid)
+        group-hierarchy   (collect-group-hierarchy db group-eid)
         ;; Build complete path: Module > Submodule > :io > Groups...
-        module-name (get-translation db (:module/translation-key parent-module))
-        submodule-name (:submodule/name parent-submodule)
-        base-path (filterv some? (concat [module-name submodule-name] group-hierarchy))
+        module-name       (get-translation db (:module/translation-key parent-module))
+        submodule-name    (:submodule/name parent-submodule)
+        base-path         (filterv some? (concat [module-name submodule-name] group-hierarchy))
         ;; Insert :io keyword after module and submodule (if path is long enough)
-        full-path (if (> (count base-path) 2)
-                    (vec (concat (take 2 base-path) [io] (drop 2 base-path)))
-                    base-path)
+        full-path         (if (> (count base-path) 2)
+                            (vec (concat (take 2 base-path) [io] (drop 2 base-path)))
+                            base-path)
         conditionals-info (process-group-conditionals db group)]
     ;; Only return group info if it has valid conditionals
     (when conditionals-info
-      {:path full-path
+      {:path                  full-path
        :group/translated-name (get-translation db (:group/translation-key group))
-       :group/research? (:group/research? group)
-       :group/hidden? (:group/hidden? group)
-       :parent-submodule/io io
-       :group/order (:group/order group)
-       :submodule/order (:submodule/order parent-submodule)
-       :conditionals conditionals-info})))
+       :group/research?       (:group/research? group)
+       :group/hidden?         (:group/hidden? group)
+       :parent-submodule/io   io
+       :group/order           (:group/order group)
+       :submodule/order       (:submodule/order parent-submodule)
+       :conditionals          conditionals-info})))
 
 (defn extract-submodule-info
   "Extract relevant information from a submodule entity.
@@ -493,21 +489,21 @@
 
    Implementation pattern from test_matrix_generator.clj lines 330-346"
   [db submodule-eid]
-  (let [submodule (pull-submodule-details db submodule-eid)
-        parent-module (:module/_submodules submodule)
-        io (:submodule/io submodule)
-        module-name (get-translation db (:module/translation-key parent-module))
-        submodule-name (:submodule/name submodule)
+  (let [submodule         (pull-submodule-details db submodule-eid)
+        parent-module     (:module/_submodules submodule)
+        io                (:submodule/io submodule)
+        module-name       (get-translation db (:module/translation-key parent-module))
+        submodule-name    (:submodule/name submodule)
         ;; Submodule paths should have :io appended at the end
-        full-path [module-name submodule-name io]
+        full-path         [module-name submodule-name io]
         conditionals-info (process-submodule-conditionals db submodule)]
     ;; Only return submodule info if it has valid conditionals
     (when conditionals-info
-      {:path full-path
-       :submodule/name submodule-name
-       :submodule/io io
+      {:path                full-path
+       :submodule/name      submodule-name
+       :submodule/io        io
        :submodule/research? (:submodule/research? submodule)
-       :conditionals conditionals-info})))
+       :conditionals        conditionals-info})))
 
 ;; ===========================================================================================================
 ;; Ancestor Path Collection and Processing (Task 3.4 - 3.7)
@@ -534,8 +530,8 @@
    Implementation pattern from test_matrix_generator.clj lines 358-375"
   [path]
   (when (> (count path) 2)
-    (let [module (take 1 path)
-          rest-path (drop 1 path)
+    (let [module     (take 1 path)
+          rest-path  (drop 1 path)
           num-groups (count rest-path)]
       (-> (for [i (range 1 num-groups)]
             (vec (concat module (take i rest-path))))
@@ -561,11 +557,11 @@
     ['Crown' 'Spot' :input] {:path [...] :conditionals [...] ...}
     ...}"
   [db groups submodules]
-  (let [all-groups (keep #(extract-group-info db %) groups)
+  (let [all-groups     (keep #(extract-group-info db %) groups)
         all-submodules (keep #(extract-submodule-info db %) submodules)
         ;; Combine groups and submodules, using :path as key
-        all-entities (concat all-groups all-submodules)
-        path-map (into {} (map (fn [entity] [(:path entity) entity]) all-entities))]
+        all-entities   (concat all-groups all-submodules)
+        path-map       (into {} (map (fn [entity] [(:path entity) entity]) all-entities))]
     path-map))
 
 ;; ===========================================================================================================
@@ -591,14 +587,14 @@
   ([db]
    (generate-test-matrix! db "development/test_matrix_data.edn"))
   ([db edn-path]
-   (let [groups (find-all-groups-with-conditionals db)
+   (let [groups     (find-all-groups-with-conditionals db)
          submodules (find-all-submodules-with-conditionals db)
-         edn-data (generate-edn-data db groups submodules)]
+         edn-data   (generate-edn-data db groups submodules)]
 
      ;; Write EDN data
      (spit edn-path (with-out-str (pprint edn-data)))
      (println (format "✓ EDN data written to: %s" edn-path))
 
-     {:edn-path edn-path
-      :groups-count (count groups)
+     {:edn-path         edn-path
+      :groups-count     (count groups)
       :submodules-count (count submodules)})))

@@ -2,7 +2,6 @@
   (:require [clojure.string :as str]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
-            [clojure.pprint :refer [pprint]]
             [clojure.math.combinatorics :as combo]))
 
 ;; ===========================================================================================================
@@ -90,10 +89,10 @@
                       updated-seen       (conj seen-paths path)
                       ;; Recursively process conditionals from all found entities
                       nested-results     (mapcat
-                                      (fn [entity]
-                                        (when-let [entity-conds (get-in entity [:conditionals :conditionals])]
-                                          (collect-from-conditional-seq entity-conds updated-seen)))
-                                      all-found-entities)]
+                                          (fn [entity]
+                                            (when-let [entity-conds (get-in entity [:conditionals :conditionals])]
+                                              (collect-from-conditional-seq entity-conds updated-seen)))
+                                          all-found-entities)]
                   ;; Return all found entities plus any nested results
                   (concat all-found-entities nested-results))
                 ;; No path or already seen, return empty
@@ -704,8 +703,8 @@
             sub-combinations (apply combo/cartesian-product sub-paths)
             ;; Parent conditional without sub-conditionals, with optimized values
             parent-cond      (-> conditional
-                            (dissoc :sub-conditionals :sub-conditional-operator)
-                            (assoc :values optimized-values))]
+                                 (dissoc :sub-conditionals :sub-conditional-operator)
+                                 (assoc :values optimized-values))]
         ;; Create paths combining parent with each sub-combination
         (for [sub-combo sub-combinations
               :let      [flattened-subs (apply concat sub-combo)]]
@@ -881,7 +880,7 @@
                        affected-groups  (map #(nth groups %) affected-group-indices)
                        ;; Merge them
                        merged-group     {:ancestor-indices    (apply clojure.set/union
-                                                                  (map :ancestor-indices affected-groups))
+                                                                     (map :ancestor-indices affected-groups))
                                          :shared-conditionals (vec (concat [conditional]
                                                                            (mapcat :shared-conditionals affected-groups)))}
                        ;; Remove old groups and add merged one
@@ -940,9 +939,9 @@
           overlapping-branches
           (for [[cond ancestor-indices] overlaps]
             (let [uncovered-ancestors         (clojure.set/difference (set (range num-ancestors))
-                                                              ancestor-indices)
+                                                                      ancestor-indices)
                   uncovered-branches          (map #(nth non-overlapping-by-ancestor %)
-                                          uncovered-ancestors)
+                                                   uncovered-ancestors)
                   uncovered-branches-filtered (remove empty? uncovered-branches)]
               (if (empty? uncovered-ancestors)
                 ;; Conditional satisfies ALL ancestors
@@ -962,8 +961,8 @@
           non-empty-non-overlapping (remove empty? non-overlapping-by-ancestor)
           pure-non-overlapping      (if (= (count non-empty-non-overlapping) num-ancestors)
                                       (let [combos (apply combo/cartesian-product non-empty-non-overlapping)]
-                                   (map #(apply concat %) combos))
-                                 [])]
+                                        (map #(apply concat %) combos))
+                                      [])]
 
       (concat overlapping-branches-flat pure-non-overlapping))))
 
@@ -1029,8 +1028,8 @@
                                             ancestor-branches)
                       ;; Find ANY entity branch containing this conditional
                       entity-branch   (some #(when (some (fn [c] (conditionals-equal? c overlap-cond)) %)
-                                             %)
-                                          entity-branches)]
+                                               %)
+                                            entity-branches)]
                   ;; Combine them, the overlapping conditional appears in both
                   [ancestor-branch entity-branch]))
 
@@ -1067,7 +1066,9 @@
    IMPORTANT: Uses pre-cartesian deduplication to handle overlapping :or conditionals.
    When multiple ancestors have the same conditional in their :or lists, creates
    minimal branches where ONE conditional satisfies multiple ancestors.
+
    and 'Fireline Intensity' when either one alone would satisfy all ancestors.
+
    cartesian product.
 
    Arguments:
@@ -1104,6 +1105,10 @@
    Boolean true if any conditional has research dependencies"
   [conditionals]
   (some has-research-dependency? conditionals))
+
+(defn deduplicate-ancestor-conditionals
+  [conditionals]
+  (into #{} conditionals))
 
 ;; ===========================================================================================================
 ;; Setup Step Generation (Task 6.3)
@@ -1172,18 +1177,18 @@
   [conditionals]
   (let [;; Separate by type
         outputs          (filter #(and (= (get-in % [:group-variable :io]) :output)
-                              (= (:values %) ["true"]))
-                        conditionals)
+                                       (= (:values %) ["true"]))
+                                 conditionals)
         negative-outputs (filter #(and (= (get-in % [:group-variable :io]) :output)
                                        (= (:values %) ["false"]))
                                  conditionals)
         inputs           (filter #(= (get-in % [:group-variable :io]) :input)
-                       conditionals)
+                                 conditionals)
         ;; Sort function
         sort-fn          (fn [conds]
-                  (sort-by (juxt #(get-in % [:group-variable :submodule/order])
-                                 #(get-in % [:group-variable :group/order]))
-                           conds))]
+                           (sort-by (juxt #(get-in % [:group-variable :submodule/order])
+                                          #(get-in % [:group-variable :group/order]))
+                                    conds))]
     {:outputs          (sort-fn outputs)
      :negative-outputs (sort-fn negative-outputs)
      :inputs           (sort-fn inputs)}))
@@ -1391,20 +1396,26 @@
           conditional-ancestors (when (seq all-conds-to-follow)
                                   (collect-all-ancestral-entities all-data all-conds-to-follow))
 
-          ;; Combine all ancestors by :path BEFORE expansion
+          ;; Combine and deduplicate all ancestors by :path BEFORE expansion
           ;; This prevents combinatoric explosion from duplicate entities
           ancestors (vec (vals (into {} (map (juxt :path identity)
                                              (concat direct-ancestors conditional-ancestors)))))
 
-          ;; Expand ancestor OR branches using cartesian product
+          ;; Expand ancestor OR branches using cartesian product with deduplication
           ancestor-branches (expand-ancestor-or-branches ancestors)
+
+          ;; Deduplicate each ancestor branch
+          deduped-ancestor-branches (map deduplicate-ancestor-conditionals ancestor-branches)
 
           ;; Expand target entity's own conditionals
           entity-conditionals (:conditionals entity)
           entity-branches     (expand-or-conditionals entity-conditionals)
 
+          ;; Deduplicate each entity branch
+          deduped-entity-branches (map deduplicate-ancestor-conditionals entity-branches)
+
           ;; Create cartesian product with overlap deduplication
-          all-combinations (create-minimal-combined-branches ancestor-branches entity-branches)
+          all-combinations (create-minimal-combined-branches deduped-ancestor-branches deduped-entity-branches)
 
           ;; Filter out combinations that contain ANY research dependencies
           non-research-combinations (remove (fn [[ancestor-setup entity-setup]]
@@ -1417,9 +1428,9 @@
                       ;; Determine module combo for THIS specific combination
                       (let [module-combo                     (determine-module-combo-for-combination ancestor-setup entity-setup)
                             module-conditionals              (->> entity-setup
-                                                     (concat ancestor-setup)
-                                                     (filter #(= (:type %) :module))
-                                                     (map #(set (map keyword (:values %)))))
+                                                                  (concat ancestor-setup)
+                                                                  (filter #(= (:type %) :module))
+                                                                  (map #(set (map keyword (:values %)))))
                             all-matching-module-conditionals (every? #(= module-combo %) module-conditionals)]
                         ;; Skip unsupported module combinations
                         (when (and (not= module-combo :unsupported) all-matching-module-conditionals)
@@ -1429,20 +1440,21 @@
                                 ;; Filter entity setup by this combination's module
                                 filtered-entity-setup (filter-conditionals-by-module entity-setup module-combo)
 
-                                ;; Combine
+                                ;; Combine and deduplicate
                                 all-conditionals (concat filtered-ancestor-setup filtered-entity-setup)
+                                deduped-setup    (deduplicate-ancestor-conditionals all-conditionals)
 
                                 ;; Generate scenario
                                 scenario-text (generate-output-enables-input-scenario
                                                {:conditionals {:conditionals filtered-entity-setup}
                                                 :path         (:path entity)}
-                                               all-conditionals
+                                               deduped-setup
                                                (:path entity)
                                                module-combo)
 
                                 ;; Generate scenario name (works for both groups and submodules)
                                 entity-name   (or (:group/translated-name entity)
-                                                (:submodule/name entity))
+                                                  (:submodule/name entity))
                                 scenario-name (str "Scenario: " (build-scenario-name filtered-entity-setup entity-name))]
 
                             {:text       (wrap-scenario-with-header scenario-text scenario-name "")
@@ -1538,8 +1550,8 @@
    String like 'surface-input_fuel-moisture_by-size-class.feature'"
   [module path]
   (let [module-str                 (if (set? module)
-                     (module-set-to-string module)
-                     (name module))
+                                     (module-set-to-string module)
+                                     (name module))
         ;; Skip module (first element) and filter out :io keywords from path
         path-without-module-and-io (remove keyword? (rest path))
         sanitized-parts            (map sanitize-path-component path-without-module-and-io)
@@ -1558,8 +1570,8 @@
    String like 'surface-input_fuel-moisture'"
   [module path]
   (let [module-str                 (if (set? module)
-                     (module-set-to-string module)
-                     (name module))
+                                     (module-set-to-string module)
+                                     (name module))
         ;; Skip module (first element) and filter out :io keywords from path
         path-without-module-and-io (remove keyword? (rest path))
         sanitized-parts            (map sanitize-path-component path-without-module-and-io)
