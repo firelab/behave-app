@@ -9,7 +9,7 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -136,7 +136,7 @@
        "Dead Fuel Load"],
       :submodule/order 4,
       :submodule/research? true,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :or}},
  ["Surface" "Spot" :input]
  {:path ["Surface" "Spot" :input],
@@ -145,7 +145,7 @@
   :submodule/research? false,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -179,7 +179,7 @@
       :path ["Surface" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input "Surface Fire Fireline Intensity"]
  {:path
@@ -192,7 +192,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}),
+   [{:type :module, :operator :equal, :values ["mortality"]}],
    :conditionals-operator nil}},
  ["Mortality" "Tree Characteristics" :input "Crown Ratio"]
  {:path ["Mortality" "Tree Characteristics" :input "Crown Ratio"],
@@ -204,10 +204,10 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("Abies amabilis / ABAM (Pacific silver fir)"
+     ["Abies amabilis / ABAM (Pacific silver fir)"
       "Abies balsamea / ABBA (Balsam fir)"
       "Abies concolor / ABCO (White fir)"
       "Abies grandis / ABGR (Grand fir)"
@@ -381,7 +381,7 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"),
+      "Umbellularia californica / UMCA (California - laurel)"],
      :group-variable
      {:group-variable/translated-name "Mortality Tree Species",
       :group-variable/research? nil,
@@ -393,7 +393,7 @@
        "Mortality Tree Species"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Crown" "Spot" :input "Canopy Fuel"]
  {:path ["Crown" "Spot" :input "Canopy Fuel"],
@@ -405,7 +405,7 @@
   :submodule/order 4,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -550,7 +550,7 @@
       :path ["Crown" "Size" :output "Crown - Fire Size"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :and}},
  ["Surface" "Fuel Moisture" :input "By Size Class"]
  {:path ["Surface" "Fuel Moisture" :input "By Size Class"],
@@ -562,9 +562,9 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Individual Size Class"),
+     :values ["Individual Size Class"],
      :group-variable
      {:group-variable/translated-name "Moisture Input Mode",
       :group-variable/research? nil,
@@ -572,7 +572,7 @@
       :path ["Surface" "Fuel Moisture" :input "Moisture Input Mode"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Mortality" "Mortality" :output]
  {:path ["Mortality" "Mortality" :output],
@@ -581,7 +581,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}),
+   [{:type :module, :operator :equal, :values ["mortality"]}],
    :conditionals-operator nil}},
  ["Surface" "Spot" :output]
  {:path ["Surface" "Spot" :output],
@@ -590,7 +590,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["surface"]}),
+   [{:type :module, :operator :equal, :values ["surface"]}],
    :conditionals-operator :or}},
  ["Crown" "Foliar Moisture" :input "Moisture Scenario"]
  {:path ["Crown" "Foliar Moisture" :input "Moisture Scenario"],
@@ -602,7 +602,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :or}},
  ["Crown" "Weather" :input "Wind and slope are" "Wind Direction"]
  {:path
@@ -615,9 +615,9 @@
   :submodule/order 2,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Not Aligned (Wind is >30° from upslope)."),
+     :values ["Not Aligned (Wind is >30° from upslope)."],
      :group-variable
      {:group-variable/translated-name "Wind and Slope Alignment Mode",
       :group-variable/research? nil,
@@ -625,7 +625,7 @@
       :path ["Crown" "Weather" :input "Wind and slope are"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order 5}}),
+      :group/order 5}}],
    :conditionals-operator :and}},
  ["Crown" "Spot" :input "Torching Trees"]
  {:path ["Crown" "Spot" :input "Torching Trees"],
@@ -637,7 +637,7 @@
   :submodule/order 4,
   :conditionals
   {:conditionals
-   ({:type :group-variable, :operator :equal, :values ["true"]}
+   [{:type :group-variable, :operator :equal, :values ["true"]}
     {:type :group-variable,
      :operator :equal,
      :values ["true"],
@@ -648,7 +648,7 @@
       :path ["Crown" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :or}},
  ["Surface" "Spot" :input "Surface Fire Flame Length"]
  {:path ["Surface" "Spot" :input "Surface Fire Flame Length"],
@@ -660,7 +660,7 @@
   :submodule/order 5,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["false"],
      :group-variable
@@ -703,7 +703,7 @@
       :path ["Surface" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :and}},
  ["Surface"
   "Fuel Moisture"
@@ -724,10 +724,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("GR1/101 - Short, sparse, dry climate grass (Dynamic)"
+     ["GR1/101 - Short, sparse, dry climate grass (Dynamic)"
       "GR2/102 - Low load, dry climate grass (Dynamic)"
       "GR3/103 - Low load, very coarse, humid climate grass (Dynamic)"
       "GR4/104 - Moderate load, dry climate grass (Dynamic)"
@@ -754,7 +754,7 @@
       "TU3/163 - Moderate load, humid climate timber-grass-shrub (Dynamic)"
       "M-H/167 - Deciduous or Conifer Litter, Shrub and Herb Understory"
       "M-F/168 - Deciduous or Conifer Litter, Shrub and Fern Understory (Dynamic)"
-      "FB2/2 - Timber grass and understory (Static)"),
+      "FB2/2 - Timber grass and understory (Static)"],
      :group-variable
      {:group-variable/translated-name "Fuel Model Code",
       :group-variable/research? nil,
@@ -762,7 +762,7 @@
       :path ["Surface" "Fuel Model" :input "Standard" "Fuel Model"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Surface" "Fuel Model" :input "Standard" "Fuel Model"]
  {:path ["Surface" "Fuel Model" :input "Standard" "Fuel Model"],
@@ -774,7 +774,7 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["false"],
      :group-variable
@@ -784,7 +784,7 @@
       :path ["Surface" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Surface"
   "Fuel Moisture"
@@ -803,9 +803,9 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Dead, Live Herb, and Live Woody Categories"),
+     :values ["Dead, Live Herb, and Live Woody Categories"],
      :group-variable
      {:group-variable/translated-name "Moisture Input Mode",
       :group-variable/research? nil,
@@ -813,7 +813,7 @@
       :path ["Surface" "Fuel Moisture" :input "Moisture Input Mode"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :and}},
  ["Mortality" "Scorch" :input "Fire" "Scorch Height"]
  {:path ["Mortality" "Scorch" :input "Fire" "Scorch Height"],
@@ -825,10 +825,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}
+   [{:type :module, :operator :equal, :values ["mortality"]}
     {:type :group-variable,
      :operator :equal,
-     :values ("Scorch Height"),
+     :values ["Scorch Height"],
      :group-variable
      {:group-variable/translated-name "ScorchHeightOrFlameLength",
       :group-variable/research? nil,
@@ -836,7 +836,7 @@
       :path ["Mortality" "Scorch" :input "Fire"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :and}},
  ["Surface" "Fuel Moisture" :input "All Aggregate"]
  {:path ["Surface" "Fuel Moisture" :input "All Aggregate"],
@@ -848,9 +848,9 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("All Aggregate"),
+     :values ["All Aggregate"],
      :group-variable
      {:group-variable/translated-name "Moisture Input Mode",
       :group-variable/research? nil,
@@ -858,7 +858,7 @@
       :path ["Surface" "Fuel Moisture" :input "Moisture Input Mode"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Surface" "Spot" :input "Burning Pile"]
  {:path ["Surface" "Spot" :input "Burning Pile"],
@@ -870,7 +870,7 @@
   :submodule/order 5,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -892,7 +892,7 @@
       :path ["Surface" "Spot" :output "Burning Pile"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input "Wind Adjustment Factor"]
  {:path ["Mortality" "Scorch" :input "Wind Adjustment Factor"],
@@ -904,7 +904,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["surface"]}),
+   [{:type :module, :operator :equal, :values ["surface"]}],
    :conditionals-operator :or}},
  ["Surface"
   "Fuel Model"
@@ -927,9 +927,9 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Fuel Load from Depth & Chaparral Type"),
+     :values ["Fuel Load from Depth & Chaparral Type"],
      :group-variable
      {:group-variable/translated-name "Chaparral Fuel Load Input Mode",
       :group-variable/research? nil,
@@ -943,7 +943,7 @@
        "Total Fuel Load is..."],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Surface" "Weather" :input "1-h Fuel Moisture"]
  {:path ["Surface" "Weather" :input "1-h Fuel Moisture"],
@@ -955,9 +955,9 @@
   :submodule/order 6,
   :conditionals
   {:conditionals
-   ({:type :module,
+   [{:type :module,
      :operator :equal,
-     :values ["contain" "crown" "mortality" "surface"]}),
+     :values ["contain" "crown" "mortality" "surface"]}],
    :conditionals-operator nil}},
  ["Crown" "Foliar Moisture" :input "Fuel Model Number"]
  {:path ["Crown" "Foliar Moisture" :input "Fuel Model Number"],
@@ -969,7 +969,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :and}},
  ["Surface"
   "Fuel Model"
@@ -992,9 +992,9 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Direct Fuel Load"),
+     :values ["Direct Fuel Load"],
      :group-variable
      {:group-variable/translated-name "Chaparral Fuel Load Input Mode",
       :group-variable/research? nil,
@@ -1008,7 +1008,7 @@
        "Total Fuel Load is..."],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Crown" "Spot" :input "Fire Behavior"]
  {:path ["Crown" "Spot" :input "Fire Behavior"],
@@ -1020,7 +1020,7 @@
   :submodule/order 4,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["false"],
      :group-variable
@@ -1096,7 +1096,7 @@
       :path ["Crown" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :and}},
  ["Surface" "Spread Directions" :input]
  {:path ["Surface" "Spread Directions" :input],
@@ -1105,7 +1105,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -1115,7 +1115,7 @@
       :path ["Surface" "Fire Behavior" :output "Direction Mode"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Crown" "Weather" :input]
  {:path ["Crown" "Weather" :input],
@@ -1124,7 +1124,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :and}},
  ["Crown" "Foliar Moisture" :input "10-h Fuel Moisture"]
  {:path ["Crown" "Foliar Moisture" :input "10-h Fuel Moisture"],
@@ -1136,7 +1136,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator nil}},
  ["Crown"
   "Spot"
@@ -1157,9 +1157,9 @@
   :submodule/order 4,
   :conditionals
   {:conditionals
-   ({:type :module,
+   [{:type :module,
      :operator :equal,
-     :values ["contain" "crown" "mortality" "surface"]}),
+     :values ["contain" "crown" "mortality" "surface"]}],
    :conditionals-operator :or}},
  ["Air Temperature"]
  {:path ["Air Temperature"],
@@ -1171,7 +1171,7 @@
   :submodule/order nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -1181,7 +1181,7 @@
       :path ["Scorch Height"],
       :submodule/order nil,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Crown" "Spot" :input "Linked Inputs (hidden)"]
  {:path ["Crown" "Spot" :input "Linked Inputs (hidden)"],
@@ -1193,9 +1193,9 @@
   :submodule/order 4,
   :conditionals
   {:conditionals
-   ({:type :module,
+   [{:type :module,
      :operator :equal,
-     :values ["contain" "crown" "mortality" "surface"]}),
+     :values ["contain" "crown" "mortality" "surface"]}],
    :conditionals-operator :and}},
  ["Surface" "Fuel Model" :input "Special Case" "Western Aspen"]
  {:path ["Surface" "Fuel Model" :input "Special Case" "Western Aspen"],
@@ -1207,7 +1207,7 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -1286,7 +1286,7 @@
        "Surface Area-to-Volume Ratio (SA/V)"],
       :submodule/order 4,
       :submodule/research? true,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Surface"
   "Wind and Slope"
@@ -1307,9 +1307,9 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("User Input"),
+     :values ["User Input"],
      :group-variable
      {:group-variable/translated-name
       "Wind Adjustment Factor Calculation Method",
@@ -1319,7 +1319,7 @@
       ["Surface" "Wind and Slope" :input "Wind Adjustment Factor"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order 3}}),
+      :group/order 3}}],
    :conditionals-operator nil}},
  ["Surface Fireline Intensity"]
  {:path ["Surface Fireline Intensity"],
@@ -1331,7 +1331,7 @@
   :submodule/order nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}
+   [{:type :module, :operator :equal, :values ["mortality"]}
     {:type :group-variable,
      :operator :equal,
      :values ["true"],
@@ -1342,7 +1342,7 @@
       :path ["Scorch Height"],
       :submodule/order nil,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Surface" "Wind and Slope" :input "20-Foot Wind Speed"]
  {:path ["Surface" "Wind and Slope" :input "20-Foot Wind Speed"],
@@ -1354,9 +1354,9 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("20-Foot"),
+     :values ["20-Foot"],
      :group-variable
      {:group-variable/translated-name "Wind Measured at:",
       :group-variable/research? nil,
@@ -1364,7 +1364,7 @@
       :path ["Surface" "Wind and Slope" :input "Wind Measured at:"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input "Fire" "Surface Fire Flame Length"]
  {:path
@@ -1377,10 +1377,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}
+   [{:type :module, :operator :equal, :values ["mortality"]}
     {:type :group-variable,
      :operator :equal,
-     :values ("Flame Length"),
+     :values ["Flame Length"],
      :group-variable
      {:group-variable/translated-name "ScorchHeightOrFlameLength",
       :group-variable/research? nil,
@@ -1388,7 +1388,7 @@
       :path ["Mortality" "Scorch" :input "Fire"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :and}},
  ["Surface" "Fuel Model" :input]
  {:path ["Surface" "Fuel Model" :input],
@@ -1397,7 +1397,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -1632,7 +1632,7 @@
       :group/order 0}}
     {:type :module,
      :operator :equal,
-     :values ["mortality" "surface"]}),
+     :values ["mortality" "surface"]}],
    :conditionals-operator :or}},
  ["Surface" "Fuel Model" :input "Standard" "Flame Length"]
  {:path ["Surface" "Fuel Model" :input "Standard" "Flame Length"],
@@ -1644,7 +1644,7 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -1654,7 +1654,7 @@
       :path ["Surface" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input "Wind Speed"]
  {:path ["Mortality" "Scorch" :input "Wind Speed"],
@@ -1666,7 +1666,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["surface"]}),
+   [{:type :module, :operator :equal, :values ["surface"]}],
    :conditionals-operator :or}},
  ["Surface"
   "Wind and Slope"
@@ -1687,9 +1687,9 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Not Aligned (Wind is >30° from upslope)."),
+     :values ["Not Aligned (Wind is >30° from upslope)."],
      :group-variable
      {:group-variable/translated-name "Wind and Slope Alignment Mode",
       :group-variable/research? nil,
@@ -1697,7 +1697,7 @@
       :path ["Surface" "Wind and Slope" :input "Wind and slope are"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order 4}}),
+      :group/order 4}}],
    :conditionals-operator nil}},
  ["Crown" "Crown Fire Method" :input]
  {:path ["Crown" "Crown Fire Method" :input],
@@ -1706,7 +1706,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -1861,7 +1861,7 @@
       :path ["Crown" "Fire Type" :output "Active Crown Fire"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Surface" "Wind and Slope" :input "Wind and slope are"]
  {:path ["Surface" "Wind and Slope" :input "Wind and slope are"],
@@ -1873,7 +1873,7 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -2094,7 +2094,7 @@
       :path ["Crown" "Fire Type" :output "Active Crown Fire"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Crown" "Topography" :input]
  {:path ["Crown" "Topography" :input],
@@ -2103,7 +2103,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :and}},
  ["Mortality" "Scorch" :input "Wind Measured at"]
  {:path ["Mortality" "Scorch" :input "Wind Measured at"],
@@ -2115,7 +2115,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["surface"]}),
+   [{:type :module, :operator :equal, :values ["surface"]}],
    :conditionals-operator :or}},
  ["Surface" "Wind and Slope" :input "Wind Speed"]
  {:path ["Surface" "Wind and Slope" :input "Wind Speed"],
@@ -2127,9 +2127,9 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Midflame (Eye Level)"),
+     :values ["Midflame (Eye Level)"],
      :group-variable
      {:group-variable/translated-name "Wind Measured at:",
       :group-variable/research? nil,
@@ -2137,7 +2137,7 @@
       :path ["Surface" "Wind and Slope" :input "Wind Measured at:"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Surface" "Fuel Moisture" :input "Moisture Scenario"]
  {:path ["Surface" "Fuel Moisture" :input "Moisture Scenario"],
@@ -2149,9 +2149,9 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Moisture Scenario"),
+     :values ["Moisture Scenario"],
      :group-variable
      {:group-variable/translated-name "Moisture Input Mode",
       :group-variable/research? nil,
@@ -2159,7 +2159,7 @@
       :path ["Surface" "Fuel Moisture" :input "Moisture Input Mode"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Crown" "Canopy Fuel" :input]
  {:path ["Crown" "Canopy Fuel" :input],
@@ -2168,7 +2168,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -2323,7 +2323,7 @@
       :path ["Crown" "Fire Type" :output "Active Crown Fire"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Surface" "Wind and Slope" :input "Wind Adjustment Factor"]
  {:path ["Surface" "Wind and Slope" :input "Wind Adjustment Factor"],
@@ -2335,9 +2335,9 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
-     :values ("20-Foot" "10-Meter"),
+     :values ["20-Foot" "10-Meter"],
      :group-variable
      {:group-variable/translated-name "Wind Measured at:",
       :group-variable/research? nil,
@@ -2347,7 +2347,7 @@
       :submodule/research? nil,
       :group/order nil},
      :sub-conditionals
-     ({:type :group-variable,
+     [{:type :group-variable,
        :operator :equal,
        :values ["true"],
        :group-variable
@@ -2537,8 +2537,8 @@
         :path ["Crown" "Size" :output "Crown - Fire Size"],
         :submodule/order 2,
         :submodule/research? nil,
-        :group/order nil}}),
-     :sub-conditional-operator :or}),
+        :group/order nil}}],
+     :sub-conditional-operator :or}],
    :conditionals-operator :and}},
  ["Surface" "Fuel Model" :input "Special Case"]
  {:path ["Surface" "Fuel Model" :input "Special Case"],
@@ -2550,7 +2550,7 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -2936,7 +2936,7 @@
        "Surface Area-to-Volume Ratio (SA/V)"],
       :submodule/order 4,
       :submodule/research? true,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Surface"
   "Fuel Moisture"
@@ -2957,10 +2957,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("FB10/10 - Timber litter & understory (Static)"
+     ["FB10/10 - Timber litter & understory (Static)"
       "FB11/11 - Light logging slash (Static)"
       "FB12/12 - Medium logging slash (Static)"
       "GS4/124 - High load, humid climate grass-shrub (Dynamic)"
@@ -3003,7 +3003,7 @@
       "FB6/6 - Dormant brush, hardwood slash (Static)"
       "FB7/7 - Southern rough (Static)"
       "FB8/8 - Short needle litter (Static)"
-      "FB9/9 - Long needle or hardwood litter (Static)"),
+      "FB9/9 - Long needle or hardwood litter (Static)"],
      :group-variable
      {:group-variable/translated-name "Fuel Model Code",
       :group-variable/research? nil,
@@ -3146,7 +3146,7 @@
       :path ["Crown" "Size" :output "Crown - Fire Size"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :or}},
  ["Contain" "Fire" :input "Surface Rate of Spread (maximum)"]
  {:path ["Contain" "Fire" :input "Surface Rate of Spread (maximum)"],
@@ -3158,7 +3158,7 @@
   :submodule/order nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["contain"]}),
+   [{:type :module, :operator :equal, :values ["contain"]}],
    :conditionals-operator nil}},
  ["Crown"
   "Weather"
@@ -3179,10 +3179,10 @@
   :submodule/order 2,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}
+   [{:type :module, :operator :equal, :values ["crown"]}
     {:type :group-variable,
      :operator :equal,
-     :values ("User Input"),
+     :values ["User Input"],
      :group-variable
      {:group-variable/translated-name
       "Wind Adjustment Factor Calculation Method",
@@ -3191,7 +3191,7 @@
       :path ["Crown" "Weather" :input "Wind Adjustment Factor"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :and}},
  ["Surface" "Wind and Slope" :input]
  {:path ["Surface" "Wind and Slope" :input],
@@ -3200,7 +3200,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -3488,7 +3488,7 @@
       :path ["Crown" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :or}},
  ["Surface" "Size" :output]
  {:path ["Surface" "Size" :output],
@@ -3497,7 +3497,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["surface"]}),
+   [{:type :module, :operator :equal, :values ["surface"]}],
    :conditionals-operator :or}},
  ["Crown" "Foliar Moisture" :input]
  {:path ["Crown" "Foliar Moisture" :input],
@@ -3506,7 +3506,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -3661,7 +3661,7 @@
       :path ["Crown" "Fire Type" :output "Active Crown Fire"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Surface" "Fuel Model" :input "Special Case" "Chaparral (Upland)"]
  {:path
@@ -3674,7 +3674,7 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -3852,7 +3852,7 @@
        "Fuel Load"],
       :submodule/order 4,
       :submodule/research? true,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :or}},
  ["Surface" "Wind and Slope" :input "10-Meter Wind Speed"]
  {:path ["Surface" "Wind and Slope" :input "10-Meter Wind Speed"],
@@ -3864,9 +3864,9 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("10-Meter"),
+     :values ["10-Meter"],
      :group-variable
      {:group-variable/translated-name "Wind Measured at:",
       :group-variable/research? nil,
@@ -3874,7 +3874,7 @@
       :path ["Surface" "Wind and Slope" :input "Wind Measured at:"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Surface" "Fuel Moisture" :input]
  {:path ["Surface" "Fuel Moisture" :input],
@@ -3883,7 +3883,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -4138,7 +4138,7 @@
       :path ["Crown" "Fire Behavior" :output "Ignition"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :or}},
  ["Mortality" "Tree Characteristics" :input "Canopy Height"]
  {:path ["Mortality" "Tree Characteristics" :input "Canopy Height"],
@@ -4150,10 +4150,10 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("Abies amabilis / ABAM (Pacific silver fir)"
+     ["Abies amabilis / ABAM (Pacific silver fir)"
       "Abies balsamea / ABBA (Balsam fir)"
       "Abies concolor / ABCO (White fir)"
       "Abies grandis / ABGR (Grand fir)"
@@ -4327,7 +4327,7 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"),
+      "Umbellularia californica / UMCA (California - laurel)"],
      :group-variable
      {:group-variable/translated-name "Mortality Tree Species",
       :group-variable/research? nil,
@@ -4339,7 +4339,7 @@
        "Mortality Tree Species"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Surface" "Spread Directions" :input "Direction of Interest"]
  {:path ["Surface" "Spread Directions" :input "Direction of Interest"],
@@ -4351,7 +4351,7 @@
   :submodule/order 2,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -4361,7 +4361,7 @@
       :path ["Surface" "Fire Behavior" :output "Direction Mode"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Crown" "Foliar Moisture" :input "1-h Fuel Moisture"]
  {:path ["Crown" "Foliar Moisture" :input "1-h Fuel Moisture"],
@@ -4373,7 +4373,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :and}},
  ["Mortality" "Scorch" :input "Midflame Wind Speed"]
  {:path ["Mortality" "Scorch" :input "Midflame Wind Speed"],
@@ -4385,7 +4385,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}),
+   [{:type :module, :operator :equal, :values ["mortality"]}],
    :conditionals-operator nil}},
  ["Crown" "Foliar Moisture" :input "Live Woody Fuel Moisture"]
  {:path ["Crown" "Foliar Moisture" :input "Live Woody Fuel Moisture"],
@@ -4397,7 +4397,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :and}},
  ["Contain" "Fire" :input "Length-to-Width Ratio"]
  {:path ["Contain" "Fire" :input "Length-to-Width Ratio"],
@@ -4409,7 +4409,7 @@
   :submodule/order nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["contain"]}),
+   [{:type :module, :operator :equal, :values ["contain"]}],
    :conditionals-operator nil}},
  ["Crown" "Spot" :input]
  {:path ["Crown" "Spot" :input],
@@ -4418,7 +4418,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -4450,7 +4450,7 @@
       :path ["Crown" "Spot" :output "Maximum Spotting Distance"],
       :submodule/order 3,
       :submodule/research? nil,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :or}},
  ["Surface" "Wind and Slope" :input "Slope"]
  {:path ["Surface" "Wind and Slope" :input "Slope"],
@@ -4462,7 +4462,7 @@
   :submodule/order 3,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -4683,7 +4683,7 @@
       :path ["Crown" "Fire Type" :output "Active Crown Fire"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Crown" "Foliar Moisture" :input "Live Herbaceous Fuel Moisture"]
  {:path
@@ -4696,7 +4696,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :and}},
  ["Crown" "Foliar Moisture" :input "100-h Fuel Moisture"]
  {:path ["Crown" "Foliar Moisture" :input "100-h Fuel Moisture"],
@@ -4708,7 +4708,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator nil}},
  ["Contain" "Suppression" :input "Resources"]
  {:path ["Contain" "Suppression" :input "Resources"],
@@ -4720,9 +4720,9 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Add Resources"),
+     :values ["Add Resources"],
      :group-variable
      {:group-variable/translated-name nil,
       :group-variable/research? nil,
@@ -4730,7 +4730,7 @@
       :path ["Contain" "Suppression" :input "Contain Mode"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Surface"
   "Fuel Moisture"
@@ -4751,10 +4751,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("FB10/10 - Timber litter & understory (Static)"
+     ["FB10/10 - Timber litter & understory (Static)"
       "GS1/121 - Low load, dry climate grass-shrub (Dynamic)"
       "GS2/122 - Moderate load, dry climate grass-shrub (Dynamic)"
       "GS3/123 - Moderate load, humid climate grass-shrub (Dynamic)"
@@ -4775,7 +4775,7 @@
       "TU5/165 - Very high load, dry climate timber-shrub (Static)"
       "FB4/4 - Chaparral (Static)"
       "FB5/5 - Brush (Static)"
-      "FB7/7 - Southern rough (Static)"),
+      "FB7/7 - Southern rough (Static)"],
      :group-variable
      {:group-variable/translated-name "Fuel Model Code",
       :group-variable/research? nil,
@@ -4784,7 +4784,7 @@
       :submodule/order 0,
       :submodule/research? nil,
       :group/order nil}}
-    {:type :module, :operator :equal, :values ["crown" "surface"]}),
+    {:type :module, :operator :equal, :values ["crown" "surface"]}],
    :conditionals-operator :or}},
  ["Crown" "Size" :input]
  {:path ["Crown" "Size" :input],
@@ -4793,7 +4793,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator nil}},
  ["Surface" "Weather" :input]
  {:path ["Surface" "Weather" :input],
@@ -4802,7 +4802,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
      :values ["true"],
      :group-variable
@@ -4823,7 +4823,7 @@
       :path ["Crown" "Fire Behavior" :output "Ignition"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order 1}}),
+      :group/order 1}}],
    :conditionals-operator :or}},
  ["Contain" "Fire" :input]
  {:path ["Contain" "Fire" :input],
@@ -4832,7 +4832,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["contain"]}),
+   [{:type :module, :operator :equal, :values ["contain"]}],
    :conditionals-operator :and}},
  ["Surface"
   "Fuel Moisture"
@@ -4853,10 +4853,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("GR1/101 - Short, sparse, dry climate grass (Dynamic)"
+     ["GR1/101 - Short, sparse, dry climate grass (Dynamic)"
       "GR2/102 - Low load, dry climate grass (Dynamic)"
       "GR3/103 - Low load, very coarse, humid climate grass (Dynamic)"
       "GR4/104 - Moderate load, dry climate grass (Dynamic)"
@@ -4894,7 +4894,7 @@
       "F-RAC/190 - Very Compact Litter, Short Needle Conifers (Static)"
       "F-FOL/191 - Compact Litter, Deciduous or Evergreen Foliage (Static)"
       "F-EUC/193 - Pure Eucalyptus Litter, No Understory (Static)"
-      "FB2/2 - Timber grass and understory (Static)"),
+      "FB2/2 - Timber grass and understory (Static)"],
      :group-variable
      {:group-variable/translated-name "Fuel Model Code",
       :group-variable/research? nil,
@@ -4902,7 +4902,7 @@
       :path ["Surface" "Fuel Model" :input "Standard" "Fuel Model"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator nil}},
  ["Contain"
   "Suppression"
@@ -4922,9 +4922,9 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :equal,
-     :values ("Calculate Minimum Production Rate Only"),
+     :values ["Calculate Minimum Production Rate Only"],
      :group-variable
      {:group-variable/translated-name nil,
       :group-variable/research? nil,
@@ -4932,7 +4932,7 @@
       :path ["Contain" "Suppression" :input "Contain Mode"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator nil}},
  ["Surface" "Size" :input]
  {:path ["Surface" "Size" :input],
@@ -4941,7 +4941,7 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable, :operator :equal, :values ["true"]}
+   [{:type :group-variable, :operator :equal, :values ["true"]}
     {:type :group-variable, :operator :equal, :values ["true"]}
     {:type :group-variable, :operator :equal, :values ["true"]}
     {:type :group-variable,
@@ -5020,7 +5020,7 @@
       :path ["Surface" "Size" :output "Surface - Fire Size"],
       :submodule/order 1,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Surface"
   "Fuel Moisture"
@@ -5041,10 +5041,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("FB10/10 - Timber litter & understory (Static)"
+     ["FB10/10 - Timber litter & understory (Static)"
       "V-Ha/111 - Tall Grass, > 0.5 m (Dynamic)"
       "GS1/121 - Low load, dry climate grass-shrub (Dynamic)"
       "GS2/122 - Moderate load, dry climate grass-shrub (Dynamic)"
@@ -5086,7 +5086,7 @@
       "F-EUC/193 - Pure Eucalyptus Litter, No Understory (Static)"
       "FB4/4 - Chaparral (Static)"
       "FB5/5 - Brush (Static)"
-      "FB7/7 - Southern rough (Static)"),
+      "FB7/7 - Southern rough (Static)"],
      :group-variable
      {:group-variable/translated-name "Fuel Model Code",
       :group-variable/research? nil,
@@ -5229,7 +5229,7 @@
       :path ["Crown" "Size" :output "Crown - Fire Size"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input "Fire"]
  {:path ["Mortality" "Scorch" :input "Fire"],
@@ -5241,7 +5241,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}),
+   [{:type :module, :operator :equal, :values ["mortality"]}],
    :conditionals-operator nil}},
  ["Surface"
   "Fuel Moisture"
@@ -5262,10 +5262,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("FB10/10 - Timber litter & understory (Static)"
+     ["FB10/10 - Timber litter & understory (Static)"
       "GR3/103 - Low load, very coarse, humid climate grass (Dynamic)"
       "GR8/108 - High load, very coarse, humid climate grass (Dynamic)"
       "GR9/109 - Very high load, humid climate grass (Dynamic)"
@@ -5330,7 +5330,7 @@
       "FB6/6 - Dormant brush, hardwood slash (Static)"
       "FB7/7 - Southern rough (Static)"
       "FB8/8 - Short needle litter (Static)"
-      "FB9/9 - Long needle or hardwood litter (Static)"),
+      "FB9/9 - Long needle or hardwood litter (Static)"],
      :group-variable
      {:group-variable/translated-name "Fuel Model Code",
       :group-variable/research? nil,
@@ -5473,7 +5473,7 @@
       :path ["Crown" "Size" :output "Crown - Fire Size"],
       :submodule/order 2,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :or}},
  ["Mortality" "Scorch" :input]
  {:path ["Mortality" "Scorch" :input],
@@ -5482,10 +5482,10 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("Abies amabilis / ABAM (Pacific silver fir)"
+     ["Abies amabilis / ABAM (Pacific silver fir)"
       "Abies balsamea / ABBA (Balsam fir)"
       "Abies concolor / ABCO (White fir)"
       "Abies grandis / ABGR (Grand fir)"
@@ -5659,7 +5659,7 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"),
+      "Umbellularia californica / UMCA (California - laurel)"],
      :group-variable
      {:group-variable/translated-name "Mortality Tree Species",
       :group-variable/research? nil,
@@ -5671,7 +5671,7 @@
        "Mortality Tree Species"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order 0}}),
+      :group/order 0}}],
    :conditionals-operator :or}},
  ["Surface" "Fire Behavior" :output]
  {:path ["Surface" "Fire Behavior" :output],
@@ -5680,11 +5680,11 @@
   :submodule/research? nil,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["surface"]}
+   [{:type :module, :operator :equal, :values ["surface"]}
     {:type :module, :operator :equal, :values ["contain" "surface"]}
     {:type :module,
      :operator :equal,
-     :values ["mortality" "surface"]}),
+     :values ["mortality" "surface"]}],
    :conditionals-operator :or}},
  ["Mortality" "Tree Characteristics" :input "Bole Char Height"]
  {:path ["Mortality" "Tree Characteristics" :input "Bole Char Height"],
@@ -5696,7 +5696,7 @@
   :submodule/order 0,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["mortality"]}),
+   [{:type :module, :operator :equal, :values ["mortality"]}],
    :conditionals-operator nil}},
  ["Crown" "Foliar Moisture" :input "Moisture Input Mode"]
  {:path ["Crown" "Foliar Moisture" :input "Moisture Input Mode"],
@@ -5708,7 +5708,7 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :module, :operator :equal, :values ["crown"]}),
+   [{:type :module, :operator :equal, :values ["crown"]}],
    :conditionals-operator :and}},
  ["Surface"
   "Fuel Moisture"
@@ -5729,10 +5729,10 @@
   :submodule/order 1,
   :conditionals
   {:conditionals
-   ({:type :group-variable,
+   [{:type :group-variable,
      :operator :in,
      :values
-     ("FB1/1 - Short grass (Static)"
+     ["FB1/1 - Short grass (Static)"
       "FB10/10 - Timber litter & understory (Static)"
       "GR1/101 - Short, sparse, dry climate grass (Dynamic)"
       "GR2/102 - Low load, dry climate grass (Dynamic)"
@@ -5806,7 +5806,7 @@
       "FB6/6 - Dormant brush, hardwood slash (Static)"
       "FB7/7 - Southern rough (Static)"
       "FB8/8 - Short needle litter (Static)"
-      "FB9/9 - Long needle or hardwood litter (Static)"),
+      "FB9/9 - Long needle or hardwood litter (Static)"],
      :group-variable
      {:group-variable/translated-name "Fuel Model Code",
       :group-variable/research? nil,
@@ -5814,5 +5814,5 @@
       :path ["Surface" "Fuel Model" :input "Standard" "Fuel Model"],
       :submodule/order 0,
       :submodule/research? nil,
-      :group/order nil}}),
+      :group/order nil}}],
    :conditionals-operator :and}}}
