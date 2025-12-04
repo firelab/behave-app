@@ -307,9 +307,9 @@
    Implementation pattern from test_matrix_generator.clj lines 196-217"
   [db gv-uuid values]
   (when-let [value-map (get-variable-list-options db gv-uuid)]
-    (let [resolved (map #(get value-map %) values)]
+    (let [resolved (mapv #(get value-map %) values)]
       ;; Only return entries with proper translation
-      (remove nil? resolved))))
+      (vec (remove nil? resolved)))))
 
 ;; ===========================================================================================================
 ;; Conditional Processing (Task 3.2 - 3.3)
@@ -345,7 +345,7 @@
         ;; For input conditionals, try to resolve enum values
         resolved-values (if (and gv-info (= (:io gv-info) :input))
                           (resolve-enum-values db gv-uuid values)
-                          values)]
+                          (vec values))]
 
     ;; Return nil if this is an input conditional and values couldn't be resolved
     (when (or (not= (:io gv-info) :input) ; not an input conditional, proceed
@@ -359,7 +359,7 @@
         (assoc :group-variable gv-info)
 
         sub-conditionals
-        (assoc :sub-conditionals (keep #(process-conditional db %) sub-conditionals) ; filter nils
+        (assoc :sub-conditionals (vec (keep #(process-conditional db %) sub-conditionals)) ; filter nils
                :sub-conditional-operator sub-operator)))))
 
 (defn process-group-conditionals
@@ -379,7 +379,7 @@
   (let [conditionals (:group/conditionals group)
         operator     (:group/conditionals-operator group)
         ;; Process and filter out failed resolutions (nils)
-        processed    (keep #(process-conditional db %) conditionals)]
+        processed    (vec (keep #(process-conditional db %) conditionals))]
     (when (seq processed) ; only return if at least one conditional succeeded
       {:conditionals          processed
        :conditionals-operator operator})))
@@ -401,7 +401,7 @@
   (let [conditionals (:submodule/conditionals submodule)
         operator     (:submodule/conditionals-operator submodule)
         ;; Process and filter out failed resolutions (nils)
-        processed    (keep #(process-conditional db %) conditionals)]
+        processed    (vec (keep #(process-conditional db %) conditionals))]
     (when (seq processed) ; only return if at least one conditional succeeded
       {:conditionals          processed
        :conditionals-operator operator})))
@@ -557,8 +557,8 @@
     ['Crown' 'Spot' :input] {:path [...] :conditionals [...] ...}
     ...}"
   [db groups submodules]
-  (let [all-groups     (keep #(extract-group-info db %) groups)
-        all-submodules (keep #(extract-submodule-info db %) submodules)
+  (let [all-groups     (vec (keep #(extract-group-info db %) groups))
+        all-submodules (vec (keep #(extract-submodule-info db %) submodules))
         ;; Combine groups and submodules, using :path as key
         all-entities   (concat all-groups all-submodules)
         path-map       (into {} (map (fn [entity] [(:path entity) entity]) all-entities))]
