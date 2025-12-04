@@ -29,7 +29,6 @@ Feature: Surface Input - Wind and Slope > Wind Adjustment Factor > Wind Adjustme
       """
     Then the following input Submodule > Groups are displayed:
       """
-      -- Wind and Slope > Wind Measured at: > 20-Foot
       -- Wind and Slope > Wind Adjustment Factor > Wind Adjustment Factor - User Input
       """
 
