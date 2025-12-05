@@ -158,23 +158,23 @@
 
 (defn format-path-for-gherkin
   "Convert path vector to Gherkin-style format.
-   Skips first element (module name) and :io keywords, joins remaining with ' > '.
+   Skips first element (module name) and :io keywords, joins remaining with ' -> '.
 
    Arguments:
    - path: Vector like [\"Surface\" \"Fuel Moisture\" :input \"By Size Class\"]
 
    Returns:
-   String like \"Fuel Moisture > By Size Class\"
+   String like \"Fuel Moisture -> By Size Class\"
 
    Examples:
-   [\"Surface\" \"Fuel Moisture\" :input \"By Size Class\"] -> \"Fuel Moisture > By Size Class\"
+   [\"Surface\" \"Fuel Moisture\" :input \"By Size Class\"] -> \"Fuel Moisture -> By Size Class\"
    [\"Crown\" \"Spot\" :output] -> \"Spot\"
-   [\"Surface\" \"Wind and Slope\" :input \"Wind Adjustment Factor\"] -> \"Wind and Slope > Wind Adjustment Factor\""
+   [\"Surface\" \"Wind and Slope\" :input \"Wind Adjustment Factor\"] -> \"Wind and Slope -> Wind Adjustment Factor\""
   [path]
   (when (seq path)
     (let [;; Skip first element (module) and filter out keywords (:input/:output)
           without-module-and-io (remove keyword? (rest path))]
-      (str/join " > " without-module-and-io))))
+      (str/join " -> " without-module-and-io))))
 
 (defn format-output-line
   "Format path as output line with '-- ' prefix for Gherkin steps.
@@ -183,7 +183,7 @@
    - path: Vector like [\"Surface\" \"Fire Behavior\" \"Direction Mode\"]
 
    Returns:
-   String like \"-- Fire Behavior > Direction Mode\"
+   String like \"-- Fire Behavior -> Direction Mode\"
 
    Used in 'When these outputs are selected' steps."
   [path]
@@ -197,11 +197,11 @@
    - value: String like \"FB2/2 - Timber grass\"
 
    Returns:
-   String like \"--- Fuel Model > Standard > Fuel Model > FB2/2 - Timber grass\"
+   String like \"--- Fuel Model -> Standard -> Fuel Model -> FB2/2 - Timber grass\"
 
    Used in 'And these inputs are entered' steps."
   [path value]
-  (str "-- " (format-path-for-gherkin path) " > " value))
+  (str "-- " (format-path-for-gherkin path) " -> " value))
 
 (defn format-input-group-line
   "Format path as input group line with '-- ' prefix for Gherkin steps.
@@ -210,7 +210,7 @@
    - path: Vector like [\"Surface\" \"Fuel Moisture\" \"By Size Class\"]
 
    Returns:
-   String like \"-- Fuel Moisture > By Size Class\"
+   String like \"-- Fuel Moisture -> By Size Class\"
 
    Used in 'Then these input groups are displayed' steps."
   [path]
@@ -1061,21 +1061,19 @@
           (concat overlapping-branches non-overlapping-combos))))))
 
 (defn expand-ancestor-or-branches
-  "Expand ancestors with :or operators using pre-cartesian deduplication.
+  "Expand ancestors using only the FIRST branch from each ancestor's OR conditionals.
 
-   IMPORTANT: Uses pre-cartesian deduplication to handle overlapping :or conditionals.
-   When multiple ancestors have the same conditional in their :or lists, creates
-   minimal branches where ONE conditional satisfies multiple ancestors.
+   This significantly reduces the number of generated scenarios by selecting just one
+   valid path through each ancestor's conditionals rather than exploring all combinations.
 
-   and 'Fireline Intensity' when either one alone would satisfy all ancestors.
-
-   cartesian product.
+   For ancestors with :or operators, only the first option is selected.
+   For ancestors with :and operators, all conditionals are included.
 
    Arguments:
    - ancestors: Sequence of ancestor maps with :conditionals
 
    Returns:
-   Sequence of minimal ancestor setups, each is a flat list of conditionals"
+   Sequence with a single ancestor setup (flat list of conditionals from first branches)"
   [ancestors]
   (if (empty? ancestors)
     [[]] ; no ancestors, return single empty setup
@@ -1083,17 +1081,11 @@
           expanded-branches (map #(expand-or-conditionals (:conditionals %)) ancestors)]
       (if (every? empty? expanded-branches)
         [[]] ; all ancestors have no conditionals
-        (if (= 1 (count expanded-branches))
-          (first expanded-branches)
-          ;; Multiple ancestors: use pre-cartesian deduplication for overlaps
-          (let [;; Find overlapping conditionals across ancestors
-                overlaps (find-overlapping-conditionals expanded-branches)]
-            (if (empty? overlaps)
-              ;; No overlaps - use traditional cartesian product
-              (let [combinations (apply combo/cartesian-product expanded-branches)]
-                (map #(apply concat %) combinations))
-              ;; Has overlaps - use minimal branch creation
-              (create-minimal-ancestor-branches ancestors expanded-branches overlaps))))))))
+        ;; Take only the FIRST branch from each ancestor and combine them
+        (let [first-branches (map first expanded-branches)
+              ;; Combine all first branches into a single ancestor setup
+              combined-setup (apply concat first-branches)]
+          [combined-setup])))))
 
 (defn has-any-research-conditional?
   "Check if any conditional in a list has research dependencies.
@@ -1123,7 +1115,7 @@
    - conditional: Conditional map
 
    Returns:
-   Formatted string like '-- Spot > Maximum Spotting Distance > Burning Pile' or nil"
+   Formatted string like '-- Spot -> Maximum Spotting Distance -> Burning Pile' or nil"
   [conditional]
   (when (and (= (get-in conditional [:group-variable :io]) :output)
              (= (:values conditional) ["true"]))
@@ -1157,7 +1149,7 @@
    - conditional: Conditional map
 
    Returns:
-   Formatted string like '--- Fuel Model > Standard > Fuel Model > FB2/2' or nil"
+   Formatted string like '--- Fuel Model -> Standard -> Fuel Model -> FB2/2' or nil"
   [conditional]
   (when (= (get-in conditional [:group-variable :io]) :input)
     (let [value (first (:values conditional))
@@ -1230,21 +1222,21 @@
               (concat
                [(str STEP-INDENT given-stmt)]
                (when (seq output-lines)
-                 [(str STEP-INDENT "When these outputs are selected Submodule > Group > Output:")
+                 [(str STEP-INDENT "When these outputs are selected Submodule -> Group -> Output:")
                   (str DOCSTRING-INDENT "\"\"\"")
                   (str/join "\n" (map #(str DOCSTRING-INDENT %) output-lines))
                   (str DOCSTRING-INDENT "\"\"\"")])
                (when (seq negative-output-lines)
-                 [(str STEP-INDENT "When these outputs are NOT selected Submodule > Group > Output:")
+                 [(str STEP-INDENT "When these outputs are NOT selected Submodule -> Group -> Output:")
                   (str DOCSTRING-INDENT "\"\"\"")
                   (str/join "\n" (map #(str DOCSTRING-INDENT %) negative-output-lines))
                   (str DOCSTRING-INDENT "\"\"\"")])
                (when (seq input-lines)
-                 [(str STEP-INDENT "When these inputs are entered Submodule > Group > Input:")
+                 [(str STEP-INDENT "When these inputs are entered Submodule -> Group -> Input:")
                   (str DOCSTRING-INDENT "\"\"\"")
                   (str/join "\n" (map #(str DOCSTRING-INDENT %) input-lines))
                   (str DOCSTRING-INDENT "\"\"\"")])
-               [(str STEP-INDENT "Then the following input Submodule > Groups are displayed:")
+               [(str STEP-INDENT "Then the following input Submodule -> Groups are displayed:")
                 (str DOCSTRING-INDENT "\"\"\"")
                 (str DOCSTRING-INDENT target-line)
                 (str DOCSTRING-INDENT "\"\"\"")]))))
@@ -1340,19 +1332,28 @@
    Arguments:
    - ancestor-setup: Sequence of conditionals from ancestors
    - entity-setup: Sequence of conditionals from the entity itself
+   - entity-path: Path of the entity being processed (e.g., [\"Surface\" \"Wind and Slope\" :input \"Slope\"])
 
    Returns:
    Module combination keyword like :surface, :surface-crown, :surface-mortality, etc."
-  [ancestor-setup entity-setup]
+  [ancestor-setup entity-setup entity-path]
   (let [;; Collect all paths from both setups
         all-conditionals (concat ancestor-setup entity-setup)
         all-paths        (keep #(get-in % [:group-variable :path]) all-conditionals)
 
+        ;; Extract entity's own module
+        entity-module (extract-module-from-path entity-path)
+
         ;; Extract modules from paths
         path-modules (extract-modules-from-paths all-paths)
 
+        ;; Combine with entity module
+        all-modules (if entity-module
+                      (conj path-modules entity-module)
+                      path-modules)
+
         ;; Determine combination
-        module-combo (determine-module-combination path-modules)]
+        module-combo (determine-module-combination all-modules)]
     module-combo))
 
 (defn generate-scenarios-for-entity
@@ -1415,51 +1416,72 @@
           deduped-entity-branches (map deduplicate-ancestor-conditionals entity-branches)
 
           ;; Create cartesian product with overlap deduplication
-          all-combinations (create-minimal-combined-branches deduped-ancestor-branches deduped-entity-branches)
+          all-combinations (for [ancestor-setup deduped-ancestor-branches
+                                 entity-setup   deduped-entity-branches]
+                             [ancestor-setup entity-setup])
+
+          ;; Remove ancestor conditionals made redundant by entity conditionals
+          ;; Strategy: If entity has OUTPUT conditionals, they enable both entity and ancestor
+          ;;          If entity has only INPUT conditionals, ancestor outputs are still needed
+          deduplicated-combinations (map (fn [[ancestor-setup entity-setup]]
+                                           (let [;; Check if entity has any output conditionals
+                                                 entity-has-outputs? (some #(= :output (get-in % [:group-variable :io]))
+                                                                           entity-setup)
+                                                 ;; If entity has outputs, remove ALL ancestor :group-variable conditionals
+                                                 ;; If entity has only inputs, keep ancestor :group-variable conditionals
+                                                 minimal-ancestor    (if entity-has-outputs?
+                                                                       (filter #(= (:type %) :module) ancestor-setup)
+                                                                       ancestor-setup)]
+                                             [minimal-ancestor entity-setup]))
+                                         all-combinations)
 
           ;; Filter out combinations that contain ANY research dependencies
           non-research-combinations (remove (fn [[ancestor-setup entity-setup]]
                                               (has-any-research-conditional?
                                                (concat ancestor-setup entity-setup)))
-                                            all-combinations)
+                                            deduplicated-combinations)
 
           ;; Generate scenario for each non-research combination
           scenarios (for [[ancestor-setup entity-setup] non-research-combinations]
                       ;; Determine module combo for THIS specific combination
-                      (let [module-combo                     (determine-module-combo-for-combination ancestor-setup entity-setup)
-                            module-conditionals              (->> entity-setup
-                                                                  (concat ancestor-setup)
-                                                                  (filter #(= (:type %) :module))
-                                                                  (map #(set (map keyword (:values %)))))
-                            all-matching-module-conditionals (every? #(= module-combo %) module-conditionals)]
-                        ;; Skip unsupported module combinations
-                        (when (and (not= module-combo :unsupported) all-matching-module-conditionals)
-                          (let [;; Filter ancestor setup by this combination's module
-                                filtered-ancestor-setup (filter-conditionals-by-module ancestor-setup module-combo)
+                      (let [module-combo (determine-module-combo-for-combination ancestor-setup entity-setup (:path entity))]
+                        ;; Skip unsupported module combinations early
+                        (when (not= module-combo :unsupported)
+                          (let [module-conditionals                (->> entity-setup
+                                                                        (concat ancestor-setup)
+                                                                        (filter #(= (:type %) :module))
+                                                                        (map #(set (map keyword (:values %)))))
+                                ;; Module conditionals must be subsets of the determined combo
+                                ;; e.g., ancestor has #{:surface}, combo is #{:surface :crown} -> valid
+                                all-compatible-module-conditionals (every? #(clojure.set/subset? % module-combo) module-conditionals)]
+                            ;; Skip if module conditionals don't match
+                            (when all-compatible-module-conditionals
+                              (let [;; Filter ancestor setup by this combination's module
+                                    filtered-ancestor-setup (filter-conditionals-by-module ancestor-setup module-combo)
 
-                                ;; Filter entity setup by this combination's module
-                                filtered-entity-setup (filter-conditionals-by-module entity-setup module-combo)
+                                    ;; Filter entity setup by this combination's module
+                                    filtered-entity-setup (filter-conditionals-by-module entity-setup module-combo)
 
-                                ;; Combine and deduplicate
-                                all-conditionals (concat filtered-ancestor-setup filtered-entity-setup)
-                                deduped-setup    (deduplicate-ancestor-conditionals all-conditionals)
+                                    ;; Combine and deduplicate
+                                    all-conditionals (concat filtered-ancestor-setup filtered-entity-setup)
+                                    deduped-setup    (deduplicate-ancestor-conditionals all-conditionals)
 
-                                ;; Generate scenario
-                                scenario-text (generate-output-enables-input-scenario
-                                               {:conditionals {:conditionals filtered-entity-setup}
-                                                :path         (:path entity)}
-                                               deduped-setup
-                                               (:path entity)
-                                               module-combo)
+                                    ;; Generate scenario
+                                    scenario-text (generate-output-enables-input-scenario
+                                                   {:conditionals {:conditionals filtered-entity-setup}
+                                                    :path         (:path entity)}
+                                                   deduped-setup
+                                                   (:path entity)
+                                                   module-combo)
 
-                                ;; Generate scenario name (works for both groups and submodules)
-                                entity-name   (or (:group/translated-name entity)
-                                                  (:submodule/name entity))
-                                scenario-name (str "Scenario: " (build-scenario-name filtered-entity-setup entity-name))]
+                                    ;; Generate scenario name (works for both groups and submodules)
+                                    entity-name   (or (:group/translated-name entity)
+                                                      (:submodule/name entity))
+                                    scenario-name (str "Scenario: " (build-scenario-name filtered-entity-setup entity-name))]
 
-                            {:text       (wrap-scenario-with-header scenario-text scenario-name "")
-                             :module     module-combo
-                             :group-path (:path entity)}))))]
+                                {:text       (wrap-scenario-with-header scenario-text scenario-name "")
+                                 :module     module-combo
+                                 :group-path (:path entity)}))))))]
 
       ;; Remove nil scenarios (from unsupported module combos)
       (remove nil? scenarios))))
@@ -1489,32 +1511,18 @@
             scenarios))
 
 (defn split-large-feature-files
-  "Handle >15 scenarios.
-   Check scenario count for each feature.
-   If >15, split into subdirectory with numbered parts.
+  "No longer splits feature files - returns all scenarios in a single file.
 
    Arguments:
    - feature-map: Map of feature-key -> scenarios list
 
    Returns:
-   Updated feature file structure with split metadata"
+   Updated feature file structure (no splitting)"
   [feature-map]
   (into {}
         (map (fn [[[module path] scenarios]]
-               (let [scenario-count (count scenarios)]
-                 (if (> scenario-count 15)
-                   ;; Split into parts
-                   (let [parts     (partition-all 15 scenarios)
-                         part-maps (map-indexed (fn [idx part-scenarios]
-                                                  {:scenarios   part-scenarios
-                                                   :part-number (inc idx)
-                                                   :total-parts (count parts)})
-                                                parts)]
-                     [[module path] {:split? true
-                                     :parts  part-maps}])
-                   ;; Keep as single file
-                   [[module path] {:split?    false
-                                   :scenarios scenarios}])))
+               [[module path] {:split?    false
+                               :scenarios scenarios}])
              feature-map)))
 
 ;; ===========================================================================================================
@@ -1604,7 +1612,7 @@
    - path: Path vector
 
    Returns:
-   String like 'Feature: Surface Input - Fuel Moisture > By Size Class'"
+   String like 'Feature: Surface Input - Fuel Moisture -> By Size Class'"
   [module path]
   (let [module-str (if (set? module)
                      (module-set-to-title module)

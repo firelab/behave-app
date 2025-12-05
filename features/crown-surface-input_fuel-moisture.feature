@@ -1,6 +1,6 @@
-Feature: Crown & Surface Input - Canopy Fuel
+Feature: Crown & Surface Input - Fuel Moisture
 
-  Scenario: Canopy Fuel is displayed when Rate of Spread is selected
+  Scenario: Fuel Moisture is displayed when Rate of Spread is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -8,10 +8,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Flame Length is selected
+  Scenario: Fuel Moisture is displayed when Flame Length is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -19,10 +19,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Fireline Intensity is selected
+  Scenario: Fuel Moisture is displayed when Fireline Intensity is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -30,10 +30,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Fire Area is selected
+  Scenario: Fuel Moisture is displayed when Fire Area is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -41,10 +41,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Fire Perimeter is selected
+  Scenario: Fuel Moisture is displayed when Fire Perimeter is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -52,10 +52,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Length-to-Width Ratio is selected
+  Scenario: Fuel Moisture is displayed when Length-to-Width Ratio is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -63,10 +63,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Spread Distance is selected
+  Scenario: Fuel Moisture is displayed when Spread Distance is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -74,10 +74,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Fire Type is selected
+  Scenario: Fuel Moisture is displayed when Fire Type is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -85,10 +85,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Transition Ratio is selected
+  Scenario: Fuel Moisture is displayed when Transition Ratio is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -96,10 +96,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Critical Surface Flame Length is selected
+  Scenario: Fuel Moisture is displayed when Critical Surface Flame Length is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -107,10 +107,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Critical Surface Fireline Intensity is selected
+  Scenario: Fuel Moisture is displayed when Critical Surface Fireline Intensity is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -118,10 +118,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Active Ratio is selected
+  Scenario: Fuel Moisture is displayed when Active Ratio is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -129,10 +129,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
       """
 
-  Scenario: Canopy Fuel is displayed when Critical Crown Rate of Spread is selected
+  Scenario: Fuel Moisture is displayed when Critical Crown Rate of Spread is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -140,5 +140,16 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Fuel Moisture
+      """
+
+  Scenario: Fuel Moisture is displayed when Probability of Ignition is selected
+    Given I have started a new Surface & Crown Worksheet in Guided Mode
+    When these outputs are selected Submodule -> Group -> Output:
+      """
+      -- Fire Behavior -> Ignition -> Probability of Ignition
+      """
+    Then the following input Submodule -> Groups are displayed:
+      """
+      -- Fuel Moisture
       """

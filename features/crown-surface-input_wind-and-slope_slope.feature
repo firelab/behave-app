@@ -1,6 +1,6 @@
-Feature: Crown & Surface Input - Canopy Fuel
+Feature: Crown & Surface Input - Wind and Slope -> Slope
 
-  Scenario: Canopy Fuel is displayed when Rate of Spread is selected
+  Scenario: Slope is displayed when Rate of Spread is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -8,10 +8,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Flame Length is selected
+  Scenario: Slope is displayed when Flame Length is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -19,10 +19,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Fireline Intensity is selected
+  Scenario: Slope is displayed when Fireline Intensity is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -30,10 +30,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Fire Area is selected
+  Scenario: Slope is displayed when Fire Area is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -41,10 +41,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Fire Perimeter is selected
+  Scenario: Slope is displayed when Fire Perimeter is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -52,10 +52,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Length-to-Width Ratio is selected
+  Scenario: Slope is displayed when Length-to-Width Ratio is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -63,10 +63,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Spread Distance is selected
+  Scenario: Slope is displayed when Spread Distance is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -74,43 +74,10 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Fire Type is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Type -> Fire Type -> Fire Type
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Canopy Fuel
-      """
-
-  Scenario: Canopy Fuel is displayed when Transition Ratio is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Type -> Transition to Crown Fire -> Transition Ratio
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Canopy Fuel
-      """
-
-  Scenario: Canopy Fuel is displayed when Critical Surface Flame Length is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Type -> Transition to Crown Fire -> Critical Surface Flame Length
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Canopy Fuel
-      """
-
-  Scenario: Canopy Fuel is displayed when Critical Surface Fireline Intensity is selected
+  Scenario: Slope is displayed when Critical Surface Fireline Intensity is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -118,21 +85,32 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Active Ratio is selected
+  Scenario: Slope is displayed when Transition Ratio is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
-      -- Fire Type -> Active Crown Fire -> Active Ratio
+      -- Fire Type -> Transition to Crown Fire -> Transition Ratio
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
       """
 
-  Scenario: Canopy Fuel is displayed when Critical Crown Rate of Spread is selected
+  Scenario: Slope is displayed when Critical Surface Flame Length is selected
+    Given I have started a new Surface & Crown Worksheet in Guided Mode
+    When these outputs are selected Submodule -> Group -> Output:
+      """
+      -- Fire Type -> Transition to Crown Fire -> Critical Surface Flame Length
+      """
+    Then the following input Submodule -> Groups are displayed:
+      """
+      -- Wind and Slope -> Slope
+      """
+
+  Scenario: Slope is displayed when Critical Crown Rate of Spread is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -140,5 +118,16 @@ Feature: Crown & Surface Input - Canopy Fuel
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Canopy Fuel
+      -- Wind and Slope -> Slope
+      """
+
+  Scenario: Slope is displayed when Active Ratio is selected
+    Given I have started a new Surface & Crown Worksheet in Guided Mode
+    When these outputs are selected Submodule -> Group -> Output:
+      """
+      -- Fire Type -> Active Crown Fire -> Active Ratio
+      """
+    Then the following input Submodule -> Groups are displayed:
+      """
+      -- Wind and Slope -> Slope
       """

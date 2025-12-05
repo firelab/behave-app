@@ -47,8 +47,8 @@
      context      - Map containing :driver key with WebDriver instance
      paths-text - Multiline string in format:
                     \"\"\"
-                    -- Submodule > Group > Output
-                    -- Submodule > Group > Output
+                    -- Submodule -> Group -> Output
+                    -- Submodule -> Group -> Output
                     \"\"\"
 
    Returns:
@@ -57,8 +57,8 @@
    Example:
      (select-outputs {:driver driver}
                      \"\"\"
-                     -- Fire Behavior > Direction Mode > Heading
-                     -- Fire Behavior > Surface Fire > Rate of Spread
+                     -- Fire Behavior -> Direction Mode -> Heading
+                     -- Fire Behavior -> Surface Fire -> Rate of Spread
                      \"\"\")"
   [{:keys [driver]} paths-text]
   (h/wait-for-wizard driver)
@@ -77,8 +77,8 @@
      context      - Map containing :driver key with WebDriver instance
      paths-text - Multiline string in format:
                     \"\"\"
-                    -- Submodule > Group > Output
-                    -- Submodule > Group > Output
+                    -- Submodule -> Group -> Output
+                    -- Submodule -> Group -> Output
                     \"\"\"
 
    Returns:
@@ -90,8 +90,8 @@
    Example:
      (verify-outputs-not-selected {:driver driver}
                                    \"\"\"
-                                   -- Fire Behavior > Direction Mode > Heading
-                                   -- Fire Behavior > Surface Fire > Rate of Spread
+                                   -- Fire Behavior -> Direction Mode -> Heading
+                                   -- Fire Behavior -> Surface Fire -> Rate of Spread
                                    \"\"\")"
   [{:keys [driver]} paths-text]
   (h/wait-for-wizard driver)

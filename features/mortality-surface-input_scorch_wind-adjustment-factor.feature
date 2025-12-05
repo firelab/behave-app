@@ -1,6 +1,6 @@
-Feature: Mortality & Surface Input - Tree Characteristics -> Canopy Height
+Feature: Mortality & Surface Input - Scorch -> Wind Adjustment Factor
 
-  Scenario: Canopy Height is displayed
+  Scenario: Wind Adjustment Factor is displayed
     Given I have started a new Surface & Mortality Worksheet in Guided Mode
     When these inputs are entered Submodule -> Group -> Input:
       """
@@ -8,5 +8,5 @@ Feature: Mortality & Surface Input - Tree Characteristics -> Canopy Height
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Tree Characteristics -> Canopy Height
+      -- Scorch -> Wind Adjustment Factor
       """

@@ -127,8 +127,8 @@
      context     - Map containing :driver key with WebDriver instance
      inputs-text - Multiline string in format:
                    \"\"\"
-                   --- Submodule > Group > Input Name > Value
-                   --- Submodule > Group > Option Name
+                   --- Submodule -> Group -> Input Name -> Value
+                   --- Submodule -> Group -> Option Name
                    \"\"\"
                    Note: Uses '---' (three dashes) delimiter
 
@@ -138,9 +138,9 @@
    Examples:
      (enter-inputs {:driver driver}
                    \"\"\"
-                   --- Fuel Moisture > Moisture Input Mode > Individual Size Class
-                   --- Fuel Moisture > By Size Class > 1-h Fuel Moisture > 1
-                   --- Fuel Moisture > By Size Class > Live Woody Fuel Moisture > 5, 10, 15
+                   --- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
+                   --- Fuel Moisture -> By Size Class -> 1-h Fuel Moisture -> 1
+                   --- Fuel Moisture -> By Size Class -> Live Woody Fuel Moisture -> 5, 10, 15
                    \"\"\")"
   [{:keys [driver]} inputs-text]
   (h/wait-for-wizard driver)
@@ -161,8 +161,8 @@
      context                - Map containing :driver key with WebDriver instance
      submodule-groups-text  - Multiline string in format:
                               \"\"\"
-                              -- Submodule > Group1 > Group2
-                              -- Submodule > Group3
+                              -- Submodule -> Group1 -> Group2
+                              -- Submodule -> Group3
                               \"\"\"
 
    Returns:
@@ -174,8 +174,8 @@
    Example:
      (verify-input-groups-are-displayed {:driver driver}
                                         \"\"\"
-                                        -- Fuel Model > Standard > Fuel Model
-                                        -- Fuel Moisture > Moisture Input Mode
+                                        -- Fuel Model -> Standard -> Fuel Model
+                                        -- Fuel Moisture -> Moisture Input Mode
                                         \"\"\")"
   [{:keys [driver]} submodule-groups-text]
   (h/wait-for-wizard driver)
@@ -198,8 +198,8 @@
      context                - Map containing :driver key with WebDriver instance
      submodule-groups-text  - Multiline string in format:
                               \"\"\"
-                              -- Submodule > Group1 > Group2
-                              -- Submodule > Group3
+                              -- Submodule -> Group1 -> Group2
+                              -- Submodule -> Group3
                               \"\"\"
 
    Returns:
@@ -211,7 +211,7 @@
    Example:
      (verify-input-groups-not-displayed {:driver driver}
                                         \"\"\"
-                                        -- Wind and Slope > Wind Speed
+                                        -- Wind and Slope -> Wind Speed
                                         \"\"\")"
   [{:keys [driver]} submodule-groups-text]
   (h/navigate-to-inputs driver)

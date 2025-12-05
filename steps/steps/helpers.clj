@@ -19,8 +19,8 @@
 
    Example:
      Input:  \"\"\"
-             -- Fire Behavior > Direction Mode > Heading
-             -- Fire Behavior > Surface Fire > Rate of Spread
+             -- Fire Behavior -> Direction Mode -> Heading
+             -- Fire Behavior -> Surface Fire -> Rate of Spread
              \"\"\"
      Output: [[\"Fire Behavior\" \"Direction Mode\" \"Heading\"]
               [\"Fire Behavior\" \"Surface Fire\" \"Rate of Spread\"]]"
@@ -30,7 +30,7 @@
       (str/split #"-- ")
       (->> (map str/trim)
            (remove empty?)
-           (map #(str/split % #" > ")))))
+           (map #(str/split % #" -> ")))))
 
 (defn numeric-or-multi-value?
   "Check if a string looks like a numeric value or comma-separated values.

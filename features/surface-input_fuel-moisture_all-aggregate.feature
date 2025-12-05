@@ -1,6 +1,6 @@
-Feature: Surface Input - Fuel Moisture -> Moisture Scenario
+Feature: Surface Input - Fuel Moisture -> All Aggregate
 
-  Scenario: Moisture Scenario is displayed
+  Scenario: All Aggregate is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
@@ -8,9 +8,9 @@ Feature: Surface Input - Fuel Moisture -> Moisture Scenario
       """
     When these inputs are entered Submodule -> Group -> Input:
       """
-      -- Fuel Moisture -> Moisture Input Mode -> Moisture Scenario
+      -- Fuel Moisture -> Moisture Input Mode -> All Aggregate
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Fuel Moisture -> Moisture Scenario
+      -- Fuel Moisture -> All Aggregate
       """

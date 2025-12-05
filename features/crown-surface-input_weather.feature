@@ -1,12 +1,12 @@
-Feature: Crown & Surface Input - Spot -> Torching Trees
+Feature: Crown & Surface Input - Weather
 
-  Scenario: Torching Trees is displayed when Torching Trees is selected
+  Scenario: Weather is displayed when Probability of Ignition is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
-      -- Spot -> Maximum Spotting Distance -> Torching Trees
+      -- Fire Behavior -> Ignition -> Probability of Ignition
       """
     Then the following input Submodule -> Groups are displayed:
       """
-      -- Spot -> Torching Trees
+      -- Weather
       """
