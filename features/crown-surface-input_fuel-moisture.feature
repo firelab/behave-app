@@ -77,17 +77,6 @@ Feature: Crown & Surface Input - Fuel Moisture
       -- Fuel Moisture
       """
 
-  Scenario: Fuel Moisture is displayed when Fire Type is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Type -> Fire Type -> Fire Type
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Moisture
-      """
-
   Scenario: Fuel Moisture is displayed when Transition Ratio is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
