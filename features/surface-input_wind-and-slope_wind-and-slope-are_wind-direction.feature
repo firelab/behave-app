@@ -5,7 +5,6 @@ Feature: Surface Input - Wind and Slope -> Wind and slope are -> Wind Direction
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Direction Mode -> Heading
-      -- Fire Behavior -> Direction Mode -> Heading, Flanking, Backing
       """
     When these inputs are entered Submodule -> Group -> Input:
       """
