@@ -6,6 +6,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
       -- Fire Behavior -> Fire Behavior -> Rate of Spread
       """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
+      """
     Then the following input Submodule -> Groups are displayed:
       """
       -- Fuel Moisture -> By Size Class -> 10-h Fuel Moisture
@@ -16,6 +20,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Fire Behavior -> Flame Length
+      """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
       """
     Then the following input Submodule -> Groups are displayed:
       """
@@ -28,6 +36,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
       -- Fire Behavior -> Fire Behavior -> Fireline Intensity
       """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
+      """
     Then the following input Submodule -> Groups are displayed:
       """
       -- Fuel Moisture -> By Size Class -> 10-h Fuel Moisture
@@ -38,6 +50,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Active Crown Fire -> Active Ratio
+      """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
       """
     Then the following input Submodule -> Groups are displayed:
       """
@@ -50,6 +66,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
       -- Fire Type -> Active Crown Fire -> Critical Crown Rate of Spread
       """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
+      """
     Then the following input Submodule -> Groups are displayed:
       """
       -- Fuel Moisture -> By Size Class -> 10-h Fuel Moisture
@@ -60,6 +80,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Critical Surface Fireline Intensity
+      """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
       """
     Then the following input Submodule -> Groups are displayed:
       """
@@ -72,6 +96,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
       -- Fire Type -> Transition to Crown Fire -> Critical Surface Flame Length
       """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
+      """
     Then the following input Submodule -> Groups are displayed:
       """
       -- Fuel Moisture -> By Size Class -> 10-h Fuel Moisture
@@ -82,6 +110,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Transition Ratio
+      """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
       """
     Then the following input Submodule -> Groups are displayed:
       """
@@ -94,6 +126,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
       -- Size -> Crown - Fire Size -> Fire Area
       """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
+      """
     Then the following input Submodule -> Groups are displayed:
       """
       -- Fuel Moisture -> By Size Class -> 10-h Fuel Moisture
@@ -105,6 +141,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
       -- Size -> Crown - Fire Size -> Fire Perimeter
       """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
+      """
     Then the following input Submodule -> Groups are displayed:
       """
       -- Fuel Moisture -> By Size Class -> 10-h Fuel Moisture
@@ -115,6 +155,10 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Size -> Crown - Fire Size -> Spread Distance
+      """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
       """
     Then the following input Submodule -> Groups are displayed:
       """
