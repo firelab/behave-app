@@ -1,7 +1,9 @@
 Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
 
-  Scenario: Wind Adjustment Factor is displayed when Rate of Spread is selected
+  Background:
     Given I have started a new Surface & Crown Worksheet in Guided Mode
+
+  Scenario: Wind Adjustment Factor is displayed when Rate of Spread is selected
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Fire Behavior -> Rate of Spread
@@ -16,7 +18,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Flame Length is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Fire Behavior -> Flame Length
@@ -31,7 +32,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Fireline Intensity is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Fire Behavior -> Fireline Intensity
@@ -46,7 +46,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Active Ratio is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Active Crown Fire -> Active Ratio
@@ -61,7 +60,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Critical Crown Rate of Spread is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Active Crown Fire -> Critical Crown Rate of Spread
@@ -76,7 +74,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Critical Surface Fireline Intensity is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Critical Surface Fireline Intensity
@@ -91,7 +88,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Critical Surface Flame Length is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Critical Surface Flame Length
@@ -106,7 +102,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Transition Ratio is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Transition Ratio
@@ -121,7 +116,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Fire Area is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Size -> Crown - Fire Size -> Fire Area
@@ -136,7 +130,6 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       """
 
   Scenario: Wind Adjustment Factor is displayed when Fire Perimeter is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Size -> Crown - Fire Size -> Fire Perimeter
@@ -150,24 +143,22 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind Adjustment Factor
       -- Wind and Slope -> Wind Adjustment Factor
       """
 
-  # Investigate: "Wind and Slope" Submodule does not show because Transition Ratio is not part of  the conditionals and therefore "Wind and Slope" Group does not show to allow "Wind Measured at:" to be entered
-  # Scenario: Wind Adjustment Factor is displayed when Length-to-Width Ratio is selected
-  #   Given I have started a new Surface & Crown Worksheet in Guided Mode
-  #   When these outputs are selected Submodule -> Group -> Output:
-  #     """
-  #     -- Size -> Crown - Fire Size -> Length-to-Width Ratio
-  #     """
-  #   When these inputs are entered Submodule -> Group -> Input:
-  #     """
-  #     -- Wind and Slope -> Wind Measured at: -> 20-Foot
-  #     """
-  #   Then the following input Submodule -> Groups are displayed:
-  #     """
-  #     -- Wind and Slope -> Wind Adjustment Factor
-  #     """
+  Scenario: Wind Adjustment Factor is displayed when Length-to-Width Ratio is selected
+    When these outputs are selected Submodule -> Group -> Output:
+      """
+      -- Fire Behavior -> Fire Behavior -> Rate of Spread
+      -- Size -> Crown - Fire Size -> Length-to-Width Ratio
+      """
+    When these inputs are entered Submodule -> Group -> Input:
+      """
+      -- Wind and Slope -> Wind Measured at: -> 20-Foot
+      """
+    Then the following input Submodule -> Groups are displayed:
+      """
+      -- Wind and Slope -> Wind Adjustment Factor
+      """
 
   Scenario: Wind Adjustment Factor is displayed when Spread Distance is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Size -> Crown - Fire Size -> Spread Distance

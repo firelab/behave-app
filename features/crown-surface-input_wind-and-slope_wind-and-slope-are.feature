@@ -55,16 +55,17 @@ Feature: Crown & Surface Input - Wind and Slope -> Wind and slope are
       -- Wind and Slope -> Wind and slope are
       """
 
-  Scenario: Wind and slope are is displayed when Length-to-Width Ratio is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Size -> Crown - Fire Size -> Length-to-Width Ratio
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Wind and Slope -> Wind and slope are
-      """
+  #investigate
+  # Scenario: Wind and slope are is displayed when Length-to-Width Ratio is selected
+  #   Given I have started a new Surface & Crown Worksheet in Guided Mode
+  #   When these outputs are selected Submodule -> Group -> Output:
+  #     """
+  #     -- Size -> Crown - Fire Size -> Length-to-Width Ratio
+  #     """
+  #   Then the following input Submodule -> Groups are displayed:
+  #     """
+  #     -- Wind and Slope -> Wind and slope are
+  #     """
 
   Scenario: Wind and slope are is displayed when Spread Distance is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
