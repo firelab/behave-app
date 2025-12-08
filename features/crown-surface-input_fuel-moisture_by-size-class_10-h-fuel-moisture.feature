@@ -1,7 +1,9 @@
 Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moisture
 
-  Scenario: 10-h Fuel Moisture is displayed when Rate of Spread is selected
+  Background:
     Given I have started a new Surface & Crown Worksheet in Guided Mode
+
+  Scenario: 10-h Fuel Moisture is displayed when Rate of Spread is selected
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Fire Behavior -> Rate of Spread
@@ -16,7 +18,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Flame Length is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Fire Behavior -> Flame Length
@@ -31,7 +32,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Fireline Intensity is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Fire Behavior -> Fireline Intensity
@@ -46,7 +46,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Active Ratio is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Active Crown Fire -> Active Ratio
@@ -61,7 +60,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Critical Crown Rate of Spread is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Active Crown Fire -> Critical Crown Rate of Spread
@@ -76,7 +74,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Critical Surface Fireline Intensity is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Critical Surface Fireline Intensity
@@ -91,7 +88,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Critical Surface Flame Length is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Critical Surface Flame Length
@@ -106,7 +102,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Transition Ratio is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Type -> Transition to Crown Fire -> Transition Ratio
@@ -121,7 +116,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Fire Area is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Size -> Crown - Fire Size -> Fire Area
@@ -136,7 +130,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Fire Perimeter is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Size -> Crown - Fire Size -> Fire Perimeter
@@ -151,7 +144,6 @@ Feature: Crown & Surface Input - Fuel Moisture -> By Size Class -> 10-h Fuel Moi
       """
 
   Scenario: 10-h Fuel Moisture is displayed when Spread Distance is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Size -> Crown - Fire Size -> Spread Distance
