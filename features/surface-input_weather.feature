@@ -12,7 +12,7 @@ Feature: Surface Input - Weather
       """
       
   Scenario: Weather is displayed when Probability of Ignition is selected
-    Given I have started a new Surface and Crown Worksheet in Guided Mode
+    Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these outputs are selected Submodule -> Group -> Output:
       """
       -- Fire Behavior -> Ignition -> Probability of Ignition
