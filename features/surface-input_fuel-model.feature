@@ -1,78 +1,40 @@
 Feature: Surface Input - Fuel Model
 
-  Scenario: Fuel Model is displayed when Flame Length is selected
+  Scenario Outline: Fuel Model is displayed with Surface Outputs
     Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Behavior -> Surface Fire -> Flame Length
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Model
-      """
+    When this output path is selected <submodule> : <group> : <value>
+    Then the following input paths are displayed:
+      | submodule  |
+      | Fuel Model |
 
-  Scenario: Fuel Model is displayed when Fireline Intensity is selected
-    Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Behavior -> Surface Fire -> Fireline Intensity
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Model
-      """
+    Examples: This scenario is repeated for each of these rows
+      | submodule     | group               | value                 |
+      | Fire Behavior | Surface Fire        | Flame Length          |
+      | Fire Behavior | Surface Fire        | Fireline Intensity    |
+      | Fire Behavior | Surface Fire        | Rate of Spread        |
+      | Size          | Surface - Fire Size | Spread Distance       |
+      | Size          | Surface - Fire Size | Fire Area             |
+      | Size          | Surface - Fire Size | Fire Perimeter        |
+      | Size          | Surface - Fire Size | Length-to-Width Ratio |
 
-  Scenario: Fuel Model is displayed when Rate of Spread is selected
-    Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Behavior -> Surface Fire -> Rate of Spread
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Model
-      """
+  Scenario Outline: Fuel Model is displayed with Crown Outputs
+    Given I have started a new Surface & Crown Worksheet in Guided Mode
+    When this output path is selected <submodule> : <group> : <value>
+    Then the following input paths are displayed:
+      | submodule  |
+      | Fuel Model |
 
-  Scenario: Fuel Model is displayed when Spread Distance is selected
-    Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Size -> Surface - Fire Size -> Spread Distance
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Model
-      """
-
-  Scenario: Fuel Model is displayed when Fire Area is selected
-    Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Size -> Surface - Fire Size -> Fire Area
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Model
-      """
-
-  Scenario: Fuel Model is displayed when Fire Perimeter is selected
-    Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Size -> Surface - Fire Size -> Fire Perimeter
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Model
-      """
-
-  Scenario: Fuel Model is displayed when Length-to-Width Ratio is selected
-    Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Size -> Surface - Fire Size -> Length-to-Width Ratio
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Model
-      """
+    Examples: This scenario is repeated for each of these rows
+      | submodule     | group                    | value                               |
+      | Fire Behavior | Fire Behavior            | Rate of Spread                      |
+      | Fire Behavior | Fire Behavior            | Flame Length                        |
+      | Fire Behavior | Fire Behavior            | Fireline Intensity                  |
+      | Size          | Crown - Fire Size        | Fire Area                           |
+      | Size          | Crown - Fire Size        | Fire Perimeter                      |
+      | Size          | Crown - Fire Size        | Length-to-Width Ratio               |
+      | Size          | Crown - Fire Size        | Spread Distance                     |
+      | Fire Type     | Transition to Crown Fire | Transition Ratio                    |
+      | Fire Type     | Transition to Crown Fire | Critical Surface Flame Length       |
+      | Fire Type     | Transition to Crown Fire | Critical Surface Fireline Intensity |
+      | Fire Type     | Active Crown Fire        | Active Ratio                        |
+      | Fire Type     | Active Crown Fire        | Critical Crown Rate of Spread       |

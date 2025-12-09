@@ -10,6 +10,8 @@
 ;;; Private Helper Functions
 ;;; =============================================================================
 
+
+
 (defn- select-single-output
   "Select a single output by navigating through submodule hierarchy.
 
@@ -37,6 +39,32 @@
 ;;; Public API
 ;;; =============================================================================
 
+(defn select-single-output-2
+  "Select a single output by navigating through submodule hierarchy.
+
+   This function handles the three-level hierarchy:
+   1. Selects the submodule (e.g., 'Fire Behavior')
+   2. Waits for intermediate groups (e.g., 'Direction Mode')
+   3. Clicks the final output (e.g., 'Heading')
+
+   Args:
+     driver          - WebDriver instance
+     submodule+groups - Vector where:
+                        - First element is the submodule name
+                        - Middle elements are group names
+                        - Last element is the output name
+
+   Example:
+     (select-single-output driver [\"Fire Behavior\" \"Direction Mode\" \"Heading\"])"
+  [{:keys [driver]} & path]
+  (h/wait-for-wizard driver)
+  (let [[submodule & groups] path]
+    (h/select-submodule-tab driver submodule)
+    (h/wait-for-groups driver (butlast groups))
+    (h/wait-for-element-by-selector driver {:text (last groups)})
+    (h/select-output driver (last groups)))
+  {:driver driver})
+
 (defn select-outputs
   "Select multiple outputs from a multiline Gherkin string.
 
@@ -60,11 +88,12 @@
                      -- Fire Behavior -> Direction Mode -> Heading
                      -- Fire Behavior -> Surface Fire -> Rate of Spread
                      \"\"\")"
-  [{:keys [driver]} paths-text]
+  [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
-  (let [outputs (h/parse-multiline-list paths-text)]
-    (doseq [output outputs]
-      (select-single-output driver output))
+  (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        paths     (h/parse-step-data step-data)]
+    (doseq [path paths]
+      (select-single-output driver path))
     {:driver driver}))
 
 (defn verify-outputs-not-selected
@@ -93,10 +122,11 @@
                                    -- Fire Behavior -> Direction Mode -> Heading
                                    -- Fire Behavior -> Surface Fire -> Rate of Spread
                                    \"\"\")"
-  [{:keys [driver]} paths-text]
+  [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
-  (let [parsed-paths (h/parse-multiline-list paths-text)]
-    (doseq [path parsed-paths]
+  (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        paths     (h/parse-step-data step-data)]
+    (doseq [path paths]
       (let [[submodule & groups] path
             output-name          (last path)
             last-group           (h/navigate-to-group driver path)

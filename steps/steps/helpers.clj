@@ -12,6 +12,15 @@
 ;;; Parsing Utilities
 ;;; =============================================================================
 
+(defn parse-step-data [data]
+  (map (fn [{:keys [submodule group subgroup value]}]
+         (cond-> []
+           (seq submodule) (conj submodule)
+           (seq group)     (conj group)
+           (seq subgroup)  (conj subgroup)
+           (seq value)     (conj value)))
+       data))
+
 (defn parse-multiline-list
   "Parse triple-quoted multiline list into vector of vectors.
 
@@ -27,10 +36,10 @@
   [text]
   (-> text
       (str/replace "\"\"\"" "")
-      (str/split #"-- ")
+      (str/split #"\n")
       (->> (map str/trim)
            (remove empty?)
-           (map #(str/split % #" -> ")))))
+           (map #(str/split % #" --- ")))))
 
 (defn numeric-or-multi-value?
   "Check if a string looks like a numeric value or comma-separated values.

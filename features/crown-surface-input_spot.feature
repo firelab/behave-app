@@ -1,23 +1,13 @@
 Feature: Crown & Surface Input - Spot
 
-  Scenario: Spot is displayed when Active Crown Fire is selected
+  Scenario Outline: Spot is displayed
     Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Spot -> Maximum Spotting Distance -> Active Crown Fire
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Spot
-      """
+    When this output path is selected <submodule> : <group> : <value>
+    Then the following input paths are displayed:
+      | submodule |
+      | Spot      |
 
-  Scenario: Spot is displayed when Torching Trees is selected
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Spot -> Maximum Spotting Distance -> Torching Trees
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Spot
-      """
+    Examples: This scenario is repeated for each of these rows
+      | submodule | group                     | value             |
+      | Spot      | Maximum Spotting Distance | Active Crown Fire |
+      | Spot      | Maximum Spotting Distance | Torching Trees    |

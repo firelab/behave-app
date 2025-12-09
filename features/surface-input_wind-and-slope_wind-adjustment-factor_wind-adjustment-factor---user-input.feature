@@ -2,16 +2,13 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor -> Wind Adjust
 
   Scenario: Wind Adjustment Factor - User Input is displayed
     Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Behavior -> Direction Mode -> Heading
-      """
-    When these inputs are entered Submodule -> Group -> Input:
-      """
-      -- Wind and Slope -> Wind Measured at: -> 20-Foot
-      -- Wind and Slope -> Wind Adjustment Factor -> User Input
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Wind and Slope -> Wind Adjustment Factor -> Wind Adjustment Factor - User Input
-      """
+    When these output paths are selected
+      | submodule     | group          | value   |
+      | Fire Behavior | Direction Mode | Heading |
+    When these input paths are entered
+      | submodule      | group                  | value      |
+      | Wind and Slope | Wind Measured at:      | 20-Foot    |
+      | Wind and Slope | Wind Adjustment Factor | User Input |
+    Then the following input paths are displayed:
+      | submodule      | group                  | value                               |
+      | Wind and Slope | Wind Adjustment Factor | Wind Adjustment Factor - User Input |

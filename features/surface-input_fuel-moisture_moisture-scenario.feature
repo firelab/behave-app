@@ -2,15 +2,12 @@ Feature: Surface Input - Fuel Moisture -> Moisture Scenario
 
   Scenario: Moisture Scenario is displayed
     Given I have started a new Surface Worksheet in Guided Mode
-    When these outputs are selected Submodule -> Group -> Output:
-      """
-      -- Fire Behavior -> Surface Fire -> Flame Length
-      """
-    When these inputs are entered Submodule -> Group -> Input:
-      """
-      -- Fuel Moisture -> Moisture Input Mode -> Moisture Scenario
-      """
-    Then the following input Submodule -> Groups are displayed:
-      """
-      -- Fuel Moisture -> Moisture Scenario
-      """
+    When these output paths are selected
+      | submodule     | group        | value        |
+      | Fire Behavior | Surface Fire | Flame Length |
+    When these input paths are entered
+      | submodule     | group               | value             |
+      | Fuel Moisture | Moisture Input Mode | Moisture Scenario |
+    Then the following input paths are displayed:
+      | submodule     | group             |
+      | Fuel Moisture | Moisture Scenario |

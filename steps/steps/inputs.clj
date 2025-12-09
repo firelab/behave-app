@@ -4,7 +4,8 @@
    This namespace handles verifying that expected input groups are displayed
    in the Inputs tab of the worksheet wizard."
   (:require [steps.helpers :as h]
-            [cucumber.webdriver :as w]))
+            [cucumber.webdriver :as w]
+            [clojure.string :as str]))
 
 ;;; =============================================================================
 ;;; Private Helper Functions
@@ -54,6 +55,8 @@
     (catch org.openqa.selenium.NoSuchElementException _
       ;; This is good - the element doesn't exist as expected
       nil)))
+
+
 
 (defn- enter-single-input
   "Enter a single input value or select a radio/dropdown/multi-select option.
@@ -112,6 +115,34 @@
 ;;; Public API
 ;;; =============================================================================
 
+(defn enter-single-input-2
+  ""
+  [{:keys [driver]} & path]
+  (h/wait-for-wizard driver)
+  (h/navigate-to-inputs driver)
+  (let [last-element (last path)
+        is-value?    (h/numeric-or-multi-value? last-element)]
+    (if is-value?
+      ;; Case 1: Value input - navigate to field and enter value
+      (let [field-name      (nth path (- (count path) 2))
+            value           last-element
+            navigation-path (vec (drop-last 2 path))]
+        (h/navigate-to-group driver navigation-path)
+        (h/enter-text-value driver field-name value))
+      ;; Case 2: Option selection - navigate to group and click option
+      ;; Check DOM to determine if multi-select expansion is needed
+      (let [option-name     last-element
+            navigation-path (vec (drop-last path))]
+        (h/navigate-to-group driver navigation-path)
+        (if (h/multi-select-exists? driver)
+          ;; Multi-select: expand options first, then click
+          (do
+            (h/click-select-more-button driver)
+            (h/click-radio-or-dropdown-option driver option-name))
+          ;; Radio/dropdown: click directly
+          (h/click-radio-or-dropdown-option driver option-name)))))
+  {:driver driver})
+
 (defn enter-inputs
   "Enter input values and select options from a multiline Gherkin string.
 
@@ -127,10 +158,9 @@
      context     - Map containing :driver key with WebDriver instance
      inputs-text - Multiline string in format:
                    \"\"\"
-                   --- Submodule -> Group -> Input Name -> Value
-                   --- Submodule -> Group -> Option Name
+                   Submodule -- Group -- Input Name -- Value
+                   Submodule -- Group -- Option Name
                    \"\"\"
-                   Note: Uses '---' (three dashes) delimiter
 
    Returns:
      Map with :driver key for passing to next step
@@ -138,16 +168,17 @@
    Examples:
      (enter-inputs {:driver driver}
                    \"\"\"
-                   --- Fuel Moisture -> Moisture Input Mode -> Individual Size Class
-                   --- Fuel Moisture -> By Size Class -> 1-h Fuel Moisture -> 1
-                   --- Fuel Moisture -> By Size Class -> Live Woody Fuel Moisture -> 5, 10, 15
+                   Fuel Moisture -- Moisture Input Mode -- Individual Size Class
+                   Fuel Moisture -- By Size Class -- 1-h Fuel Moisture -- 1
+                   Fuel Moisture -- By Size Class -- Live Woody Fuel Moisture -- 5, 10, 15
                    \"\"\")"
-  [{:keys [driver]} inputs-text]
+  [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
   (h/navigate-to-inputs driver)
-  (let [inputs (h/parse-multiline-list inputs-text)]
-    (doseq [input inputs]
-      (enter-single-input driver input))
+  (let [step-data    (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        paths (h/parse-step-data step-data)]
+    (doseq [path paths]
+      (enter-single-input driver path))
     {:driver driver}))
 
 (defn verify-input-groups-are-displayed
@@ -161,8 +192,8 @@
      context                - Map containing :driver key with WebDriver instance
      submodule-groups-text  - Multiline string in format:
                               \"\"\"
-                              -- Submodule -> Group1 -> Group2
-                              -- Submodule -> Group3
+                              Submodule -- Group1 -- Group2
+                              Submodule -- Group3
                               \"\"\"
 
    Returns:
@@ -174,17 +205,17 @@
    Example:
      (verify-input-groups-are-displayed {:driver driver}
                                         \"\"\"
-                                        -- Fuel Model -> Standard -> Fuel Model
-                                        -- Fuel Moisture -> Moisture Input Mode
+                                        Fuel Model -- Standard -- Fuel Model
+                                        Fuel Moisture -- Moisture Input Mode
                                         \"\"\")"
-  [{:keys [driver]} submodule-groups-text]
+  [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
   (h/navigate-to-inputs driver)
-
-  (let [submodule-groups (h/parse-multiline-list submodule-groups-text)]
-    (doseq [sg submodule-groups]
-      (verify-groups-exist driver sg))
-    (assert (pos? (count submodule-groups)))
+  (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        paths     (h/parse-step-data step-data)]
+    (doseq [path paths]
+      (verify-groups-exist driver path))
+    (assert (pos? (count paths)))
     {:driver driver}))
 
 (defn verify-input-groups-not-displayed
@@ -198,8 +229,8 @@
      context                - Map containing :driver key with WebDriver instance
      submodule-groups-text  - Multiline string in format:
                               \"\"\"
-                              -- Submodule -> Group1 -> Group2
-                              -- Submodule -> Group3
+                              Submodule -- Group1 -- Group2
+                              Submodule -- Group3
                               \"\"\"
 
    Returns:
@@ -211,14 +242,15 @@
    Example:
      (verify-input-groups-not-displayed {:driver driver}
                                         \"\"\"
-                                        -- Wind and Slope -> Wind Speed
+                                        Wind and Slope -- Wind Speed
                                         \"\"\")"
-  [{:keys [driver]} submodule-groups-text]
+  [{:keys [driver] :as context}]
   (h/navigate-to-inputs driver)
   (h/wait-for-wizard driver)
 
-  (let [submodule-groups (h/parse-multiline-list submodule-groups-text)]
-    (doseq [sg submodule-groups]
-      (verify-groups-not-exist driver sg))
-    (assert (pos? (count submodule-groups)))
+  (let [step-data        (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        paths            (h/parse-step-data step-data)]
+    (doseq [path paths]
+      (verify-groups-not-exist driver path))
+    (assert (pos? (count paths)))
     {:driver driver}))
