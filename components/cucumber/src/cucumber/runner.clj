@@ -34,8 +34,19 @@
 
 
 (defn run-cucumber-tests
-  "Runs cucumber tests "
-  [{:keys [features steps url debug? query-string stop] :as opts}]
+  "Runs cucumber tests.
+
+  Options:
+    :features      - Path to feature files directory
+    :steps         - Path to step definitions directory
+    :url           - URL to run tests against
+    :debug?        - Keep browser open after tests (default: false)
+    :headless?     - Run browser in headless mode (default: false)
+    :query-string  - Filter tests by query
+    :stop          - Stop on first failure
+    :browser       - Browser type (default: :chrome)
+    :browser-path  - Path to browser executable"
+  [{:keys [features steps url debug? headless? query-string stop] :as opts}]
 
   (when steps
     (load-steps! (io/file steps)))
@@ -72,6 +83,20 @@
 
   ;; Linux
   (run-cucumber-tests {:debug?       true
+                       :features     "./../../features"
+                       :steps        "./../../steps"
+                       :browser      :chrome
+                       :browser-path "/usr/bin/google-chrome"
+                       :url          "http://localhost:8081/worksheets"})
+
+  ;; Mac - Headless Mode
+  (run-cucumber-tests {:headless?  true
+                       :features   "./../../features"
+                       :browser    :chrome
+                       :url        "http://localhost:8081/worksheets"})
+
+  ;; Linux - Headless Mode
+  (run-cucumber-tests {:headless?    true
                        :features     "./../../features"
                        :steps        "./../../steps"
                        :browser      :chrome

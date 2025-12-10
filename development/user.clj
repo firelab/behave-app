@@ -8,6 +8,7 @@
   (time
    (run-cucumber-tests
     {:debug?   false
+     :headless? true
      :features "features"
      :steps    "steps"
      :stop     true
@@ -18,6 +19,7 @@
   (time
    (run-cucumber-tests
     {:debug?   false
+     :headless? true
      :features "features"
      :steps    "steps"
      :stop     true

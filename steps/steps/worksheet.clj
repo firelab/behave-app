@@ -56,20 +56,19 @@
      (start-worksheet [:surface :crown] {:driver driver :url \"http://localhost:8081/worksheets\"})"
   [modules {:keys [driver url]}]
   (w/maximize driver)
+
+  ;; Pre-populate local storage to prevent disclaimer modal
+  ;; First navigate to base URL to establish domain context
   (w/goto driver url)
 
-  ;; Dismiss disclaimer popup if it appears
+  ;; Set local storage with EDN format matching the app's structure
+  ;; The key "behave-settings" is defined in behave/events.cljs:30
+  ;; The value must be EDN format: {:show-disclaimer? false}
+  (w/execute-script! driver
+    "localStorage.setItem('behave-settings', '{:show-disclaimer? false}');")
 
-  (try
-    (let [disclaimer-close-button (-> driver
-                                      (h/find-element {:class "modal__close"})
-                                      (h/find-element {:class "button"}))]
-      (h/scroll-to-element driver disclaimer-close-button)
-      (Thread/sleep 300)
-      (e/click! disclaimer-close-button))
-    (catch Exception e
-      ;; No disclaimer present, continue
-      nil))
+  ;; NOTE: Removed the old try-catch disclaimer click workaround
+  ;; which was fragile and added 300ms+ to test execution time
 
   (Thread/sleep 300)
 
