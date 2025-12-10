@@ -1,7 +1,10 @@
-(ns user
-  (:require [cucumber.runner :refer [run-cucumber-tests]]))
+(ns user)
 
 (comment
+
+  (require '[cucumber.runner :refer [run-cucumber-tests]])
+
+  ;; Takes 3 hr to complete
   (time
    (run-cucumber-tests
     {:debug?   false
@@ -11,6 +14,7 @@
      :browser  :chrome
      :url      "http://localhost:8081/worksheets"}))
 
+  ;; Takes 30 min to complete
   (time
    (run-cucumber-tests
     {:debug?   false
