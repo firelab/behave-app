@@ -17,6 +17,11 @@
 ;;; =============================================================================
 
 (defn select-output
+  "Expects the bindings {submodule} : {group} : {subgroup} : {value}
+  subgroup is optional
+
+  The driver will follow the path to select output:
+  submodule -> group -> subgroup -> value"
   [{:keys [driver]} & path]
   (h/wait-for-wizard driver)
   (let [[submodule & groups] path]
@@ -27,6 +32,14 @@
   {:driver driver})
 
 (defn select-outputs
+  "Expects a data table (as described in the gherkin syntax) to be provided and verifies if
+  Data table expects the headers:
+  - submodule
+  - group
+  - subgroup (optional)
+  - value
+  For each row in the data table the driver will follow the path to select output:
+  submodule -> group -> subgroup -> value"
   [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
   (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])
@@ -36,6 +49,14 @@
     {:driver driver}))
 
 (defn verify-outputs-not-selected
+  "Expects a data table (as described in the gherkin syntax) to be provided and verifies if
+  Data table expects the headers:
+  - submodule
+  - group
+  - subgroup (optional)
+  - value
+  For each row in the data table the driver will follow the path to verify it is NOT
+  displayed: submodule -> group -> subgroup -> value"
   [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
   (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])

@@ -58,6 +58,11 @@
 ;;; =============================================================================
 
 (defn enter-input
+  "Expects the bindings {submodule} : {group} : {subgroup} : {value}
+  subgroup is optional
+
+  The driver will follow the path to enter inputs:
+  submodule -> group -> subgroup -> value"
   [{:keys [driver]} & path]
   (h/wait-for-wizard driver)
   (h/navigate-to-inputs driver)
@@ -85,16 +90,32 @@
   {:driver driver})
 
 (defn enter-inputs
+  "Expects a data table (as described in the gherkin syntax) to be provided and verifies if
+  Data table expects the headers:
+  - submodule
+  - group
+  - subgroup (optional)
+  - value
+  For each row in the data table the driver will follow the path to enter inputs:
+  submodule -> group -> subgroup -> value"
   [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
   (h/navigate-to-inputs driver)
-  (let [step-data    (get-in context [:tegere.parser/step :tegere.parser/step-data])
-        paths (h/parse-step-data step-data)]
+  (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        paths     (h/parse-step-data step-data)]
     (doseq [path paths]
       (enter-single-input driver path))
     {:driver driver}))
 
 (defn verify-input-groups-are-displayed
+  "Expects a data table (as described in the gherkin syntax) to be provided and verifies if
+  Data table expects the headers:
+  - submodule
+  - group
+  - subgroup (optional)
+  - value
+  For each row in the data table the driver will follow the path to verify it is displayed:
+  submodule -> group -> subgroup -> value"
   [{:keys [driver] :as context}]
   (h/wait-for-wizard driver)
   (h/navigate-to-inputs driver)
@@ -106,12 +127,20 @@
     {:driver driver}))
 
 (defn verify-input-groups-not-displayed
+  "Expects a data table (as described in the gherkin syntax) to be provided and verifies if
+  Data table expects the headers:
+  - submodule
+  - group
+  - subgroup (optional)
+  - value
+  For each row in the data table the driver will follow the path to verify it is NOT displayed:
+  submodule -> group -> subgroup -> value"
   [{:keys [driver] :as context}]
   (h/navigate-to-inputs driver)
   (h/wait-for-wizard driver)
 
-  (let [step-data        (get-in context [:tegere.parser/step :tegere.parser/step-data])
-        paths            (h/parse-step-data step-data)]
+  (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        paths     (h/parse-step-data step-data)]
     (doseq [path paths]
       (verify-groups-not-exist driver path))
     (assert (pos? (count paths)))
