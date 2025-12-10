@@ -8,7 +8,10 @@
 ;;; Parsing Utilities
 ;;; =============================================================================
 
-(defn parse-step-data [data]
+(defn parse-step-data
+  "Converts a map `data` into a vector representing a path that follows the heirarchy order
+  submodule -> group -> subgroup -> value"
+  [data]
   (map (fn [{:keys [submodule group subgroup value]}]
          (cond-> []
            (seq submodule) (conj submodule)
