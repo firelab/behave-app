@@ -2,12 +2,25 @@
   (:require [cucumber.runner :refer [run-cucumber-tests]]))
 
 (comment
-  (run-cucumber-tests
-   {:debug? false
-    :features "features"
-    :steps "steps"
-    :browser :chrome
-    :url "http://localhost:8081/worksheets"}))
+  (time
+   (run-cucumber-tests
+    {:debug?   false
+     :features "features"
+     :steps    "steps"
+     :stop     true
+     :browser  :chrome
+     :url      "http://localhost:8081/worksheets"}))
+
+  (time
+   (run-cucumber-tests
+    {:debug?   false
+     :features "features"
+     :steps    "steps"
+     :stop     true
+     :query-string '(and "core" (not "extended"))
+     :browser  :chrome
+     :url      "http://localhost:8081/worksheets"}))
+  )
 
 (comment
   (do

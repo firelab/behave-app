@@ -58,8 +58,6 @@
   (w/maximize driver)
   (w/goto driver url)
 
-  (h/wait-for-working-area driver)
-
   ;; Dismiss disclaimer popup if it appears
 
   (try
