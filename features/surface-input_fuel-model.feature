@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Fuel Model
 
+  @core
   Scenario Outline: Fuel Model is displayed with Surface Outputs
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
@@ -17,6 +19,7 @@ Feature: Surface Input - Fuel Model
       | Size          | Surface - Fire Size | Fire Perimeter        |
       | Size          | Surface - Fire Size | Length-to-Width Ratio |
 
+  @core
   Scenario Outline: Fuel Model is displayed with Crown Outputs
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

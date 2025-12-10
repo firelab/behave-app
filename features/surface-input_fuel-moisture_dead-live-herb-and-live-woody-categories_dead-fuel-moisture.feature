@@ -1,6 +1,33 @@
+@core
 Feature: Surface Input - Fuel Moisture -> Dead, Live Herb, and Live Woody Categories -> Dead Fuel Moisture
-
+  
+  @core
   Scenario Outline: Dead Fuel Moisture is displayed with these Fuel Model Codes
+    Given I have started a new Surface Worksheet in Guided Mode
+    When these output paths are selected
+      | submodule     | group        | value        |
+      | Fire Behavior | Surface Fire | Flame Length |
+
+    When these output paths are NOT selected
+      | submodule | group                     | value                    |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+
+    When this input path is entered <submodule> : <group> : <subgroup> : <value>
+
+    When these input paths are entered
+      | submodule     | group               | subgroup                                   |
+      | Fuel Moisture | Moisture Input Mode | Dead, Live Herb, and Live Woody Categories |
+
+    Then the following input paths are displayed:
+      | submodule     | group                                      | value              |
+      | Fuel Moisture | Dead, Live Herb, and Live Woody Categories | Dead Fuel Moisture |
+
+    Examples: This scenario is repeated for each of these rows
+      | submodule  | group    | subgroup   | value                        |
+      | Fuel Model | Standard | Fuel Model | FB1/1 - Short grass (Static) |
+
+  @extended
+  Scenario Outline: Dead Fuel Moisture is displayed with these Fuel Model Codes (extended)
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |

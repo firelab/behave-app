@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Weather
 
+  @core
   Scenario: Weather is displayed when Probability of Ignition is selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
@@ -9,6 +11,7 @@ Feature: Surface Input - Weather
       | submodule |
       | Weather   |
       
+  @core
   Scenario: Weather is displayed when Probability of Ignition is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these output paths are selected

@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Spot
 
+  @core
   Scenario Outline: Spot is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

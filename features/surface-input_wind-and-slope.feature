@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Wind and Slope
 
+  @core
   Scenario Outline: Wind and Slope is displayed with Surface outputs
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
@@ -22,6 +24,7 @@ Feature: Surface Input - Wind and Slope
       | Size          | Surface - Fire Size       | Length-to-Width Ratio      |
       | Size          | Surface - Fire Size       | Spread Distance            |
 
+  @core
   Scenario Outline: Wind and Slope is displayed with Crown outputs
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Fuel Moisture -> By Size Class
 
+  @core
   Scenario: By Size Class is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

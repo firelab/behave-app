@@ -1,11 +1,26 @@
+@core
 Feature: Mortality & Surface Input - Tree Characteristics -> Crown Ratio
-
+  
+  @core
   Scenario Outline: Crown Ratio is displayed with these Tree Species
     Given I have started a new Surface & Mortality Worksheet in Guided Mode
     When this input path is entered <submodule> : <group> : <value>
     Then the following input paths are displayed:
       | submodule            | group       |
       | Tree Characteristics | Crown Ratio |
+
+    Examples: This scenario is repeated for each of these rows
+      | submodule            | group                  | value                                      |
+      | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir) |
+
+  @extended
+  Scenario Outline: Crown Ratio is displayed with these Tree Species (Extended)
+    Given I have started a new Surface & Mortality Worksheet in Guided Mode
+    When this input path is entered <submodule> : <group> : <value>
+    Then the following input paths are displayed:
+      | submodule            | group       |
+      | Tree Characteristics | Crown Ratio |
+
     Examples: This scenario is repeated for each of these rows
       | submodule            | group                  | value                                                   |
       | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir)              |

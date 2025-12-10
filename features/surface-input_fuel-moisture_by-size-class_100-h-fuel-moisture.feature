@@ -1,6 +1,33 @@
+@core
 Feature: Surface Input - Fuel Moisture -> By Size Class -> 100-h Fuel Moisture
 
+  @core
   Scenario Outline: 100-h Fuel Moisture is displayed with these Fuel Model Codes
+    Given I have started a new Surface Worksheet in Guided Mode
+    When these output paths are selected
+      | submodule     | group        | value        |
+      | Fire Behavior | Surface Fire | Flame Length |
+
+    When these output paths are NOT selected
+      | submodule | group                     | value                    |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+      
+    When this input path is entered <submodule> : <group> : <subgroup> : <value>
+
+    When these input paths are entered
+      | submodule     | group               | subgroup              |
+      | Fuel Moisture | Moisture Input Mode | Individual Size Class |
+
+    Then the following input paths are displayed:
+      | submodule     | group         | value               |
+      | Fuel Moisture | By Size Class | 100-h Fuel Moisture |
+
+    Examples: This scenario is repeated for each of these rows
+      | submodule  | group    | subgroup   | value                                         |
+      | Fuel Model | Standard | Fuel Model | FB10/10 - Timber litter & understory (Static) |
+ 
+  @extended
+  Scenario Outline: 100-h Fuel Moisture is displayed with these Fuel Model Codes (Extended)
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |
@@ -67,6 +94,7 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> 100-h Fuel Moisture
       | Fuel Model | Standard | Fuel Model | FB8/8 - Short needle litter (Static)                                                               |
       | Fuel Model | Standard | Fuel Model | FB9/9 - Long needle or hardwood litter (Static)                                                    |
 
+  @core
   Scenario Outline: 100-h Fuel Moisture is displayed with Crown outputs
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

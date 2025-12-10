@@ -1,5 +1,7 @@
+@core
 Feature: Crown & Surface Input - Crown Fire Method
 
+  @core
   Scenario Outline: Crown Fire Method is displayed
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

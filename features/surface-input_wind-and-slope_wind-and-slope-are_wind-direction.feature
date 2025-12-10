@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Wind and Slope -> Wind and slope are -> Wind Direction
 
+  @core
   Scenario: Wind Direction is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

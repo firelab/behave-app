@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Fuel Moisture -> Moisture Scenario
 
+  @core
   Scenario: Moisture Scenario is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

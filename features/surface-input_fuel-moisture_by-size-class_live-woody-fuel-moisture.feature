@@ -1,6 +1,32 @@
+@core
 Feature: Surface Input - Fuel Moisture -> By Size Class -> Live Woody Fuel Moisture
-
+  
+  @core
   Scenario Outline: Live Woody Fuel Moisture is displayed with these Fuel Model Codes
+    Given I have started a new Surface Worksheet in Guided Mode
+    When these output paths are selected
+      | submodule     | group        | value        |
+      | Fire Behavior | Surface Fire | Flame Length |
+
+    When these output paths are NOT selected
+      | submodule | group                     | value                    |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+
+    When this input path is entered <submodule> : <group> : <subgroup> : <value>
+
+    When these input paths are entered
+      | submodule     | group               | subgroup              |
+      | Fuel Moisture | Moisture Input Mode | Individual Size Class |
+
+    Then the following input paths are displayed:
+      | submodule     | group         | value                    |
+      | Fuel Moisture | By Size Class | Live Woody Fuel Moisture |
+
+    Examples: This scenario is repeated for each of these rows
+      | submodule  | group    | subgroup   | value                                                                                                             |
+
+  @extended
+  Scenario Outline: Live Woody Fuel Moisture is displayed with these Fuel Model Codes (extended)
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |
@@ -66,6 +92,7 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> Live Woody Fuel Moist
       | Fuel Model | Standard | Fuel Model | FB5/5 - Brush (Static)                                                                                            |
       | Fuel Model | Standard | Fuel Model | FB7/7 - Southern rough (Static)                                                                                   |
 
+  @core
   Scenario Outline: Live Woody Fuel Moisture is displayed with Crown outputs
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

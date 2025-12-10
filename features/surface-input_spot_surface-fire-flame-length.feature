@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Spot -> Surface Fire Flame Length
 
+  @core
   Scenario: Surface Fire Flame Length is displayed when Wind-Driven Surface Fire is selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Wind and Slope -> Slope
 
+  @core
   Scenario Outline: Slope is displayed with Surface outputs
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

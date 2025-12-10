@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Fuel Model -> Standard -> Fuel Model
 
+  @core
   Scenario: Fuel Model is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Wind and Slope -> 10-Meter Wind Speed
 
+  @core
   Scenario: 10-Meter Wind Speed is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

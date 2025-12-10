@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Fuel Moisture
 
+  @core
   Scenario Outline: Fuel Moisture is displayed with Surface Outputs
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
@@ -18,6 +20,7 @@ Feature: Surface Input - Fuel Moisture
       | Size          | Surface - Fire Size | Length-to-Width Ratio   |
       | Fire Behavior | Ignition            | Probability of Ignition |
 
+  @core
   Scenario Outline: Fuel Moisture is displayed with Crown Outputs
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

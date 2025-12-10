@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Fuel Moisture -> Dead, Live Herb, and Live Woody Categories
 
+  @core
   Scenario: Dead, Live Herb, and Live Woody Categories is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

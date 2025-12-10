@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
 
+  @core
   Scenario Outline: Wind Adjustment Factor is displayed when
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
@@ -17,6 +19,7 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Fire Behavior | Direction Mode            | Direction of Interest      |
       | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire   |
 
+  @core
   Scenario Outline: Wind Adjustment Factor is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
@@ -34,6 +37,7 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Fire Behavior | Direction Mode            | Direction of Interest      |
       | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire   |
 
+  @core
   Scenario Outline: Wind Adjustment Factor is displayed
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
@@ -59,6 +63,7 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Fire Behavior | Fire Behavior            | Rate of Spread                      |
       | Size          | Crown - Fire Size        | Spread Distance                     |
 
+  @core
   Scenario Outline: Wind Adjustment Factor is displayed
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

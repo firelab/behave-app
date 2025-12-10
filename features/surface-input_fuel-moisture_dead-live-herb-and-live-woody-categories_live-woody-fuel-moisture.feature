@@ -1,6 +1,33 @@
+@core
 Feature: Surface Input - Fuel Moisture -> Dead, Live Herb, and Live Woody Categories -> Live Woody Fuel Moisture
 
+  @core
   Scenario Outline: Live Woody Fuel Moisture is displayed with these Fuel Models
+    Given I have started a new Surface Worksheet in Guided Mode
+    When these output paths are selected
+      | submodule     | group        | value        |
+      | Fire Behavior | Surface Fire | Flame Length |
+
+    And these output paths are NOT selected
+      | submodule | group                     | value                    |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+
+    And this input path is entered <submodule> : <group> : <subgroup> : <value>
+
+    And these input paths are entered
+      | submodule     | group               | subgroup                                   |
+      | Fuel Moisture | Moisture Input Mode | Dead, Live Herb, and Live Woody Categories |
+
+    Then the following input paths are displayed:
+      | submodule     | group                                      | value                    |
+      | Fuel Moisture | Dead, Live Herb, and Live Woody Categories | Live Woody Fuel Moisture |
+      
+    Examples: This scenario is repeated for each of these rows
+      | submodule  | group    | subgroup   | value                                         |
+      | Fuel Model | Standard | Fuel Model | FB10/10 - Timber litter & understory (Static) |
+ 
+  @extended
+  Scenario Outline: Live Woody Fuel Moisture is displayed with these Fuel Models (extended)
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |

@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Spread Directions -> Direction of Interest
 
+  @core
   Scenario: Direction of Interest is displayed when Direction of Interest is selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected

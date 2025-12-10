@@ -1,5 +1,7 @@
+@core
 Feature: Contain & Surface Input - Suppression -> Resources
 
+  @core
   Scenario: Resources is displayed
     Given I have started a new Surface & Contain Worksheet in Guided Mode
     When these input paths are entered

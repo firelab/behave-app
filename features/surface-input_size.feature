@@ -1,5 +1,7 @@
+@core
 Feature: Surface Input - Size
 
+  @core
   Scenario Outline: Size is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
@@ -13,6 +15,7 @@ Feature: Surface Input - Size
       | Size      | Surface - Fire Size | Fire Area       |
       | Size      | Surface - Fire Size | Spread Distance |
 
+  @core
   Scenario Outline: Size is displayed
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>

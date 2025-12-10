@@ -1,5 +1,7 @@
+@core
 Feature: Crown & Surface Input - Spot -> Fire Behavior
 
+  @core
   Scenario: Fire Behavior is displayed when Active Crown Fire is selected
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When these output paths are selected
