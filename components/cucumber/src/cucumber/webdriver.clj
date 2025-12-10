@@ -68,18 +68,23 @@
 
 (defn chrome-driver
   "Instatiate a Chrome WebDriver."
-  [{:keys [browser-path]}]
+  [{:keys [browser-path headless?]}]
   (let [options (ChromeOptions.)]
     (when browser-path (.setBinary options browser-path))
     (.addArguments options (into-array
-                            ["start-maximized"         ; // open Browser in maximized mode
-                             "disable-infobars"        ; // disabling infobars
-                             "--disable-extensions"    ; // disabling extensions
-                             "--disable-gpu"           ; // applicable to windows os only
-                             "--disable-dev-shm-usage" ; // overcome limited resource problems
-                             "--no-sandbox"            ; // Bypass OS security model
-                             "--remote-debugging-port=9222"]))
-    (System/setProperty "webdriver.chrome.driver" "/usr/local/bin/chromedriver")
+                            (cond-> ["disable-infobars" ; // disabling infobars
+                                     "--disable-extensions" ; // disabling extensions
+                                     "--disable-gpu" ; // applicable to windows os only
+                                     "--disable-dev-shm-usage" ; // overcome limited resource problems
+                                     "--no-sandbox" ; // Bypass OS security model
+                                     "--remote-debugging-port=9222"]
+                              headless?       (concat ["--headless=new" ; // run in headless mode
+                                                       "start-maximized"
+                                                       "--window-size=2560,1080"]) ; // set window size for headless
+                              (not headless?) (conj "start-maximized")))) ; // maximize when not headless
+    (System/setProperty "webdriver.chrome.driver"
+                        (or (System/getenv "CHROMEDRIVER_PATH")
+                            "/usr/local/bin/chromedriver"))
     (ChromeDriver. options)))
 
 (defn firefox-driver

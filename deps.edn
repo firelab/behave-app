@@ -4,6 +4,7 @@
  {:dev
   {:extra-paths ["development"
                  "target"
+                 "steps"
 
                  ;; Components
                  "components/async_utils/src"
@@ -37,7 +38,6 @@
                  "bases/datomic_store/src"
                  "bases/datom_store/src"]
 
-
    :extra-deps {;; Clojure Deps
                 bk/ring-gzip                            {:mvn/version "0.3.0"}
                 clj-http/clj-http                       {:mvn/version "3.10.1"}
@@ -66,41 +66,44 @@
                 tegere/tegere                           {:mvn/version "0.1.5"}
 
                 ;; Clojure Common
-                bidi/bidi                      {:mvn/version "2.1.6"}
-                datascript/datascript          {:mvn/version "1.5.3"}
-                cljs-ajax/cljs-ajax            {:mvn/version "0.8.4"}
-                nano-id/nano-id                {:mvn/version "1.1.0"}
-                com.github.rosejn/msgpack-cljc {:mvn/version "2.0.359"}
-                sig-gis/triangulum             {:git/url "https://github.com/sig-gis/triangulum"
-                                                :sha     "3d41dab63e1bc8ebe046f64db44ae3df986f5bdf"}
-                org.clojure/data.csv           {:mvn/version "1.0.0"}
+                bidi/bidi                               {:mvn/version "2.1.6"}
+                datascript/datascript                   {:mvn/version "1.5.3"}
+                cljs-ajax/cljs-ajax                     {:mvn/version "0.8.4"}
+                nano-id/nano-id                         {:mvn/version "1.1.0"}
+                com.github.rosejn/msgpack-cljc          {:mvn/version "2.0.359"}
+                sig-gis/triangulum                      {:git/url "https://github.com/sig-gis/triangulum"
+                                                         :sha     "3d41dab63e1bc8ebe046f64db44ae3df986f5bdf"}
+                org.clojure/data.csv                    {:mvn/version "1.0.0"}
 
                 ;; Clojure/Script Deps
-                com.bhauman/figwheel-main          {:mvn/version "0.2.18"}
-                org.clojure/clojurescript          {:mvn/version "1.11.54"}
-                org.clojure/core.async             {:mvn/version "1.2.603"}
-                binaryage/devtools                 {:mvn/version "1.0.5"}
-                re-frisk/re-frisk                  {:mvn/version "1.6.0"}
-                com.cognitect/transit-cljs         {:mvn/version "0.8.264"}
-                re-frame/re-frame                  {:mvn/version "1.3.0-rc3"}
-                day8.re-frame/http-fx              {:mvn/version "0.2.4"}
-                re-posh/re-posh                    {:mvn/version "0.3.3"}
-                reagent/reagent                    {:mvn/version "0.10.0"}
-                re-frame-utils/re-frame-utils      {:mvn/version "0.1.0"}
-                cljsjs/vega                        {:mvn/version "5.25.0-0"}
-                cljsjs/vega-embed                  {:mvn/version "6.22.2-0"}
-                cljsjs/vega-lite                   {:mvn/version "5.14.1-0"}
-                day8.re-frame/test                 {:mvn/version "0.1.5"}
-                austinbirch/reactive-entity        {:mvn/version "0.2.0"}
+                com.bhauman/figwheel-main               {:mvn/version "0.2.18"}
+                org.clojure/clojurescript               {:mvn/version "1.11.54"}
+                org.clojure/core.async                  {:mvn/version "1.2.603"}
+                binaryage/devtools                      {:mvn/version "1.0.5"}
+                re-frisk/re-frisk                       {:mvn/version "1.6.0"}
+                com.cognitect/transit-cljs              {:mvn/version "0.8.264"}
+                re-frame/re-frame                       {:mvn/version "1.3.0-rc3"}
+                day8.re-frame/http-fx                   {:mvn/version "0.2.4"}
+                re-posh/re-posh                         {:mvn/version "0.3.3"}
+                reagent/reagent                         {:mvn/version "0.10.0"}
+                re-frame-utils/re-frame-utils           {:mvn/version "0.1.0"}
+                cljsjs/vega                             {:mvn/version "5.25.0-0"}
+                cljsjs/vega-embed                       {:mvn/version "6.22.2-0"}
+                cljsjs/vega-lite                        {:mvn/version "5.14.1-0"}
+                day8.re-frame/test                      {:mvn/version "0.1.5"}
+                austinbirch/reactive-entity             {:mvn/version "0.2.0"}
 
                 ;; Behave CMS
-                applied-science/js-interop {:mvn/version "0.3.3"}
-                com.draines/postal         {:mvn/version "2.0.3"}
-                garden/garden              {:mvn/version "1.3.10"}
-                herb/herb                  {:mvn/version "0.10.0"}
-                hickory/hickory            {:mvn/version "0.7.1"}
-                markdown-clj/markdown-clj  {:mvn/version "1.11.1"}
-                org.clojure/tools.cli      {:mvn/version "1.0.194"}}
+                applied-science/js-interop              {:mvn/version "0.3.3"}
+                com.draines/postal                      {:mvn/version "2.0.3"}
+                garden/garden                           {:mvn/version "1.3.10"}
+                herb/herb                               {:mvn/version "0.10.0"}
+                hickory/hickory                         {:mvn/version "0.7.1"}
+                markdown-clj/markdown-clj               {:mvn/version "1.11.1"}
+                org.clojure/tools.cli                   {:mvn/version "1.0.194"}
+
+                ;; Testing
+                org.seleniumhq.selenium/selenium-java   {:mvn/version "4.23.0"}}
 
    :jvm-opts ["--add-exports=java.base/java.lang=ALL-UNNAMED"
               "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"

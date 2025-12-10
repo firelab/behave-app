@@ -5,7 +5,9 @@
    [tegere.loader      :refer [load-feature-files]]
    [tegere.steps       :refer [registry]]
    [tegere.runner      :refer [run]]
-   [cucumber.webdriver :as w]))
+   [tegere.query :as query]
+   [cucumber.webdriver :as w]
+   ))
 
 ;; Debug
 
@@ -32,8 +34,19 @@
 
 
 (defn run-cucumber-tests
-  "Runs cucumber tests "
-  [{:keys [features steps url debug?] :as opts}]
+  "Runs cucumber tests.
+
+  Options:
+    :features      - Path to feature files directory
+    :steps         - Path to step definitions directory
+    :url           - URL to run tests against
+    :debug?        - Keep browser open after tests (default: false)
+    :headless?     - Run browser in headless mode (default: false)
+    :query-string  - Filter tests by query
+    :stop          - Stop on first failure
+    :browser       - Browser type (default: :chrome)
+    :browser-path  - Path to browser executable"
+  [{:keys [features steps url debug? headless? query-string stop] :as opts}]
 
   (when steps
     (load-steps! (io/file steps)))
@@ -42,7 +55,9 @@
     (println [:WEBDRIVER ]driver)
     (let [results (run (load-feature-files (io/file features))
                     @registry
-                    {}
+                    (cond-> {}
+                      query-string (assoc ::query/query-tree query-string)
+                      stop         (assoc :tegere.runner/stop stop))
                     {:initial-ctx {:driver driver :url url}})]
 
       ;; Do something with output
@@ -50,7 +65,7 @@
       ;; Quit Driver
       (when-not debug?
         (w/quit driver))
-      results)))
+      (:tegere.runner/outcome-summary-report results))))
 
 
 (comment
@@ -74,6 +89,20 @@
                        :browser-path "/usr/bin/google-chrome"
                        :url          "http://localhost:8081/worksheets"})
 
+  ;; Mac - Headless Mode
+  (run-cucumber-tests {:headless?  true
+                       :features   "./../../features"
+                       :browser    :chrome
+                       :url        "http://localhost:8081/worksheets"})
+
+  ;; Linux - Headless Mode
+  (run-cucumber-tests {:headless?    true
+                       :features     "./../../features"
+                       :steps        "./../../steps"
+                       :browser      :chrome
+                       :browser-path "/usr/bin/google-chrome"
+                       :url          "http://localhost:8081/worksheets"})
+
   (def run-test-10-times
     (let [results (doall (map (fn [_]
                                 (run-cucumber-tests {:debug?       true
@@ -84,9 +113,9 @@
                                                      :url          "http://localhost:8081/worksheets"}))
                               (range 10)))
           failed  (apply + (map #(get-in % [:tegere.runner/outcome-summary :tegere.runner/features-failed])
-                               results))
+                                results))
           passed  (apply + (map #(get-in % [:tegere.runner/outcome-summary :tegere.runner/features-passed])
-                               results))]
+                                results))]
       (prn "passed: " passed)
       (prn "failed: " failed)))
 

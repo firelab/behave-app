@@ -1,0 +1,11 @@
+{:top-namespace "behave"
+ :interface-ns "interface"
+ :default-profile-name "default"
+ :compact-views #{}
+ :vcs {:name "git"
+       :auto-add false}
+ :tag-patterns {:stable "stable-*"
+                :release "v[0-9]*"}
+ :projects {"behave" {:alias "behave/app"}
+            "behave-slim" {:alias "behave-slim/app"}
+            "behave-cms" {:alias "behave/cms"}}}
