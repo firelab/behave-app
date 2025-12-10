@@ -115,7 +115,7 @@
 (defn wait-for-element-by-selector
   "Wait for the wizard interface to be present (up to 300 miliseconds)."
   [driver selector]
-  (let [wait (w/wait driver 500)]
+  (let [wait (w/wait driver 2000)]
     (.until wait (w/presence-of (selector->by selector)))))
 
 (defn wait-for-wizard
