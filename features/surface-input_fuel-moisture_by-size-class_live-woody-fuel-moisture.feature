@@ -23,7 +23,8 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> Live Woody Fuel Moist
       | Fuel Moisture | By Size Class | Live Woody Fuel Moisture |
 
     Examples: This scenario is repeated for each of these rows
-      | submodule  | group    | subgroup   | value                                                                                                             |
+      | submodule  | group    | subgroup   | value                                         |
+      | Fuel Model | Standard | Fuel Model | FB10/10 - Timber litter & understory (Static) |
 
   @extended
   Scenario Outline: Live Woody Fuel Moisture is displayed with these Fuel Model Codes (extended)
