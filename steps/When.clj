@@ -7,7 +7,7 @@
       outputs/select-outputs)
 
 (When "this output path is selected {submodule} : {group} : {value}"
-      outputs/select-single-output-2)
+      outputs/select-output)
 
 (When "these output paths are NOT selected"
       outputs/verify-outputs-not-selected)
@@ -16,7 +16,7 @@
       inputs/enter-inputs)
 
 (When "this input path is entered {submodule} : {group} : {value}"
-      inputs/enter-single-input-2)
+      inputs/enter-input)
 
 (When "this input path is entered {submodule} : {group} : {subgroup} : {value}"
-      inputs/enter-single-input-2)
+      inputs/enter-input)

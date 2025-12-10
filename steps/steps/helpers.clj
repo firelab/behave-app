@@ -1,8 +1,4 @@
 (ns steps.helpers
-  "Shared utility functions for Cucumber step definitions.
-
-   This namespace provides reusable helper functions for common operations
-   in BDD tests including navigation, element selection, waiting, and parsing."
   (:require [cucumber.by :as by]
             [cucumber.element :as e]
             [cucumber.webdriver :as w]
@@ -20,26 +16,6 @@
            (seq subgroup)  (conj subgroup)
            (seq value)     (conj value)))
        data))
-
-(defn parse-multiline-list
-  "Parse triple-quoted multiline list into vector of vectors.
-
-   Converts Gherkin multiline strings into structured data for processing.
-
-   Example:
-     Input:  \"\"\"
-             -- Fire Behavior -> Direction Mode -> Heading
-             -- Fire Behavior -> Surface Fire -> Rate of Spread
-             \"\"\"
-     Output: [[\"Fire Behavior\" \"Direction Mode\" \"Heading\"]
-              [\"Fire Behavior\" \"Surface Fire\" \"Rate of Spread\"]]"
-  [text]
-  (-> text
-      (str/replace "\"\"\"" "")
-      (str/split #"\n")
-      (->> (map str/trim)
-           (remove empty?)
-           (map #(str/split % #" --- ")))))
 
 (defn numeric-or-multi-value?
   "Check if a string looks like a numeric value or comma-separated values.
