@@ -766,7 +766,7 @@
                                                            ;; Discuss if if we should use this or not.
                                                            :arrow/rotation  wind-direction
                                                            :arrow/color     "blue"
-                                                           :arrow/dashed?   true}
+                                                           :arrow/dashed? true}
 
                                                           {:arrow/legend-id "Max Spread"
                                                            :arrow/length    semi-major-axis
@@ -865,6 +865,16 @@
  :worksheet/clear-input-value
  (fn [_ [_ input-eid]]
    {:transact [[:db/retract input-eid :input/value]]}))
+
+(rf/reg-event-fx
+ :worksheet/remove-unused-inputs
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/input-eids-to-delete ws-uuid]))]
+ (fn [{input-eids :worksheet/input-eids-to-delete} _]
+   (let [payload (mapv
+                  (fn [input-eid]
+                    [:db.fn/retractEntity input-eid])
+                  input-eids)]
+     {:transact payload})))
 
 (rf/reg-event-fx
  :worksheet/proccess-conditonally-set-output-group-variables

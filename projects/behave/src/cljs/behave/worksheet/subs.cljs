@@ -248,6 +248,21 @@
     :variables [ws-uuid group-uuid]}))
 
 (rf/reg-sub
+ :worksheet/all-input-entities
+ (fn [_ [_ ws-uuid]]
+   (let [input-eids @(rf/subscribe [:query
+                                    '[:find  [?i ...]
+                                      :in    $ ?ws-uuid
+                                      :where
+                                      [?w :worksheet/uuid ?ws-uuid]
+                                      [?w :worksheet/input-groups ?g]
+                                      [?g :input-group/group-uuid ?group-uuid]
+                                      [?g :input-group/repeat-id ?repeat-id]
+                                      [?g :input-group/inputs ?i]]
+                                    [ws-uuid]])]
+     (map #(d/entity @@s/conn %) input-eids))))
+
+(rf/reg-sub
  :worksheet/all-inputs-vector
  (fn [_ [_ ws-uuid]]
    (let [inputs @(rf/subscribe [:query
@@ -1260,3 +1275,46 @@
                      [?g :input-group/group-uuid ?g-uuid]
                      [?g :input-group/repeat-id ?rid]]
                    @@s/conn ws-uuid))))
+
+(rf/reg-sub
+ :worksheet/should-keep-input?
+ (fn [[_ _ws-uuid gv-uuid]]
+   (rf/subscribe [:vms/group-variable-heirarchy gv-uuid]))
+ (fn [hierarchy-eids [_ ws-uuid _gv-uuid]]
+   (let [[submodule & groups] (map #(d/pull @@vms-conn
+                                            '[:db/id
+                                              :group/name
+                                              :group/translation-key
+                                              :group/conditionals-operator
+                                              :submodule/name
+                                              :submodule/conditionals-operator]
+                                            (:db/id %))
+                                   hierarchy-eids)]
+     (and
+      (true? @(rf/subscribe [:wizard/show-submodule?
+                             ws-uuid
+                             (:db/id submodule)
+                             (:submodule/conditionals-operator submodule)]))
+
+      (every? true?
+              (map #(deref (rf/subscribe [:wizard/show-group?
+                                          ws-uuid
+                                          (:db/id %)
+                                          (:group/conditionals-operator %)]))
+                   groups))))))
+
+(rf/reg-sub
+ :worksheet/input-eids-to-delete
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/all-input-entities ws-uuid]))
+ (fn [inputs [_ ws-uuid]]
+   (prn inputs)
+   (map :db/id
+        (remove (fn [{group-variable-uuid :input/group-variable-uuid}]
+                  @(rf/subscribe [:worksheet/should-keep-input? ws-uuid group-variable-uuid]))
+                inputs))))
+
+(comment
+  (rf/subscribe [:worksheet/input-eids-to-delete "693c7777-a8a5-4948-9169-c99f0d9654c3"])
+
+  )
