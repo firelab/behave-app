@@ -821,10 +821,6 @@
           (is-directional? col-uuid direction)))
     data)))
 
-(comment
-  (rf/subscribe [:worksheet/multi-value-input-uuids "6685957e-39fc-454d-bd3d-6f7dafa5775a"])
-  (rf/subscribe [:worksheet/result-table-cell-data-direction "6685957e-39fc-454d-bd3d-6f7dafa5775a" :heading]))
-
 (rf/reg-sub
  :worksheet/output-uuid->result-min-values
  (fn [[_ ws-uuid]]
@@ -1313,8 +1309,3 @@
         (remove (fn [{group-variable-uuid :input/group-variable-uuid}]
                   @(rf/subscribe [:worksheet/should-keep-input? ws-uuid group-variable-uuid]))
                 inputs))))
-
-(comment
-  (rf/subscribe [:worksheet/input-eids-to-delete "693c7777-a8a5-4948-9169-c99f0d9654c3"])
-
-  )
