@@ -256,8 +256,6 @@
                                       :where
                                       [?w :worksheet/uuid ?ws-uuid]
                                       [?w :worksheet/input-groups ?g]
-                                      [?g :input-group/group-uuid ?group-uuid]
-                                      [?g :input-group/repeat-id ?repeat-id]
                                       [?g :input-group/inputs ?i]]
                                     [ws-uuid]])]
      (map #(d/entity @@s/conn %) input-eids))))
