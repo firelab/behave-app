@@ -73,7 +73,8 @@
     (println ok body)))
 
 (defn load-store! []
-  (ajax-request {:uri             "/api/sync"
+
+  #_(ajax-request {:uri             "/api/sync"
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}
                  :response-format {:description  "ArrayBuffer"
@@ -83,7 +84,7 @@
 
 (defn- batch-sync-tx-data []
   (when-not (empty? @batch)
-    (ajax-request {:uri             "/api/sync"
+    #_(ajax-request {:uri             "/api/sync"
                    :params          {:tx-data @batch}
                    :method          :post
                    :handler         sync-tx-data-handler

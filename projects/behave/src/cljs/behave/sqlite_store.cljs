@@ -73,35 +73,31 @@
         sql (upsert-dml opts)]
     (doseq [part (partition-all batch-size addr+data-seq)]
       (doseq [[addr data] part]
-        (execute! conn 
-                  (-> (sql-replace sql addr)
-                      (sql-replace sql (freeze-str data))
-                      (sql-replace sql (freeze-str content))))))))
+        (let [content (freeze-str data)]
+          (execute! conn 
+                    (-> sql
+                        (sql-replace addr)
+                        (sql-replace content)
+                        (sql-replace content))))))))
 
 (defn restore-impl [conn opts addr on-restore]
   (let [{:keys [table binary? thaw-str thaw-bytes]} opts
         sql (str "select content from " table " where addr = ?")]
-    (-> (execute-query (sql-replace sql addr))
-        (p/then #(on-restore (thaw-str %))))))
+    (-> (execute-query conn (sql-replace sql addr))
+        (p/then #(on-restore ((:thaw-str opts) %))))))
 
 (defn list-impl [conn opts on-list]
-  (let [sql (str "select addr from " (:table opts))]
-
-    (-> (execute-query (sql-replace sql addr))
-        (p/then #(on-list (map thaw-str %))))))
-
-;;    (loop [res (transient [])]
-;;      (if (.next rs)
-;;        (recur (conj! res (.getLong rs 1)))
-;;        (persistent! res)))))
+  (let [{:keys [table binary? thaw-str thaw-bytes]} opts]
+    (let [sql (str "select addr from " table)]
+      (-> (execute-query conn sql)
+          (p/then #(on-list (map thaw-str %)))))))
 
 (defn delete-impl [conn opts addr-seq]
   (let [sql (str "delete from " (:table opts) " where addr = ?")]
     (doseq [part (partition-all (:batch-size opts) addr-seq)]
       (doseq [addr part]
-        (.setLong stmt 1 addr)
-        (.addBatch stmt))
-      (.executeBatch stmt))))
+        (-> (execute! conn (sql-replace sql addr))
+            (p/handle))))))
 
 (defn ddl [{:keys [table]}]
   (str
@@ -186,9 +182,12 @@
   @sqlite-db
   @datasource
   
-  (p/then (.execute @sqlite-db "SELECT * FROM sqlite_master WHERE type='table'")
-          #(println %))
+  (def exec-res 
+    (p/let [result (.execute @sqlite-db "SELECT * FROM sqlite_master WHERE type='table'")]
+      result))
+
   (js/console.log @sqlite-db)
+  (println @sqlite-db)
 
   (require '[me.tonsky.persistent_sorted_set ANode])
 
