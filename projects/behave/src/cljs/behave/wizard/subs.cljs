@@ -630,7 +630,7 @@
         (not (:group/research? group-entity))
         (not (:group/hidden? group-entity))
         (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
-            (seq (:group/children group-entity))))))
+            (boolean (seq (:group/children group-entity)))))))
 
 (reg-sub
  :wizard/show-submodule?
