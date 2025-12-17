@@ -50,7 +50,8 @@
                               (case units-system
                                 :english english-unit
                                 :metric  metric-unit
-                                native-unit))
+                                native-unit)
+                              native-unit)
         on-click          #(do
                              (on-change-units %)
                              (reset! show-selector? false))
@@ -128,6 +129,7 @@
          metric-unit-uuid  :variable/metric-unit-uuid
          dynamic-units?    :subtool-variable/dynamic-units?
          help-key          :subtool-variable/help-key} variable
+        translated-name                                @(rf/subscribe [:tool/sv->translated-name sv-uuid])
         domain                                         @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
         unit-uuid                                      @(rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
         value                                          @(rf/subscribe [:tool/input-value tool-uuid subtool-uuid sv-uuid])
@@ -136,7 +138,7 @@
      [:div.tool-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
       [c/number-input {:id         sv-uuid
-                       :label      var-name
+                       :label      (or translated-name var-name)
                        :value-atom value-atom
                        :required?  true
                        :on-change  #(reset! value-atom (input-value %))
@@ -170,17 +172,17 @@
          help-key :subtool-variable/help-key
          v-list   :variable/list} variable
         selected                  @(rf/subscribe [:tool/input-value
-                                                tool-uuid
-                                                subtool-uuid
-                                                sv-uuid])
+                                                  tool-uuid
+                                                  subtool-uuid
+                                                  sv-uuid])
         options                   (:list/options v-list)
         default-option            (first (filter #(true? (:list-option/default %)) options))
         on-change                 #(rf/dispatch [:tool/upsert-input-value
-                                               tool-uuid
-                                               subtool-uuid
-                                               sv-uuid
-                                               (input-value %)
-                                               auto-compute?])
+                                                 tool-uuid
+                                                 subtool-uuid
+                                                 sv-uuid
+                                                 (input-value %)
+                                                 auto-compute?])
         num-options               (count options)
         ->option                  (fn [{value               :list-option/value
                                         t-key               :list-option/translation-key
@@ -237,6 +239,7 @@
          metric-unit-uuid  :variable/metric-unit-uuid
          dynamic-units?    :subtool-variable/dynamic-units?
          help-key          :subtool-variable/help-key} variable
+        translated-name                                @(rf/subscribe [:tool/sv->translated-name sv-uuid])
         domain                                         @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
         output-value                                   @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
         value                                          (when output-value (to-precision (parse-float output-value) (or (:domain/decimals domain) native-decimals)))]
@@ -246,7 +249,7 @@
       {:on-mouse-over #(prn [:help/highlight-section help-key])}
       [c/text-input {:id        sv-uuid
                      :disabled? true
-                     :label     var-name
+                     :label     (or translated-name var-name)
                      :value     (or value "")}]]
      [unit-display
       domain-uuid
@@ -269,6 +272,7 @@
          var-name :variable/name
          list     :variable/list
          help-key :subtool-variable/help-key} variable
+        translated-name                       @(rf/subscribe [:tool/sv->translated-name sv-uuid])
         value                                 @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
         list-options                          (index-by :list-option/value (:list/options list))
         matching-option                       (get list-options value)
@@ -284,7 +288,7 @@
        {:on-mouse-over #(prn [:help/highlight-section help-key])}
        [c/text-input {:id         sv-uuid
                       :disabled?  true
-                      :label      var-name
+                      :label      (or translated-name var-name)
                       :background background
                       :font-color font-color
                       :value      (get matching-option :list-option/name "")}]]]]))

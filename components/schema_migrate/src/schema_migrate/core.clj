@@ -377,7 +377,8 @@
       (spec/explain :behave/action payload))))
 
 (defn ->variable
-  [_conn {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?] :as params}]
+  [_conn {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?
+                 dimension-uuid native-unit-uuid metric-unit-uuid english-unit-uuid] :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
@@ -387,6 +388,10 @@
                   nname                    (assoc :variable/name nname)
                   kind                     (assoc :variable/kind kind)
                   domain-uuid              (assoc :variable/domain-uuid domain-uuid)
+                  dimension-uuid           (assoc :variable/dimension-uuid dimension-uuid)
+                  native-unit-uuid         (assoc :variable/native-unit-uuid native-unit-uuid)
+                  english-unit-uuid        (assoc :variable/english-unit-uuid english-unit-uuid)
+                  metric-unit-uuid         (assoc :variable/metric-unit-uuid metric-unit-uuid)
                   list-eid                 (assoc :variable/list list-eid)
                   translation-key          (assoc :variable/translation-key translation-key)
                   help-key                 (assoc :variable/help-translation-key help-key)

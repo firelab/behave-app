@@ -1,6 +1,7 @@
 (ns behave.tool.subs
   (:require [behave.vms.store       :as s]
             [clojure.set            :refer [rename-keys]]
+            [behave.translate       :refer [<t]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub path] :as rf]))
 
@@ -137,6 +138,13 @@
                                         :tool/outputs
                                         output-uuid
                                         :output/units-uuid-uuid])])))))
+
+(reg-sub
+ :tool/sv->translated-name
+ (fn [_ [_ subtool-variable-uuid]]
+   (when-let [translation-key (->> (d/entity @@s/vms-conn [:bp/uuid subtool-variable-uuid])
+                                   :subtool-variable/translation-key)]
+     @(<t translation-key))))
 
 (comment
   (rf/subscribe [:tool/all-inputs
