@@ -308,7 +308,8 @@
 (rf/reg-event-fx
  :wizard/open
  (fn [_ [_ file]]
-   (s/open-worksheet! {:file file})))
+   (s/open-worksheet! {:file file})
+   (rf/clear-subscription-cache!)))
 
 
 (rf/reg-event-fx
