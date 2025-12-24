@@ -1,4 +1,4 @@
-(ns migrations.2025-17-2025-fix-direction-of-spread-precision
+(ns migrations.2025-12-17-fix-direction-of-spread-precision
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
