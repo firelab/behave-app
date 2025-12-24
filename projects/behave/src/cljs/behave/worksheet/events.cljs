@@ -935,3 +935,11 @@
                                (:bp/uuid group-variable)
                                true]])]
      {:fx payload})))
+
+(rf/reg-event-fx
+ :worksheet/update-worksheet-name-from-import
+ (fn [_ [_ ws-uuid file-name]]
+   (let [payload [{:db/id          [:worksheet/uuid ws-uuid]
+                   :worksheet/name file-name}]]
+     (prn "payload:" payload)
+     {:transact payload})))
