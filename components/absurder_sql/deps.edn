@@ -1,0 +1,7 @@
+{:paths ["src" "test" "resources"]
+ :deps {org.clojure/clojurescript       {:mvn/version "1.11.60"}
+        com.github.thheller/shadow-cljs {:mvn/version "2.20.5"}
+        funcool/promesa                 {:mvn/version "11.0.678"}
+        datascript/datascript           {:mvn/version "1.5.3"}
+        cider/cider-nrepl               {:mvn/version "0.42.1"}}
+ :aliases {:test {:extra-paths ["test"]}}}
