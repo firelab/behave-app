@@ -4,7 +4,7 @@
    [behave.translate :refer [<t bp]]
    [dom-utils.interface :refer [input-value]]
    [map-utils.interface :refer [index-by]]
-   [number-utils.interface :refer [parse-float parse-int to-precision]]
+   [number-utils.interface :refer [parse-int to-precision]]
    [re-frame.core :as rf]
    [reagent.core :as r]
    [string-utils.interface :refer [->kebab]]))
@@ -242,7 +242,7 @@
         translated-name                                @(rf/subscribe [:tool/sv->translated-name sv-uuid])
         domain                                         @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
         output-value                                   @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
-        value                                          (when output-value (to-precision (parse-float output-value) (or (:domain/decimals domain) native-decimals)))]
+        value                                          (when output-value (to-precision output-value (or (:domain/decimals domain) native-decimals)))]
     [:div.tool-output
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-output__output
@@ -275,7 +275,7 @@
         translated-name                       @(rf/subscribe [:tool/sv->translated-name sv-uuid])
         value                                 @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
         list-options                          (index-by :list-option/value (:list/options list))
-        matching-option                       (get list-options value)
+        matching-option                       (get list-options (str value))
         background                            (get-in matching-option [:list-option/color-tag-ref :tag/color] "#FFFFFF")
         lum-bg                                (apply luminance (hex-to-rgb background))
         black-contrast                        (/ (+ lum-bg 0.05) 0.05)
