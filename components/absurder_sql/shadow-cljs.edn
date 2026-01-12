@@ -2,7 +2,8 @@
 {:source-paths ["src" "resources" "test"]
  :dependencies [[cider/cider-nrepl "0.42.1"]
                 [funcool/promesa "11.0.678"]
-                [datascript/datascript "1.5.3"]]
+                [datascript/datascript "1.5.3"]
+                [org.clojure/core.async "1.8.741"]]
  :dev-http     {8021 "target/test"}
  :nrepl        {:port       9000
                 :middleware [cider.nrepl/cider-middleware]}
