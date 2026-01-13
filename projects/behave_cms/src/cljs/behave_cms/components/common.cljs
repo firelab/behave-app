@@ -311,7 +311,8 @@
                :table-layout "fixed"}}
       (for [row rows]
         ^{:key (:db/id row)}
-        [:tr {:style {:scroll-snap-align "start"}}
+        [:tr {:id    (str "row-" (:db/id row))
+              :style {:scroll-snap-align "start"}}
          (for [column columns
                :let   [value (get row column "")]]
            [:td {:key   column

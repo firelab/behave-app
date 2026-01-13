@@ -299,3 +299,10 @@
         (let [swap (nth sorted next-order)]
           {:transact [(assoc (select-keys swap [:db/id]) order-field curr-order)
                       (assoc (select-keys entity [:db/id]) order-field next-order)]})))))
+
+(reg-event-fx
+ :scroll-into-view
+ (fn [_ [_ element-id]]
+   (when-let [element (.getElementById js/document (str "row-" element-id))]
+     (.scrollIntoView element #js {:behavior "smooth"
+                                   :block    "start"}))))
