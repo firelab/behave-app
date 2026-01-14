@@ -1,15 +1,15 @@
-(ns ^:no-doc datascript.db
+(ns ^:no-doc absurder-sql.datascript.db
   (:require
     #?(:cljs [goog.array :as garray])
     [clojure.walk]
     [clojure.data]
-    #?(:clj [datascript.inline :refer [update]])
-    [datascript.lru :as lru]
-    [datascript.util :as util]
-    [me.tonsky.persistent-sorted-set :as set]
+    #?(:clj [absurder-sql.datascript.inline :refer [update]])
+    [absurder-sql.datascript.lru :as lru]
+    [absurder-sql.datascript.util :as util]
+    [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.absurder-sql.datascript.persistent-sorted-set) :as set]
     [me.tonsky.persistent-sorted-set.arrays :as arrays])
   #?(:clj (:import clojure.lang.IFn$OOL))
-  #?(:cljs (:require-macros [datascript.db :refer [case-tree combine-cmp defn+ defcomp defrecord-updatable int-compare validate-attr validate-val]]))
+  #?(:cljs (:require-macros [absurder-sql.datascript.db :refer [case-tree combine-cmp defn+ defcomp defrecord-updatable int-compare validate-attr validate-val]]))
   (:refer-clojure :exclude [seqable? #?(:clj update)]))
 
 #?(:clj (set! *warn-on-reflection* true))
@@ -210,7 +210,7 @@
        IPrintWithWriter
        (-pr-writer [d writer opts]
          (pr-sequential-writer writer pr-writer
-           "#datascript/Datom [" " " "]"
+           "#absurder-sql.datascript/Datom [" " " "]"
            opts [(.-e d) (.-a d) (.-v d) (datom-tx d) (datom-added d)]))]
       :clj
       [Object
@@ -247,7 +247,7 @@
        (containsKey [e k] (#{:e :a :v :tx :added} k))
        (assoc [d k v] (assoc-datom d k v))]))
 
-#?(:cljs (goog/exportSymbol "datascript.db.Datom" Datom))
+#?(:cljs (goog/exportSymbol "absurder-sql.datascript.db.Datom" Datom))
 
 (defn ^Datom datom
   ([e a v] (Datom. e a v tx0 0 0))
@@ -320,7 +320,7 @@
     :v     (datom (.-e d) (.-a d) v       (datom-tx d) (datom-added d))
     :tx    (datom (.-e d) (.-a d) (.-v d) v            (datom-added d))
     :added (datom (.-e d) (.-a d) (.-v d) (datom-tx d) v)
-    (throw (IllegalArgumentException. (str "invalid key for #datascript/Datom: " k)))))
+    (throw (IllegalArgumentException. (str "invalid key for #absurder-sql.datascript/Datom: " k)))))
 
 ;; printing and reading
 ;; #datomic/DB {:schema <map>, :datoms <vector of [e a v tx]>}
@@ -330,7 +330,7 @@
 
 #?(:clj
    (defmethod print-method Datom [^Datom d, ^java.io.Writer w]
-     (.write w (str "#datascript/Datom "))
+     (.write w (str "#absurder-sql.datascript/Datom "))
      (binding [*out* w]
        (pr [(.-e d) (.-a d) (.-v d) (datom-tx d) (datom-added d)]))))
 
@@ -686,7 +686,7 @@
                                                   (with-meta (meta db))))
        IPrintWithWriter     (-pr-writer [db w opts] (pr-db db w opts))
        IEditableCollection  (-as-transient [db] (db-transient db))
-       ITransientCollection (-conj! [db key] (throw (ex-info "datascript.DB/conj! is not supported" {})))
+       ITransientCollection (-conj! [db key] (throw (ex-info "absurder-sql.datascript.DB/conj! is not supported" {})))
        (-persistent! [db] (db-persistent! db))]
 
       :clj
@@ -705,7 +705,7 @@
                              (with-meta (meta db))))
        (asTransient [db] (db-transient db))
        clojure.lang.ITransientCollection
-       (conj [db key] (throw (ex-info "datascript.DB/conj! is not supported" {})))
+       (conj [db key] (throw (ex-info "absurder-sql.datascript.DB/conj! is not supported" {})))
        (persistent [db] (db-persistent! db))])
 
   IDB
@@ -781,7 +781,7 @@
       (resolve-datom db nil attr end nil emax txmax)))
                 
   clojure.data/EqualityPartition
-  (equality-partition [x] :datascript/db)
+  (equality-partition [x] :absurder-sql.datascript/db)
 
   clojure.data/Diff
   (diff-similar [a b]
@@ -791,9 +791,9 @@
   #?(:clj
      (or
        (and x
-         (instance? datascript.db.ISearch x)
-         (instance? datascript.db.IIndexAccess x)
-         (instance? datascript.db.IDB x))
+         (instance? absurder-sql.datascript.db.ISearch x)
+         (instance? absurder-sql.datascript.db.IIndexAccess x)
+         (instance? absurder-sql.datascript.db.IDB x))
        (and (satisfies? ISearch x)
          (satisfies? IIndexAccess x)
          (satisfies? IDB x)))
@@ -1096,7 +1096,7 @@
 
 #?(:cljs
    (defn+ pr-db [db w opts]
-     (-write w "#datascript/DB {")
+     (-write w "#absurder-sql.datascript/DB {")
      (-write w ":schema ")
      (pr-writer (-schema db) w opts)
      (-write w ", :datoms ")
@@ -1109,7 +1109,7 @@
 #?(:clj
    (do
      (defn pr-db [db, ^java.io.Writer w]
-       (.write w (str "#datascript/DB {"))
+       (.write w (str "#absurder-sql.datascript/DB {"))
        (.write w ":schema ")
        (binding [*out* w]
          (pr (-schema db))
@@ -1288,15 +1288,15 @@
   #?@(:cljs
       [IPrintWithWriter
        (-pr-writer [d writer opts]
-         (pr-sequential-writer writer pr-writer "#datascript/AutoTempid [" " " "]" opts [id]))]
+         (pr-sequential-writer writer pr-writer "#absurder-sql.datascript/AutoTempid [" " " "]" opts [id]))]
       :clj
       [Object
        (toString [d]
-         (str "#datascript/AutoTempid [" id "]"))]))
+         (str "#absurder-sql.datascript/AutoTempid [" id "]"))]))
 
 #?(:clj
    (defmethod print-method AutoTempid [^AutoTempid id, ^java.io.Writer w]
-     (.write w (str "#datascript/AutoTempid "))
+     (.write w (str "#absurder-sql.datascript/AutoTempid "))
      (binding [*out* w]
        (pr [(.-id id)]))))
 
@@ -1370,17 +1370,17 @@
    (defn- ^Boolean tx-id?
      [e]
      (or (identical? :db/current-tx e)
-       (.equals ":db/current-tx" e) ;; for datascript.js interop
+       (.equals ":db/current-tx" e) ;; for absurder-sql.datascript.js interop
        (.equals "datomic.tx" e)
-       (.equals "datascript.tx" e)))
+       (.equals "absurder-sql.datascript.tx" e)))
 
    :cljs
    (defn- ^boolean tx-id?
      [e]
      (or (= e :db/current-tx)
-       (= e ":db/current-tx") ;; for datascript.js interop
+       (= e ":db/current-tx") ;; for absurder-sql.datascript.js interop
        (= e "datomic.tx")
-       (= e "datascript.tx"))))
+       (= e "absurder-sql.datascript.tx"))))
 
 (defn- #?@(:clj  [^Boolean tempid?]
            :cljs [^boolean tempid?])

@@ -3,19 +3,19 @@
   (:require
     [#?(:cljs cljs.reader :clj clojure.edn) :as edn]
     [absurder-sql.datascript.conn :as conn]
-    [datascript.db :as db #?@(:cljs [:refer [Datom DB FilteredDB]])]
-    #?(:clj [datascript.pprint])
-    [datascript.pull-api :as dp]
-    [datascript.serialize :as ds]
-    [datascript.storage :as storage]
-    [datascript.query :as dq]
-    [datascript.impl.entity :as de]
-    [datascript.util :as util]
+    [absurder-sql.datascript.db :as db #?@(:cljs [:refer [Datom DB FilteredDB]])]
+    #?(:clj [absurder-sql.datascript.pprint])
+    [absurder-sql.datascript.pull-api :as dp]
+    [absurder-sql.datascript.serialize :as ds]
+    [#?(:clj absurder-sql.datascript.storage :cljs absurder-sql.datascript.storage) :as storage]
+    [absurder-sql.datascript.query :as dq]
+    [absurder-sql.datascript.impl.entity :as de]
+    [absurder-sql.datascript.util :as util]
     [me.tonsky.persistent-sorted-set :as set])
   #?(:clj
      (:import
-       [datascript.db Datom DB FilteredDB]
-       [datascript.impl.entity Entity]
+       [absurder-sql.datascript.db Datom DB FilteredDB]
+       [absurder-sql.datascript.impl.entity Entity]
        [java.util UUID])))
 
 (def ^:const ^:no-doc tx0 
@@ -26,7 +26,7 @@
 
 (def ^{:tag Entity
        :arglists '([db eid])
-       :doc "Retrieves an entity by its id from database. Entities are lazy map-like structures to navigate DataScript database content.
+       :doc "Retrieves an entity by its id from database. Entities are lazy map-like structures to navigate Absurdersql.DataScript database content.
 
              For `eid` pass entity id or lookup attr:
              
@@ -154,10 +154,10 @@
    Usage:
    
    ```
-   (empty-db) ; => #datascript/DB {:schema {}, :datoms []}
+   (empty-db) ; => #absurder-sql.datascript/DB {:schema {}, :datoms []}
 
    (empty-db {:likes {:db/cardinality :db.cardinality/many}})
-   ; => #datascript/DB {:schema {:likes {:db/cardinality :db.cardinality/many}}
+   ; => #absurder-sql.datascript/DB {:schema {:likes {:db/cardinality :db.cardinality/many}}
    ;                    :datoms []}
    ```
    
@@ -290,35 +290,35 @@
        ; find all datoms for entity id == 1 (any attrs and values)
        ; sort by attribute, then value
        (datoms db :eavt 1)
-       ; => (#datascript/Datom [1 :friends 2]
-       ;     #datascript/Datom [1 :likes \"fries\"]
-       ;     #datascript/Datom [1 :likes \"pizza\"]
-       ;     #datascript/Datom [1 :name \"Ivan\"])
+       ; => (#absurder-sql.datascript/Datom [1 :friends 2]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"fries\"]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"pizza\"]
+       ;     #absurder-sql.datascript/Datom [1 :name \"Ivan\"])
   
        ; find all datoms for entity id == 1 and attribute == :likes (any values)
        ; sorted by value
        (datoms db :eavt 1 :likes)
-       ; => (#datascript/Datom [1 :likes \"fries\"]
-       ;     #datascript/Datom [1 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [1 :likes \"fries\"]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"pizza\"])
        
        ; find all datoms for entity id == 1, attribute == :likes and value == \"pizza\"
        (datoms db :eavt 1 :likes \"pizza\")
-       ; => (#datascript/Datom [1 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [1 :likes \"pizza\"])
   
        ; find all datoms for attribute == :likes (any entity ids and values)
        ; sorted by entity id, then value
        (datoms db :aevt :likes)
-       ; => (#datascript/Datom [1 :likes \"fries\"]
-       ;     #datascript/Datom [1 :likes \"pizza\"]
-       ;     #datascript/Datom [2 :likes \"candy\"]
-       ;     #datascript/Datom [2 :likes \"pie\"]
-       ;     #datascript/Datom [2 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [1 :likes \"fries\"]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"pizza\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"candy\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pie\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pizza\"])
   
        ; find all datoms that have attribute == `:likes` and value == `\"pizza\"` (any entity id)
        ; `:likes` must be a unique attr, reference or marked as `:db/index true`
        (datoms db :avet :likes \"pizza\")
-       ; => (#datascript/Datom [1 :likes \"pizza\"]
-       ;     #datascript/Datom [2 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [1 :likes \"pizza\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pizza\"])
   
        ; find all datoms sorted by entity id, then attribute, then value
        (datoms db :eavt) ; => (...)
@@ -373,29 +373,29 @@
    Usage:
 
        (seek-datoms db :eavt 1)
-       ; => (#datascript/Datom [1 :friends 2]
-       ;     #datascript/Datom [1 :likes \"fries\"]
-       ;     #datascript/Datom [1 :likes \"pizza\"]
-       ;     #datascript/Datom [1 :name \"Ivan\"]
-       ;     #datascript/Datom [2 :likes \"candy\"]
-       ;     #datascript/Datom [2 :likes \"pie\"]
-       ;     #datascript/Datom [2 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [1 :friends 2]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"fries\"]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"pizza\"]
+       ;     #absurder-sql.datascript/Datom [1 :name \"Ivan\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"candy\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pie\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pizza\"])
 
        (seek-datoms db :eavt 1 :name)
-       ; => (#datascript/Datom [1 :name \"Ivan\"]
-       ;     #datascript/Datom [2 :likes \"candy\"]
-       ;     #datascript/Datom [2 :likes \"pie\"]
-       ;     #datascript/Datom [2 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [1 :name \"Ivan\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"candy\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pie\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pizza\"])
   
        (seek-datoms db :eavt 2) 
-       ; => (#datascript/Datom [2 :likes \"candy\"]
-       ;     #datascript/Datom [2 :likes \"pie\"]
-       ;     #datascript/Datom [2 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [2 :likes \"candy\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pie\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pizza\"])
   
        ; no datom [2 :likes \"fish\"], so starts with one immediately following such in index
        (seek-datoms db :eavt 2 :likes \"fish\")
-       ; => (#datascript/Datom [2 :likes \"pie\"]
-       ;     #datascript/Datom [2 :likes \"pizza\"])"
+       ; => (#absurder-sql.datascript/Datom [2 :likes \"pie\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pizza\"])"
   ([db index]             {:pre [(db/db? db)]} (db/-seek-datoms db index nil nil nil nil))
   ([db index c0]          {:pre [(db/db? db)]} (db/-seek-datoms db index c0  nil nil nil))
   ([db index c0 c1]       {:pre [(db/db? db)]} (db/-seek-datoms db index c0  c1  nil nil))
@@ -420,15 +420,15 @@
    Usage:
 
        (index-range db :likes \"a\" \"zzzzzzzzz\")
-       ; => (#datascript/Datom [2 :likes \"candy\"]
-       ;     #datascript/Datom [1 :likes \"fries\"]
-       ;     #datascript/Datom [2 :likes \"pie\"]
-       ;     #datascript/Datom [1 :likes \"pizza\"]
-       ;     #datascript/Datom [2 :likes \"pizza\"])
+       ; => (#absurder-sql.datascript/Datom [2 :likes \"candy\"]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"fries\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pie\"]
+       ;     #absurder-sql.datascript/Datom [1 :likes \"pizza\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pizza\"])
         
        (index-range db :likes \"egg\" \"pineapple\")
-       ; => (#datascript/Datom [1 :likes \"fries\"]
-       ;     #datascript/Datom [2 :likes \"pie\"])
+       ; => (#absurder-sql.datascript/Datom [1 :likes \"fries\"]
+       ;     #absurder-sql.datascript/Datom [2 :likes \"pie\"])
            
    Useful patterns:
      
@@ -441,7 +441,7 @@
 ;; Conn
 
 (def ^{:arglists '([conn])} conn?
-  "Returns `true` if this is a connection to a DataScript db, `false` otherwise."
+  "Returns `true` if this is a connection to a Absurdersql.DataScript db, `false` otherwise."
   conn/conn?)
 
 (def ^{:arglists '([db])} conn-from-db
@@ -455,7 +455,7 @@
 (def ^{:arglists '([] [schema] [schema opts])} create-conn
   "Creates a mutable reference (a “connection”) to an empty immutable database.
 
-   Connections are lightweight in-memory structures (~atoms) with direct support of transaction listeners ([[listen!]], [[unlisten!]]) and other handy DataScript APIs ([[transact!]], [[reset-conn!]], [[db]]).
+   Connections are lightweight in-memory structures (~atoms) with direct support of transaction listeners ([[listen!]], [[unlisten!]]) and other handy Absurdersql.DataScript APIs ([[transact!]], [[reset-conn!]], [[db]]).
 
    To access underlying immutable DB value, deref: `@conn`.
    
@@ -501,7 +501,7 @@
       (transact! conn [[:db.fn/retractEntity 1]])
   
       ; create a new entity (`-1`, as any other negative value, is a tempid
-      ; that will be replaced with DataScript to a next unused eid)
+      ; that will be replaced with Absurdersql.DataScript to a next unused eid)
       (transact! conn [[:db/add -1 :name \"Ivan\"]])
   
       ; check assigned id (here `*1` is a result returned from previous `transact!` call)
@@ -509,7 +509,7 @@
       (:tempids report) ; => {-1 296}
   
       ; check actual datoms inserted
-      (:tx-data report) ; => [#datascript/Datom [296 :name \"Ivan\"]]
+      (:tx-data report) ; => [#absurder-sql.datascript/Datom [296 :name \"Ivan\"]]
   
       ; tempid can also be a string
       (transact! conn [[:db/add \"ivan\" :name \"Ivan\"]])
@@ -585,8 +585,8 @@
              ```
              (clojure.edn/read-string {:readers data-readers} \"...\")
              ```"}
-  data-readers {'datascript/Datom db/datom-from-reader
-                'datascript/DB    db/db-from-reader})
+  data-readers {'absurder-sql.datascript/Datom db/datom-from-reader
+                'absurder-sql.datascript/DB    db/db-from-reader})
 
 #?(:cljs
    (doseq [[tag cb] data-readers] (edn/register-tag-parser! tag cb)))
