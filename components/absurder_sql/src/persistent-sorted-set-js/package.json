@@ -1,0 +1,29 @@
+{
+  "name": "persistent-sorted-set-js",
+  "version": "1.0.0",
+  "description": "Fast B-tree based persistent sorted set for JavaScript, ported from tonsky/persistent-sorted-set",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "keywords": [
+    "sorted-set",
+    "btree",
+    "persistent",
+    "immutable",
+    "data-structure",
+    "sorted",
+    "tree",
+    "collection"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonsky/persistent-sorted-set"
+  },
+  "engines": {
+    "node": ">=14.6.0"
+  }
+}
