@@ -1157,13 +1157,16 @@
     (first keys))
   (maxKey [_]
     (nth keys (dec len)))
-  (editable [_]
+  (keys [_]
     (if (= len (count keys))
       (js->clj keys)
       (.slice keys)))
+  (editable [_]
+    (:edit? settings))
   (search [_ target-key cmp]
     (binary-search keys target-key cmp))
   (searchFirst [_ target-key cmp]
+    ;; TODO look at replacing with binary-search-r
     (let [search (fn search [low high]
                    (if-not (< low high)
                      low
@@ -1175,6 +1178,7 @@
                          :else   (search low mid)))))]
       (search 0 len)))
   (searchLast [_ target-key cmp]
+    ;; TODO look at replacing with binary-search-l
     (let [search (fn search [low high]
                    (if-not (< low high)
                      (dec low)
@@ -1205,7 +1209,12 @@
 
 (deftype Leaf [level] Node)
 
-(deftype Branch [level len keys ^:volatile-mutable addresses ^:volatile-mutable children settings]
+(deftype Branch [level
+                 len
+                 ^:volatile-mutable keys
+                 ^:volatile-mutable addresses
+                 ^:volatile-mutable children
+                 settings]
   Object
   (toString [this]
     (str "Branch: " addresses))
@@ -1274,9 +1283,35 @@
             0
             (range 0 (dec len))))
 
-  
+  (contains [this ^IPersisentSortedSetStorage storage k cmp]
+    (let [idx (binary-search keys k cmp)]
+      (if (>= idx 0)
+        true
+        (do
+          (let [ins (dec (- 0 idx))]
+            (if (= ins len)
+              false
+              (do 
+                (assert (<= 0 idx len))
+                (.contains (.child storage ins) storage key cmp))))))))
 
-  (store [this ^ISortedSetStorage storage] 
+  (add [this ^IPersisentSortedSetStorage storage k cmp settings] 
+    (let [idx (binary-search keys k cmp)]
+      (if (>= idx 0)
+        :unchanged
+        (let [ins (dec (- 0 idx))
+              ins (if (= ins len) (dec len) ins)
+              _   (assert (<= 0 idx len))
+              res (.add (.child storage ins) storage key cmp)]
+          (if (keyword? res)
+            res
+            (if (and (= 1 (count res)) (:edit? settings))
+              (let [node (first res)
+                    _ (arrays/aset keys ins (.maxKey node))
+                    _ (.setChild this ins node)])
+              :early-exit))))))
+
+  (store [this ^IPersisentSortedSetStorage storage] 
     (.ensureAddresses this)
     (loop [i 0]
       (when (< i len)
@@ -1310,3 +1345,269 @@
     (.updateChild branch 2 :child2)
     (.getChildren branch))
 )
+;;
+;;  @Override
+;;  public ANode[] remove(IStorage storage, Key key, ANode _left, ANode _right, Comparator<Key> cmp, Settings settings) {
+;;    Branch left = (Branch) _left;
+;;    Branch right = (Branch) _right;
+;;
+;;    int idx = search(key, cmp);
+;;    if (idx < 0) idx = -idx - 1;
+;;
+;;    if (idx == _len) // not in set
+;;      return PersistentSortedSet.UNCHANGED;
+;;
+;;    assert 0 <= idx && idx < _len;
+;;    
+;;    ANode leftChild  = idx > 0      ? child(storage, idx - 1) : null,
+;;          rightChild = idx < _len-1 ? child(storage, idx + 1) : null;
+;;    int leftChildLen = safeLen(leftChild);
+;;    int rightChildLen = safeLen(rightChild);
+;;    ANode[] nodes = child(storage, idx).remove(storage, key, leftChild, rightChild, cmp, settings);
+;;
+;;    if (PersistentSortedSet.UNCHANGED == nodes) // child signalling element not in set
+;;      return PersistentSortedSet.UNCHANGED;
+;;
+;;    if (PersistentSortedSet.EARLY_EXIT == nodes) { // child signalling nothing to update
+;;      return PersistentSortedSet.EARLY_EXIT;
+;;    }
+;;
+;;    boolean leftChanged = leftChild != nodes[0] || leftChildLen != safeLen(nodes[0]);
+;;    boolean rightChanged = rightChild != nodes[2] || rightChildLen != safeLen(nodes[2]);
+;;
+;;    // nodes[1] always not nil
+;;    int newLen = _len - 1
+;;                 - (leftChild  != null ? 1 : 0)
+;;                 - (rightChild != null ? 1 : 0)
+;;                 + (nodes[0] != null ? 1 : 0)
+;;                 + 1
+;;                 + (nodes[2] != null ? 1 : 0);
+;;
+;;    // no rebalance needed
+;;    if (newLen >= _settings.minBranchingFactor() || (left == null && right == null)) {
+;;      // can update in place
+;;      if (editable() && idx < _len-2) {
+;;        Stitch ks = new Stitch(_keys, Math.max(idx-1, 0));
+;;        if (nodes[0] != null) ks.copyOne(nodes[0].maxKey());
+;;                              ks.copyOne(nodes[1].maxKey());
+;;        if (nodes[2] != null) ks.copyOne(nodes[2].maxKey());
+;;        if (newLen != _len)
+;;          ks.copyAll(_keys, idx+2, _len);
+;;
+;;        if (_addresses != null) {
+;;          Stitch as = new Stitch(_addresses, Math.max(idx - 1, 0));
+;;          if (nodes[0] != null) as.copyOne(leftChanged ? null : address(idx - 1));
+;;                                as.copyOne(null);
+;;          if (nodes[2] != null) as.copyOne(rightChanged ? null : address(idx + 1));
+;;          if (newLen != _len)
+;;            as.copyAll(_addresses, idx+2, _len);
+;;        }
+;;
+;;        ensureChildren();
+;;        Stitch cs = new Stitch(_children, Math.max(idx - 1, 0));
+;;        if (nodes[0] != null) cs.copyOne(nodes[0]);
+;;                              cs.copyOne(nodes[1]);
+;;        if (nodes[2] != null) cs.copyOne(nodes[2]);
+;;        if (newLen != _len)
+;;          cs.copyAll(_children, idx+2, _len);
+;;
+;;        _len = newLen;
+;;        return PersistentSortedSet.EARLY_EXIT;
+;;      }
+;;
+;;      Branch newCenter = new Branch(_level, newLen, settings);
+;;
+;;      Stitch ks = new Stitch(newCenter._keys, 0);
+;;      ks.copyAll(_keys, 0, idx - 1);
+;;      if (nodes[0] != null) ks.copyOne(nodes[0].maxKey());
+;;                            ks.copyOne(nodes[1].maxKey());
+;;      if (nodes[2] != null) ks.copyOne(nodes[2].maxKey());
+;;      ks.copyAll(_keys, idx + 2, _len);
+;;
+;;      if (_addresses != null) {
+;;        Stitch as = new Stitch(newCenter.ensureAddresses(), 0);
+;;        as.copyAll(_addresses, 0, idx - 1);
+;;        if (nodes[0] != null) as.copyOne(leftChanged ? null : address(idx - 1));
+;;                              as.copyOne(null);
+;;        if (nodes[2] != null) as.copyOne(rightChanged ? null : address(idx + 1));
+;;        as.copyAll(_addresses, idx + 2, _len);
+;;      }
+;;
+;;      newCenter.ensureChildren();
+;;      Stitch cs = new Stitch(newCenter._children, 0);
+;;      cs.copyAll(_children, 0, idx - 1);
+;;      if (nodes[0] != null) cs.copyOne(nodes[0]);
+;;                            cs.copyOne(nodes[1]);
+;;      if (nodes[2] != null) cs.copyOne(nodes[2]);
+;;      cs.copyAll(_children, idx + 2, _len);
+;;
+;;      return new ANode[] { left, newCenter, right };
+;;    }
+;;
+;;    // can join with left
+;;    if (left != null && left._len + newLen <= _settings.branchingFactor()) {
+;;      Branch join = new Branch(_level, left._len + newLen, settings);
+;;
+;;      Stitch ks = new Stitch(join._keys, 0);
+;;      ks.copyAll(left._keys, 0, left._len);
+;;      ks.copyAll(_keys,      0, idx - 1);
+;;      if (nodes[0] != null) ks.copyOne(nodes[0].maxKey());
+;;                            ks.copyOne(nodes[1].maxKey());
+;;      if (nodes[2] != null) ks.copyOne(nodes[2].maxKey());
+;;      ks.copyAll(_keys,     idx + 2, _len);
+;;
+;;      if (left._addresses != null || _addresses != null) {
+;;        Stitch as = new Stitch(join.ensureAddresses(), 0);
+;;        as.copyAll(left._addresses, 0, left._len);
+;;        as.copyAll(_addresses,      0, idx - 1);
+;;        if (nodes[0] != null) as.copyOne(leftChanged ? null : address(idx - 1));
+;;                              as.copyOne(null);
+;;        if (nodes[2] != null) as.copyOne(rightChanged ? null : address(idx + 1));
+;;        as.copyAll(_addresses, idx + 2, _len);
+;;      }
+;;
+;;      join.ensureChildren();
+;;      Stitch cs = new Stitch(join._children, 0);
+;;      cs.copyAll(left._children, 0, left._len);
+;;      cs.copyAll(_children,      0, idx - 1);
+;;      if (nodes[0] != null) cs.copyOne(nodes[0]);
+;;                            cs.copyOne(nodes[1]);
+;;      if (nodes[2] != null) cs.copyOne(nodes[2]);
+;;      cs.copyAll(_children, idx + 2, _len);
+;;
+;;      return new ANode[] { null, join, right };
+;;    }
+;;
+;;    // can join with right
+;;    if (right != null && newLen + right._len <= _settings.branchingFactor()) {
+;;      Branch join = new Branch(_level, newLen + right._len, settings);
+;;
+;;      Stitch ks = new Stitch(join._keys, 0);
+;;      ks.copyAll(_keys, 0, idx - 1);
+;;      if (nodes[0] != null) ks.copyOne(nodes[0].maxKey());
+;;                            ks.copyOne(nodes[1].maxKey());
+;;      if (nodes[2] != null) ks.copyOne(nodes[2].maxKey());
+;;      ks.copyAll(_keys,       idx + 2, _len);
+;;      ks.copyAll(right._keys, 0, right._len);
+;;
+;;      if (_addresses != null || right._addresses != null) {
+;;        Stitch as = new Stitch(join.ensureAddresses(), 0);
+;;        as.copyAll(_addresses, 0, idx - 1);
+;;        if (nodes[0] != null) as.copyOne(leftChanged ? null : address(idx - 1));
+;;                              as.copyOne(null);
+;;        if (nodes[2] != null) as.copyOne(rightChanged ? null : address(idx + 1));
+;;        as.copyAll(_addresses, idx + 2, _len);
+;;        as.copyAll(right._addresses, 0, right._len);
+;;      }
+;;
+;;      join.ensureChildren();
+;;      Stitch cs = new Stitch(join._children, 0);
+;;      cs.copyAll(_children, 0, idx - 1);
+;;      if (nodes[0] != null) cs.copyOne(nodes[0]);
+;;                            cs.copyOne(nodes[1]);
+;;      if (nodes[2] != null) cs.copyOne(nodes[2]);
+;;      cs.copyAll(_children,     idx + 2, _len);
+;;      cs.copyAll(right._children, 0, right._len);
+;;      
+;;      return new ANode[] { left, join, null };
+;;    }
+;;
+;;    // borrow from left
+;;    if (left != null && (right == null || left._len >= right._len)) {
+;;      int totalLen     = left._len + newLen;
+;;      int newLeftLen   = totalLen >>> 1;
+;;      int newCenterLen = totalLen - newLeftLen;
+;;
+;;      Branch newLeft   = new Branch(_level, newLeftLen, settings);
+;;      Branch newCenter = new Branch(_level, newCenterLen, settings);
+;;
+;;      ArrayUtil.copy(left._keys, 0, newLeftLen, newLeft._keys, 0);
+;;
+;;      Stitch ks = new Stitch(newCenter._keys, 0);
+;;      ks.copyAll(left._keys, newLeftLen, left._len);
+;;      ks.copyAll(_keys, 0, idx - 1);
+;;      if (nodes[0] != null) ks.copyOne(nodes[0].maxKey());
+;;                            ks.copyOne(nodes[1].maxKey());
+;;      if (nodes[2] != null) ks.copyOne(nodes[2].maxKey());
+;;      ks.copyAll(_keys, idx + 2, _len);
+;;
+;;      if (left._addresses != null) {
+;;        ArrayUtil.copy(left._addresses, 0, newLeftLen, newLeft.ensureAddresses(), 0);
+;;      }
+;;      if (left._children != null) {
+;;        ArrayUtil.copy(left._children, 0, newLeftLen, newLeft.ensureChildren(), 0);
+;;      }
+;;
+;;      if (left._addresses != null || _addresses != null) {
+;;        Stitch as = new Stitch(newCenter.ensureAddresses(), 0);
+;;        as.copyAll(left._addresses, newLeftLen, left._len);
+;;        as.copyAll(_addresses, 0, idx - 1);
+;;        if (nodes[0] != null) as.copyOne(leftChanged ? null : address(idx - 1));
+;;                              as.copyOne(null);
+;;        if (nodes[2] != null) as.copyOne(rightChanged ? null : address(idx + 1));
+;;        as.copyAll(_addresses, idx + 2, _len);
+;;      }
+;;
+;;      newCenter.ensureChildren();
+;;      Stitch cs = new Stitch(newCenter._children, 0);
+;;      cs.copyAll(left._children, newLeftLen, left._len);
+;;      cs.copyAll(_children, 0, idx - 1);
+;;      if (nodes[0] != null) cs.copyOne(nodes[0]);
+;;                            cs.copyOne(nodes[1]);
+;;      if (nodes[2] != null) cs.copyOne(nodes[2]);
+;;      cs.copyAll(_children, idx + 2, _len);
+;;
+;;      return new ANode[] { newLeft, newCenter, right };
+;;    }
+;;
+;;    // borrow from right
+;;    if (right != null) {
+;;      int totalLen     = newLen + right._len,
+;;          newCenterLen = totalLen >>> 1,
+;;          newRightLen  = totalLen - newCenterLen,
+;;          rightHead    = right._len - newRightLen;
+;;
+;;      Branch newCenter = new Branch(_level, newCenterLen, settings),
+;;             newRight  = new Branch(_level, newRightLen, settings);
+;;
+;;      Stitch ks = new Stitch(newCenter._keys, 0);
+;;      ks.copyAll(_keys, 0, idx - 1);
+;;      if (nodes[0] != null) ks.copyOne(nodes[0].maxKey());
+;;                            ks.copyOne(nodes[1].maxKey());
+;;      if (nodes[2] != null) ks.copyOne(nodes[2].maxKey());
+;;      ks.copyAll(_keys, idx + 2, _len);
+;;      ks.copyAll(right._keys, 0, rightHead);
+;;
+;;      ArrayUtil.copy(right._keys, rightHead, right._len, newRight._keys, 0);
+;;
+;;      if (_addresses != null || right._addresses != null) {
+;;        Stitch as = new Stitch(newCenter.ensureAddresses(), 0);
+;;        as.copyAll(_addresses, 0, idx - 1);
+;;        if (nodes[0] != null) as.copyOne(leftChanged ? null : address(idx - 1));
+;;                              as.copyOne(null);
+;;        if (nodes[2] != null) as.copyOne(rightChanged ? null : address(idx + 1));
+;;        as.copyAll(_addresses, idx + 2, _len);
+;;        as.copyAll(right._addresses, 0, rightHead);
+;;      }
+;;
+;;      newCenter.ensureChildren();
+;;      Stitch cs = new Stitch(newCenter._children, 0);
+;;      cs.copyAll(_children, 0, idx - 1);
+;;      if (nodes[0] != null) cs.copyOne(nodes[0]);
+;;                            cs.copyOne(nodes[1]);
+;;      if (nodes[2] != null) cs.copyOne(nodes[2]);
+;;      cs.copyAll(_children, idx + 2, _len);
+;;      cs.copyAll(right._children, 0, rightHead);
+;;
+;;      if (right._addresses != null) {
+;;        ArrayUtil.copy(right._addresses, rightHead, right._len, newRight.ensureAddresses(), 0);
+;;      }
+;;      if (right._children != null) {
+;;        ArrayUtil.copy(right._children, rightHead, right._len, newRight.ensureChildren(), 0);
+;;      }
+;;
+;;      return new ANode[] { left, newCenter, newRight };
+;;    }
+;;
+;;    throw new RuntimeException("Unreachable");
+;;  }
