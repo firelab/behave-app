@@ -1,8 +1,10 @@
 ;; shadow-cljs configuration
 {:source-paths ["src" "resources" "test"]
- :dependencies [[cider/cider-nrepl "0.42.1"]
+ :dependencies [[cider/cider-nrepl "0.55.7"]
+                [refactor-nrepl "3.11.0"]
                 [funcool/promesa "11.0.678"]
                 [datascript/datascript "1.5.3"]
+                [persistent-sorted-set "0.3.0"]
                 [org.clojure/core.async "1.8.741"]]
  :dev-http     {8021 "target/test"}
  :nrepl        {:port       9000

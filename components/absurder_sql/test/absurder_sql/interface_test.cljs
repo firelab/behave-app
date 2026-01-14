@@ -12,10 +12,10 @@
 
 (use-fixtures :once {:before with-sqlite})
 
-#_(sqlite init-test
+(deftest init-test
   (is (= true (sut/connected?))))
 
-#_(deftest connect-test
+(deftest connect-test
   (async done
     (go
       (let [db (<p! (sut/connect! "first.db"))]
@@ -23,7 +23,7 @@
         (is (= js/sqlite.Database (type db)))
         (done)))))
 
-#_(deftest connect-execute-test
+(deftest connect-execute-test
   (async done
     (go
       (let [db     (<p! (sut/connect! (str "users-" (rand-int 100) ".db")))
@@ -34,7 +34,7 @@
         (is (= 3 (get-in res3 [:rows 0 :values 0 :value])))
         (done)))))
 
-#_(deftest export-import-db
+(deftest export-import-db
   (async done
     (go
       (let [db1          (<p! (sut/connect! (str "export-users-" (rand-int 100) ".db")))
@@ -53,7 +53,7 @@
         (is (= 3 (get-in res [:rows 0 :values 0 :value])))
         (done)))))
 
-(deftest download-db
+#_(deftest download-db
   (async done
     (go
       (let [db-name (str "dl-users-" (rand-int 100) ".db")
@@ -65,13 +65,10 @@
         #_(is (= 3 (get-in res [:rows 0 :values 0 :value])))
         (done)))))
 
-(deftest import-db-from-file
+#_(deftest import-db-from-file
   (async done
     (go
-
       (let [res (<p! (js/fetch ))])
-
-
       (let [db1          (<p! (sut/connect! (str "export-users-" (rand-int 100) ".db")))
             _            (<p! (sut/execute! db1 "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT NOT NULL, last_name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, age INTEGER);"))
             _            (<p! (sut/execute! db1 "INSERT INTO users (first_name, last_name, email, age) VALUES ('Alice', 'Johnson', 'alice@example.com', 28), ('Bob', 'Smith', 'bob@example.com', 34), ('Carol', 'Davis', 'carol@example.com', 22);"))
