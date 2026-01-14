@@ -2,9 +2,10 @@
  * Example usage of PersistentSortedSet
  */
 
-import { PersistentSortedSet, IStorage, ANode } from './index.js';
+import { PersistentSortedSet, IStorage } from './index.js';
 import { Leaf } from './Leaf.js';
 import { Branch } from './Branch.js';
+import { NodeFactory } from './NodeFactory.js';
 
 console.log('=== Persistent Sorted Set Examples ===\n');
 
@@ -97,7 +98,7 @@ class MockStorage extends IStorage {
     if (!data) {
       throw new Error('Address not found: ' + address);
     }
-    return ANode.restore(data.level, data.keys, data.addresses, data.settings);
+    return NodeFactory.restore(data.level, data.keys, data.addresses, data.settings);
   }
 
   store(node) {

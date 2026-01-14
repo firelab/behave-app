@@ -6,7 +6,7 @@
     #?(:clj [absurder-sql.datascript.inline :refer [update]])
     [absurder-sql.datascript.lru :as lru]
     [absurder-sql.datascript.util :as util]
-    [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.absurder-sql.datascript.persistent-sorted-set) :as set]
+    [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.datascript.persistent-sorted-set) :as set]
     [me.tonsky.persistent-sorted-set.arrays :as arrays])
   #?(:clj (:import clojure.lang.IFn$OOL))
   #?(:cljs (:require-macros [absurder-sql.datascript.db :refer [case-tree combine-cmp defn+ defcomp defrecord-updatable int-compare validate-attr validate-val]]))
@@ -788,19 +788,9 @@
     (diff-sorted (:eavt a) (:eavt b) cmp-datoms-eav-quick)))
 
 (defn db? [x]
-  #?(:clj
-     (or
-       (and x
-         (instance? absurder-sql.datascript.db.ISearch x)
-         (instance? absurder-sql.datascript.db.IIndexAccess x)
-         (instance? absurder-sql.datascript.db.IDB x))
-       (and (satisfies? ISearch x)
-         (satisfies? IIndexAccess x)
-         (satisfies? IDB x)))
-     :cljs
-     (and (satisfies? ISearch x)
-       (satisfies? IIndexAccess x)
-       (satisfies? IDB x))))
+  (and (satisfies? ISearch x)
+    (satisfies? IIndexAccess x)
+    (satisfies? IDB x)))
 
 ;; ----------------------------------------------------------------------------
 (defrecord-updatable FilteredDB [unfiltered-db pred hash]

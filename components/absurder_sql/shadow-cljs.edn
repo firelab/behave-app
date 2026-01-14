@@ -3,9 +3,9 @@
  :dependencies [[cider/cider-nrepl "0.55.7"]
                 [refactor-nrepl "3.11.0"]
                 [funcool/promesa "11.0.678"]
-                [datascript/datascript "1.5.3"]
                 [persistent-sorted-set "0.3.0"]
-                [org.clojure/core.async "1.8.741"]]
+                [org.clojure/core.async "1.8.741"]
+                [io.github.tonsky/extend-clj "0.1.0"]]
  :dev-http     {8021 "target/test"}
  :nrepl        {:port       9000
                 :middleware [cider.nrepl/cider-middleware]}

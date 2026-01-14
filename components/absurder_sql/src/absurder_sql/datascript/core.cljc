@@ -464,11 +464,10 @@
    If you specify `:storage` option, conn will be stored automatically after each transaction"
   conn/create-conn)
 
-#?(:clj
-   (def ^{:arglists '([storage] [storage opts])} restore-conn
-     "Lazy-load database from storage and make conn out of it.
-      Returns nil if there’s no database yet in storage"
-     conn/restore-conn))
+(def ^{:arglists '([storage] [storage opts])} restore-conn
+  "Lazy-load database from storage and make conn out of it.
+   Returns nil if there’s no database yet in storage"
+  conn/restore-conn)
 
 (def ^{:arglists '([conn tx-data] [conn tx-data tx-meta])} transact!
   "Applies transaction the underlying database value and atomically updates connection reference to point to the result of that transaction, new db value.
@@ -688,38 +687,33 @@
 
 
 ;; Storage
-#?(:clj
-   (def ^{:arglists '([db])} storage
-     "Returns IStorage used by DB instance"
-     storage/storage))
+(def ^{:arglists '([db])} storage
+  "Returns IStorage used by DB instance"
+  storage/storage)
 
-#?(:clj
-   (def ^{:arglists '([db] [db storage])} store
-     "Stores databases to provided storage. If database was created
+(def ^{:arglists '([db] [db storage])} store
+  "Stores databases to provided storage. If database was created
       with :storage option or restored from storage, use single-argument version.
       
       Subsequent stores are incremental, i.e. only newly added nodes will be actually stored.
       
       Storing already stored dbs into another storage is not supported (may change)."
-     storage/store))
+  storage/store)
 
-#?(:clj 
-   (def ^{:arglists '([storage] [storage opts])} restore
-     "Lazy-loads database from storage. Ultra-fast, fetches the rest as it’s needed"
-     storage/restore))
+(def ^{:arglists '([storage] [storage opts])} restore
+  "Lazy-loads database from storage. Ultra-fast, fetches the rest as it’s needed"
+  storage/restore)
 
-#?(:clj
-   (defn addresses
-     "Returns all addresses in use by current db (as java.util.HashSet).
+(defn addresses
+  "Returns all addresses in use by current db (as java.util.HashSet).
       Anything that is not in the return set is safe to be deleted"
-     [& dbs]
-     (storage/addresses dbs)))
+  [& dbs]
+  (storage/addresses dbs))
 
-#?(:clj
-   (def ^{:arglists '([storage])} collect-garbage
-     "Deletes all keys from storage that are not referenced by any of the currently alive db refs.
+(def ^{:arglists '([storage])} collect-garbage
+  "Deletes all keys from storage that are not referenced by any of the currently alive db refs.
       Has a side-effect of fully loading databases fully into memory, so, can be slow"
-     storage/collect-garbage))
+  storage/collect-garbage)
 
 #?(:clj
    (def ^{:arglists '([dir] [dir opts])} file-storage

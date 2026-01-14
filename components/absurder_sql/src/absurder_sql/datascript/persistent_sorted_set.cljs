@@ -2,10 +2,10 @@
       :doc "A B-tree based persistent sorted set. Supports transients, custom comparators, fast iteration, efficient slices (iterator over a part of the set) and reverse slices. Almost a drop-in replacement for [[clojure.core/sorted-set]], the only difference being this one can't store nil.
 
       ClojureScript wrapper for the JavaScript implementation."}
-  absurder-sql.datascript.persistent-sorted-set
+ absurder-sql.datascript.persistent-sorted-set
   (:refer-clojure :exclude [conj disj sorted-set sorted-set-by])
   (:require
-    ["../../persistent-sorted-set-js/index.js" :as pss-js]))
+   ["../../persistent_sorted_set_js/index.min" :refer [PersistentSortedSet RefType Seq Settings]]))
 
 ;; JavaScript interop helpers
 (defn- js-comparator
@@ -53,7 +53,7 @@
                    :soft   "SOFT"
                    :weak   "WEAK"
                    nil)]
-    (new pss-js/Settings branching-factor ref-type)))
+    (new Settings branching-factor ref-type)))
 
 (defn- settings->clj
   "Convert JavaScript Settings object to Clojure map"
@@ -122,7 +122,7 @@
          js-arr     (if (array? keys) keys (to-array keys))
          settings   (settings->js opts)
          storage    (adapt-storage (:storage opts))]
-     (pss-js/PersistentSortedSet.from js-arr js-cmp))))
+     (PersistentSortedSet.from js-arr js-cmp))))
 
 (defn from-sequential
   "Create a set with custom comparator and a collection of keys. Useful when you don't want to call [[clojure.core/apply]] on [[sorted-set-by]]."
@@ -134,7 +134,7 @@
          _        (.sort arr js-cmp)
          settings (settings->js opts)
          storage  (adapt-storage (:storage opts))]
-     (pss-js/PersistentSortedSet.from arr js-cmp))))
+     (PersistentSortedSet.from arr js-cmp))))
 
 (defn sorted-set*
   "Create a set with custom comparator, metadata and settings"
@@ -142,19 +142,19 @@
   (let [js-cmp   (js-comparator (or (:cmp opts) compare))
         storage  (adapt-storage (:storage opts))
         settings (settings->js opts)]
-    (new pss-js/PersistentSortedSet js-cmp storage settings)))
+    (new PersistentSortedSet js-cmp storage settings)))
 
 (defn sorted-set-by
   "Create a set with custom comparator."
   ([cmp]
-   (pss-js/PersistentSortedSet.empty (js-comparator cmp)))
+   (PersistentSortedSet.empty (js-comparator cmp)))
   ([cmp & keys]
    (from-sequential cmp keys)))
 
 (defn sorted-set
   "Create a set with default comparator."
   ([]
-   (pss-js/PersistentSortedSet.empty))
+   (PersistentSortedSet.empty))
   ([& keys]
    (from-sequential compare keys)))
 
@@ -168,7 +168,7 @@
    (let [js-cmp   (js-comparator cmp)
          js-storage (adapt-storage storage)
          settings (settings->js opts)]
-     (new pss-js/PersistentSortedSet js-cmp js-storage settings address nil -1 0))))
+     (new PersistentSortedSet js-cmp js-storage settings address nil -1 0))))
 
 (defn restore
   "Constructs lazily-loaded set from storage and root address.
@@ -201,7 +201,7 @@
   (settings->clj (.-_settings set)))
 
 ;; Extend JavaScript PersistentSortedSet to implement Clojure protocols
-(extend-type pss-js/PersistentSortedSet
+(extend-type PersistentSortedSet
   ISeqable
   (-seq [this]
     (let [js-seq (.seq this)]
@@ -241,12 +241,12 @@
 
   IEquiv
   (-equiv [this other]
-    (if (instance? pss-js/PersistentSortedSet other)
+    (if (instance? PersistentSortedSet other)
       (.equals this other)
       (and
-        (set? other)
-        (= (.count this) (count other))
-        (every? #(.contains this %) other))))
+       (set? other)
+       (= (.count this) (count other))
+       (every? #(.contains this %) other))))
 
   IHash
   (-hash [this]
@@ -259,8 +259,8 @@
       (-write writer (pr-str (vec arr))))))
 
 ;; Extend JavaScript Seq to implement Clojure protocols
-(when pss-js/Seq
-  (extend-type pss-js/Seq
+(when Seq
+  (extend-type Seq
     ISeqable
     (-seq [this] this)
 
@@ -299,7 +299,4 @@
       (let [arr (.toArray this)]
         (-write writer (pr-str (vec arr)))))))
 
-;; Export the JavaScript classes for direct use
-(def PersistentSortedSet pss-js/PersistentSortedSet)
-(def Settings pss-js/Settings)
-(def RefType pss-js/RefType)
+;; Note: PersistentSortedSet, Settings, and RefType are already imported and available

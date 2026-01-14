@@ -18,15 +18,16 @@ export class Leaf extends ANode {
   constructor(len, keys, settings) {
     if (Array.isArray(keys) && keys.length >= len) {
       super(len, keys, settings);
-    } else if (typeof keys === 'number') {
+    } else if (typeof keys === 'object') {
       // Constructor overload: Leaf(len, settings)
       const actualSettings = settings || keys;
       const newLen = ANode.newLen(len, actualSettings);
       super(len, new Array(newLen), actualSettings);
-    } else if (Array.isArray(keys)) {
+    } else if (Array.isArray(len)) {
       // Constructor overload: Leaf(keys[], settings)
-      const actualSettings = settings;
-      super(keys.length, Array.from(keys), actualSettings);
+      const actualKeys = len;
+      const actualSettings = settings || keys;
+      super(actualKeys.length, Array.from(actualKeys), actualSettings);
     } else {
       throw new Error('Invalid Leaf constructor arguments');
     }

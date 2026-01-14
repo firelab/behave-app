@@ -170,6 +170,7 @@ export class ANode {
 
   /**
    * Restore node from keys/addresses
+   * NOTE: Implementation moved to NodeFactory to avoid circular dependencies
    * @param {number} level - Node level (0 for leaf)
    * @param {Array} keys - Keys array
    * @param {Array} addresses - Addresses array (for branch nodes)
@@ -177,15 +178,7 @@ export class ANode {
    * @returns {ANode} Restored node
    */
   static restore(level, keys, addresses, settings) {
-    // Import dynamically to avoid circular dependency
-    const { Leaf } = require('./Leaf.js');
-    const { Branch } = require('./Branch.js');
-
-    if (level === 0) {
-      return new Leaf(keys.length, keys, settings);
-    } else {
-      return new Branch(level, keys.length, keys, addresses, null, settings);
-    }
+    throw new Error('Use NodeFactory.restore() instead');
   }
 
   // Abstract methods to be implemented by subclasses

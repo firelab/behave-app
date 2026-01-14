@@ -3,7 +3,7 @@
     [cljs.reader :as reader]
     [datascript.db :as db]
     [datascript.util :as util]
-    ["../../persistent-sorted-set-js/index.js" :as pss]))
+    ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
 
 (defprotocol IStorage
   :extend-via-metadata true
@@ -50,8 +50,8 @@
     (let [{:keys [level keys addresses]} (-restore storage addr)
           keys' (to-array (map (fn [[e a v tx]] (db/datom e a v tx)) keys))]
       (if addresses
-        (pss/Branch. level (count keys') keys' (to-array addresses) nil settings)
-        (pss/Leaf. (count keys') keys' settings))))
+        (Branch. level (count keys') keys' (to-array addresses) nil settings)
+        (Leaf. (count keys') keys' settings))))
 
   (store [_ node]
     (let [addr (gen-addr)
@@ -59,7 +59,7 @@
           keys (mapv serializable-datom (.keys node))
           data (cond-> {:level (.level node)
                         :keys  keys}
-                 (instance? pss/Branch node)
+                 (instance? Branch node)
                  (assoc :addresses (vec (.addresses node))))]
       (vswap! *store-buffer* conj! [addr data])
       addr))
@@ -70,8 +70,8 @@
 
 (defn make-storage-adapter [storage opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) pss/RefType.WEAK)
-        settings (pss/Settings. branching-factor ref-type nil)]
+        ref-type (or (:ref-type opts) RefType.WEAK)
+        settings (Settings. branching-factor ref-type nil)]
     (StorageAdapter. storage settings)))
 
 (defn maybe-adapt-storage [opts]
@@ -92,7 +92,7 @@
   #js [])
 
 (defn- remember-db [db]
-  (.push stored-dbs (js/WeakRef. db)))
+ (.push stored-dbs (js/WeakRef. db)))
 
 ;; Helper to store a sorted set
 (defn- store-set [set adapter]
@@ -148,9 +148,9 @@
 ;; Helper to restore a sorted set by address
 (defn- restore-set-by [cmp addr adapter opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) pss/RefType.WEAK)
-        settings (pss/Settings. branching-factor ref-type nil)]
-    (pss/PersistentSortedSet. cmp adapter settings addr nil -1 0)))
+        ref-type (or (:ref-type opts) RefType.WEAK)
+        settings (Settings. branching-factor ref-type nil)]
+    (PersistentSortedSet. cmp adapter settings addr nil -1 0)))
 
 (defn restore-impl [storage opts]
   ;; Note: locking not available in JS

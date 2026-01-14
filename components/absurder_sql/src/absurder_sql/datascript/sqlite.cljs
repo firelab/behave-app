@@ -102,19 +102,19 @@
      (sql/execute! conn (:ddl opts))
      (with-meta
        {:conn conn :db-name (:db-name opts)}
-       {'datascript.storage/-store
+       {'absurder-sql.datascript.storage/-store
         (fn [_ addr+data-seq]
           (store-impl conn opts addr+data-seq))
         
-        'datascript.storage/-restore
+        'absurder-sql.datascript.storage/-restore
         (fn [_ addr]
           (restore-impl conn opts addr))
         
-        'datascript.storage/-list-addresses
+        'absurder-sql.datascript.storage/-list-addresses
         (fn [_]
           (list-impl conn opts))
         
-        'datascript.storage/-delete
+        'absurder-sql.datascript.storage/-delete
         (fn [_ addr-seq]
           (delete-impl conn opts addr-seq))}))))
 
@@ -142,8 +142,6 @@
       (reset! datascript-conn (d/conn-from-db @datascript-db)))))
 
 (comment
-
-
   (def schema {:aka {:db/cardinality :db.cardinality/many}})
   (init! [] schema "ds-first.db")
 
@@ -154,10 +152,5 @@
                        :name   "Maksim"
                        :age    45
                        :aka    ["Max Otto von Stierlitz", "Jack Ryan"] } ])
-
-  @datascript-db
-  (d/transact [])
-
-  (db/)
 
 )

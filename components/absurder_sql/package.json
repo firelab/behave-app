@@ -1,0 +1,22 @@
+{
+  "name": "absurder-sql",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-cljs-test": "^0.1.0",
+    "karma-junit-reporter": "^2.0.1",
+    "shadow-cljs": "2.20.5"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
+    "@npiesco/absurder-sql": "^0.1.23",
+    "babel-cli": "^6.26.0"
+  },
+  "scripts": {
+    "test:karma": "bun run shadow-cljs compile test && bun karma start --log-level debug",
+    "compile:pss": "rm -rf build && bun build.ts && cp ./build/* ./src/persistent_sorted_set_js/"
+  }
+}

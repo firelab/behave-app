@@ -32,7 +32,7 @@ export class PersistentSortedSet {
     this._storage = storage;
     this._settings = settings || new Settings();
     this._address = address;
-    this._root = root || this._settings.makeReference(new Leaf(0, this._settings));
+    this._root = root || new Leaf(0, this._settings);
     this._count = count;
     this._version = version;
     this._hash = 0;
@@ -477,7 +477,6 @@ export class PersistentSortedSet {
   }
 
   /**
-   * Store this set to storage backend
    * @param {IStorage} storage - Optional storage (uses existing if not provided)
    * @returns {*} Address where stored
    */
