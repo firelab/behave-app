@@ -6,7 +6,7 @@
     [absurder-sql.datascript.db :as db #?@(:cljs [:refer [Datom DB FilteredDB]])]
     #?(:clj [absurder-sql.datascript.pprint])
     [absurder-sql.datascript.pull-api :as dp]
-    [absurder-sql.datascript.serialize :as ds]
+    #_[absurder-sql.datascript.serialize :as ds]
     [#?(:clj absurder-sql.datascript.storage :cljs absurder-sql.datascript.storage) :as storage]
     [absurder-sql.datascript.query :as dq]
     [absurder-sql.datascript.impl.entity :as de]
@@ -204,7 +204,7 @@
   ([datoms schema opts]
    (db/init-db datoms schema (storage/maybe-adapt-storage opts))))
 
-(def ^{:arglists '([db] [db opts])
+#_(def ^{:arglists '([db] [db opts])
        :doc "Converts db into a data structure (not string!) that can be fed to serializer
              of your choice (e.g. `js/JSON.stringify` in CLJS, `cheshire.core/generate-string`
              or `jsonista.core/write-value-as-string` in CLJ).
@@ -218,7 +218,7 @@
              `pr-str` by default."}
   serializable ds/serializable)
 
-(def ^{:tag DB
+#_(def ^{:tag DB
        :arglists '([serializable] [serializable opts])
        :doc "Creates db from a data structure (not string!) produced by serializable.
 

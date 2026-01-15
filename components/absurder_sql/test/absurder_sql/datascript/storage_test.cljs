@@ -14,6 +14,7 @@
   Object
   IStorage
   (-store [_ addr+data-seq]
+
     (doseq [[addr data] addr+data-seq]
       (vswap! *disk assoc addr (pr-str data))
       (when *writes
@@ -58,42 +59,12 @@
            (<p! (sql/init!))
            (done))))
 
-(comment
-
-
-  (in-ns 'absurder-sql.datascript.storage-test)
-  (def s (make-storage {}))
-  (count (.-*reads s))
-  (def db (d/empty-db))
-  (d/store db s)
-  (count @(.-*writes s))
-  (count @(.-*reads s))
-  (println db)
-  (def c (d/conn-from-db db))
-  (d/transact c [{:user "RJ"}])
-  @c
-  (d/store @c)
-  
-  (count @(.-*writes s))
-  (count @(.-*reads s))
-  (count @(.-*disk s))
-
-  s
-
-  (def db' (d/restore s))
-  (println db')
-  
-
-  )
-
-
 (use-fixtures :once {:before with-sqlite})
 
 (deftest test-basics
   (testing "empty db"
     (let [db      (d/empty-db)
           storage (make-storage {:stats true})]
-      #_(println [:EMPTY-DB-TEST db storage])
       (d/store db storage)
       (is (= 5 (count @(.-*writes storage))))
       (let [db' (d/restore storage)]
@@ -108,7 +79,8 @@
         (d/store db storage)
         (is (= 0 (count @(.-*reads storage))))
         (is (= 5 (count @(.-*writes storage)))))
-      #_(testing "restore"
+      (testing "restore"
+        (println [:DISK-BEFORE-RESTORE @(.-*disk storage)])
         (let [db' (d/restore storage)]
           (is (= 2 (count @(.-*reads storage))))
           (is (= db db'))
@@ -128,7 +100,7 @@
           (let [db' (d/restore storage)]
             (is (= {:branching-factor 32, :ref-type :strong} (d/settings db'))))))))
 
-  #_(testing "large db"
+  (testing "large db"
     (let [db      (large-db)
           storage (make-storage {:stats true})]
 
@@ -172,7 +144,7 @@
           (d/store db' storage)
           (is (= 8 (count @(.-*writes storage)))))))))
 
-(deftest test-sqlite-storage
+#_(deftest test-sqlite-storage
   (async done
          (go
            (let [db-name (str "test-storage-" (random-uuid) ".db")

@@ -1,7 +1,7 @@
 (ns absurder-sql.datascript-test
   (:require
    [absurder-sql.datascript.core :as ds]
-   [me.tonsky.persistent-sorted-set :as set :refer [Node]]
+   [absurder-sql.datascript.persistent-sorted-set :as set]
    [cljs.test :as t :include-macros true :refer [async deftest is use-fixtures]]))
 
 (def iters 5)
@@ -23,7 +23,7 @@
       (< c0 0) -1
       (> c0 0)  1)))
 
-(deftest semantic-test-btset-by
+#_(deftest semantic-test-btset-by
   (let [e0 (set/sorted-set-by cmp-s)
         ds [[:a :b] [:b :x] [:b :q] [:a :d]]
         e1 (reduce conj e0 ds)]

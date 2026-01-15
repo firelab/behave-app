@@ -4,7 +4,7 @@
     [absurder-sql.datascript.db :as db]
 
     [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
-    [absurder-sql.datascript.storage-async :refer [make-async-storage-adapter]]
+    #_[absurder-sql.datascript.storage-async :refer [make-async-storage-adapter]]
     [absurder-sql.datascript.util :as util]
 
     ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
@@ -46,9 +46,17 @@
   (vswap! *max-addr inc))
 
 (deftype StorageAdapter [^IStorage storage settings]
-  Object
   IPersistentSortedSetStorage
+  (restore [this addr]
+    (.restore this addr))
 
+  (store [this node]
+    (.store this node))
+
+  (accessed [this addr]
+    (.accessed this addr))
+
+  Object
   (restore [_ addr]
     (util/log "restore" addr)
     (let [{:keys [level keys addresses]} (proto/-restore storage addr)
@@ -170,6 +178,7 @@
           _       (vswap! *max-addr max max-addr)
           opts    (merge root opts)
           adapter (make-storage-adapter storage opts)
+          _       (println [:RESTORED root tail])
           db      (db/restore-db
                     {:schema  schema
                      :eavt    (restore-set-by db/cmp-datoms-eavt eavt adapter opts)

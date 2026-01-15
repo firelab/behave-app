@@ -6,6 +6,7 @@ import { Leaf } from './Leaf.js';
  * Sequence iterator for PersistentSortedSet
  * Supports forward and reverse iteration with range limits
  */
+
 export class Seq {
   /**
    * @param {Seq|null} prev - Previous sequence in parent stack
@@ -41,7 +42,9 @@ export class Seq {
    * @returns {ANode} Child node
    */
   child() {
-    return this._parent.node.child(this._set._storage, this._idx);
+    if (this._node instanceof Branch) {
+      return this._node.child(this._set._storage, this._idx);
+    }
   }
 
   /**
@@ -61,8 +64,8 @@ export class Seq {
     if (this._keyTo == null) {
       return false;
     }
-    const c = this._cmp(this._node._keys[this._idx], this._keyTo);
-    return this._asc ? c > 0 : c < 0;
+    const d = this._cmp(this.first(), this._keyTo);
+    return this._asc ? d > 0 : d < 0;
   }
 
   /**
@@ -72,86 +75,34 @@ export class Seq {
   advance() {
     this.checkVersion();
 
-    if (this._node instanceof Leaf) {
-      // Advance in leaf
-      if (this._asc) {
+    if (this._asc) {
+      if (this._idx < this._node._len - 1) {
         this._idx++;
-        if (this._idx < this._node._len) {
+        return !this.over();
+      } else if (this._parent != null) {
+        const parent = this._parent;
+        this._parent = parent.next();
+        if (this._parent != null) {
+          this._node = this._parent.child();
+          this._idx = 0;
           return !this.over();
         }
-      } else {
+      }
+    } else { // !_asc
+      if (this._idx > 0) {
         this._idx--;
-        if (this._idx >= 0) {
+        return !this.over();
+      } else if (this._parent != null) {
+        const parent = _parent;
+        this._parent = parent.next();
+        if (_parent != null) {
+          this._node = this._parent.child();
+          this._idx = this._node._len - 1;
           return !this.over();
         }
       }
-
-      // Move up to parent
-      if (this._parent == null) {
-        return false;
-      }
-
-      const parent = this._parent;
-      this._node = parent._node;
-      this._idx = parent._idx;
-      this._parent = parent._parent;
-
-      return this.advance();
-    } else {
-      // Branch node - descend to next child
-      if (this._asc) {
-        this._idx++;
-      } else {
-        this._idx--;
-      }
-
-      if (this._asc && this._idx >= this._node._len) {
-        // Past end of branch
-        if (this._parent == null) {
-          return false;
-        }
-
-        const parent = this._parent;
-        this._node = parent._node;
-        this._idx = parent._idx;
-        this._parent = parent._parent;
-
-        return this.advance();
-      }
-
-      if (!this._asc && this._idx < 0) {
-        // Before start of branch
-        if (this._parent == null) {
-          return false;
-        }
-
-        const parent = this._parent;
-        this._node = parent._node;
-        this._idx = parent._idx;
-        this._parent = parent._parent;
-
-        return this.advance();
-      }
-
-      // Descend to leaf
-      let node = this.child();
-      const parent = new Seq(null, this._set, this._parent, this._node, this._idx, null, null, this._asc, this._version);
-
-      while (node instanceof Branch) {
-        const idx = this._asc ? 0 : node._len - 1;
-        const seq = new Seq(null, this._set, parent, node, idx, null, null, this._asc, this._version);
-        node = seq.child();
-        parent._node = seq._node;
-        parent._idx = seq._idx;
-        parent._parent = seq._parent;
-      }
-
-      this._node = node;
-      this._idx = this._asc ? 0 : node._len - 1;
-      this._parent = parent;
-
-      return !this.over();
     }
+    return false;
   }
 
   /**
@@ -159,7 +110,84 @@ export class Seq {
    * @returns {Seq|null} Next sequence or null if at end
    */
   next() {
-    const seq = new Seq(
+    const seq = this.clone();
+
+    if (seq.advance()) {
+      return seq;
+    }
+
+    return null;
+  }
+
+  /**
+   * Seek to a specific key
+   * @param {*} to - Key to seek to
+   * @param {Function} cmp - Comparator function
+   * @returns {Seq|null} Sequence at key or null if not found
+   */
+  seek(to, cmp = null) {
+    if (to == null) throw new Error("seek can't be called with a nil key!");
+
+    cmp = cmp || this._cmp;
+    let seq = this._parent;
+    let node = this._node;
+
+    if (this._asc) {
+
+      while (node != null && cmp(node.maxKey(), to) < 0) {
+        if (seq == null) {
+          return null;
+        } else {
+          node = seq._node;
+          seq = seq._parent;
+        }
+      }
+
+      while (true) {
+        let idx = node.searchFirst(to, cmp);
+        if (idx < 0)
+          idx = -idx - 1;
+        if (idx == node._len)
+          return null;
+        if (node instanceof Branch) {
+          seq = new Seq(null, this._set, seq, node, idx, null, null, true, _version);
+          node = seq.child();
+        } else { // Leaf
+          seq = new Seq(null, this._set, seq, node, idx, this._keyTo, cmp, true, _version);
+          return seq.over() ? null : seq;
+        }
+      }
+
+    } else {
+
+      // NOTE: We can't shortcircuit here as we don't know the minKey. Might go up one level too high.
+      while (cmp.compare(to, node.minKey()) < 0 && seq != null){
+        node = seq._node;
+        seq = seq._parent;
+      }
+
+      while (true) {
+        if (node instanceof Branch) {
+          let idx = node.searchLast(to, cmp) + 1;
+          if (idx == node._len) --idx; // last or beyond, clamp to last
+          seq = new Seq(null, this._set, seq, node, idx, null, null, false, _version);
+          node = seq.child();
+        } else { // Leaf
+          let idx = node.searchLast(to, cmp);
+          if (idx == -1) { // not in this, so definitely in prev
+            seq = new Seq(null, this._set, seq, node, 0, this._keyTo, cmp, false, _version);
+            return seq.advance() ? seq : null;
+          } else { // exact match
+            seq = new Seq(null, this._set, seq, node, idx, this._keyTo, cmp, false, _version);
+            return seq.over() ? null : seq;
+          }
+        }
+      }
+    }
+  }
+
+  clone() {
+    return new Seq(
       this._prev,
       this._set,
       this._parent,
@@ -170,37 +198,6 @@ export class Seq {
       this._asc,
       this._version
     );
-
-    if (seq.advance()) {
-      return seq;
-    }
-    return null;
-  }
-
-  /**
-   * Seek to a specific key
-   * @param {*} to - Key to seek to
-   * @param {Function} cmp - Comparator function
-   * @returns {Seq|null} Sequence at key or null if not found
-   */
-  seek(to, cmp) {
-    // Implementation would be similar to slice() in PersistentSortedSet
-    // For simplicity, we'll iterate until we find it
-    let seq = this;
-    while (seq != null) {
-      const c = cmp(seq.first(), to);
-      if (c === 0) {
-        return seq;
-      }
-      if (this._asc && c > 0) {
-        return null;
-      }
-      if (!this._asc && c < 0) {
-        return null;
-      }
-      seq = seq.next();
-    }
-    return null;
   }
 
   /**
@@ -209,12 +206,13 @@ export class Seq {
    * @param {*} start - Initial value
    * @returns {*} Final value
    */
-  reduce(f, start) {
-    let ret = start;
-    let seq = this;
-    while (seq != null) {
-      ret = f(ret, seq.first());
-      seq = seq.next();
+  reduce(f, start = null) {
+    this.checkVersion();
+
+    let clone = this.clone()
+    let ret = start || clone.first();
+    while (clone.advance()) {
+      ret = f(ret, clone.first());
     }
     return ret;
   }

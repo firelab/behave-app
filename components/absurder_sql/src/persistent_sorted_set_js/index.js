@@ -1,4 +1,4 @@
-**
+/**
  * Persistent Sorted Set - JavaScript Port
  *
  * A fast B-tree based persistent sorted set implementation.

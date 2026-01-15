@@ -71,6 +71,8 @@ var sqlite = {
 // Persistent Sorted Set externs
 var PersistentSortedSet = function() {};
 PersistentSortedSet.empty = function() {};
+PersistentSortedSet.withComparator = function() {};
+PersistentSortedSet.withComparatorAndStorage = function() {};
 PersistentSortedSet.from = function() {};
 PersistentSortedSet.EARLY_EXIT = [];
 PersistentSortedSet.UNCHANGED = [];

@@ -6,7 +6,7 @@
   (:refer-clojure :exclude [conj disj sorted-set sorted-set-by])
   (:require
    [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
-   ["../../persistent_sorted_set_js/index.min" :refer [PersistentSortedSet RefType Seq Settings]]))
+   ["../../persistent_sorted_set_js/index.min" :as pss :refer [PersistentSortedSet RefType Seq Settings]]))
 
 ;; JavaScript interop helpers
 (defn- js-comparator
@@ -32,8 +32,8 @@
 
 ;; Wrapper to adapt Clojure IStorage to JavaScript IStorage
 (deftype StorageAdapter [^IStorage storage]
-  Object
   IPersistentSortedSetStorage
+  Object
   (restore [_ address]
     (proto/-restore storage address))
   (store [_ node]
@@ -124,7 +124,7 @@
          js-arr     (if (array? keys) keys (to-array keys))
          settings   (settings->js opts)
          storage    (adapt-storage (:storage opts))]
-     (PersistentSortedSet.from js-arr js-cmp))))
+     (.from PersistentSortedSet js-arr js-cmp))))
 
 (defn from-sequential
   "Create a set with custom comparator and a collection of keys. Useful when you don't want to call [[clojure.core/apply]] on [[sorted-set-by]]."
@@ -136,7 +136,7 @@
          _        (.sort arr js-cmp)
          settings (settings->js opts)
          storage  (adapt-storage (:storage opts))]
-     (PersistentSortedSet.from arr js-cmp))))
+     (.from PersistentSortedSet arr js-cmp))))
 
 (defn sorted-set*
   "Create a set with custom comparator, metadata and settings"
@@ -144,19 +144,19 @@
   (let [js-cmp   (js-comparator (or (:cmp opts) compare))
         storage  (adapt-storage (:storage opts))
         settings (settings->js opts)]
-    (new PersistentSortedSet js-cmp storage settings)))
+    (.withComparatorAndStorage PersistentSortedSet js-cmp storage settings)))
 
 (defn sorted-set-by
   "Create a set with custom comparator."
   ([cmp]
-   (PersistentSortedSet.empty (js-comparator cmp)))
+   (.empty PersistentSortedSet (js-comparator cmp)))
   ([cmp & keys]
    (from-sequential cmp keys)))
 
 (defn sorted-set
   "Create a set with default comparator."
   ([]
-   (PersistentSortedSet.empty))
+   (.empty PersistentSortedSet))
   ([& keys]
    (from-sequential compare keys)))
 
@@ -170,7 +170,7 @@
    (let [js-cmp   (js-comparator cmp)
          js-storage (adapt-storage storage)
          settings (settings->js opts)]
-     (new PersistentSortedSet js-cmp js-storage settings address nil -1 0))))
+     (PersistentSortedSet. js-cmp js-storage settings address nil -1 0))))
 
 (defn restore
   "Constructs lazily-loaded set from storage and root address.

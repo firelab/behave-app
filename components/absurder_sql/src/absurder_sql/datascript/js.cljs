@@ -6,7 +6,7 @@
     [clojure.walk :as walk]
     [absurder-sql.datascript.conn :as conn]
     [absurder-sql.datascript.core :as d]
-    [absurder-sql.datascript.serialize :as serialize]))
+    #_[absurder-sql.datascript.serialize :as serialize]))
 
 ;; Conversions
 
@@ -81,8 +81,8 @@
 (defn ^:export init_db [datoms & [schema]]
   (d/init-db (map js->Datom datoms) (schema->clj schema)))
 
-(def ^:export serializable #(serialize/serializable % {:freeze-kw identity}))
-(def ^:export from_serializable #(serialize/from-serializable % {:thaw-kw identity}))
+#_(def ^:export serializable #(serialize/serializable % {:freeze-kw identity}))
+#_(def ^:export from_serializable #(serialize/from-serializable % {:thaw-kw identity}))
 
 (defn ^:export q [query & sources]
   (let [query   (cljs.reader/read-string query)

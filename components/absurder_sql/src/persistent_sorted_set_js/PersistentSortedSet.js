@@ -32,10 +32,32 @@ export class PersistentSortedSet {
     this._storage = storage;
     this._settings = settings || new Settings();
     this._address = address;
-    this._root = root || new Leaf(0, this._settings);
+    this._root = root;
     this._count = count;
     this._version = version;
     this._hash = 0;
+  }
+
+
+  /**
+   * Create an sorted set with comparator and storage
+   * @param {Function} cmp - Optional comparator function
+   * @param {IStorage} storage - Optional storage backend
+   * @param {Settings} settings - Configuration settings
+   * @returns {PersistentSortedSet} Empty set
+   */
+  static withComparatorAndStorage(cmp, storage, settings = null) {
+    let theSettings = settings || new Settings();
+    return new PersistentSortedSet(cmp, null, theSettings, null, new Leaf(0, theSettings));
+  }
+
+  /**
+   * Create an sorted set with comparator
+   * @param {Function} cmp - Optional comparator function
+   * @returns {PersistentSortedSet} Empty set
+   */
+  static withComparator(cmp) {
+    return this.withComparatorAndStorage(cmp, null, new Settings())
   }
 
   /**
@@ -44,7 +66,7 @@ export class PersistentSortedSet {
    * @returns {PersistentSortedSet} Empty set
    */
   static empty(cmp = null) {
-    return new PersistentSortedSet(cmp);
+    return this.withComparator(cmp);
   }
 
   /**

@@ -4,6 +4,7 @@
     [clojure.edn :as edn]
     [clojure.string :as str]
     [absurder-sql.datascript.db :as db #?@(:cljs [:refer [Datom]])]
+    [absurder-sql.datascript.protocols :as proto :refer [IStorage]]
     [absurder-sql.datascript.storage :as storage]
     [absurder-sql.datascript.util :as util]
     [me.tonsky.persistent-sorted-set :as set]
