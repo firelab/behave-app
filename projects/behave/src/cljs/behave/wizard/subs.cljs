@@ -415,7 +415,8 @@
    (let [notes (:worksheet/notes worksheet)]
      (cond->> notes
        submodule-uuid (filter (fn [{s-uuid :note/submodule}]
-                                (= s-uuid submodule-uuid)))
+                                (or (= s-uuid submodule-uuid)
+                                    (nil? s-uuid))))
        :always        (map (fn resolve-uuid [{id      :db/id
                                               name    :note/name
                                               content :note/content
