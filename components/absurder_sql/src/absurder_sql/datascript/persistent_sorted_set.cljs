@@ -6,6 +6,7 @@
   (:refer-clojure :exclude [conj disj sorted-set sorted-set-by])
   (:require
    [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
+   [absurder-sql.datascript.storage   :refer [make-storage-adapter]]
    ["../../persistent_sorted_set_js/index.min" :as pss :refer [PersistentSortedSet RefType Seq Settings]]))
 
 ;; JavaScript interop helpers
@@ -19,42 +20,16 @@
         (pos? result) 1
         :else 0))))
 
-(defn- clj-comparator
-  "Convert JavaScript comparator to Clojure comparator"
-  [js-cmp]
-  (fn [a b]
-    (js-cmp a b)))
-
-;; Storage protocol matching the Java IStorage interface
-#_(defprotocol IStorage
-  (-restore [this address] "Load node from storage by address")
-  (-store [this node] "Store node to storage, return address"))
-
-;; Wrapper to adapt Clojure IStorage to JavaScript IStorage
-(deftype StorageAdapter [^IStorage storage]
-  IPersistentSortedSetStorage
-  Object
-  (restore [_ address]
-    (proto/-restore storage address))
-  (store [_ node]
-    (proto/-store storage node)))
-
-(defn- adapt-storage
-  "Adapt Clojure storage to JavaScript storage"
-  [^IStorage storage]
-  (when storage
-    (StorageAdapter. storage)))
-
 ;; Settings
 (defn- settings->js
   "Convert Clojure settings map to JavaScript Settings object"
   [opts]
-  (let [branching-factor (or (:branching-factor opts) 0)
+  (let [branching-factor (or (:branching-factor opts) 512)
         ref-type (case (:ref-type opts)
-                   :strong "STRONG"
-                   :soft   "SOFT"
-                   :weak   "WEAK"
-                   nil)]
+                   :strong RefType.STRONG
+                   :soft   RefType.SOFT
+                   :weak   RefType.WEAK
+                   RefType.STRONG)]
     (new Settings branching-factor ref-type)))
 
 (defn- settings->clj
@@ -62,20 +37,20 @@
   [^js settings]
   {:branching-factor (.branchingFactor settings)
    :ref-type         (case (.refType settings)
-                       "STRONG" :strong
-                       "SOFT"   :soft
-                       "WEAK"   :weak)})
+                       RefType.STRONG :strong
+                       RefType.SOFT   :soft
+                       RefType.WEAK   :weak)})
 
 ;; Main API functions
 (defn conj
   "Analogue to [[clojure.core/conj]] but with comparator that overrides the one stored in set."
-  [set key cmp]
+  [^PersistentSortedSetStorage set key cmp]
   (let [js-cmp (js-comparator cmp)]
     (.conj set key js-cmp)))
 
 (defn disj
   "Analogue to [[clojure.core/disj]] with comparator that overrides the one stored in set."
-  [set key cmp]
+  [^PersistentSortedSetStorage set key cmp]
   (let [js-cmp (js-comparator cmp)]
     (.disj set key js-cmp)))
 
@@ -84,9 +59,9 @@
    `(slice set from to)` returns iterator for all Xs where from <= X <= to.
    `(slice set from nil)` returns iterator for all Xs where X >= from.
    Optionally pass in comparator that will override the one that set uses. Supports efficient [[clojure.core/rseq]]."
-  ([set from to]
+  ([^PersistentSortedSetStorage set from to]
    (.slice set from to))
-  ([set from to cmp]
+  ([^PersistentSortedSetStorage set from to cmp]
    (let [js-cmp (js-comparator cmp)]
      (.slice set from to js-cmp))))
 
@@ -95,9 +70,9 @@
    `(rslice set from to)` returns backwards iterator for all Xs where from <= X <= to.
    `(rslice set from nil)` returns backwards iterator for all Xs where X <= from.
    Optionally pass in comparator that will override the one that set uses. Supports efficient [[clojure.core/rseq]]."
-  ([set from to]
+  ([^PersistentSortedSetStorage set from to]
    (.rslice set from to))
-  ([set from to cmp]
+  ([^PersistentSortedSetStorage set from to cmp]
    (let [js-cmp (js-comparator cmp)]
      (.rslice set from to js-cmp))))
 
@@ -105,10 +80,10 @@
   "An efficient way to seek to a specific key in a seq (either returned by [[clojure.core.seq]] or a slice.)
   `(seek (seq set) to)` returns iterator for all Xs where to <= X.
   Optionally pass in comparator that will override the one that set uses."
-  ([seq to]
+  ([^Seq seq to]
    (when seq
      (.seek seq to)))
-  ([seq to cmp]
+  ([^Seq seq to cmp]
    (when seq
      (let [js-cmp (js-comparator cmp)]
        (.seek seq to js-cmp)))))
@@ -123,8 +98,8 @@
    (let [js-cmp     (js-comparator cmp)
          js-arr     (if (array? keys) keys (to-array keys))
          settings   (settings->js opts)
-         storage    (adapt-storage (:storage opts))]
-     (.from PersistentSortedSet js-arr js-cmp))))
+         storage    (make-storage-adapter (:storage opts) opts)]
+     (.from PersistentSortedSet js-arr js-cmp storage settings))))
 
 (defn from-sequential
   "Create a set with custom comparator and a collection of keys. Useful when you don't want to call [[clojure.core/apply]] on [[sorted-set-by]]."
@@ -135,14 +110,14 @@
          arr      (to-array keys)
          _        (.sort arr js-cmp)
          settings (settings->js opts)
-         storage  (adapt-storage (:storage opts))]
-     (.from PersistentSortedSet arr js-cmp))))
+         storage  (make-storage-adapter (:storage opts) opts)]
+     (.from PersistentSortedSet arr js-cmp storage settings))))
 
 (defn sorted-set*
   "Create a set with custom comparator, metadata and settings"
   [opts]
   (let [js-cmp   (js-comparator (or (:cmp opts) compare))
-        storage  (adapt-storage (:storage opts))
+        storage  (make-storage-adapter (:storage opts) opts)
         settings (settings->js opts)]
     (.withComparatorAndStorage PersistentSortedSet js-cmp storage settings)))
 
@@ -168,7 +143,7 @@
    (restore-by cmp address storage {}))
   ([cmp address storage opts]
    (let [js-cmp   (js-comparator cmp)
-         js-storage (adapt-storage storage)
+         js-storage (make-storage-adapter storage opts)
          settings (settings->js opts)]
      (PersistentSortedSet. js-cmp js-storage settings address nil -1 0))))
 
@@ -184,23 +159,23 @@
 (defn walk-addresses
   "Visit each address used by this set. Usable for cleaning up
    garbage left in storage from previous versions of the set"
-  [set consume-fn]
+  [^PersistentSortedSetStorage set consume-fn]
   (.walkAddresses set consume-fn))
+
+(defn settings
+  "Get the settings for this set as a Clojure map"
+  [^PersistentSortedSetStorage set]
+  (settings->clj (.-_settings set)))
 
 (defn store
   "Store each not-yet-stored node by calling IStorage::store and remembering
    returned address. Incremental, won't store same node twice on subsequent calls.
    Returns root address. Remember it and use it for restore"
-  ([set]
+  ([^PersistentSortedSetStorage set]
    (.store set))
-  ([set storage]
-   (let [^IPersistendSortedSetStorage pss-storage (adapt-storage storage)]
+  ([^PersistentSortedSetStorage set storage]
+   (let [^IPersistendSortedSetStorage pss-storage (make-storage-adapter storage (settings set))]
      (.store set pss-storage))))
-
-(defn settings
-  "Get the settings for this set as a Clojure map"
-  [set]
-  (settings->clj (.-_settings set)))
 
 ;; Extend JavaScript PersistentSortedSet to implement Clojure protocols
 (extend-type PersistentSortedSet

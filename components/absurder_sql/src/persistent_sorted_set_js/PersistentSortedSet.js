@@ -75,8 +75,8 @@ export class PersistentSortedSet {
    * @param {Function} cmp - Optional comparator function
    * @returns {PersistentSortedSet} New sorted set
    */
-  static from(arr, cmp = null) {
-    let set = PersistentSortedSet.empty(cmp);
+  static from(arr, cmp = null, storage = null, settings = null) {
+    let set = this.withComparatorAndStorage(cmp, storage, settings);
     for (const item of arr) {
       set = set.conj(item);
     }
