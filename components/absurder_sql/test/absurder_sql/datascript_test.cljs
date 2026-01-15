@@ -1,6 +1,6 @@
 (ns absurder-sql.datascript-test
   (:require
-   [absurder-sql.datascript :as ds]
+   [absurder-sql.datascript.core :as ds]
    [me.tonsky.persistent-sorted-set :as set :refer [Node]]
    [cljs.test :as t :include-macros true :refer [async deftest is use-fixtures]]))
 
@@ -38,7 +38,3 @@
     ))
 
 ;;; State
-
-(comment 
-  (require '[me.tonsky.persistent_sorted_set ANode])
-)

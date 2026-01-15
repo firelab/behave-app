@@ -1,12 +1,14 @@
 (ns absurder-sql.datascript.sqlite
   (:require
-   [cljs.core.async         :refer [go]]
-   [cljs.core.async.interop :refer-macros [<p!]]
    [clojure.string          :as str]
    [clojure.edn             :as edn]
    [absurder-sql.interface  :as sql]
-   [datascript.db           :as db]
-   [datascript.core         :as d]))
+   [absurder-sql.datascript.db            :as db]
+   [absurder-sql.datascript.core          :as d]
+   [absurder-sql.datascript.protocols :refer [IStorage]]
+   #_[absurder-sql.datascript.protocols :refer [IStorage]]
+   #_[absurder-sql.datascript.storage-async :as storage]))
+
 
 ;;; State
 
@@ -32,35 +34,34 @@
 
 (defn- store-impl [conn opts addr+data-seq]
   (let [{:keys [table binary? freeze-str freeze-bytes batch-size]} opts
-        sql (upsert-dml table)]
-    (doseq [part (partition-all batch-size addr+data-seq)]
-      (doseq [[addr data] part]
-        (let [content (if binary? (freeze-bytes data) (freeze-str data))]
-          (sql/execute! conn (sql-replace sql addr content content)))))))
+        sql (upsert-dml table)
+        promises (for [part (partition-all batch-size addr+data-seq)
+                       [addr data] part]
+                   (let [content (if binary? (freeze-bytes data) (freeze-str data))]
+                     (sql/execute! conn (sql-replace sql addr content content))))]
+    (js/Promise.all (to-array promises))))
 
 (defn- restore-impl [conn opts addr]
-  (go 
-    (let [{:keys [table binary? thaw-str thaw-bytes]} opts
-          sql (str "select content from " table " where addr = ?")
-          results (<p! (sql/execute! conn (sql-replace sql table addr)))]
-      (if binary?
-        (thaw-bytes results)
-        (thaw-str results)))))
+  (-> (sql/execute! conn (sql-replace (str "select content from " (:table opts) " where addr = ?") addr))
+      (.then (fn [results]
+               (let [{:keys [binary? thaw-str thaw-bytes]} opts
+                     content (-> results first (get "content"))]
+                 (when content
+                   (if binary?
+                     (thaw-bytes content)
+                     (thaw-str content))))))))
 
 (defn- list-impl [conn opts]
-  (go 
-  (let [{:keys [table binary? thaw-str thaw-bytes]} opts
-        sql     (str "select addr from " table)
-        results (<p! (sql/execute! conn sql))]
-      (if binary?
-        (map thaw-bytes results)
-        (map thaw-str results)))))
+  (-> (sql/execute! conn (str "select addr from " (:table opts)))
+      (.then (fn [results]
+               (mapv #(get % "addr") results)))))
 
 (defn- delete-impl [conn opts addr-seq]
-  (let [sql (str "delete from " (:table opts) " where addr = ?")]
-    (doseq [part (partition-all (:batch-size opts) addr-seq)]
-      (doseq [addr part]
-        (sql/execute! conn (sql-replace sql (:table opts) addr))))))
+  (let [sql (str "delete from " (:table opts) " where addr = ?")
+        promises (for [part (partition-all (:batch-size opts) addr-seq)
+                       addr part]
+                   (sql/execute! conn (sql-replace sql addr)))]
+    (js/Promise.all (to-array promises))))
 
 (defn- ddl [{:keys [table]}]
   (str
@@ -78,6 +79,21 @@
         opts (assoc opts
                :binary? (boolean (and (:freeze-bytes opts) (:thaw-bytes opts))))]
     (merge {:ddl (ddl opts)} opts)))
+
+(deftype SQLiteStorage [conn opts]
+  Object
+  IStorage
+  (-store [_ addr+data-seq]
+    (store-impl conn opts addr+data-seq))
+  
+  (-restore [_ addr]
+    (restore-impl conn opts addr))
+  
+  (-list-addresses [_]
+    (list-impl conn opts))
+  
+  (-delete [_ addr-seq]
+    (delete-impl conn opts addr-seq)))
 
 (defn sqlite-store
   "Create new DataScript storage from in-browser SQLite DB.
@@ -100,23 +116,7 @@
   ([conn opts]
    (let [opts (merge-opts opts)]
      (sql/execute! conn (:ddl opts))
-     (with-meta
-       {:conn conn :db-name (:db-name opts)}
-       {'absurder-sql.datascript.storage/-store
-        (fn [_ addr+data-seq]
-          (store-impl conn opts addr+data-seq))
-        
-        'absurder-sql.datascript.storage/-restore
-        (fn [_ addr]
-          (restore-impl conn opts addr))
-        
-        'absurder-sql.datascript.storage/-list-addresses
-        (fn [_]
-          (list-impl conn opts))
-        
-        'absurder-sql.datascript.storage/-delete
-        (fn [_ addr-seq]
-          (delete-impl conn opts addr-seq))}))))
+    (SQLiteStorage. conn opts))))
 
 (defn close!
   "If storage was created with DataSource that also implements AutoCloseable,
@@ -133,21 +133,23 @@
   - `schema`  [required]
   - `db-name` [required] - should end in `.db`"
   [datoms schema db-name]
-  (go 
-    (let [_     (<p! (sql/init!))
-          conn  (<p! (sql/connect! db-name))
-          _     (reset! sqlite-db conn)
-          store (sqlite-store conn {:db-name db-name})]
-      (reset! datascript-db (db/init-db datoms schema store))
-      (reset! datascript-conn (d/conn-from-db @datascript-db)))))
+  (-> (sql/init!)
+      (.then (fn [_] (sql/connect! db-name)))
+      (.then (fn [conn]
+               (reset! sqlite-db conn)
+               (let [store (sqlite-store conn {:db-name db-name})]
+                 (reset! datascript-db (db/init-db datoms schema store))
+                 (reset! datascript-conn (d/conn-from-db @datascript-db))
+                 @datascript-conn)))))
 
 (comment
   (def schema {:aka {:db/cardinality :db.cardinality/many}})
-  (init! [] schema "ds-first.db")
+  (def db (init! [] schema "ds-second.db"))
+  (require '[promesa.core :as p])
+  (p/wait-all db)
+  *1
+  (init! )
 
-  (def conn @datascript-conn)
-  conn
-  conn
   (d/transact! conn [ { :db/id -1
                        :name   "Maksim"
                        :age    45

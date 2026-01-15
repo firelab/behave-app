@@ -1,11 +1,15 @@
 (ns absurder-sql.datascript.storage
   (:require
     [cljs.reader :as reader]
-    [datascript.db :as db]
-    [datascript.util :as util]
+    [absurder-sql.datascript.db :as db]
+
+    [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
+    [absurder-sql.datascript.storage-async :refer [make-async-storage-adapter]]
+    [absurder-sql.datascript.util :as util]
+
     ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
 
-(defprotocol IStorage
+#_(defprotocol IStorage
   :extend-via-metadata true
 
   (-store [_ addr+data-seq]
@@ -41,13 +45,13 @@
 (defn- gen-addr []
   (vswap! *max-addr inc))
 
-(deftype StorageAdapter [storage settings]
+(deftype StorageAdapter [^IStorage storage settings]
   Object
+  IPersistentSortedSetStorage
 
-  ;; IStorage interface for PersistentSortedSet
   (restore [_ addr]
     (util/log "restore" addr)
-    (let [{:keys [level keys addresses]} (-restore storage addr)
+    (let [{:keys [level keys addresses]} (proto/-restore storage addr)
           keys' (to-array (map (fn [[e a v tx]] (db/datom e a v tx)) keys))]
       (if addresses
         (Branch. level (count keys') keys' (to-array addresses) nil settings)
@@ -68,7 +72,7 @@
     ;; Optional: can be used for LRU cache tracking
     nil))
 
-(defn make-storage-adapter [storage opts]
+(defn make-storage-adapter [^IStorage storage opts]
   (let [branching-factor (or (:branching-factor opts) 512)
         ref-type (or (:ref-type opts) RefType.WEAK)
         settings (Settings. branching-factor ref-type nil)]
@@ -76,7 +80,10 @@
 
 (defn maybe-adapt-storage [opts]
   (if-some [storage (:storage opts)]
-    (update opts :storage make-storage-adapter opts)
+    (update opts
+            :storage
+            (if (:async? opts) make-async-storage-adapter make-storage-adapter)
+            opts)
     opts))
 
 (defn storage-adapter [db]
@@ -124,7 +131,10 @@
       (when (or force? (pos? (count @*store-buffer*)))
         (vswap! *store-buffer* conj! [root-addr meta])
         (vswap! *store-buffer* conj! [tail-addr []])
-        (-store (.-storage adapter) (persistent! @*store-buffer*)))
+        (let [^IStorage storage (.-storage adapter)]
+          (println [:STORAGE storage])
+          (println [:STORAGE-KEYS (js-keys storage) (satisfies? IStorage storage)])
+          (proto/-store storage (persistent! @*store-buffer*))))
       db)))
 
 (defn store
@@ -143,7 +153,7 @@
        (store-impl! db adapter false)))))
 
 (defn store-tail [db tail]
-  (-store (storage db) [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
+  (proto/-store (storage db) [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
 
 ;; Helper to restore a sorted set by address
 (defn- restore-set-by [cmp addr adapter opts]
@@ -152,10 +162,10 @@
         settings (Settings. branching-factor ref-type nil)]
     (PersistentSortedSet. cmp adapter settings addr nil -1 0)))
 
-(defn restore-impl [storage opts]
+(defn restore-impl [^IStorage storage opts]
   ;; Note: locking not available in JS
-  (when-some [root (-restore storage root-addr)]
-    (let [tail    (-restore storage tail-addr)
+  (when-some [root (proto/-restore storage root-addr)]
+    (let [tail    (proto/-restore storage tail-addr)
           {:keys [schema eavt aevt avet max-eid max-tx max-addr]} root
           _       (vswap! *max-addr max max-addr)
           opts    (merge root opts)
@@ -181,9 +191,9 @@
     db tail))
 
 (defn restore
-  ([storage]
+  ([^IStorage storage]
    (restore storage {}))
-  ([storage opts]
+  ([^IStorage storage opts]
    (let [[db tail] (restore-impl storage opts)]
      (db-with-tail db tail))))
 
@@ -202,7 +212,7 @@
       (addresses-impl db visit-fn))
     (persistent! @*set)))
 
-(defn- read-stored-dbs [storage']
+(defn- read-stored-dbs [^IStorage storage']
   (let [res (transient [])]
     (dotimes [i (.-length stored-dbs)]
       (let [ref (aget stored-dbs i)
@@ -212,16 +222,16 @@
           (vswap! res conj! db))))
     (persistent! @res)))
 
-(defn collect-garbage [storage']
+(defn collect-garbage [^IStorage storage']
   ;; Note: JS doesn't have System/gc, but WeakRef will handle cleanup automatically
   (let [dbs    (conj
                  (read-stored-dbs storage')
                  (restore storage')) ;; make sure we won't gc currently stored db
         used   (addresses dbs)
-        all    (-list-addresses storage')
+        all    (proto/-list-addresses storage')
         unused (into [] (remove used) all)]
     (util/log "GC: found" (count dbs) "alive db refs," (count used) "used addrs," (count all) "total addrs," (count unused) "unused")
-    (-delete storage' unused)))
+    (proto/-delete storage' unused)))
 
 ;; Browser/Node.js compatible storage implementations
 

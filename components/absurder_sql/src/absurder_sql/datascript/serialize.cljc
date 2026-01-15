@@ -4,15 +4,14 @@
     [clojure.edn :as edn]
     [clojure.string :as str]
     [absurder-sql.datascript.db :as db #?@(:cljs [:refer [Datom]])]
-    [absurder-sql.datascript.lru :as lru]
     [absurder-sql.datascript.storage :as storage]
     [absurder-sql.datascript.util :as util]
     [me.tonsky.persistent-sorted-set :as set]
     [me.tonsky.persistent-sorted-set.arrays :as arrays])
-  #?(:cljs (:require-macros [datascript.serialize :refer [array dict]]))
+  #?(:cljs (:require-macros [absurder-sql.datascript.serialize :refer [array dict]]))
   #?(:clj
      (:import
-       [datascript.db Datom]
+       [absurder_sql.datascript.db Datom]
        [me.tonsky.persistent_sorted_set PersistentSortedSet])))
 
 (def ^:const ^:private marker-kw 0)

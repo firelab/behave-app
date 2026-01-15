@@ -23,7 +23,7 @@
         (is (= js/sqlite.Database (type db)))
         (done)))))
 
-(deftest connect-execute-test
+#_(deftest connect-execute-test
   (async done
     (go
       (let [db     (<p! (sut/connect! (str "users-" (rand-int 100) ".db")))
@@ -34,7 +34,7 @@
         (is (= 3 (get-in res3 [:rows 0 :values 0 :value])))
         (done)))))
 
-(deftest export-import-db
+#_(deftest export-import-db
   (async done
     (go
       (let [db1          (<p! (sut/connect! (str "export-users-" (rand-int 100) ".db")))

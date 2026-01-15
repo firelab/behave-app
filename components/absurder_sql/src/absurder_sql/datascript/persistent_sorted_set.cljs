@@ -5,6 +5,7 @@
  absurder-sql.datascript.persistent-sorted-set
   (:refer-clojure :exclude [conj disj sorted-set sorted-set-by])
   (:require
+   [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
    ["../../persistent_sorted_set_js/index.min" :refer [PersistentSortedSet RefType Seq Settings]]))
 
 ;; JavaScript interop helpers
@@ -25,21 +26,22 @@
     (js-cmp a b)))
 
 ;; Storage protocol matching the Java IStorage interface
-(defprotocol IStorage
+#_(defprotocol IStorage
   (-restore [this address] "Load node from storage by address")
   (-store [this node] "Store node to storage, return address"))
 
 ;; Wrapper to adapt Clojure IStorage to JavaScript IStorage
-(deftype StorageAdapter [clj-storage]
+(deftype StorageAdapter [^IStorage storage]
   Object
+  IPersistentSortedSetStorage
   (restore [_ address]
-    (.restore clj-storage address))
+    (proto/-restore storage address))
   (store [_ node]
-    (.store clj-storage node)))
+    (proto/-store storage node)))
 
 (defn- adapt-storage
   "Adapt Clojure storage to JavaScript storage"
-  [storage]
+  [^IStorage storage]
   (when storage
     (StorageAdapter. storage)))
 
@@ -192,8 +194,8 @@
   ([set]
    (.store set))
   ([set storage]
-   (let [js-storage (adapt-storage storage)]
-     (.store set js-storage))))
+   (let [^IPersistendSortedSetStorage pss-storage (adapt-storage storage)]
+     (.store set pss-storage))))
 
 (defn settings
   "Get the settings for this set as a Clojure map"

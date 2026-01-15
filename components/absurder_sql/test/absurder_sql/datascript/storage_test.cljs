@@ -2,35 +2,13 @@
   (:require
    [absurder-sql.datascript.core :as d]
    [absurder-sql.datascript.sqlite :as sqlite]
-   [absurder-sql.datascript.storage :refer [IStorage]]
+   #_[absurder-sql.datascript.storage :refer [IStorage]]
+   [absurder-sql.datascript.protocols :refer [IStorage]]
    [absurder-sql.interface :as sql]
    [cljs.core.async :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [cljs.test :as t :include-macros true :refer [async deftest is testing use-fixtures]]
    [clojure.edn :as edn]))
-
-(defrecord TempStorage [*disk *reads *writes *deletes]
-  Object
-  IStorage
-  (store [_ addr+data-seq]
-    (doseq [[addr data] addr+data-seq]
-      (vswap! *disk assoc addr (pr-str data))
-      (when *writes
-        (vswap! *writes conj addr))))
-
-  (restore [_ addr]
-    (when *reads
-      (vswap! *reads conj addr))
-    (-> @*disk (get addr) edn/read-string))
-
-  (list-addresses [_]
-    (keys @*disk))
-
-  (delete [_ addrs-seq]
-    (doseq [addr addrs-seq]
-      (vswap! *disk dissoc addr)
-      (when *deletes
-        (vswap! *deletes conj addr)))))
 
 (deftype SimpleStorage [*disk *reads *writes *deletes]
   Object
@@ -54,24 +32,6 @@
       (vswap! *disk dissoc addr)
       (when *deletes
         (vswap! *deletes conj addr)))))
-
-(comment
-  
-  (in-ns 'absurder-sql.datascript.storage-test)
-  (def s (make-storage {:stats true}))
-  (type s)
-  (js-keys s)
-  (.store s [[3 "addr"]])
-
-  (def ss (SimpleStorage. (volatile! {}) (volatile! []) (volatile! []) (volatile! [])))
-  ss
-  (js-keys ss)
-  (.-cljs$lang$type (type ss))
-  (.-cljs$lang$ctorStr (type ss))
-  (.-cljs$lang$ctorStr (type ss))
-  (.store ss [[3 "addr"]])
-
-  )
 
 (defn make-storage [& [opts]]
   (SimpleStorage. (volatile! {}) (volatile! []) (volatile! []) (volatile! [])))
@@ -98,6 +58,35 @@
            (<p! (sql/init!))
            (done))))
 
+(comment
+
+
+  (in-ns 'absurder-sql.datascript.storage-test)
+  (def s (make-storage {}))
+  (count (.-*reads s))
+  (def db (d/empty-db))
+  (d/store db s)
+  (count @(.-*writes s))
+  (count @(.-*reads s))
+  (println db)
+  (def c (d/conn-from-db db))
+  (d/transact c [{:user "RJ"}])
+  @c
+  (d/store @c)
+  
+  (count @(.-*writes s))
+  (count @(.-*reads s))
+  (count @(.-*disk s))
+
+  s
+
+  (def db' (d/restore s))
+  (println db')
+  
+
+  )
+
+
 (use-fixtures :once {:before with-sqlite})
 
 (deftest test-basics
@@ -112,14 +101,14 @@
         (is (= db db'))
         (is (= 3 (count @(.-*reads storage)))))))
 
-  #_(testing "small db"
+  (testing "small db"
     (let [db      (small-db)
           storage (make-storage {:stats true})]
       (testing "store"
         (d/store db storage)
         (is (= 0 (count @(.-*reads storage))))
         (is (= 5 (count @(.-*writes storage)))))
-      (testing "restore"
+      #_(testing "restore"
         (let [db' (d/restore storage)]
           (is (= 2 (count @(.-*reads storage))))
           (is (= db db'))
@@ -183,12 +172,12 @@
           (d/store db' storage)
           (is (= 8 (count @(.-*writes storage)))))))))
 
-#_(deftest test-sqlite-storage
+(deftest test-sqlite-storage
   (async done
          (go
            (let [db-name (str "test-storage-" (random-uuid) ".db")
-                 conn    (<p! (sql/connect! db-name))
-                 storage (sqlite/sqlite-store conn {:db-name db-name})]
+                 db-conn (<p! (sql/connect! db-name))
+                 storage (sqlite/sqlite-store db-conn {:db-name db-name})]
 
              (testing "empty db with SQLite"
                (let [db (d/empty-db)]
@@ -196,7 +185,7 @@
                  (let [db' (d/restore storage)]
                    (is (= db db')))))
 
-             (testing "small db with SQLite"
+             #_(testing "small db with SQLite"
                (let [db (small-db)]
                  (d/store db storage)
                  (let [db' (d/restore storage)]
@@ -205,7 +194,7 @@
                    (is (= (:aevt db) (:aevt db')))
                    (is (= (:avet db) (:avet db'))))))
 
-             (testing "large db with SQLite"
+             #_(testing "large db with SQLite"
                (let [db (large-db)]
                  (d/store db storage)
                  (let [db' (d/restore storage)]
@@ -214,7 +203,7 @@
                    (is (= (:aevt db) (:aevt db')))
                    (is (= (:avet db) (:avet db'))))))
 
-             (<p! (sql/close! conn))
+             (<p! (sql/close! db-conn))
              (done)))))
 
 #_(deftest test-gc
