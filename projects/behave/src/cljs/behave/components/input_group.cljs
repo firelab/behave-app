@@ -66,7 +66,7 @@
         *disable-multi-valued-input? (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid])
         acceptable-char-codes        (set (map #(.charCodeAt % 0)
                                                (if @*disable-multi-valued-input?
-                                                 "0123456789. "
+                                                 "0123456789."
                                                  "0123456789., ")))
         on-focus-click               (partial highlight-help-section help-key)
         show-range-selector?         (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
