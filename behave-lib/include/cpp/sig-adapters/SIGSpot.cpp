@@ -90,3 +90,12 @@ double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromActiveCrown(LengthUn
         return -1;
     }
 }
+void SIGSpot::setDownwindCoverHeight(double downwindCoverHeight, LengthUnits::LengthUnitsEnum downwindCoverHeightUnits) {
+
+  Spot::setDownwindCoverHeight(downwindCoverHeight, downwindCoverHeightUnits);
+
+  if (std::abs(spotInputs_.getTreeHeight(LengthUnits::Feet)) < 0.01) {
+    setTreeHeight(downwindCoverHeight, downwindCoverHeightUnits);
+  }
+
+}
