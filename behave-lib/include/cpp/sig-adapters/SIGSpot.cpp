@@ -42,7 +42,7 @@ void SIGSpot::calculateAll() {
 void SIGSpot::setActiveCrownFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)
 {
   if (flameLength > 0.0) {
-    setFlameLength(flameLength, flameLengthUnits);
+    Spot::setActiveCrownFlameLength(flameLength, flameLengthUnits);
   }
 }
 
