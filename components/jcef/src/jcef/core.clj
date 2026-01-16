@@ -100,14 +100,7 @@
 (defn show-dev-tools!
   "Show the Developer Tools for a CefBrowser"
   [^CefBrowser browser]
-  (let [jframe       (JFrame. "DevTools")
-        content-pane (.getContentPane jframe)
-        dev-tools    (.getDevTools browser)]
-    (.add content-pane (.getUIComponent dev-tools) BorderLayout/CENTER)
-    (SwingUtilities/invokeLater #(doto jframe
-                                   (.pack)
-                                   (.setSize 800 600)
-                                   (.setVisible true)))))
+  (.openDevTools browser))
 
 (defn- create-popup-window! [client title url & [width height]]
   (let [width        (or width 800)

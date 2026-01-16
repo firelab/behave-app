@@ -15,6 +15,7 @@ ENDIF()
 # Optional JS
 OPTION(BEHAVE_JS "Enable compiling to .js (WARNING: Emits a large file)" OFF)
 OPTION(BEHAVE_WASM "Enable compiling to .wasm" ON)
+OPTION(BEHAVE_WASM_OPTIMIZED "Enable optimized .wasm compilation" ON)
 OPTION(BEHAVE_HTML "Enable compiling to .html" OFF)
 
 IF(BEHAVE_JS)
@@ -39,10 +40,6 @@ set(SIG_SRC_DIR ${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters/)
 set(SIG_TEST_DIR ${CMAKE_SOURCE_DIR}/test/cpp/)
 set(BEHAVE_LIB libbehave.a)
 
-# set(DWARF_DIR ${CMAKE_SOURCE_DIR})
-# NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
-# file path to the WSL full path. Here's an example:
-set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
 set(EMCC_ARGS
     -std=c++14
@@ -52,6 +49,8 @@ set(EMCC_ARGS
     -L${BEHAVE_LIB}
     --post-js ${GLUE_JS_FILE}
     -sNO_DISABLE_EXCEPTION_CATCHING
+    -sMODULARIZE
+    -sEXPORT_NAME="createModule"
     -sEXPORTED_FUNCTIONS=["_malloc","_free"]
     -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction","cwrap","ccall"])
 
@@ -59,10 +58,19 @@ set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
 set(EMCC_WASM_ARGS ${EMCC_ARGS}
     --closure 1
-    -g
     -s WASM=1
     -s ALLOW_MEMORY_GROWTH
     -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
+
+IF(BEHAVE_WASM_OPTIMIZED)
+  set(EMCC_WASM_ARGS ${EMCC_WASM_ARGS} -O2)
+ELSE()
+  set(EMCC_WASM_ARGS ${EMCC_WASM_ARGS} -g)
+  set(DWARF_DIR ${CMAKE_SOURCE_DIR})
+  # NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
+  # file path to the WSL full path. Here's an example:
+  # set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
+ENDIF()
 
 project(behave LANGUAGES CXX)
 
