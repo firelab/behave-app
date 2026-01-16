@@ -24,6 +24,7 @@ compile: bind
 
 install: compile
 #	cp build/behave.js ../projects/behave/resources/public/js
+	sed -i 's/\$$Module\$$\$$/Module/g' build/behave-min.js
 	cp build/behave-min.* ../projects/behave/resources/public/js
 
 test:

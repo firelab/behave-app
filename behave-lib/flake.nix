@@ -25,6 +25,7 @@
           shellHook = ''
             export EM_CACHE=$PWD/.em_cache
             export WEB_IDL=$(fd -1 webidl_binder.py /nix/store)
+            export WEBIDL="${WEB_IDL%.*}"
             echo "Environment ready!"
             echo "EM_CACHE: $EM_CACHE"
             echo "WEB_IDL: $WEB_IDL"
