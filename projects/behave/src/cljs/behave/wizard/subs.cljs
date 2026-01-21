@@ -2,7 +2,7 @@
   (:require [behave.schema.core     :refer [rules]]
             [behave.lib.units       :refer [convert]]
             [behave.vms.store       :refer [vms-conn]]
-            [behave.translate       :refer [<t]]
+            [behave.translate       :refer [<t bp]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
@@ -321,6 +321,8 @@
  (fn [_db _query]
    multi-value-input-limit))
 
+
+
 ;;; Outside Range
 
 (reg-sub
@@ -347,6 +349,49 @@
      (outside-range-error-msg var-min var-max)
      (outside-range-error-msg (convert var-min from-units to-units 2)
                               (convert var-max from-units to-units 2)))))
+
+;; Multi Valued Input Not Allowed
+
+(reg-sub
+ :wizard/multi-valued-input-not-allowed-error-msg
+ (fn [_]
+   @(<t (bp "error_multi_valued_input_not_allowed"))))
+
+(reg-sub
+ :wizard/multi-valued-input-not-allowed?
+ (fn [[_ ws-uuid gv-uuid _value]] (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid]))
+
+ (fn [disable-multi-valued-input? [_ _ws-uuid _gv-uuid value]]
+   (if (and disable-multi-valued-input?
+            value
+            (or (str/includes? value ",") (str/includes? value " ")))
+     true
+     false)))
+
+;; All Errors
+
+(reg-sub
+ :wizard/input-error?
+ (fn [[_ ws-uuid gv-uuid native-unit-uuid unit-uuid var-min var-max value]]
+   [(rf/subscribe [:state :warn-multi-value-input-limit])
+    (rf/subscribe [:wizard/outside-range? native-unit-uuid unit-uuid var-min var-max value])
+    (rf/subscribe [:wizard/multi-valued-input-not-allowed? ws-uuid gv-uuid value])])
+ (fn [[warn-multi-value-input-limit? outside-range? invalid-multi-valued-input?]]
+   (or (true? warn-multi-value-input-limit?) outside-range? invalid-multi-valued-input?)))
+
+(reg-sub
+ :wizard/input-error-msgs
+ (fn [[_ ws-uuid gv-uuid native-unit-uuid unit-uuid var-min var-max value]]
+   [(rf/subscribe [:wizard/outside-range? native-unit-uuid unit-uuid var-min var-max value])
+    (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid unit-uuid var-min var-max])
+    (rf/subscribe [:wizard/multi-valued-input-not-allowed? ws-uuid gv-uuid value])
+    (rf/subscribe [:wizard/multi-valued-input-not-allowed-error-msg])])
+ (fn [[outside-range? outside-range-msg invalid-multi-valued-input? multi-valued-input-now-allowed-msg]]
+   (let [error-msgs (cond-> []
+                      outside-range?              (conj outside-range-msg)
+                      invalid-multi-valued-input? (conj multi-valued-input-now-allowed-msg))]
+     (when (seq error-msgs)
+       (str/join "\n" error-msgs)))))
 
 (defn- convert-values
   [from to v & [precision]]
