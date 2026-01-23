@@ -48,11 +48,12 @@ set(EMCC_ARGS
     -I${EMSCRIPTEN_SRC_FILE}
     -L${BEHAVE_LIB}
     --post-js ${GLUE_JS_FILE}
-    -sNO_DISABLE_EXCEPTION_CATCHING
-    -sMODULARIZE
-    -sEXPORT_NAME="createModule"
-    -sEXPORTED_FUNCTIONS=["_malloc","_free"]
-    -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction","cwrap","ccall"])
+    -s NO_DISABLE_EXCEPTION_CATCHING
+    -s MODULARIZE
+    -s ENVIRONMENT=web
+    -s EXPORT_NAME="createModule"
+    -s EXPORTED_FUNCTIONS=["_malloc","_free"]
+    -s EXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction","cwrap","ccall"])
 
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
