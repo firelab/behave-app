@@ -60,13 +60,13 @@ set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 set(EMCC_WASM_ARGS ${EMCC_ARGS}
     --closure 1
     -s WASM=1
-    -s ALLOW_MEMORY_GROWTH
-    -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
+    -s ALLOW_MEMORY_GROWTH)
 
 IF(BEHAVE_WASM_OPTIMIZED)
-  set(EMCC_WASM_ARGS ${EMCC_WASM_ARGS} -O2)
+  set(EMCC_WASM_ARGS ${EMCC_WASM_ARGS} -O3)
 ELSE()
-  set(EMCC_WASM_ARGS ${EMCC_WASM_ARGS} -g)
+  set(EMCC_WASM_ARGS ${EMCC_WASM_ARGS} -g
+      -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
   set(DWARF_DIR ${CMAKE_SOURCE_DIR})
   # NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
   # file path to the WSL full path. Here's an example:
