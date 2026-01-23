@@ -81,7 +81,10 @@
   [params & [figwheel?]]
   (if figwheel?
     [:script {:type "text/javascript"}
-     (str "window.onload = function () {behave.client.init(" (json/write-str params) "); };")]
+     (str/join "\n" ["createModule().then(instance => { window.Module = instance; });"
+                     (str "window.onAppLoaded = function () { behave.client.init(" (json/write-str params) "); };")
+                     "function waitForClient() { console.log('waiting for behave...'); (window.behave) ? window.onAppLoaded() : setTimeout(waitForClient, 500); };"
+                     "waitForClient();"])]
     (let [app-js (find-app-js)]
       [:script {:type "text/javascript"}
        (->> [(str "window.onWASMModuleLoadedPath =\"" app-js "\";")
