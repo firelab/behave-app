@@ -102,7 +102,7 @@ var ensureCache = {
     len = alignMemory(len, 8); // keep things aligned to 8 byte boundaries
     var ret;
     if (ensureCache.pos + len >= ensureCache.size) {
-      // we failed to allocate in the buffer, ensureCache time around :(
+      // we failed to allocate in the buffer, next time around :(
       assert(len > 0); // null terminator, at least
       ensureCache.needed += len;
       ret = Module['_webidl_malloc'](len);
@@ -114,12 +114,6 @@ var ensureCache = {
     }
     return ret;
   },
-  copy(array, view, offset) {
-    offset /= view.BYTES_PER_ELEMENT;
-    for (var i = 0; i < array.length; i++) {
-      view[offset + i] = array[i];
-    }
-  },
 };
 
 /** @suppress {duplicate} (TODO: avoid emitting this multiple times, it is redundant) */
@@ -127,7 +121,9 @@ function ensureString(value) {
   if (typeof value === 'string') {
     var intArray = intArrayFromString(value);
     var offset = ensureCache.alloc(intArray, HEAP8);
-    ensureCache.copy(intArray, HEAP8, offset);
+    for (var i = 0; i < intArray.length; i++) {
+      HEAP8[offset + i] = intArray[i];
+    }
     return offset;
   }
   return value;
@@ -137,7 +133,9 @@ function ensureString(value) {
 function ensureInt8(value) {
   if (typeof value === 'object') {
     var offset = ensureCache.alloc(value, HEAP8);
-    ensureCache.copy(value, HEAP8, offset);
+    for (var i = 0; i < value.length; i++) {
+      HEAP8[offset + i] = value[i];
+    }
     return offset;
   }
   return value;
@@ -147,7 +145,10 @@ function ensureInt8(value) {
 function ensureInt16(value) {
   if (typeof value === 'object') {
     var offset = ensureCache.alloc(value, HEAP16);
-    ensureCache.copy(value, HEAP16, offset);
+    var heapOffset = offset / 2;
+    for (var i = 0; i < value.length; i++) {
+      HEAP16[heapOffset + i] = value[i];
+    }
     return offset;
   }
   return value;
@@ -157,7 +158,10 @@ function ensureInt16(value) {
 function ensureInt32(value) {
   if (typeof value === 'object') {
     var offset = ensureCache.alloc(value, HEAP32);
-    ensureCache.copy(value, HEAP32, offset);
+    var heapOffset = offset / 4;
+    for (var i = 0; i < value.length; i++) {
+      HEAP32[heapOffset + i] = value[i];
+    }
     return offset;
   }
   return value;
@@ -167,7 +171,10 @@ function ensureInt32(value) {
 function ensureFloat32(value) {
   if (typeof value === 'object') {
     var offset = ensureCache.alloc(value, HEAPF32);
-    ensureCache.copy(value, HEAPF32, offset);
+    var heapOffset = offset / 4;
+    for (var i = 0; i < value.length; i++) {
+      HEAPF32[heapOffset + i] = value[i];
+    }
     return offset;
   }
   return value;
@@ -177,7 +184,10 @@ function ensureFloat32(value) {
 function ensureFloat64(value) {
   if (typeof value === 'object') {
     var offset = ensureCache.alloc(value, HEAPF64);
-    ensureCache.copy(value, HEAPF64, offset);
+    var heapOffset = offset / 8;
+    for (var i = 0; i < value.length; i++) {
+      HEAPF64[heapOffset + i] = value[i];
+    }
     return offset;
   }
   return value;
