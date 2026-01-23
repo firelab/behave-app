@@ -618,16 +618,14 @@
     (for [action actions
           :let   [conditionals         (:action/conditionals action)
                   cond-operator        (:action/conditionals-operator action)
-                  target-value         (if (= (:action/type action) :select)
-                                         "true"
-                                         (:action/target-value action))
+                  target-value         (when (= (:action/type action) :select)
+                                         (or (:action/target-value action) "true"))
                   conditionals-passed? (or (nil? conditionals)
                                            (all-conditionals-pass?
                                             worksheet cond-operator conditionals))]
           :when  (and target-value conditionals-passed?)]
       (if (= (:action/type action) :select)
-        "true"
-        (:action/target-value action))))))
+        (or (:action/target-value action) "true"))))))
 
 (reg-sub
  :wizard/_disabled-actions

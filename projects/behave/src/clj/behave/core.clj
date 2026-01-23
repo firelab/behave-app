@@ -76,7 +76,7 @@
         db-config       (if (= "prod" mode)
                           (assoc-in (get-config :database :config)
                                     [:store :path]
-                                    (str (io/file my-app-data-dir "db")))
+                                    (str (io/file my-app-data-dir "db.sqlite")))
                           (get-config :database :config))
         cache-path      (str (io/file my-app-data-dir ".cache"))
         request-handler (custom-request-handler
@@ -104,5 +104,6 @@
 (comment
   (-main)
   ;; Dev Tools
+  @the-app
   (require '[jcef.core :as jc])
   (jc/show-dev-tools! (:browser @the-app)))

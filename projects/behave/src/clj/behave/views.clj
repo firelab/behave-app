@@ -81,7 +81,10 @@
   [params & [figwheel?]]
   (if figwheel?
     [:script {:type "text/javascript"}
-     (str "window.onload = function () {behave.client.init(" (json/write-str params) "); };")]
+     (str/join "\n" ["createModule().then(instance => { window.Module = instance; });"
+                     (str "window.onAppLoaded = function () { behave.client.init(" (json/write-str params) "); };")
+                     "function waitForClient() { console.log('waiting for behave...'); (window.behave) ? window.onAppLoaded() : setTimeout(waitForClient, 500); };"
+                     "waitForClient();"])]
     (let [app-js (find-app-js)]
       [:script {:type "text/javascript"}
        (->> [(str "window.onWASMModuleLoadedPath =\"" app-js "\";")
@@ -183,6 +186,7 @@
                   [:body
                    (when (not (:ws-uuid route-params)) (announcement-banner))
                    [:div#app]
+                   (include-js "/js/behave-min.js")
                    (cljs-init init-params figwheel?)
-                   (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
+                   (include-js "/js/katex.min.js" "/js/bodymovin.js")
                    (when figwheel? (include-js (find-app-js)))])})))
