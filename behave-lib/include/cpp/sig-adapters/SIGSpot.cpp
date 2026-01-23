@@ -42,7 +42,8 @@ void SIGSpot::calculateAll() {
 void SIGSpot::setActiveCrownFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)
 {
   if (flameLength > 0.0) {
-    setFlameLength(flameLength, flameLengthUnits);
+      Spot::setActiveCrownFlameLength(flameLength, flameLengthUnits);
+      setFireType(FireType::Crowning);
   }
 }
 
@@ -72,7 +73,11 @@ void SIGSpot::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnu
 }
 
 void SIGSpot::setFireType(FireType::FireTypeEnum fireType) {
-    fireType_ = fireType;
+
+    // Set only if fireType_ has not already been set
+    if (fireType_ != FireType::Torching && fireType_ != FireType::Crowning) {
+        fireType_ = fireType;
+    }
 }
 
 double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
