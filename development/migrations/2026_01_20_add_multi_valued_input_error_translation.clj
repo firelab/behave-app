@@ -23,9 +23,9 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
-  [(sm/build-translations-payload
-    conn
-    {"behaveplus:error_multi_vlaued_input_not_allowed" "Error: Multi valued input not allowed"})])
+  (sm/build-translations-payload
+   conn
+   {"behaveplus:error_multi_vlaued_input_not_allowed" "Error: Multi valued input not allowed"}))
 
 ;; ===========================================================================================================
 ;; Transact Payload
