@@ -52,21 +52,21 @@ jobs:
           VMS_URL: ${{ secrets.VMS_URL }}
           VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
           CONVEYOR_CACHE_PATH: ~/.conveyor-cache
-          NIXPKGS_ALLOW_UNFREE: 1
-          # CONVEYOR_SIGNING_KEY: ${{ secrets.CONVEYOR_SIGNING_KEY }}
         run: |
           cd projects/behave
 
           # Create cache directory
           mkdir -p "$CONVEYOR_CACHE_PATH"
+          export NIXPKGS_ALLOW_UNFREE=1
 
           # Use Nix development environment to build everything
-          nix develop --command bash -c "
-            clojure -X:download-vms :url '$VMS_URL' :auth-token '$VMS_AUTH_TOKEN'
-            bb build-js
+          nix develop --impure --command bash -c "
+            # clojure -X:download-vms :url '$VMS_URL' :auth-token '$VMS_AUTH_TOKEN'
+            # bb build-js
             mv resources/config.standalone.edn resources/config.edn
             echo '{:version \"$version\"}' > resources/version.edn
-            bb conveyor
+            conveyor
+            # bb conveyor
           "
 
       - name: List built artifacts
