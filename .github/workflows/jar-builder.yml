@@ -9,6 +9,10 @@ on:
 jobs:
   build-all:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -16,11 +20,23 @@ jobs:
           submodules: recursive
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v26
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Cache Nix store
+        if: ${{ !env.ACT }}
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Cache Clojure and Conveyor dependencies
+        if: ${{ !env.ACT }}
+        uses: actions/cache@v4
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.conveyor-cache
+            key: deps-${{ hashFiles('**/deps.edn', '**/conveyor.conf') }}
+            restore-keys: |
+              deps-
 
       - name: Set the version
         run: |
@@ -36,7 +52,8 @@ jobs:
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
           VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
-          CONVEYOR_CACHE_PATH: ${{ runner.temp }}/conveyor-cache
+          CONVEYOR_CACHE_PATH: ~/.conveyor-cache
+          NIXPKGS_ALLOW_UNFREE: 1
           # CONVEYOR_SIGNING_KEY: ${{ secrets.CONVEYOR_SIGNING_KEY }}
         run: |
           cd projects/behave

@@ -52,17 +52,16 @@ EOF
     chmod +x $out/bin/conveyor
   '' else ''
     mkdir -p $out/bin
-    cp -r * $out/bin/
+    cp -r * $out/
 
     # Create wrapper for Linux
-    mv $out/bin/conveyor $out/bin/.conveyor-wrapped
     cat > $out/bin/conveyor <<EOF
 #!/bin/bash
 export CONVEYOR_AGREE_TO_LICENSE=1
 # Use home cache directory to avoid disk space issues
 export CONVEYOR_CACHE_PATH="\''${CONVEYOR_CACHE_PATH:-\$HOME/.cache/conveyor}"
 mkdir -p "\$CONVEYOR_CACHE_PATH"
-exec "$out/bin/.conveyor-wrapped" "\$@"
+exec "$out/conveyor-${version}/bin/conveyor" "\$@"
 EOF
     chmod +x $out/bin/conveyor
   '';
