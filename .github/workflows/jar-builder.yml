@@ -130,7 +130,7 @@ jobs:
           mkdir -p "$CONVEYOR_CACHE_PATH"
           export NIXPKGS_ALLOW_UNFREE=1
           nix develop --impure  --command bash -c "
-            conveyor -f conveyor.windows.conf make windows-zip
+            conveyor -f conveyor.windows-ci.conf make windows-zip
           "
 
       - name: Save Conveyor Dependencies
@@ -138,9 +138,9 @@ jobs:
         id: cache-conveyor-save
         uses: actions/cache/save@v5
         with:
+          key: ${{ steps.cache-conveyor-restore.outputs.cache-primary-key }}
           path: |
             ~/.conveyor-cache
-          key: ${{ steps.cache-conveyor-restore.outputs.cache-primary-key }}
 
       - name: Upload Windows package
         uses: actions/upload-artifact@v4
