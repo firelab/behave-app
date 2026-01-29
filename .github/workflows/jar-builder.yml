@@ -125,7 +125,8 @@ jobs:
   #         retention-days: 5
 
   create-release:
-    needs: [build-all, sign-windows]
+    # needs: [build-all, sign-windows]
+    needs: [build-all]
     runs-on: ubuntu-latest
     permissions:
       contents: write
