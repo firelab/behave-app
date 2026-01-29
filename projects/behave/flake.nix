@@ -23,11 +23,19 @@
           ] ++ [ conveyor ];
 
           shellHook = ''
+            # Configure Conveyor cache to avoid disk space issues
+            export CONVEYOR_CACHE_PATH="$HOME/.cache/conveyor"
+            mkdir -p "$CONVEYOR_CACHE_PATH"
+
+            # Disable disk space checks if needed (not recommended for production)
+            # export CONVEYOR_IGNORE_DISK_SPACE=1
+
             echo "Behave7 build environment ready!"
             echo "Java: $(java -version 2>&1 | head -1)"
             echo "Clojure: $(clojure --version)"
             echo "Babashka: $(bb --version)"
             echo "Conveyor: $(which conveyor) -> ${conveyor}"
+            echo "Conveyor cache: $CONVEYOR_CACHE_PATH"
           '';
         };
 

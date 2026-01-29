@@ -1,32 +1,26 @@
-name: Build and Sign JAR
+name: Build and Package
 
 on:
-  push:
-    tags:
-    - '*'
+  workflow_dispatch
+#  push:
+#    tags:
+#      - '*'
 
 jobs:
-  build:
+  build-all:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Prepare java
-        uses: actions/setup-java@v4
+        uses: actions/checkout@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          submodules: recursive
 
-      - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@13.1
+      - name: Install Nix
+        uses: cachix/install-nix-action@v26
         with:
-          cli: 'latest'
-
-      - name: Setup Babashka
-        uses: turtlequeue/setup-babashka@v1.7.0
-        with:
-          babashka-version: 1.3.189
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
       - name: Set the version
         run: |
@@ -35,62 +29,169 @@ jobs:
 
       - name: Set the date
         run: |
-          DATE=$( echo $(date '+%Y-%m-%d'))
+          DATE=$(date '+%Y-%m-%d')
           echo "date=$DATE" >> "$GITHUB_ENV"
 
-      - name: Set release name
-        run: |
-          RELEASE=$(echo "$version ($date)")
-          echo "release=$RELEASE" >> "$GITHUB_ENV"
-
-      - name: Build JAR
+      - name: Build JAR and Conveyor packages
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
           VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
+          CONVEYOR_CACHE_PATH: ${{ runner.temp }}/conveyor-cache
+          # CONVEYOR_SIGNING_KEY: ${{ secrets.CONVEYOR_SIGNING_KEY }}
         run: |
           cd projects/behave
-          clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
-          bb build-js
-          mv resources/config.standalone.edn resources/config.edn
-          echo "{:version $version}" > resources/version.edn
-          bb uber
 
-      - name: Verify assets
-        run: ls -l projects/behave/target/*.jar
+          # Create cache directory
+          mkdir -p "$CONVEYOR_CACHE_PATH"
 
-      # - name: Sign JAR
-      #   uses: addnab/docker-run-action@v3
-      #   with:
-      #     image: rjsheperd/jarsigner:latest
-      #     shell: bash
-      #     options: |
-      #       -e SM_API_KEY=${{ secrets.SM_API_KEY }}
-      #       -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
-      #       -e SM_HOST=${{ secrets.SM_HOST }}
-      #       -e SM_CLIENT_CERT_FILE_BASE_64=${{ secrets.SM_CLIENT_CERT_FILE_BASE_64 }}
-      #       -e SM_CLIENT_CERT_PASSWORD=${{secrets.SM_CLIENT_CERT_PASSWORD }}
-      #       -v ${{ github.workspace }}:/app/code
-      #     run: |
-      #       # Decode cert
-      #       echo $SM_CLIENT_CERT_FILE_BASE_64 | base64 -d > behave.p12
-      #       export SM_CLIENT_CERT_FILE=/app/behave.p12
+          # Use Nix development environment to build everything
+          nix develop --command bash -c "
+            clojure -X:download-vms :url '$VMS_URL' :auth-token '$VMS_AUTH_TOKEN'
+            bb build-js
+            mv resources/config.standalone.edn resources/config.edn
+            echo '{:version \"$version\"}' > resources/version.edn
+            bb conveyor
+          "
 
-      #       # Get JAR file
-      #       JAR=$(ls /app/code/projects/behave/target/*.jar)
-      #       echo $JAR
-
-      #       # Sign JAR
-      #       ./sign.sh $JAR
-
-      - name: Rename Jar
+      - name: List built artifacts
         run: |
-          cd projects/behave/target
-          mv $(ls *.jar) behave-$version.jar
+          echo "=== JAR files ==="
+          ls -lh projects/behave/target/*.jar || true
+          echo "=== Conveyor output ==="
+          ls -lh projects/behave/output/ || true
+          find projects/behave/output -type f
 
-      - uses: ncipollo/release-action@v1
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.release }}
-          artifacts: "projects/behave/target/*-${{ env.version }}.jar"
-          artifactContentType: "application/java-archive"
-          tag: ${{ github.ref }}
-          makeLatest: true
+          name: behave7-jar
+          path: projects/behave/target/behave7*.jar
+          retention-days: 5
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: projects/behave/output/**/*windows*.zip
+          retention-days: 5
+
+      - name: Upload macOS packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-app-zip
+          path: projects/behave/output/**/*mac*.zip
+          retention-days: 5
+
+      - name: Upload Linux package
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package
+          path: projects/behave/output/**/*.deb
+          retention-days: 5
+
+  # sign-windows:
+  #   needs: build-all
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Download Windows package
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: windows-zip
+  #         path: windows-package/
+
+  #     - name: Find Windows zip file
+  #       id: find-zip
+  #       run: |
+  #         ZIP_FILE=$(find windows-package -name "*windows*.zip" -type f | head -1)
+  #         echo "zip-file=$ZIP_FILE" >> $GITHUB_OUTPUT
+  #         echo "Found zip file: $ZIP_FILE"
+
+  #     - name: Sign Windows package
+  #       uses: rjsheperd/az-jsign-trusted-signing@main
+  #       with:
+  #         file: ${{ steps.find-zip.outputs.zip-file }}
+  #         alias: ${{ secrets.AZURE_SIGNING_ALIAS }}
+  #         region: ${{ secrets.AZURE_SIGNING_REGION }}
+  #         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+  #     - name: Upload signed Windows package
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: windows-zip-signed
+  #         path: windows-package/**
+  #         retention-days: 5
+
+  create-release:
+    needs: [build-all, sign-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set version
+        run: |
+          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+          DATE=$(date '+%Y-%m-%d')
+          echo "date=$DATE" >> "$GITHUB_ENV"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts/
+
+      - name: Display structure
+        run: ls -R release-artifacts/
+
+      - name: Rename JAR
+        run: |
+          cd release-artifacts/behave7-jar
+          # Find the JAR file and rename it with version
+          JAR_FILE=$(ls behave7*.jar | head -1)
+          mv "$JAR_FILE" behave-${{ env.version }}.jar
+
+      # - name: Create Release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     name: "${{ env.version }} (${{ env.date }})"
+      #     artifacts: |
+      #       release-artifacts/behave7-jar/*.jar
+      #       release-artifacts/windows-zip-signed/**/*.zip
+      #       release-artifacts/mac-app-zip/**/*.zip
+      #       release-artifacts/debian-package/**/*.deb
+      #       release-artifacts/site/**/*
+      #     artifactContentType: application/octet-stream
+      #     tag: ${{ github.ref }}
+      #     makeLatest: true
+      #     body: |
+      #       # Behave 7 Release ${{ env.version }}
+
+      #       Released on ${{ env.date }}
+
+      #       ## Downloads
+
+      #       ### Desktop Applications
+      #       - **Windows**: `behave-*-windows-amd64.zip` (signed)
+      #       - **macOS (Intel)**: `behave-*-mac-amd64.zip`
+      #       - **macOS (Apple Silicon)**: `behave-*-mac-aarch64.zip`
+      #       - **Linux**: `behave-*.deb`
+
+      #       ### JAR File
+      #       - **Universal JAR**: `behave-${{ env.version }}.jar`
+
+      #       ## Installation
+
+      #       ### Desktop Apps
+      #       Download and extract the appropriate package for your platform.
+
+      #       ### JAR File
+      #       Requires Java 17 or later:
+      #       ```bash
+      #       java -jar behave-${{ env.version }}.jar
+      #       ```
