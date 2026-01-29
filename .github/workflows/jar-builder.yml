@@ -33,9 +33,9 @@ jobs:
             ~/.m2/repository
             ~/.gitlibs
             ~/.conveyor-cache
-            key: deps-${{ hashFiles('**/deps.edn', '**/conveyor.conf') }}
-            restore-keys: |
-              deps-
+          key: deps-${{ hashFiles('**/deps.edn', '**/conveyor.conf') }}
+          restore-keys: |
+            deps-
 
       - name: Set the version
         run: |
