@@ -65,7 +65,7 @@ jobs:
             bb build-js
             mv resources/config.standalone.edn resources/config.edn
             echo '{:version \"$version\"}' > resources/version.edn
-            bb conveyor
+            bb uber
           "
 
       - name: List built artifacts
@@ -83,26 +83,26 @@ jobs:
           path: projects/behave/target/behave7*.jar
           retention-days: 5
 
-      - name: Upload Windows package
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-zip
-          path: projects/behave/output/**/*windows*.zip
-          retention-days: 5
+      # - name: Upload Windows package
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: windows-zip
+      #     path: projects/behave/output/**/*windows*.zip
+      #     retention-days: 5
 
-      - name: Upload macOS packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-app-zip
-          path: projects/behave/output/**/*mac*.zip
-          retention-days: 5
+      # - name: Upload macOS packages
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: mac-app-zip
+      #     path: projects/behave/output/**/*mac*.zip
+      #     retention-days: 5
 
-      - name: Upload Linux package
-        uses: actions/upload-artifact@v4
-        with:
-          name: debian-package
-          path: projects/behave/output/**/*.deb
-          retention-days: 5
+      # - name: Upload Linux package
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: debian-package
+      #     path: projects/behave/output/**/*.deb
+      #     retention-days: 5
 
   # sign-windows:
   #   needs: build-all
