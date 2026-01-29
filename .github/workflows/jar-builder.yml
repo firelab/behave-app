@@ -6,7 +6,7 @@ on: push
 #      - '*'
 
 jobs:
-  build-all:
+  build-jar:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -70,11 +70,8 @@ jobs:
 
       - name: List built artifacts
         run: |
-          echo "=== JAR files ==="
           ls -lh projects/behave/target/*.jar || true
-          echo "=== Conveyor output ==="
-          ls -lh projects/behave/output/ || true
-          find projects/behave/output -type f
+          echo " JAR file built!"
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
@@ -83,65 +80,95 @@ jobs:
           path: projects/behave/target/behave7*.jar
           retention-days: 5
 
-      # - name: Upload Windows package
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: windows-zip
-      #     path: projects/behave/output/**/*windows*.zip
-      #     retention-days: 5
+  package-windows:
+    needs: [build-jar]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
-      # - name: Upload macOS packages
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: mac-app-zip
-      #     path: projects/behave/output/**/*mac*.zip
-      #     retention-days: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      # - name: Upload Linux package
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: debian-package
-      #     path: projects/behave/output/**/*.deb
-      #     retention-days: 5
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: behave7-jar
+          path: projects/behave/target/
 
-  # sign-windows:
-  #   needs: build-all
-  #   runs-on: ubuntu-latest
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
 
-  #   steps:
-  #     - name: Download Windows package
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: windows-zip
-  #         path: windows-package/
+      - name: Cache Nix store
+        if: ${{ !env.ACT }}
+        uses: DeterminateSystems/magic-nix-cache-action@main
 
-  #     - name: Find Windows zip file
-  #       id: find-zip
-  #       run: |
-  #         ZIP_FILE=$(find windows-package -name "*windows*.zip" -type f | head -1)
-  #         echo "zip-file=$ZIP_FILE" >> $GITHUB_OUTPUT
-  #         echo "Found zip file: $ZIP_FILE"
+      - name: Cache Conveyor dependencies
+        if: ${{ !env.ACT }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.conveyor-cache
+          key: conveyor-${{ hashFiles('**/conveyor.conf') }}
+          restore-keys: |
+            conveyor-
 
-  #     - name: Sign Windows package
-  #       uses: rjsheperd/az-jsign-trusted-signing@main
-  #       with:
-  #         file: ${{ steps.find-zip.outputs.zip-file }}
-  #         alias: ${{ secrets.AZURE_SIGNING_ALIAS }}
-  #         region: ${{ secrets.AZURE_SIGNING_REGION }}
-  #         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #         azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+      - name: Build Windows package
+        env:
+          CONVEYOR_CACHE_PATH: ~/.conveyor-cache
+        run: |
+          cd projects/behave
+          mkdir -p "$CONVEYOR_CACHE_PATH"
+          export NIXPKGS_ALLOW_UNFREE=1
+          nix develop --impure --command conveyor make windows-zip
 
-  #     - name: Upload signed Windows package
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: windows-zip-signed
-  #         path: windows-package/**
-  #         retention-days: 5
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: projects/behave/output/**/*windows*.zip
+          retention-days: 5
+
+  sign-windows:
+    needs: [package-windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Windows package
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-zip
+          path: windows-package/
+
+      - name: Find Windows zip file
+        id: find-zip
+        run: |
+          ZIP_FILE=$(find windows-package -name "*windows*.zip" -type f | head -1)
+          echo "zip-file=$ZIP_FILE" >> $GITHUB_OUTPUT
+          echo "Found zip file: $ZIP_FILE"
+
+      - name: Sign Windows package
+        uses: rjsheperd/az-jsign-trusted-signing@main
+        with:
+          file: ${{ steps.find-zip.outputs.zip-file }}
+          alias: ${{ secrets.AZURE_SIGNING_ALIAS }}
+          region: ${{ secrets.AZURE_SIGNING_REGION }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Upload signed Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip-signed
+          path: windows-package/**
+          retention-days: 5
 
   create-release:
-    # needs: [build-all, sign-windows]
-    needs: [build-all]
+    needs: [build-jar, sign-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
