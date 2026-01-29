@@ -50,7 +50,7 @@ jobs:
       - name: Build JAR and Conveyor packages
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
-          VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
+          VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
           CONVEYOR_CACHE_PATH: ~/.conveyor-cache
         run: |
           cd projects/behave
@@ -61,12 +61,11 @@ jobs:
 
           # Use Nix development environment to build everything
           nix develop --impure --command bash -c "
-            # clojure -X:download-vms :url '$VMS_URL' :auth-token '$VMS_AUTH_TOKEN'
-            # bb build-js
+            clojure -X:download-vms :url '$VMS_URL' :auth-token '$VMS_AUTH_TOKEN'
+            bb build-js
             mv resources/config.standalone.edn resources/config.edn
             echo '{:version \"$version\"}' > resources/version.edn
-            conveyor
-            # bb conveyor
+            bb conveyor
           "
 
       - name: List built artifacts
