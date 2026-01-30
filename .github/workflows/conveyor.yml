@@ -49,6 +49,10 @@ jobs:
           command: make ${{ inputs.platform || 'windows-zip' }}
           extra_flags: -f projects/behave/conveyor.windows-ci.conf
 
+      - name: List built artifacts
+        run: |
+          ls -lh **/*windows*.zip
+
       - name: Upload Windows package
         if: ${{ contains(inputs.platform || 'windows-zip', 'windows') }}
         uses: actions/upload-artifact@v4
