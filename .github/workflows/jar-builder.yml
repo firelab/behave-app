@@ -77,11 +77,18 @@ jobs:
           ls -lh projects/behave/target/*.jar || true
           echo " JAR file built!"
 
+      - name: Rename JAR
+        run: |
+          cd projects/behave/target
+          # Find the JAR file and rename it with version
+          JAR_FILE=$(ls behave7*.jar | head -1)
+          mv "$JAR_FILE" behave7.jar
+
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: behave7-jar
-          path: projects/behave/target/behave7*.jar
+          path: projects/behave/target/behave7.jar
           retention-days: 5
 
   package-windows:
