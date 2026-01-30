@@ -1,0 +1,40 @@
+name: Sign Windows Package
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  sign-windows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Windows package
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-zip
+          path: windows-package/
+
+      - name: Find Windows zip file
+        id: find-zip
+        run: |
+          ZIP_FILE=$(find windows-package -name "*windows*.zip" -type f | head -1)
+          echo "zip-file=$ZIP_FILE" >> $GITHUB_OUTPUT
+          echo "Found zip file: $ZIP_FILE"
+
+      - name: Sign Windows package
+        uses: rjsheperd/az-jsign-trusted-signing@main
+        with:
+          file: ${{ steps.find-zip.outputs.zip-file }}
+          alias: ${{ secrets.AZURE_SIGNING_ALIAS }}
+          region: ${{ secrets.AZURE_SIGNING_REGION }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Upload signed Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip-signed
+          path: windows-package/**
+          retention-days: 5
