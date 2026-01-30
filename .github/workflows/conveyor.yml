@@ -33,7 +33,7 @@ on:
     secrets:
       CONVEYOR_ROOT_KEY:
         required: false
-      APPLE_SIGNING_PASSWORD:
+      APPLE_SIGNING_KEY:
         required: false
       APPLE_SIGNING_P12_ENCODED:
         required: false
@@ -69,7 +69,7 @@ jobs:
         if: ${{ contains(inputs.platform || 'windows-zip', 'windows') }}
           APPLE_SIGNING_KEY_PATH: ""
           MAC_NOTARY_PRIVATE_KEY_PATH: ""
-          APPLE_SIGNING_PASSWORD: ""
+          APPLE_SIGNING_KEY: ""
           MAC_NOTARY_ISSUER: ""
           MAC_NOTARY_KEY: ""
         with:
@@ -101,11 +101,11 @@ jobs:
         if: ${{ contains(inputs.platform || '', 'mac') }}
         uses: hydraulic-software/conveyor/actions/build@v21.1
         env:
-          APPLE_SIGNING_PASSWORD: ${{ secrets.APPLE_SIGNING_PASSWORD }}
+          APPLE_SIGNING_KEY: ${{ secrets.APPLE_SIGNING_KEY }}
           MAC_NOTARY_ISSUER: ${{ secrets.MAC_NOTARY_ISSUER }}
           MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
         with:
-          signing_key: ${{ secrets.CONVEYOR_ROOT_KEY }}
+          signing_key: ${{ secrets.APPLE_SIGNING_KEY }}
           agree_to_license: 1
           command: make notarized-mac-zip
           extra_flags: -f projects/behave/conveyor.conf ${{ inputs.arch && format('-Kapp.machines={0}', inputs.arch) || '' }}
