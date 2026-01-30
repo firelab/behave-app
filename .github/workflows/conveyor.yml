@@ -81,16 +81,16 @@ jobs:
           APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
           MAC_NOTARY_PRIVATE_KEY_ENCODED: ${{ secrets.MAC_NOTARY_PRIVATE_KEY_ENCODED }}
         run: |
-          cd ${{ github_workspace }}
+          cd ${{ github.workspace }}
           mkdir -p projects/behave/.env
 
           # Decode and save the P12 Certificate
-          echo "${{ env.APPLE_SIGNING_P12_ENCODED }}" | base64 --decode > ${{ github_workspace }}/projects/behave/.env/apple.p12
-          echo "APPLE_SIGNING_KEY_PATH=${{ github_workspace }}/projects/behave/.env/apple.p12" >> $GITHUB_ENV
+          echo "${{ env.APPLE_SIGNING_P12_ENCODED }}" | base64 --decode > ${{ github.workspace }}/projects/behave/.env/apple.p12
+          echo "APPLE_SIGNING_KEY_PATH=${{ github.workspace }}/projects/behave/.env/apple.p12" >> $GITHUB_ENV
 
           # Decode and save the P8 Notary
-          echo "${{ env.MAC_NOTARY_PRIVATE_KEY_ENCODED }}" | base64 --decode > ${{ github_workspace }}//projects/behave/.env/AuthKey.p8
-          echo "MAC_NOTARY_PRIVATE_KEY_PATH=${{ github_workspace }}/projects/behave/.env/AuthKey.p8" >> $GITHUB_ENV
+          echo "${{ env.MAC_NOTARY_PRIVATE_KEY_ENCODED }}" | base64 --decode > ${{ github.workspace }}//projects/behave/.env/AuthKey.p8
+          echo "MAC_NOTARY_PRIVATE_KEY_PATH=${{ github.workspace }}/projects/behave/.env/AuthKey.p8" >> $GITHUB_ENV
 
       - name: Build package with Conveyor
         if: ${{ contains(inputs.platform || '', 'mac') }}
