@@ -43,8 +43,6 @@ jobs:
 
       - name: Build package with Conveyor
         uses: hydraulic-software/conveyor/actions/build@v21.1
-        env:
-          WINDOWS_CERT_PATH: projects/behave/windows.cer
         with:
           signing_key: ${{ secrets.CONVEYOR_ROOT_KEY }}
           agree_to_license: 1
