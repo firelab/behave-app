@@ -1,9 +1,9 @@
 name: Build and Package
 
-on: push
-#  push:
-#    tags:
-#      - '*'
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build-jar:
