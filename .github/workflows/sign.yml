@@ -2,7 +2,17 @@ name: Sign Windows Package
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version string for signing (e.g., v7.1.4)'
+        required: false
+        type: string
   workflow_call:
+    inputs:
+      version:
+        description: 'Version string for signing (e.g., v7.1.4)'
+        required: false
+        type: string
     secrets:
       AZURE_SIGNING_ALIAS:
         required: true
@@ -37,6 +47,7 @@ jobs:
         uses: rjsheperd/az-jsign-trusted-signing@main
         with:
           file: ${{ steps.find-zip.outputs.zip-file }}
+          version: ${{ inputs.version }}
           alias: ${{ secrets.AZURE_SIGNING_ALIAS }}
           region: ${{ secrets.AZURE_SIGNING_REGION }}
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}

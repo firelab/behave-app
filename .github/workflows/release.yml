@@ -8,6 +8,29 @@ on: push
 #  workflow_call:
 
 jobs:
+  # Get the version from the latest tag
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      build_version: ${{ steps.version.outputs.build_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: version
+        run: |
+          # Get the latest tag, or use the current ref if it's a tag
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=$(echo "${{ github.ref }}" | sed 's|refs/tags/||')
+          else
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          fi
+          echo "build_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
   # Build the JAR first
   build:
     uses: ./.github/workflows/jar-only.yml
@@ -26,8 +49,10 @@ jobs:
 
   # Sign the Windows package
   sign:
-    needs: [package-windows]
+    needs: [get-version, package-windows]
     uses: ./.github/workflows/sign.yml
+    with:
+      version: ${{ needs.get-version.outputs.build_version }}
     secrets:
       AZURE_SIGNING_ALIAS: ${{ secrets.AZURE_SIGNING_ALIAS }}
       AZURE_SIGNING_REGION: ${{ secrets.AZURE_SIGNING_REGION }}
@@ -37,7 +62,7 @@ jobs:
 
   # Create the release
   create-release:
-    needs: [build, sign]
+    needs: [get-version, build, sign]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -48,8 +73,7 @@ jobs:
 
       - name: Set version
         run: |
-          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
-          echo "version=$VERSION" >> "$GITHUB_ENV"
+          echo "version=${{ needs.get-version.outputs.build_version }}" >> "$GITHUB_ENV"
           DATE=$(date '+%Y-%m-%d')
           echo "date=$DATE" >> "$GITHUB_ENV"
 
