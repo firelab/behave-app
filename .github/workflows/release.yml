@@ -1,0 +1,215 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (e.g., v7.1.4)'
+        required: true
+        type: string
+      build_windows:
+        description: 'Build Windows executable'
+        required: false
+        type: boolean
+        default: true
+      build_macos:
+        description: 'Build macOS executable'
+        required: false
+        type: boolean
+        default: false
+      build_linux:
+        description: 'Build Linux executable'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  # Get the version from the input tag
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      build_version: ${{ steps.version.outputs.build_version }}
+    steps:
+      - name: Set version from input
+        id: version
+        run: |
+          VERSION="${{ inputs.tag }}"
+          # Ensure version starts with 'v'
+          if [[ ! "$VERSION" =~ ^v ]]; then
+            VERSION="v$VERSION"
+          fi
+          echo "build_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+  # Build the JAR first
+  build:
+    needs: [get-version]
+    uses: ./.github/workflows/jar-only.yml
+    with:
+      ref: ${{ inputs.tag }}
+      version: ${{ needs.get-version.outputs.build_version }}
+    secrets:
+      VMS_URL: ${{ secrets.VMS_URL }}
+      VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
+
+  # Package for Windows
+  package-windows:
+    if: ${{ inputs.build_windows }}
+    needs: [build]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: windows-zip
+    secrets:
+      CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
+
+  # Sign the Windows package
+  sign-windows:
+    if: ${{ inputs.build_windows }}
+    needs: [get-version, package-windows]
+    uses: ./.github/workflows/sign.yml
+    with:
+      version: ${{ needs.get-version.outputs.build_version }}
+    secrets:
+      AZURE_SIGNING_ALIAS: ${{ secrets.AZURE_SIGNING_ALIAS }}
+      AZURE_SIGNING_REGION: ${{ secrets.AZURE_SIGNING_REGION }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+  # Package for macOS (Intel)
+  package-macos-amd64:
+    if: ${{ inputs.build_macos }}
+    needs: [build]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: notarized-mac-zip
+      arch: mac.amd64
+    secrets:
+      APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
+      APPLE_SIGNING_PASSWORD: ${{ secrets.APPLE_SIGNING_PASSWORD }}
+      MAC_NOTARY_ISSUER: ${{ secrets.MAC_NOTARY_ISSUER }}
+      MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
+      MAC_NOTARY_PRIVATE_KEY_ENCODED: ${{ secrets.MAC_NOTARY_PRIVATE_KEY_ENCODED }}
+
+  # Package for macOS (Apple Silicon)
+  package-macos-aarch64:
+    if: ${{ inputs.build_macos }}
+    needs: [build]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: notarized-mac-zip
+      arch: mac.aarch64
+    secrets:
+      APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
+      APPLE_SIGNING_PASSWORD: ${{ secrets.APPLE_SIGNING_PASSWORD }}
+      MAC_NOTARY_ISSUER: ${{ secrets.MAC_NOTARY_ISSUER }}
+      MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
+      MAC_NOTARY_PRIVATE_KEY_ENCODED: ${{ secrets.MAC_NOTARY_PRIVATE_KEY_ENCODED }}
+
+  # Package for Linux
+  package-linux:
+    if: ${{ inputs.build_linux }}
+    needs: [build]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: debian-package
+    secrets:
+      CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
+
+  # Create the release
+  create-release:
+    needs: [get-version, build, sign-windows, package-macos-amd64, package-macos-aarch64, package-linux]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+
+      - name: Generate release notes
+        id: release-notes
+        run: |
+          # Get commit messages between origin/main and current tag
+          NOTES=$(git log origin/main..HEAD --pretty=format:"- %s" --no-merges 2>/dev/null || echo "- Initial release")
+
+          # Store in file for multi-line handling
+          echo "$NOTES" > release-notes.txt
+
+          # Also set as output (escaped for GitHub Actions)
+          {
+            echo 'notes<<EOF'
+            cat release-notes.txt
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: Set version
+        run: |
+          echo "version=${{ needs.get-version.outputs.build_version }}" >> "$GITHUB_ENV"
+          DATE=$(date '+%Y-%m-%d')
+          echo "date=$DATE" >> "$GITHUB_ENV"
+
+      - name: Generate downloads list
+        id: downloads
+        run: |
+          VERSION="${{ needs.get-version.outputs.build_version }}"
+          {
+            echo 'list<<EOF'
+            if [[ "${{ inputs.build_windows }}" == "true" ]]; then
+              echo "- **Windows**: \`behave-${VERSION}-windows-amd64.zip\` (signed)"
+            fi
+            if [[ "${{ inputs.build_macos }}" == "true" ]]; then
+              echo "- **macOS (Intel)**: \`behave-${VERSION}-mac-amd64.zip\`"
+              echo "- **macOS (Apple Silicon)**: \`behave-${VERSION}-mac-aarch64.zip\`"
+            fi
+            if [[ "${{ inputs.build_linux }}" == "true" ]]; then
+              echo "- **Linux**: \`behave-${VERSION}.deb\`"
+            fi
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts/
+
+      - name: Display structure
+        run: ls -R release-artifacts/
+
+      - name: Rename JAR with version
+        run: |
+          cd release-artifacts/behave7-jar
+          mv behave7.jar behave-${{ env.version }}.jar
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "${{ env.version }} (${{ env.date }})"
+          artifacts: |
+            release-artifacts/behave7-jar/*.jar
+            release-artifacts/windows-zip-signed/**/*.zip
+            release-artifacts/mac-zip/**/*.zip
+            release-artifacts/linux-deb/**/*.deb
+          artifactContentType: application/octet-stream
+          tag: ${{ inputs.tag }}
+          makeLatest: true
+          body: |
+            # Behave 7 Release - ${{ env.version }}
+
+            Released on ${{ env.date }}
+
+            ## Downloads
+
+            ### Desktop Applications
+            ${{ steps.downloads.outputs.list }}
+
+            ### JAR File
+            - **Universal JAR**: `behave-${{ env.version }}.jar`
+
+            ## Release Notes
+
+            ${{ steps.release-notes.outputs.notes }}
