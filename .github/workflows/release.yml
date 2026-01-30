@@ -11,7 +11,9 @@ jobs:
   # Build the JAR first
   build:
     uses: ./.github/workflows/jar-only.yml
-    secrets: inherit
+    secrets:
+      VMS_URL: ${{ secrets.VMS_URL }}
+      VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
 
   # Package for Windows
   package-windows:
@@ -19,13 +21,19 @@ jobs:
     uses: ./.github/workflows/conveyor.yml
     with:
       platform: windows-zip
-    secrets: inherit
+    secrets:
+      CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
 
   # Sign the Windows package
   sign:
     needs: [package-windows]
     uses: ./.github/workflows/sign.yml
-    secrets: inherit
+    secrets:
+      AZURE_SIGNING_ALIAS: ${{ secrets.AZURE_SIGNING_ALIAS }}
+      AZURE_SIGNING_REGION: ${{ secrets.AZURE_SIGNING_REGION }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
   # Create the release
   create-release:
