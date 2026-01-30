@@ -100,6 +100,7 @@ jobs:
           MAC_NOTARY_ISSUER: ${{ secrets.MAC_NOTARY_ISSUER }}
           MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
         with:
+          signing_key: ${{ secrets.CONVEYOR_ROOT_KEY }}
           agree_to_license: 1
           command: make notarized-mac-zip
           extra_flags: -f projects/behave/conveyor.conf ${{ inputs.arch && format('-Kapp.machines={0}', inputs.arch) || '' }}
