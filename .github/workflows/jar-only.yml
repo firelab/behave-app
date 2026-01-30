@@ -7,6 +7,15 @@ on:
       - '!projects/behave/conveyor*.conf'
   workflow_dispatch:
   workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to checkout (tag, branch, or SHA)'
+        required: false
+        type: string
+      version:
+        description: 'Version string (e.g., v7.1.4)'
+        required: false
+        type: string
     secrets:
       VMS_URL:
         required: true
@@ -23,6 +32,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || github.ref }}
           submodules: recursive
 
       - name: Setup Java
@@ -49,7 +59,12 @@ jobs:
 
       - name: Set the version
         run: |
-          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
+          if [[ -n "${{ inputs.version }}" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            REF="${{ inputs.ref || github.ref }}"
+            VERSION=$(echo "$REF" | sed -e 's/refs\/tags\///g')
+          fi
           echo "version=$VERSION" >> "$GITHUB_ENV"
 
       - name: Set the date

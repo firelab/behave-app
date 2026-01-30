@@ -41,6 +41,7 @@
                (run 'build-js)
                (run 'uber)
                (run 'rename-jar)
-               #_(shell "conveyor make app -o output/osx --overwrite")
+               (shell "conveyor -Kapp.machines=mac.aarch64 make notarized-mac-zip -o output/mac-aarch64/ --overwrite")
+               (shell "conveyor -Kapp.machines=mac.amd64 make notarized-mac-zip -o output/mac-amd64/ --overwrite")
                (shell "conveyor make windows-zip -o output/windows --overwrite")
-               #_(shell "conveyor make debian-package -o output/deb --overwrite"))}}
+               (shell "conveyor make debian-package -o output/deb --overwrite"))}}

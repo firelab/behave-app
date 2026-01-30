@@ -6,22 +6,41 @@ on:
       platform:
         description: 'Target platform'
         required: true
-        default: 'windows-zip'
+        default: 'windows'
         type: choice
         options:
-          - windows-zip
-          - mac-zip
-          - linux-deb
+          - windows
+          - mac
+          - linux
+      arch:
+        description: 'Architecture (for macOS only)'
+        required: false
+        type: choice
+        options:
+          - mac.amd64
+          - mac.aarch64
   workflow_call:
     inputs:
       platform:
         description: 'Target platform'
         required: false
-        default: 'windows-zip'
+        default: 'windows'
+        type: string
+      arch:
+        description: 'Architecture (for macOS only: mac.amd64 or mac.aarch64)'
+        required: false
         type: string
     secrets:
       CONVEYOR_ROOT_KEY:
         required: true
+      APPLE_CERTIFICATE_P12:
+        required: false
+      APPLE_CERTIFICATE_PASSWORD:
+        required: false
+      MAC_NOTARY_ISSUER:
+        required: false
+      MAC_NOTARY_KEY:
+        required: false
 
 jobs:
   package:
@@ -41,13 +60,77 @@ jobs:
           name: behave7-jar
           path: projects/behave/target/
 
+
+      #### WINDOWS SIGNING ####
       - name: Build package with Conveyor
+        uses: hydraulic-software/conveyor/actions/build@v21.1
+        if: ${{ contains(inputs.platform || 'windows-zip', 'windows') }}
+        with:
+          signing_key: ${{ secrets.CONVEYOR_ROOT_KEY }}
+          agree_to_license: 1
+          command: make windows
+          extra_flags: -f projects/behave/conveyor.windows-ci.conf
+
+
+      #### APPLE SIGNING ####
+      - name: Setup Apple certificate for macOS Signing / Notarization
+        if: ${{ contains(inputs.platform || '', 'mac') }}
+        env:
+          APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
+          MAC_NOTARY_PRIVATE_KEY_ENCODED: ${{ secrets.MAC_NOTARY_PRIVATE_KEY_ENCODED }}
+        run: |
+          cd ${{ github_workspace }}
+          mkdir -p projects/behave/.env
+
+          # Decode and save the P12 Certificate
+          echo "${{ env.APPLE_SIGNING_P12_ENCODED }}" | base64 --decode > ${{ github_workspace }}/projects/behave/.env/apple.p12
+          echo "APPLE_SIGNING_KEY_PATH=${{ github_workspace }}/projects/behave/.env/apple.p12" >> $GITHUB_ENV
+
+          # Decode and save the P8 Notary
+          echo "${{ env.MAC_NOTARY_PRIVATE_KEY_ENCODED }}" | base64 --decode > ${{ github_workspace }}//projects/behave/.env/AuthKey.p8
+          echo "MAC_NOTARY_PRIVATE_KEY_PATH=${{ github_workspace }}/projects/behave/.env/AuthKey.p8" >> $GITHUB_ENV
+
+      - name: Build package with Conveyor
+        if: ${{ contains(inputs.platform || '', 'mac') }}
+        uses: hydraulic-software/conveyor/actions/build@v21.1
+        env:
+          APPLE_SIGNING_PASSWORD: ${{ secrets.APPLE_SIGNING_PASSWORD }}
+          MAC_NOTARY_ISSUER: ${{ secrets.MAC_NOTARY_ISSUER }}
+          MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
+        with:
+          agree_to_license: 1
+          command: make notarized-mac-zip
+          extra_flags: -f projects/behave/conveyor.conf ${{ inputs.arch && format('-Kapp.machines={0}', inputs.arch) || '' }}
+
+
+      #### LINUX SIGNING ####
+      - name: Build package with Conveyor
+        if: ${{ contains(inputs.platform || '', 'linux') }}
         uses: hydraulic-software/conveyor/actions/build@v21.1
         with:
           signing_key: ${{ secrets.CONVEYOR_ROOT_KEY }}
           agree_to_license: 1
-          command: make ${{ inputs.platform || 'windows-zip' }}
-          extra_flags: -f projects/behave/conveyor.windows-ci.conf
+          command: make debian-package
+          extra_flags: -f projects/behave/conveyor.conf
+
+      - name: Ensure version has v prefix in filename
+        run: |
+          find output -name "*.zip" -type f | while read -r file; do
+            dir=$(dirname "$file")
+            name=$(basename "$file")
+
+            # Check if filename has a version without v prefix (e.g., name-1.2.3-platform.zip)
+            if [[ "$name" =~ ^(.+)-([0-9]+\.[0-9]+\.[0-9]+)(-.*)?\.zip$ ]]; then
+              prefix="${BASH_REMATCH[1]}"
+              version="${BASH_REMATCH[2]}"
+              suffix="${BASH_REMATCH[3]}"
+              new_name="${prefix}-v${version}${suffix}.zip"
+              echo "Renaming: $name -> $new_name"
+              mv "$file" "$dir/$new_name"
+            else
+              echo "Filename already has v prefix or doesn't match pattern: $name"
+            fi
+          done
 
       - name: Upload Windows package
         if: ${{ contains(inputs.platform || 'windows-zip', 'windows') }}
@@ -61,7 +144,7 @@ jobs:
         if: ${{ contains(inputs.platform || '', 'mac') }}
         uses: actions/upload-artifact@v4
         with:
-          name: mac-zip
+          name: mac-zip-${{ inputs.arch == 'mac.aarch64' && 'aarch64' || 'amd64' }}
           path: output/**/*mac*.zip
           retention-days: 5
 
@@ -69,6 +152,6 @@ jobs:
         if: ${{ contains(inputs.platform || '', 'linux') }}
         uses: actions/upload-artifact@v4
         with:
-          name: linux-deb
+          name: linux-app
           path: output/**/*.deb
           retention-days: 5
