@@ -67,6 +67,11 @@ jobs:
       - name: Build package with Conveyor
         uses: hydraulic-software/conveyor/actions/build@v21.1
         if: ${{ contains(inputs.platform || 'windows-zip', 'windows') }}
+          APPLE_SIGNING_KEY_PATH: ""
+          MAC_NOTARY_PRIVATE_KEY_PATH: ""
+          APPLE_SIGNING_PASSWORD: ""
+          MAC_NOTARY_ISSUER: ""
+          MAC_NOTARY_KEY: ""
         with:
           signing_key: ${{ secrets.CONVEYOR_ROOT_KEY }}
           agree_to_license: 1
