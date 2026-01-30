@@ -57,13 +57,29 @@ jobs:
           DATE=$(date '+%Y-%m-%d')
           echo "date=$DATE" >> "$GITHUB_ENV"
 
+      - name: Verify secrets are available
+        env:
+          VMS_URL: ${{ secrets.VMS_URL }}
+          VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
+        run: |
+          if [[ -z "$VMS_URL" ]]; then
+            echo "::warning::VMS_URL secret is empty or not set"
+          else
+            echo "VMS_URL is set (length: ${#VMS_URL})"
+          fi
+          if [[ -z "$VMS_AUTH_TOKEN" ]]; then
+            echo "::warning::VMS_AUTH_TOKEN secret is empty or not set"
+          else
+            echo "VMS_AUTH_TOKEN is set (length: ${#VMS_AUTH_TOKEN})"
+          fi
+
       - name: Build JAR
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
           VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
         run: |
           cd projects/behave
-          # clojure -X:download-vms :url '$VMS_URL' :auth-token '$VMS_AUTH_TOKEN'
+          clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
           bb build-js
           mv resources/config.standalone.edn resources/config.edn
           echo '{:version "${{ env.version }}"}' > resources/version.edn

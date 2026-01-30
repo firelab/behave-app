@@ -54,9 +54,11 @@ jobs:
           cd projects/behave
           export NIXPKGS_ALLOW_UNFREE=1
 
+          echo "VMS: ${{ env.VMS_URL }}"
+
           # Use Nix development environment to build everything
           nix develop --impure --command bash -c "
-            clojure -X:download-vms :url '$VMS_URL' :auth-token '$VMS_AUTH_TOKEN'
+            clojure -X:download-vms :url '${{ env.VMS_URL }} :auth-token '${{ env. VMS_AUTH_TOKEN }}'
             bb build-js
             mv resources/config.standalone.edn resources/config.edn
             echo '{:version \"$version\"}' > resources/version.edn
