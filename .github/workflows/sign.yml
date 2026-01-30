@@ -3,6 +3,17 @@ name: Sign Windows Package
 on:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      AZURE_SIGNING_ALIAS:
+        required: true
+      AZURE_SIGNING_REGION:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
 
 jobs:
   sign-windows:

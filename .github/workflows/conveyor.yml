@@ -19,6 +19,9 @@ on:
         required: false
         default: 'windows-zip'
         type: string
+    secrets:
+      CONVEYOR_ROOT_KEY:
+        required: true
 
 jobs:
   package:
