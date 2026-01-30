@@ -55,20 +55,27 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-      - name: Verify signed file exists
+      - name: Find signed file
+        id: find-signed
         run: |
-          SIGNED_FILE="${{ steps.sign.outputs.signed-file }}"
-          echo "Looking for signed file: $SIGNED_FILE"
-          if [[ ! -f "$SIGNED_FILE" ]]; then
-            echo "::error::Signed file not found: $SIGNED_FILE"
-            ls -la
+          SIGNED_FILENAME="${{ steps.sign.outputs.signed-file }}"
+          echo "Looking for signed file: $SIGNED_FILENAME"
+
+          SIGNED_PATH=$(find "${{ github.workspace }}" -name "$SIGNED_FILENAME" -type f | head -1)
+
+          if [[ -z "$SIGNED_PATH" ]]; then
+            echo "::error::Signed file not found: $SIGNED_FILENAME"
+            echo "Workspace contents:"
+            find "${{ github.workspace }}" -type f -name "*.zip"
             exit 1
           fi
-          echo "Signed file verified: $SIGNED_FILE"
+
+          echo "Found signed file: $SIGNED_PATH"
+          echo "signed-path=$SIGNED_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload signed Windows package
         uses: actions/upload-artifact@v4
         with:
           name: windows-zip-signed
-          path: ${{ steps.sign.outputs.signed-file }}
+          path: ${{ steps.find-signed.outputs.signed-path }}
           retention-days: 5
