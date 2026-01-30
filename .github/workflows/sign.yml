@@ -44,6 +44,7 @@ jobs:
           echo "Found zip file: $ZIP_FILE"
 
       - name: Sign Windows package
+        id: sign
         uses: rjsheperd/az-jsign-trusted-signing@main
         with:
           file: ${{ steps.find-zip.outputs.zip-file }}
@@ -54,9 +55,20 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
+      - name: Verify signed file exists
+        run: |
+          SIGNED_FILE="${{ steps.sign.outputs.signed-file }}"
+          echo "Looking for signed file: $SIGNED_FILE"
+          if [[ ! -f "$SIGNED_FILE" ]]; then
+            echo "::error::Signed file not found: $SIGNED_FILE"
+            ls -la
+            exit 1
+          fi
+          echo "Signed file verified: $SIGNED_FILE"
+
       - name: Upload signed Windows package
         uses: actions/upload-artifact@v4
         with:
           name: windows-zip-signed
-          path: windows-package/**
+          path: ${{ steps.sign.outputs.signed-file }}
           retention-days: 5
