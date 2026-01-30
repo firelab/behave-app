@@ -33,13 +33,15 @@ on:
     secrets:
       CONVEYOR_ROOT_KEY:
         required: true
-      APPLE_CERTIFICATE_P12:
-        required: false
       APPLE_CERTIFICATE_PASSWORD:
+        required: false
+      APPLE_CERTIFICATE_P12_ENCODED:
         required: false
       MAC_NOTARY_ISSUER:
         required: false
       MAC_NOTARY_KEY:
+        required: false
+      MAC_NOTARY_PRIVATE_KEY_ENCODED:
         required: false
 
 jobs:
