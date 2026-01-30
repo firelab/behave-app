@@ -1,0 +1,71 @@
+name: Package with Conveyor
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Target platform'
+        required: true
+        default: 'windows-zip'
+        type: choice
+        options:
+          - windows-zip
+          - mac-zip
+          - linux-deb
+  workflow_call:
+    inputs:
+      platform:
+        description: 'Target platform'
+        required: false
+        default: 'windows-zip'
+        type: string
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: behave7-jar
+          path: projects/behave/target/
+
+      - name: Build package with Conveyor
+        uses: hydraulic-software/conveyor/actions/build@v21.1
+        with:
+          signing_key: ${{ secrets.CONVEYOR_ROOT_KEY }}
+          agree_to_license: 1
+          command: make ${{ inputs.platform || 'windows-zip' }}
+          extra_flags: -f projects/behave/conveyor.windows-ci.conf
+
+      - name: Upload Windows package
+        if: ${{ contains(inputs.platform || 'windows-zip', 'windows') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: projects/behave/output/**/*windows*.zip
+          retention-days: 5
+
+      - name: Upload macOS package
+        if: ${{ contains(inputs.platform || '', 'mac') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-zip
+          path: projects/behave/output/**/*mac*.zip
+          retention-days: 5
+
+      - name: Upload Linux package
+        if: ${{ contains(inputs.platform || '', 'linux') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-deb
+          path: projects/behave/output/**/*.deb
+          retention-days: 5

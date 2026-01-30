@@ -1,0 +1,93 @@
+name: Create Release
+
+on: push
+#  push:
+#    tags:
+#      - '*'
+#  workflow_dispatch:
+#  workflow_call:
+
+jobs:
+  # Build the JAR first
+  build:
+    uses: ./.github/workflows/jar-only.yml
+    secrets: inherit
+
+  # Package for Windows
+  package-windows:
+    needs: [build]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: windows-zip
+    secrets: inherit
+
+  # Sign the Windows package
+  sign:
+    needs: [package-windows]
+    uses: ./.github/workflows/sign.yml
+    secrets: inherit
+
+  # Create the release
+  create-release:
+    needs: [build, sign]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set version
+        run: |
+          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+          DATE=$(date '+%Y-%m-%d')
+          echo "date=$DATE" >> "$GITHUB_ENV"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts/
+
+      - name: Display structure
+        run: ls -R release-artifacts/
+
+      - name: Rename JAR with version
+        run: |
+          cd release-artifacts/behave7-jar
+          mv behave7.jar behave-${{ env.version }}.jar
+
+    #   - name: Create Release
+    #     uses: ncipollo/release-action@v1
+    #     with:
+    #       name: "${{ env.version }} (${{ env.date }})"
+    #       artifacts: |
+    #         release-artifacts/behave7-jar/*.jar
+    #         release-artifacts/windows-zip-signed/**/*.zip
+    #       artifactContentType: application/octet-stream
+    #       tag: ${{ github.ref }}
+    #       makeLatest: true
+    #       body: |
+    #         # Behave 7 Release ${{ env.version }}
+
+    #         Released on ${{ env.date }}
+
+    #         ## Downloads
+
+    #         ### Desktop Applications
+    #         - **Windows**: `behave-*-windows-amd64.zip` (signed)
+
+    #         ### JAR File
+    #         - **Universal JAR**: `behave-${{ env.version }}.jar`
+
+    #         ## Installation
+
+    #         ### Desktop Apps
+    #         Download and extract the appropriate package for your platform.
+
+    #         ### JAR File
+    #         Requires Java 17 or later:
+    #         ```bash
+    #         java -jar behave-${{ env.version }}.jar
+            ```
