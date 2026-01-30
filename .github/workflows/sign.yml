@@ -1,12 +1,6 @@
 name: Sign Windows Package
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version string for signing (e.g., v7.1.4)'
-        required: false
-        type: string
   workflow_call:
     inputs:
       version:

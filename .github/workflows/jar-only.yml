@@ -1,11 +1,6 @@
 name: Build JAR
 
 on:
-  push:
-    paths:
-      - 'projects/behave/**'
-      - '!projects/behave/conveyor*.conf'
-  workflow_dispatch:
   workflow_call:
     inputs:
       ref:
