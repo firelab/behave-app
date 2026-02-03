@@ -9,6 +9,22 @@
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.groups.subs]))
 
+
+(defn- groups-results-order-table [submodule-id]
+  (let [groups (rf/subscribe [:groups submodule-id])]
+    [:div.col-12
+     [table-entity-form
+      {:entity             :group
+       :modify?            false
+       :entities           (sort-by :group/order @groups)
+       :parent-id          submodule-id
+       :parent-field       :submodule/_groups
+       :table-header-attrs [:group/name]
+       :order-attr         :group/order
+       :entity-form-fields [{:label     "Name"
+                             :required? true
+                             :field-key :group/name}]}]]))
+
 (defn- groups-table [submodule-id]
   (let [selected-state-path [:selected :group]
         editor-state-path   [:editors :group]
@@ -17,7 +33,7 @@
      [table-entity-form
       {:entity             :group
        :form-state-path    editor-state-path
-       :entities           (sort-by :group/order @groups)
+       :entities           (sort-by :group/results-order @groups)
        :on-select          (on-select selected-state-path)
        :parent-id          submodule-id
        :parent-field       :submodule/_groups
@@ -68,6 +84,11 @@
        [accordion
         "Groups"
         [groups-table (:db/id @submodule)]]
+       [:hr]
+       ^{:key "group-results-order"}
+       [accordion
+        "Groups Results Order"
+        [groups-results-order-table (:db/id @submodule)]]
        [:hr]
        ^{:key "conditionals"}
        [accordion

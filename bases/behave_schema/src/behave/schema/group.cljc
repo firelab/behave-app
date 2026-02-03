@@ -59,6 +59,11 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :group/results-order
+    :db/doc         "Group's order in Results."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :group/repeat?
     :db/doc         "Whether a Group repeats."
     :db/valueType   :db.type/boolean

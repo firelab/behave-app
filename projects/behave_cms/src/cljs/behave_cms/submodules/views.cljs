@@ -70,6 +70,20 @@
                             :options   [{:label "Input" :value :input}
                                         {:label "Output" :value :output}]}]}]))
 
+(defn- submodules-results-order-table [module-id app-id]
+  (let [submodule (rf/subscribe [:submodules module-id])]
+    [table-entity-form
+     {:entity             :submodule
+      :entities           (sort-by :submodule/results-order @submodule)
+      :modify?            false
+      :parent-id          app-id
+      :parent-field       :application/_submodules
+      :table-header-attrs [:submodule/name :submodule/io]
+      :order-attr         :submodule/order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :submodule/name}]}]))
+
 (defn submodules-page
   "Display submodules page. Takes a map with:
    - id [int]: Submodule entity ID."
@@ -93,6 +107,10 @@
          [accordion
           "Submodules"
           [submodules-table (:db/id @module) (:db/id application)]]
+         [:hr]
+         [accordion
+          "Submodules Results Order"
+          [submodules-results-order-table (:db/id @module) (:db/id application)]]
          [:hr]
          [accordion
           "Translations"
