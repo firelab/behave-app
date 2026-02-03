@@ -52,6 +52,11 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :submodule/results-order
+    :db/doc         "Submodule's order in Results."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :submodule/groups
     :db/doc         "Subodule's groups."
     :db/valueType   :db.type/ref

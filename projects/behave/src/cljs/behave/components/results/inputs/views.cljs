@@ -98,7 +98,7 @@
                                    :else
                                    [])
             children         (->> (:group/children current-group)
-                                  (sort-by :group/order))
+                                  (sort-by :group/results-order))
             next-indent      (if single-var?  (inc level) (+ level 2))
             children-entires (when (seq children)
                                (groups->row-entires ws-uuid formatters gv-uuid->units children next-indent))]
@@ -127,16 +127,17 @@
 
 (defn inputs-table [ws-uuid]
   (let [*worksheet     (subscribe [:worksheet ws-uuid])
-        modules        (:worksheet/modules @*worksheet)
+        module-kws        (:worksheet/modules @*worksheet)
         all-inputs     @(subscribe [:worksheet/all-inputs-vector ws-uuid])
         formatters     @(subscribe [:result.inputs/table-formatters (map #(nth % 2) all-inputs)])
-        gv-uuid->units @(subscribe [:worksheet/result-table-gv-uuid->units ws-uuid])]
+        gv-uuid->units @(subscribe [:worksheet/result-table-gv-uuid->units ws-uuid])
+        module-entities (->> module-kws
+                             (map #(deref (subscribe [:wizard/*module (name %)])))
+                             (sort-by :module/results-order))]
     [:div.print__inputs_tables {:id "inputs"}
-     (for [module-kw modules]
-       (let [module-name (name module-kw)
-             module      @(subscribe [:wizard/*module module-name])
-             submodules  @(subscribe [:result.inputs/submodules ws-uuid (:db/id module)])]
-         ^{:key module-kw}
+     (for [module module-entities]
+       (let [submodules @(subscribe [:result.inputs/submodules ws-uuid (:db/id module)])]
+         ^{:key (:name module)}
          [:div.print__inputs-table
           (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
                     :headers ["Input Variables" "Units" "Input Value(s)"]

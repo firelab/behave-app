@@ -278,10 +278,11 @@
                                :border-bottom   "3px solid black"
                                :padding         "5px"}}
     [:div {:style {:font-size "1.5rem"}} caption]
-    [:div [btn-sm
-           :primary
-           "Add Entry"
-           add-entity-fn]]]
+    (when add-entity-fn
+      [:div [btn-sm
+             :primary
+             "Add Entry"
+             add-entity-fn]])]
    [:div.table-wrapper {:style {:height           "100%"
                                 :overflow-y       "auto"
                                 :scroll-snap-type "y mandatory"

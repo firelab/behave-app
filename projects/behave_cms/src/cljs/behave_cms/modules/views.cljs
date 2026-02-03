@@ -26,6 +26,20 @@
                             :required? true
                             :field-key :module/name}]}]))
 
+(defn- modules-results-order-table [app-id]
+  (let [entities (rf/subscribe [:application/modules app-id])]
+    [table-entity-form
+     {:entity             :module
+      :entities           (sort-by :module/results-order @entities)
+      :modify?            false
+      :parent-id          app-id
+      :parent-field       :application/_modules
+      :table-header-attrs [:module/name]
+      :order-attr         :module/results-order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :module/name}]}]))
+
 ;;; Tools
 
 (defn- tools-table [app-id]
@@ -94,6 +108,10 @@
        [accordion
         "Modules"
         [modules-table app-id]]
+       [:hr]
+       [accordion
+        "Modules Results Order"
+        [modules-results-order-table app-id]]
        [:hr]
        [accordion
         "Tools"

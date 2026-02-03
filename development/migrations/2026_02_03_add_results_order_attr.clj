@@ -1,4 +1,4 @@
-(ns migrations.template
+(ns migrations.2026-02-03-add-results-order-attr
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
@@ -7,6 +7,8 @@
 ;; ===========================================================================================================
 ;; Overview
 ;; ===========================================================================================================
+
+;; Adds order attr to module, submodule, and group order entities, (copied over from original order)
 
 ;; ===========================================================================================================
 ;; Initialize
@@ -27,19 +29,20 @@
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload (mapcat
-              (fn [[order-attr result-order-attr]]
-                (map
-                 (fn [[eid order]]
-                   {:db/id            eid
-                    result-order-attr order})
-                 (d/q '[:find ?e ?order
-                        :in $ ?order-attr
-                        :where
-                        [?e ?order-attr ?order]]
-                      (d/db conn)
-                      order-attr)))
-              order-attrs))
+(def payload
+  (mapcat
+   (fn [[order-attr result-order-attr]]
+     (map
+      (fn [[eid order]]
+        {:db/id            eid
+         result-order-attr order})
+      (d/q '[:find ?e ?order
+             :in $ ?order-attr
+             :where
+             [?e ?order-attr ?order]]
+           (d/db conn)
+           order-attr)))
+   order-attrs))
 
 ;; ===========================================================================================================
 ;; Transact Payload

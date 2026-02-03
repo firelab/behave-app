@@ -74,7 +74,7 @@
                                                    conditionals)
                            (has-conditionally-set-group-variables? s-uuid)))))
         (filter-group-variables worksheet)
-        (sort-by :submodule/order))))
+        (sort-by :submodule/results-order))))
 
 (defn- create-formatter [variable]
   (let [v-kind (:variable/kind variable)]
