@@ -17,29 +17,12 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
-(def order-attrs
-  [[:module/order :module/results-order]
-   [:submodule/order :submodule/results-order]
-   [:group/order :group/results-order]])
-
 ;; ===========================================================================================================
 ;; Payload
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload (mapcat
-              (fn [[order-attr result-order-attr]]
-                (map
-                 (fn [[eid order]]
-                   {:db/id            eid
-                    result-order-attr order})
-                 (d/q '[:find ?e ?order
-                        :in $ ?order-attr
-                        :where
-                        [?e ?order-attr ?order]]
-                      (d/db conn)
-                      order-attr)))
-              order-attrs))
+(def payload [])
 
 ;; ===========================================================================================================
 ;; Transact Payload
