@@ -13,7 +13,8 @@
             [re-frame.core                 :as rf]
             [number-utils.interface        :refer [is-numeric? parse-float]]
             [string-utils.interface        :refer [->str]]
-            [vimsical.re-frame.cofx.inject :as inject]))
+            [vimsical.re-frame.cofx.inject :as inject]
+            [day8.re-frame.async-flow-fx]))
 
 ;;; Helpers
 
@@ -105,6 +106,29 @@
            [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]
            [:dispatch [:worksheet/set-default-graph-settings ws-uuid]]
            [:dispatch [:state/set :worksheet-computing? false]]]})))
+
+(defn- solve-flow [params]
+  {:debug?         true
+   :first-dispatch [:wizard/before-solve params]
+   :rules [{:when   :seen-all-of?
+            :events [:worksheet/remove-unused-inputs
+                     :worksheet/proccess-conditonally-set-output-group-variables
+                     :worksheet/process-search-table-output-group-variables
+                     :worksheet/proccess-conditonally-set-input-group-variables
+                     :worksheet/delete-existing-diagrams
+                     :worksheet/delete-existing-result-table]
+            :dispatch [:wizard/solve params]}
+           {:when     :seen?
+            :events   :wizard/solve
+            :dispatch [:wizard/after-solve params]}
+           {:when   :seen?
+            :events :wizard/after-solve
+            :halt?  true}]})
+
+(rf/reg-event-fx
+ :wizard/run-solve
+ (fn [_ [_ params]]
+   {:async-flow (solve-flow params)}))
 
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
