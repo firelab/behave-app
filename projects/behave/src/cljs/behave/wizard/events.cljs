@@ -108,8 +108,7 @@
            [:dispatch [:state/set :worksheet-computing? false]]]})))
 
 (defn- solve-flow [params]
-  {:debug?         true
-   :first-dispatch [:wizard/before-solve params]
+  {:first-dispatch [:wizard/before-solve params]
    :rules [{:when   :seen-all-of?
             :events [:worksheet/remove-unused-inputs
                      :worksheet/proccess-conditonally-set-output-group-variables
