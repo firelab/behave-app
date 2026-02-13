@@ -362,12 +362,7 @@
                       :variant       "highlight"
                       :icon-name     "arrow2"
                       :icon-position "right"
-                      :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                          (js/setTimeout
-                                           (fn []
-                                             (dispatch-sync [:wizard/solve params])
-                                             (dispatch-sync [:wizard/after-solve params]))
-                                           300))}]]]]])]))
+                      :on-click      #(dispatch [:wizard/run-solve params])}]]]]])]))
 
 ;; Wizard Results Settings Page
 
@@ -885,12 +880,7 @@
                         :variant       "highlight"
                         :icon-name     "arrow2"
                         :icon-position "right"
-                        :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                            (js/setTimeout
-                                             (fn []
-                                               (dispatch-sync [:wizard/solve params])
-                                               (dispatch-sync [:wizard/after-solve params]))
-                                             300))}]
+                        :on-click      #(dispatch [:wizard/run-solve params])}]
              [c/button {:label         @(<t (bp "next"))
                         :variant       "highlight"
                         :icon-name     "arrow2"
