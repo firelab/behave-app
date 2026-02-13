@@ -48,7 +48,7 @@ export class PersistentSortedSet {
    */
   static withComparatorAndStorage(cmp, storage, settings = null) {
     let theSettings = settings || new Settings();
-    return new PersistentSortedSet(cmp, null, theSettings, null, new Leaf(0, theSettings));
+    return new PersistentSortedSet(cmp, storage, theSettings, null, new Leaf(0, theSettings));
   }
 
   /**

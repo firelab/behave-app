@@ -6,8 +6,7 @@
    [absurder-sql.datascript.db            :as db]
    [absurder-sql.datascript.core          :as d]
    [absurder-sql.datascript.protocols :refer [IStorage]]
-   #_[absurder-sql.datascript.protocols :refer [IStorage]]
-   #_[absurder-sql.datascript.storage-async :as storage]))
+   [absurder-sql.datascript.storage-async :as storage]))
 
 
 ;;; State
@@ -136,9 +135,12 @@
   (-> (sql/init!)
       (.then (fn [_] (sql/connect! db-name)))
       (.then (fn [conn]
+               (println [:DS-CONN conn])
                (reset! sqlite-db conn)
-               (let [store (sqlite-store conn {:db-name db-name})]
-                 (reset! datascript-db (db/init-db datoms schema store))
+               (let [store        (sqlite-store conn {:db-name db-name})
+                     sync-adapter (storage/make-sync-storage-wrapper store {})]
+                 (println [:SQLITE-STORE store])
+                 (reset! datascript-db (db/init-db datoms schema {:storage sync-adapter}))
                  (reset! datascript-conn (d/conn-from-db @datascript-db))
                  @datascript-conn)))))
 

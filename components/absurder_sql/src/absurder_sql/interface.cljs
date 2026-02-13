@@ -21,6 +21,10 @@
        :arglists '([connection sql])}
   execute! c/execute!)
 
+(def ^{:doc      "Executes a query and returns a promise of a vector of Clojure maps."
+       :arglists '([connection sql])}
+  select c/select)
+
 (def ^{:doc      "Imports `db-bytes` to a SQLite Database."
        :arglists '([connection sql])}
   import! c/import!)

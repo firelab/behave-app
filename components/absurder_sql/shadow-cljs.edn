@@ -6,14 +6,22 @@
                 [persistent-sorted-set "0.3.0"]
                 [org.clojure/core.async "1.8.741"]
                 [io.github.tonsky/extend-clj "0.1.0"]]
- :dev-http     {8021 "target/test"}
+ :dev-http     {8020 ["out" "resources/public"]
+                8021 "target/test"}
  :nrepl        {:port       9000
                 :middleware [cider.nrepl/cider-middleware]}
  :builds       {:browser {:target     :browser
                           :output-dir "out/js"
                           :asset-path "/js"
-                          :modules    {:main {:entries [absurder.client]
-                                              :init-fn absurder.client/init}}}
+                          :modules    {:main {:entries [absurder-sql.client]
+                                              :init-fn absurder-sql.client/init}}}
+                :datascript {:target     :browser
+                             :output-dir "out/ds"
+                             :asset-path "/ds"
+                             :js-options {:js-provider :shadow}
+                             :compiler-options {:externs ["resources/externs.js"]}
+                             :modules    {:main {:entries [absurder-sql.datascript-client]
+                                                 :init-fn absurder-sql.datascript-client/init}}}
                 :test    {:target      :browser-test
                           :test-dir    "target/test"
                           ;; :runner-ns   absurder-sql.test-runner

@@ -3,7 +3,8 @@
     [cljs.reader :as reader]
     [absurder-sql.datascript.db :as db]
     [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
-    [absurder-sql.datascript.storage-async :refer [make-async-storage-adapter]]
+    [absurder-sql.datascript.sqlite :refer [SQLiteStore]]
+    [absurder-sql.datascript.storage-async :as async-storage :refer [make-async-storage-adapter SyncStorageWrapper]]
     [absurder-sql.datascript.util :as util]
     ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
 
@@ -101,28 +102,31 @@
 (defn store-impl! [db adapter force?]
   ;; Note: In JS/browser, locking is not available, so we skip it
   ;; If running in Node.js with SharedArrayBuffer, you'd need a different approach
-  (remember-db db)
-  (binding [*store-buffer* (volatile! (transient []))]
-    (let [eavt-addr (store-set (:eavt db) adapter)
-          aevt-addr (store-set (:aevt db) adapter)
-          avet-addr (store-set (:avet db) adapter)
-          meta (merge
-                 {:schema   (:schema db)
-                  :max-eid  (:max-eid db)
-                  :max-tx   (:max-tx db)
-                  :eavt     eavt-addr
-                  :aevt     aevt-addr
-                  :avet     avet-addr
-                  :max-addr @*max-addr}
-                 (set-settings (:eavt db)))]
-      (when (or force? (pos? (count @*store-buffer*)))
-        (vswap! *store-buffer* conj! [root-addr meta])
-        (vswap! *store-buffer* conj! [tail-addr []])
-        (let [^IStorage storage (.-storage adapter)]
-          (println [:STORAGE storage])
-          (println [:STORAGE-KEYS (js-keys storage) (satisfies? IStorage storage)])
-          (proto/-store storage (persistent! @*store-buffer*))))
-      db)))
+  (if (= (type adapter) SyncStorageWrapper)
+    (async-storage/store-impl-sync! db adapter force?)
+    (do 
+      (remember-db db)
+      (binding [*store-buffer* (volatile! (transient []))]
+        (let [eavt-addr (store-set (:eavt db) adapter)
+              aevt-addr (store-set (:aevt db) adapter)
+              avet-addr (store-set (:avet db) adapter)
+              meta      (merge
+                         {:schema   (:schema db)
+                          :max-eid  (:max-eid db)
+                          :max-tx   (:max-tx db)
+                          :eavt     eavt-addr
+                          :aevt     aevt-addr
+                          :avet     avet-addr
+                          :max-addr @*max-addr}
+                         (set-settings (:eavt db)))]
+          (when (or force? (pos? (count @*store-buffer*)))
+            (vswap! *store-buffer* conj! [root-addr meta])
+            (vswap! *store-buffer* conj! [tail-addr []])
+            (let [^IStorage storage (.-storage adapter)]
+              (println [:STORAGE storage])
+              (println [:STORAGE-KEYS (js-keys storage) (satisfies? IStorage storage)])
+              (proto/-store storage (persistent! @*store-buffer*))))
+          db)))))
 
 (defn store
   ([db]
@@ -139,34 +143,27 @@
            adapter  (StorageAdapter. storage settings)]
        (store-impl! db adapter false)))))
 
-(defn store-tail [db tail]
-  (proto/-store (storage db) [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
-
-;; Helper to restore a sorted set by address
-(defn- restore-set-by [cmp addr adapter opts]
-  (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) RefType.WEAK)
-        settings (Settings. branching-factor ref-type nil)]
-    (PersistentSortedSet. cmp adapter settings addr nil -1 0)))
-
 (defn restore-impl [^IStorage storage opts]
-  ;; Note: locking not available in JS
-  (when-some [root (proto/-restore storage root-addr)]
-    (let [tail    (proto/-restore storage tail-addr)
-          {:keys [schema eavt aevt avet max-eid max-tx max-addr]} root
-          _       (vswap! *max-addr max max-addr)
-          opts    (merge root opts)
-          adapter (make-storage-adapter storage opts)
-          _       (println [:RESTORED root tail])
-          db      (db/restore-db
-                    {:schema  schema
-                     :eavt    (restore-set-by db/cmp-datoms-eavt eavt adapter opts)
-                     :aevt    (restore-set-by db/cmp-datoms-aevt aevt adapter opts)
-                     :avet    (restore-set-by db/cmp-datoms-avet avet adapter opts)
-                     :max-eid max-eid
-                     :max-tx  max-tx})]
-      (remember-db db)
-      [db (mapv #(mapv (fn [[e a v tx]] (db/datom e a v tx)) %) tail)])))
+  (if (= (type storage) SQLiteStore)
+    (async-storage/restore-impl-sync storage opts)
+
+    ;; Note: locking not available in JS
+    (when-some [root (proto/-restore storage root-addr)]
+      (let [tail    (proto/-restore storage tail-addr)
+            {:keys [schema eavt aevt avet max-eid max-tx max-addr]} root
+            _       (vswap! *max-addr max max-addr)
+            opts    (merge root opts)
+            adapter (make-storage-adapter storage opts)
+            _       (println [:RESTORED root tail])
+            db      (db/restore-db
+                      {:schema  schema
+                       :eavt    (restore-set-by db/cmp-datoms-eavt eavt adapter opts)
+                       :aevt    (restore-set-by db/cmp-datoms-aevt aevt adapter opts)
+                       :avet    (restore-set-by db/cmp-datoms-avet avet adapter opts)
+                       :max-eid max-eid
+                       :max-tx  max-tx})]
+        (remember-db db)
+        [db (mapv #(mapv (fn [[e a v tx]] (db/datom e a v tx)) %) tail)]))))
 
 (defn db-with-tail [db tail]
   (reduce
@@ -180,10 +177,14 @@
 
 (defn restore
   ([^IStorage storage]
-   (restore storage {}))
+   (if (= (type storage) SQLiteStore)
+     (async-storage/restore-sync storage)
+     (restore storage {})))
   ([^IStorage storage opts]
-   (let [[db tail] (restore-impl storage opts)]
-     (db-with-tail db tail))))
+   (if (= (type storage) SQLiteStore)
+     (async-storage/restore-sync storage opts)
+     (let [[db tail] (restore-impl storage opts)]
+       (db-with-tail db tail)))))
 
 (defn- addresses-impl [db visit-fn]
   {:pre [(db/db? db)]}
@@ -211,15 +212,17 @@
     (persistent! @res)))
 
 (defn collect-garbage [^IStorage storage']
-  ;; Note: JS doesn't have System/gc, but WeakRef will handle cleanup automatically
-  (let [dbs    (conj
-                 (read-stored-dbs storage')
-                 (restore storage')) ;; make sure we won't gc currently stored db
-        used   (addresses dbs)
-        all    (proto/-list-addresses storage')
-        unused (into [] (remove used) all)]
-    (util/log "GC: found" (count dbs) "alive db refs," (count used) "used addrs," (count all) "total addrs," (count unused) "unused")
-    (proto/-delete storage' unused)))
+  (if (= (type storage) SQLiteStore)
+    (async-storage/collect-garbage storage)
+    ;; Note: JS doesn't have System/gc, but WeakRef will handle cleanup automatically
+    (let [dbs    (conj
+                  (read-stored-dbs storage')
+                  (restore storage')) ;; make sure we won't gc currently stored db
+          used   (addresses dbs)
+          all    (proto/-list-addresses storage')
+          unused (into [] (remove used) all)]
+      (util/log "GC: found" (count dbs) "alive db refs," (count used) "used addrs," (count all) "total addrs," (count unused) "unused")
+      (proto/-delete storage' unused))))
 
 ;; Browser/Node.js compatible storage implementations
 

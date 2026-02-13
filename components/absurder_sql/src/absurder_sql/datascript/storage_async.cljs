@@ -4,7 +4,6 @@
    [cljs.reader :as reader]
    [absurder-sql.datascript.db :as db]
    [absurder-sql.datascript.util :as util]
-   #_[absurder-sql.datascript.storage :refer [IStorage]]
    [absurder-sql.datascript.protocols :as proto :refer [IStorage]]
    ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
 
@@ -57,7 +56,7 @@
 
 (defn make-async-storage-adapter [^IStorage storage opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) RefType.WEAK)
+        ref-type (or (:ref-type opts) (.-WEAK RefType))
         settings (Settings. branching-factor ref-type nil)
         cache (atom {})]
     (AsyncStorageAdapter. storage settings cache)))
@@ -96,7 +95,7 @@
   "Create a sync storage wrapper around an async storage backend"
   [^IStorage storage opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) RefType.WEAK)
+        ref-type (or (:ref-type opts) (.-WEAK RefType))
         settings (Settings. branching-factor ref-type nil)
         async-adapter (AsyncStorageAdapter. storage settings (atom {}))
         cache (atom {})
@@ -239,7 +238,7 @@
 ;; Helper to restore a sorted set by address
 (defn- restore-set-by [cmp addr adapter opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) RefType.WEAK)
+        ref-type (or (:ref-type opts) (.-WEAK RefType))
         settings (Settings. branching-factor ref-type nil)]
     (PersistentSortedSet. cmp adapter settings addr nil -1 0)))
 

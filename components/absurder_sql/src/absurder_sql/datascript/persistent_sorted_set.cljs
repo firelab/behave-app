@@ -5,9 +5,11 @@
  absurder-sql.datascript.persistent-sorted-set
   (:refer-clojure :exclude [conj disj sorted-set sorted-set-by])
   (:require
-   [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
-   [absurder-sql.datascript.storage   :refer [make-storage-adapter]]
    ["../../persistent_sorted_set_js/index.min" :as pss :refer [PersistentSortedSet RefType Seq Settings]]))
+
+(defonce ^:private STRONG-REF (.-STRONG RefType))
+(defonce ^:private SOFT-REF (.-SOFT RefType))
+(defonce ^:private WEAK-REF (.-WEAK RefType))
 
 ;; JavaScript interop helpers
 (defn- js-comparator
@@ -26,10 +28,10 @@
   [opts]
   (let [branching-factor (or (:branching-factor opts) 512)
         ref-type (case (:ref-type opts)
-                   :strong RefType.STRONG
-                   :soft   RefType.SOFT
-                   :weak   RefType.WEAK
-                   RefType.STRONG)]
+                   :strong STRONG-REF
+                   :soft   SOFT-REF
+                   :weak   WEAK-REF
+                   STRONG-REF)]
     (new Settings branching-factor ref-type)))
 
 (defn- settings->clj
@@ -37,20 +39,20 @@
   [^js settings]
   {:branching-factor (.branchingFactor settings)
    :ref-type         (case (.refType settings)
-                       RefType.STRONG :strong
-                       RefType.SOFT   :soft
-                       RefType.WEAK   :weak)})
+                       STRONG-REF :strong
+                       SOFT-REF   :soft
+                       WEAK-REF   :weak)})
 
 ;; Main API functions
 (defn conj
   "Analogue to [[clojure.core/conj]] but with comparator that overrides the one stored in set."
-  [^PersistentSortedSetStorage set key cmp]
+  [^PersistentSortedSet set key cmp]
   (let [js-cmp (js-comparator cmp)]
     (.conj set key js-cmp)))
 
 (defn disj
   "Analogue to [[clojure.core/disj]] with comparator that overrides the one stored in set."
-  [^PersistentSortedSetStorage set key cmp]
+  [^PersistentSortedSet set key cmp]
   (let [js-cmp (js-comparator cmp)]
     (.disj set key js-cmp)))
 
@@ -59,9 +61,9 @@
    `(slice set from to)` returns iterator for all Xs where from <= X <= to.
    `(slice set from nil)` returns iterator for all Xs where X >= from.
    Optionally pass in comparator that will override the one that set uses. Supports efficient [[clojure.core/rseq]]."
-  ([^PersistentSortedSetStorage set from to]
+  ([^PersistentSortedSet set from to]
    (.slice set from to))
-  ([^PersistentSortedSetStorage set from to cmp]
+  ([^PersistentSortedSet set from to cmp]
    (let [js-cmp (js-comparator cmp)]
      (.slice set from to js-cmp))))
 
@@ -70,9 +72,9 @@
    `(rslice set from to)` returns backwards iterator for all Xs where from <= X <= to.
    `(rslice set from nil)` returns backwards iterator for all Xs where X <= from.
    Optionally pass in comparator that will override the one that set uses. Supports efficient [[clojure.core/rseq]]."
-  ([^PersistentSortedSetStorage set from to]
+  ([^PersistentSortedSet set from to]
    (.rslice set from to))
-  ([^PersistentSortedSetStorage set from to cmp]
+  ([^PersistentSortedSet set from to cmp]
    (let [js-cmp (js-comparator cmp)]
      (.rslice set from to js-cmp))))
 
@@ -97,8 +99,8 @@
   ([cmp keys len opts]
    (let [js-cmp     (js-comparator cmp)
          js-arr     (if (array? keys) keys (to-array keys))
-         settings   (settings->js opts)
-         storage    (make-storage-adapter (:storage opts) opts)]
+         storage    (:storage opts) 
+         settings   (settings->js opts)]
      (.from PersistentSortedSet js-arr js-cmp storage settings))))
 
 (defn from-sequential
@@ -109,15 +111,15 @@
    (let [js-cmp   (js-comparator cmp)
          arr      (to-array keys)
          _        (.sort arr js-cmp)
-         settings (settings->js opts)
-         storage  (make-storage-adapter (:storage opts) opts)]
+         storage  (:storage opts) 
+         settings (settings->js opts)]
      (.from PersistentSortedSet arr js-cmp storage settings))))
 
 (defn sorted-set*
   "Create a set with custom comparator, metadata and settings"
   [opts]
   (let [js-cmp   (js-comparator (or (:cmp opts) compare))
-        storage  (make-storage-adapter (:storage opts) opts)
+        storage  (:storage opts) 
         settings (settings->js opts)]
     (.withComparatorAndStorage PersistentSortedSet js-cmp storage settings)))
 
@@ -143,9 +145,8 @@
    (restore-by cmp address storage {}))
   ([cmp address storage opts]
    (let [js-cmp   (js-comparator cmp)
-         js-storage (make-storage-adapter storage opts)
          settings (settings->js opts)]
-     (PersistentSortedSet. js-cmp js-storage settings address nil -1 0))))
+     (PersistentSortedSet. js-cmp storage settings address nil -1 0))))
 
 (defn restore
   "Constructs lazily-loaded set from storage and root address.
@@ -159,23 +160,22 @@
 (defn walk-addresses
   "Visit each address used by this set. Usable for cleaning up
    garbage left in storage from previous versions of the set"
-  [^PersistentSortedSetStorage set consume-fn]
+  [^PersistentSortedSet set consume-fn]
   (.walkAddresses set consume-fn))
 
 (defn settings
   "Get the settings for this set as a Clojure map"
-  [^PersistentSortedSetStorage set]
+  [^PersistentSortedSet set]
   (settings->clj (.-_settings set)))
 
 (defn store
   "Store each not-yet-stored node by calling IStorage::store and remembering
    returned address. Incremental, won't store same node twice on subsequent calls.
    Returns root address. Remember it and use it for restore"
-  ([^PersistentSortedSetStorage set]
+  ([^PersistentSortedSet set]
    (.store set))
-  ([^PersistentSortedSetStorage set storage]
-   (let [^IPersistendSortedSetStorage pss-storage (make-storage-adapter storage (settings set))]
-     (.store set pss-storage))))
+  ([^PersistentSortedSet set storage]
+   (.store set storage)))
 
 ;; Extend JavaScript PersistentSortedSet to implement Clojure protocols
 (extend-type PersistentSortedSet
@@ -275,5 +275,3 @@
     (-pr-writer [this writer opts]
       (let [arr (.toArray this)]
         (-write writer (pr-str (vec arr)))))))
-
-;; Note: PersistentSortedSet, Settings, and RefType are already imported and available
