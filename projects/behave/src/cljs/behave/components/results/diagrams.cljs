@@ -3,11 +3,10 @@
             [clojure.set                    :refer [rename-keys]]
             [clojure.string                 :as str]
             [re-frame.core                  :refer [subscribe]]
-            [goog.string            :as gstring]
-            [re-frame.core :as rf]))
+            [goog.string                    :as gstring]))
 
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
-  (let [gv-order @(subscribe [:vms/group-variable-order])
+  (let [gv-order          @(subscribe [:vms/group-variable-order])
         outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
         output-formatters @(subscribe [:worksheet/result-table-formatters outputs-to-filter])
         outputs           (->> (subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
@@ -50,7 +49,7 @@
 
 (defn- build-title [ws-uuid diagram-title row-id]
   (let [multi-valued-input-uuids  (set @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
-        *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
+        *gv-order                 (subscribe [:vms/group-variable-order ws-uuid])
         input-gv-uuid+value+units (sort-by #(.indexOf @*gv-order (first %))
                                            @(subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id]))
         result                    (->> input-gv-uuid+value+units
@@ -59,7 +58,7 @@
                                        (map (fn [[gv-uuid value unit]]
                                               (gstring/format
                                                "%s=%s (%s) "
-                                               @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                                               @(subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                                value
                                                unit)))
                                        (apply str))]
@@ -71,26 +70,30 @@
                            arrows              :worksheet.diagram/arrows
                            scatter-plots       :worksheet.diagram/scatter-plots
                            title               :worksheet.diagram/title
-                           group-variable-uuid :worksheet.diagram/group-variable-uuid}]
+                           group-variable-uuid :worksheet.diagram/group-variable-uuid
+                           units-uuid          :worksheet.diagram/units-uuid}]
 
-  (let [domain (apply max (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
-                                  (map #(Math/abs (* 2 (:ellipse/semi-major-axis %))) ellipses)
-                                  (map #(Math/abs (:arrow/length %)) arrows)
-                                  (->> scatter-plots
-                                       (mapcat #(str/split (:scatter-plot/x-coordinates %) ","))
-                                       (map #(Math/abs (double %))))
-                                  (->> scatter-plots
-                                       (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
-                                       (map #(Math/abs (double %))))))]
+  (let [units-short-code (when units-uuid @(subscribe [:vms/units-uuid->short-code units-uuid]))
+        domain           (apply max (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
+                                            (map #(Math/abs (* 2 (:ellipse/semi-major-axis %))) ellipses)
+                                            (map #(Math/abs (:arrow/length %)) arrows)
+                                            (->> scatter-plots
+                                                 (mapcat #(str/split (:scatter-plot/x-coordinates %) ","))
+                                                 (map #(Math/abs (double %))))
+                                            (->> scatter-plots
+                                                 (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
+                                                 (map #(Math/abs (double %))))))]
     [:div.diagram
      [output-diagram {:title         (build-title ws-uuid title row-id)
                       :width         500
                       :height        500
                       :x-axis        {:domain        [(* -1 domain) domain]
+                                      :units         units-short-code
                                       :title         "x"
                                       :tick-min-step 5}
                       :y-axis        {:domain        [(* -1 domain) domain]
                                       :title         "y"
+                                      :units         units-short-code
                                       :tick-min-step 5}
                       :ellipses      (mapv #(rename-keys (into {} %)
                                                          {:ellipse/legend-id       :legend-id
@@ -133,6 +136,6 @@
     (when (seq (:worksheet/diagrams @*ws))
       [:div.wizard-results__diagrams {:id "diagram"}
        [:div.wizard-notes__header "Diagram"]
-       (map #(construct-diagram ws-uuid % )
+       (map #(construct-diagram ws-uuid %)
             (sort-by :worksheet.diagram/row-id
                      (:worksheet/diagrams @*ws)))])))

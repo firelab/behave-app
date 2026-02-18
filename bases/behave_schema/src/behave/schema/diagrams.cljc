@@ -17,6 +17,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :diagram/units-uuid
+    :db/doc         "Diagram units"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :diagram/input-group-variables
     :db/doc         "Diagram input group-variables to show in summary table"
     :db/valueType   :db.type/ref

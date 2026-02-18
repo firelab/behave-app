@@ -1,8 +1,8 @@
 (ns behave.components.vega.diagram
-  (:require [cljsjs.vega-embed]
-            [behave.components.vega.core :refer [vega-box]]
-            [goog.string                    :as gstring]
-            [clojure.string :as str]))
+  (:require [behave.components.vega.core :refer [vega-box]]
+            [cljsjs.vega-embed]
+            [clojure.string              :as str]
+            [goog.string                 :as gstring]))
 
 (defn- add-scatter-plot [schema {:keys [legend-id data color]}]
   (-> schema
@@ -40,8 +40,8 @@
                                                  :stop  1.01
                                                  :step  0.01
                                                  :as    "t"}}
-                          :transform [{:calculate (gstring/format  "(%s * cos(datum.t * PI) * sin(%s * (PI / 180))) + (%s * sin(datum.t * PI) * cos(%s * (PI / 180))) + %s"
-                                                                   a-name phi-name b-name phi-name cx-name)
+                          :transform [{:calculate (gstring/format "(%s * cos(datum.t * PI) * sin(%s * (PI / 180))) + (%s * sin(datum.t * PI) * cos(%s * (PI / 180))) + %s"
+                                                                  a-name phi-name b-name phi-name cx-name)
                                        :as        "x"}
                                       {:calculate (gstring/format "(%s * cos(datum.t * PI) * cos(%s * (PI / 180))) - (%s * sin(datum.t * PI) * sin(%s * (PI / 180))) + %s"
                                                                   a-name phi-name b-name phi-name cy-name)
@@ -53,11 +53,11 @@
                                               :type  "quantitative"}
                                       :order {:field "t"
                                               :type  "quantitative"}}}))
-        (update :params #(into %  [{:name a-name :value a}
-                                   {:name b-name :value b}
-                                   {:name phi-name :value phi}
-                                   {:name cx-name :expr (gstring/format "(%s * -sin(%s * (PI / 180) - PI) + %s)" a phi x-offset)}
-                                   {:name cy-name :expr (gstring/format "(%s * -cos(%s * (PI / 180) - PI))" a phi)}]))
+        (update :params #(into % [{:name a-name :value a}
+                                  {:name b-name :value b}
+                                  {:name phi-name :value phi}
+                                  {:name cx-name :expr (gstring/format "(%s * -sin(%s * (PI / 180) - PI) + %s)" a phi x-offset)}
+                                  {:name cy-name :expr (gstring/format "(%s * -cos(%s * (PI / 180) - PI))" a phi)}]))
         (update-in [:encoding :color :scale :domain] #(conj % legend-id))
         (update-in [:encoding :color :scale :range] #(conj % color)))))
 
@@ -66,10 +66,10 @@
                                  theta   0
                                  dashed? false}}]
   (let [legend-id-cleaned (str/replace legend-id " " "_")
-        r-name          (str "R_" legend-id-cleaned)
-        theta-name      (str "THETA_" legend-id-cleaned)
-        stroke-width    5
-        arrow-head-size (* stroke-width 200)]
+        r-name            (str "R_" legend-id-cleaned)
+        theta-name        (str "THETA_" legend-id-cleaned)
+        stroke-width      5
+        arrow-head-size   (* stroke-width 200)]
     (-> schema
         (update :layer #(conj % {:data      {:values [{r-name 0.0 "origin" true}
                                                       {r-name 0.5}]}
@@ -94,8 +94,8 @@
                                                      :type  "quantitative"}
                                              :y     {:field "y"
                                                      :type  "quantitative"}}}))
-        (update :params #(into %  [{:name r-name :value r}
-                                   {:name theta-name :value theta}]))
+        (update :params #(into % [{:name r-name :value r}
+                                  {:name theta-name :value theta}]))
         (update-in [:encoding :color :scale :domain] #(conj % legend-id))
         (update-in [:encoding :color :scale :range] #(conj % color)))))
 
@@ -123,7 +123,8 @@
 
    Axis Parameters:
    :domain - tuple determining the min and max values of the axis
-   :title  - title displayed on the axis
+   :title  - title displayed on the axis (defaults to \"x\" or \"y\")
+   :units  - units label appended to the axis title in parentheses (e.g. \"ft\" displays as \"x (ft)\")
 
    Ellipse Parameters:
    :legend-id - Unique identifier string for the ellipse (for legend)
@@ -152,12 +153,21 @@
                      :description "diagram"
                      :width       width
                      :height      height
-                     :encoding    {:x     {:axis  {:title       "x"
+                     :encoding    {:x     {:axis  {:title       (if (:units x-axis)
+                                                                  (str (:title x-axis "x") " (" (:units x-axis) ")")
+                                                                  (:title x-axis "x"))
+                                                   :titleAnchor "start"
+                                                   :titleAlign  "left"
                                                    :offset      (compute-axis-offset (:domain y-axis)
                                                                                      height)
                                                    :tickMinStep (or (:tick-min-step x-axis) 1)}
                                            :scale {:domain (:domain x-axis)}}
-                                   :y     {:axis  {:title       "y"
+                                   :y     {:axis  {:title       (if (:units y-axis)
+                                                                  (str (:title y-axis "y") " (" (:units y-axis) ")")
+                                                                  (:title y-axis "y"))
+                                                   :titleAnchor "end"
+                                                   :titleAngle  0
+                                                   :titleAlign  "left"
                                                    :offset      (compute-axis-offset (:domain x-axis)
                                                                                      width)
                                                    :tickMinStep (or (:tick-min-step y-axis) 1)}

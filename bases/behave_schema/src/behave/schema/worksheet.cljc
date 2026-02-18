@@ -403,6 +403,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :worksheet.diagram/units-uuid
+    :db/doc         "Diagram's units UUID"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :worksheet.diagram/title
     :db/doc         "Diagram's title"
     :db/valueType   :db.type/string
