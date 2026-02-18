@@ -60,11 +60,15 @@
   @initialized?)
 
 (defn connect!
-  "Creates a new in-browser SQLite database connection to `db-name`."
+  "Creates a new in-browser SQLite database connection to `db-name`.
+   Enables Write-Ahead Log (WAL) mode by default."
   ^js/sqlite.Database
   [db-name]
   (ensure-connected!)
-  (js/sqlite.Database.newDatabase db-name))
+  (-> (js/sqlite.Database.newDatabase db-name)
+      (p/then (fn [db]
+                (-> (.execute db "PRAGMA journal_mode=WAL;")
+                    (p/then (fn [_] db)))))))
 
 (defn close!
   "Closes an existing SQLite database connection."

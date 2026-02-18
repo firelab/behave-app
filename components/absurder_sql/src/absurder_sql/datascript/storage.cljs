@@ -5,6 +5,7 @@
    [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
    [absurder-sql.datascript.storage-async :as async-storage :refer [make-async-storage-adapter SyncStorageWrapper]]
    [absurder-sql.datascript.util :as util]
+   [absurder-sql.datascript.persistent-sorted-set :as set]
    ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
 
 (def ^:private ^:dynamic *store-buffer*)
@@ -143,6 +144,9 @@
            adapter  (StorageAdapter. storage settings)]
        (store-impl! db adapter false)))))
 
+(defn- restore-set-by [cmp addr adapter opts]
+  (set/restore-by cmp addr adapter opts))
+
 (defn restore-impl [^IStorage storage opts]
     ;; Note: locking not available in JS
   (when-some [root (proto/-restore storage root-addr)]
@@ -195,14 +199,14 @@
     (persistent! @*set)))
 
 (defn- read-stored-dbs [^IStorage storage']
-  (let [res (transient [])]
+  (let [*res (volatile! (transient []))]
     (dotimes [i (.-length stored-dbs)]
       (let [ref (aget stored-dbs i)
             db  (.deref ref)]
         (when (and (some? db)
                    (identical? (storage db) storage'))
-          (vswap! res conj! db))))
-    (persistent! @res)))
+          (vswap! *res conj! db))))
+    (persistent! @*res)))
 
 (defn collect-garbage [^IStorage storage']
     ;; Note: JS doesn't have System/gc, but WeakRef will handle cleanup automatically
