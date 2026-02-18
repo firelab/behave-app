@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DataScript + SQLite Test</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: monospace; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+      h1 { margin-bottom: 1rem; }
+      h2 { margin: 1rem 0 0.5rem; font-size: 1rem; }
+      #status { padding: 0.5rem; margin-bottom: 1rem; background: #eee; }
+      textarea { width: 100%; font-family: monospace; font-size: 0.9rem; padding: 0.5rem; margin-bottom: 0.5rem; }
+      #tx-input { height: 6rem; }
+      #q-input { height: 4rem; }
+      button { padding: 0.4rem 1rem; margin-right: 0.5rem; margin-bottom: 1rem; cursor: pointer; }
+      #results { margin-top: 1rem; padding: 0.5rem; background: #f9f9f9; border: 1px solid #ccc; white-space: pre-wrap; word-break: break-all; min-height: 3rem; max-height: 16rem; overflow-y: auto; }
+      #log { margin-top: 1rem; padding: 0.5rem; background: #1e1e1e; color: #0f0; font-size: 0.8rem; height: 12rem; overflow-y: auto; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>DataScript + SQLite</h1>
+    <div id="status">Status: loading...</div>
+
+    <h2>Transact</h2>
+    <textarea id="tx-input">[{:name "Maksim" :age 45 :aka ["Max Otto von Stierlitz" "Jack Ryan"]}
+ {:name "Anna"   :age 31 :aka ["Anya"]}
+ {:name "Ivan"   :age 20}]</textarea>
+    <div>
+      <button id="btn-transact">Transact</button>
+    </div>
+
+    <h2>Query</h2>
+    <textarea id="q-input">[:find ?n ?a :where [?e :name ?n] [?e :age ?a]]</textarea>
+    <div>
+      <button id="btn-query">Query</button>
+      <button id="btn-datoms">Dump Datoms</button>
+      <button id="btn-clear">Clear</button>
+    </div>
+
+    <div id="results"></div>
+    <div id="log"></div>
+
+    <!-- shadow-cljs compiled output -->
+    <script src="/ds/main.js"></script>
+  </body>
+</html>
