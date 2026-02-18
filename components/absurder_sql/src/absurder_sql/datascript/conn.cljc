@@ -1,24 +1,36 @@
 (ns absurder-sql.datascript.conn
   (:require
-    [absurder-sql.datascript.db :as db #?@(:cljs [:refer [DB FilteredDB]])]
-    [absurder-sql.datascript.storage :as storage]
-    [extend-clj.core :as extend]
-    [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.datascript.persistent-sorted-set) :as set])
+   [absurder-sql.datascript.db :as db #?@(:cljs [:refer [DB FilteredDB]])]
+   [absurder-sql.datascript.protocols :as proto]
+   [extend-clj.core :as extend]
+   [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.datascript.persistent-sorted-set) :as set])
   #?(:clj
      (:import
-       [absurder-sql.datascript.db DB FilteredDB])))
+      [absurder-sql.datascript.db DB FilteredDB])))
 
 (extend/deftype-atom Conn [atom]
   (deref-impl [this]
-    (:db @atom))
+              (:db @atom))
   (compare-and-set-impl [this oldv newv]
-    (compare-and-set!
-      atom
-      (assoc @atom :db oldv)
-      (assoc @atom :db newv))))
+                        (compare-and-set!
+                         atom
+                         (assoc @atom :db oldv)
+                         (assoc @atom :db newv))))
 
 (defn- make-conn [opts]
   (->Conn (atom opts)))
+
+(defn- storage-adapter [db]
+  (when db (.-_storage (:eavt db))))
+
+(defn- db-with-tail [db tail]
+  (reduce
+   (fn [db datoms]
+     (if (empty? datoms) db
+         (as-> db %
+           (reduce db/with-datom % datoms)
+           (assoc % :max-tx (:tx (first datoms))))))
+   db tail))
 
 (defn with
   ([db tx-data] (with db tx-data nil))
@@ -36,21 +48,21 @@
 
 (defn conn? [conn]
   (and
-    #?(:clj  (instance? clojure.lang.IDeref conn)
-       :cljs (satisfies? cljs.core/IDeref conn))
-    (if-some [db @conn]
-      (db/db? db)
-      true)))
+   #?(:clj  (instance? clojure.lang.IDeref conn)
+      :cljs (satisfies? cljs.core/IDeref conn))
+   (if-some [db @conn]
+     (db/db? db)
+     true)))
 
 (defn conn-from-db [db]
   {:pre [(db/db? db)]}
-  (if-some [storage (storage/storage db)]
+  (if-some [adapter (storage-adapter db)]
     (do
-      (storage/store db)
+      (proto/-ds-store! adapter db false)
       (make-conn
-        {:db db
-         :tx-tail []
-         :db-last-stored db}))
+       {:db db
+        :tx-tail []
+        :db-last-stored db}))
     (make-conn {:db db})))
 
 (defn conn-from-datoms
@@ -59,7 +71,7 @@
   ([datoms schema]
    (conn-from-db (db/init-db datoms schema {})))
   ([datoms schema opts]
-   (conn-from-db (db/init-db datoms schema (storage/maybe-adapt-storage opts)))))
+   (conn-from-db (db/init-db datoms schema opts))))
 
 (defn create-conn
   ([]
@@ -67,17 +79,14 @@
   ([schema]
    (conn-from-db (db/empty-db schema {})))
   ([schema opts]
-   (conn-from-db (db/empty-db schema (storage/maybe-adapt-storage opts)))))
+   (conn-from-db (db/empty-db schema opts))))
 
-(defn restore-conn
-  ([storage]
-   (restore-conn storage {}))
-  ([storage opts]
-   (when-some [[db tail] (storage/restore-impl storage opts)]
-     (make-conn
-      {:db             (storage/db-with-tail db tail)
-       :tx-tail        tail
-       :db-last-stored db}))))
+(defn restore-conn [result]
+  (when-some [[db tail] result]
+    (make-conn
+     {:db             (db-with-tail db tail)
+      :tx-tail        tail
+      :db-last-stored db})))
 
 (defn ^:no-doc -transact! [conn tx-data tx-meta]
   {:pre [(conn? conn)]}
@@ -87,7 +96,7 @@
              (let [r (with db tx-data tx-meta)]
                (vreset! *report r)
                (:db-after r))))
-    (when (storage/storage @conn)
+    (when (storage-adapter @conn)
       (let [{db     :db-after
              datoms :tx-data} @*report]
         (when-not (empty? datoms)
@@ -97,12 +106,12 @@
             (if (> (transduce (map count) + 0 tx-tail') (:branching-factor settings))
               ;; overflow tail
               (do
-                (storage/store-impl! db (storage/storage-adapter db) false)
+                (proto/-ds-store! (storage-adapter db) db false)
                 (swap! *atom assoc
                        :tx-tail        []
                        :db-last-stored db))
               ;; just update tail
-              (storage/store-tail db tx-tail'))))))
+              (proto/-ds-store-tail! (storage-adapter db) db tx-tail'))))))
     @*report))
 
 (defn transact!
@@ -124,20 +133,20 @@
           (db/db? db)]}
    (let [db-before @conn
          report    (db/map->TxReport
-                     {:db-before db-before
-                      :db-after  db
-                      :tx-data   (concat
-                                   (when db-before
-                                     (map #(assoc % :added false) (db/-datoms db-before :eavt nil nil nil nil)))
-                                   (db/-datoms db :eavt nil nil nil nil))
-                      :tx-meta   tx-meta})]
-     (if (storage/storage db-before)
+                    {:db-before db-before
+                     :db-after  db
+                     :tx-data   (concat
+                                 (when db-before
+                                   (map #(assoc % :added false) (db/-datoms db-before :eavt nil nil nil nil)))
+                                 (db/-datoms db :eavt nil nil nil nil))
+                     :tx-meta   tx-meta})]
+     (if (storage-adapter db-before)
        (do
-         (storage/store db)
+         (proto/-ds-store! (storage-adapter db) db false)
          (swap! (:atom conn) assoc
-           :db             db
-           :tx-tail        []
-           :db-last-stored db))
+                :db             db
+                :tx-tail        []
+                :db-last-stored db))
        (reset! conn db))
      (doseq [[_ callback] (:listeners @(:atom conn))]
        (callback report))
@@ -146,8 +155,8 @@
 (defn reset-schema! [conn schema]
   {:pre [(conn? conn)]}
   (let [db (swap! conn db/with-schema schema)]
-    (when-some [storage (storage/storage @conn)]
-      (storage/store-impl! db (storage/storage-adapter db) true)
+    (when-some [adapter (storage-adapter db)]
+      (proto/-ds-store! adapter db true)
       (swap! (:atom conn) assoc
              :tx-tail []
              :db-last-stored db))

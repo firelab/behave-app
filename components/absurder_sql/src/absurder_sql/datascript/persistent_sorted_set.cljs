@@ -38,7 +38,7 @@
   "Convert JavaScript Settings object to Clojure map"
   [^js settings]
   {:branching-factor (.branchingFactor settings)
-   :ref-type         (case (.refType settings)
+   :ref-type         (condp = (.refType settings)
                        STRONG-REF :strong
                        SOFT-REF   :soft
                        WEAK-REF   :weak)})

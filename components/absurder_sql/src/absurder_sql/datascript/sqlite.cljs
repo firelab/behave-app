@@ -3,17 +3,13 @@
    [clojure.string          :as str]
    [clojure.edn             :as edn]
    [absurder-sql.interface  :as sql]
-   [absurder-sql.datascript.db            :as db]
-   [absurder-sql.datascript.core          :as d]
-   [absurder-sql.datascript.protocols :refer [IStorage]]
-   [absurder-sql.datascript.storage-async :as storage]))
-
+   [absurder-sql.datascript.protocols :refer [IStorage]]))
 
 ;;; State
 
 (defonce ^:private sqlite-db       (atom nil))
-(defonce ^:private datascript-db   (atom nil))
-(defonce ^:private datascript-conn (atom nil))
+#_(defonce ^:private datascript-db   (atom nil))
+#_(defonce ^:private datascript-conn (atom nil))
 
 ;;; Helpers
 
@@ -27,9 +23,9 @@
 
 (defn- upsert-dml [table]
   (str
-    "insert into " table " (addr, content) "
-    "values (?, ?) "
-    "on conflict(addr) do update set content = ?"))
+   "insert into " table " (addr, content) "
+   "values (?, ?) "
+   "on conflict(addr) do update set content = ?"))
 
 (defn- store-impl [conn opts addr+data-seq]
   (let [{:keys [table binary? freeze-str freeze-bytes batch-size]} opts
@@ -41,19 +37,19 @@
     (js/Promise.all (to-array promises))))
 
 (defn- restore-impl [conn opts addr]
-  (-> (sql/execute! conn (sql-replace (str "select content from " (:table opts) " where addr = ?") addr))
+  (-> (sql/select conn (sql-replace (str "select content from " (:table opts) " where addr = ?") addr))
       (.then (fn [results]
                (let [{:keys [binary? thaw-str thaw-bytes]} opts
-                     content (-> results first (get "content"))]
+                     content (-> results first :content)]
                  (when content
                    (if binary?
                      (thaw-bytes content)
                      (thaw-str content))))))))
 
 (defn- list-impl [conn opts]
-  (-> (sql/execute! conn (str "select addr from " (:table opts)))
+  (-> (sql/select conn (str "select addr from " (:table opts)))
       (.then (fn [results]
-               (mapv #(get % "addr") results)))))
+               (mapv :addr results)))))
 
 (defn- delete-impl [conn opts addr-seq]
   (let [sql (str "delete from " (:table opts) " where addr = ?")
@@ -64,19 +60,19 @@
 
 (defn- ddl [{:keys [table]}]
   (str
-    "create table if not exists " table
-    " (addr INTEGER primary key, "
-    "  content TEXT)"))
+   "create table if not exists " table
+   " (addr INTEGER primary key, "
+   "  content TEXT)"))
 
 (defn- merge-opts [opts]
   (let [opts (merge
-               {:freeze-str pr-str
-                :thaw-str   edn/read-string
-                :batch-size 1000
-                :table      "datascript"}
-               opts)
+              {:freeze-str pr-str
+               :thaw-str   edn/read-string
+               :batch-size 1000
+               :table      "datascript"}
+              opts)
         opts (assoc opts
-               :binary? (boolean (and (:freeze-bytes opts) (:thaw-bytes opts))))]
+                    :binary? (boolean (and (:freeze-bytes opts) (:thaw-bytes opts))))]
     (merge {:ddl (ddl opts)} opts)))
 
 (deftype SQLiteStorage [conn opts]
@@ -84,13 +80,13 @@
   IStorage
   (-store [_ addr+data-seq]
     (store-impl conn opts addr+data-seq))
-  
+
   (-restore [_ addr]
     (restore-impl conn opts addr))
-  
+
   (-list-addresses [_]
     (list-impl conn opts))
-  
+
   (-delete [_ addr-seq]
     (delete-impl conn opts addr-seq)))
 
@@ -114,8 +110,9 @@
    (sqlite-store conn {}))
   ([conn opts]
    (let [opts (merge-opts opts)]
-     (sql/execute! conn (:ddl opts))
-    (SQLiteStorage. conn opts))))
+     (when-not (:skip-ddl opts)
+       (sql/execute! conn (:ddl opts)))
+     (SQLiteStorage. conn opts))))
 
 (defn close!
   "If storage was created with DataSource that also implements AutoCloseable,
@@ -124,37 +121,35 @@
   (let [conn (:conn (meta datasource))]
     (sql/close! conn)
     (reset! sqlite-db nil)
-    (reset! datascript-conn nil)))
+    #_(reset! datascript-conn nil)))
 
-(defn init!
-  "Initializes DataScript backed by in-browser SQLite DB with:
+#_(defn init!
+    "Initializes DataScript backed by in-browser SQLite DB with:
   - `datoms`  [required] - should end in `.db`
   - `schema`  [required]
   - `db-name` [required] - should end in `.db`"
-  [datoms schema db-name]
-  (-> (sql/init!)
-      (.then (fn [_] (sql/connect! db-name)))
-      (.then (fn [conn]
-               (println [:DS-CONN conn])
-               (reset! sqlite-db conn)
-               (let [store        (sqlite-store conn {:db-name db-name})
-                     sync-adapter (storage/make-sync-storage-wrapper store {})]
-                 (println [:SQLITE-STORE store])
-                 (reset! datascript-db (db/init-db datoms schema {:storage sync-adapter}))
-                 (reset! datascript-conn (d/conn-from-db @datascript-db))
-                 @datascript-conn)))))
+    [datoms schema db-name]
+    (-> (sql/init!)
+        (.then (fn [_] (sql/connect! db-name)))
+        (.then (fn [conn]
+                 (println [:DS-CONN conn])
+                 (reset! sqlite-db conn)
+                 (let [store        (sqlite-store conn {:db-name db-name})
+                       sync-adapter (storage/make-sync-storage-wrapper store {})]
+                   (println [:SQLITE-STORE store])
+                   (reset! datascript-db (db/init-db datoms schema {:storage sync-adapter}))
+                   (reset! datascript-conn (d/conn-from-db @datascript-db))
+                   @datascript-conn)))))
 
-(comment
-  (def schema {:aka {:db/cardinality :db.cardinality/many}})
-  (def db (init! [] schema "ds-second.db"))
-  (require '[promesa.core :as p])
-  (p/wait-all db)
-  *1
-  (init! )
+#_(comment
+    (def schema {:aka {:db/cardinality :db.cardinality/many}})
+    (def db (init! [] schema "ds-second.db"))
+    (require '[promesa.core :as p])
+    (p/wait-all db)
+    *1
+    (init!)
 
-  (d/transact! conn [ { :db/id -1
-                       :name   "Maksim"
-                       :age    45
-                       :aka    ["Max Otto von Stierlitz", "Jack Ryan"] } ])
-
-)
+    (d/transact! conn [{:db/id -1
+                        :name   "Maksim"
+                        :age    45
+                        :aka    ["Max Otto von Stierlitz", "Jack Ryan"]}]))

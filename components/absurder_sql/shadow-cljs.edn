@@ -1,31 +1,32 @@
 ;; shadow-cljs configuration
-{:source-paths ["src" "resources" "test"]
+{:source-paths ["src" "resources" "test/unit"]
  :dependencies [[cider/cider-nrepl "0.55.7"]
                 [refactor-nrepl "3.11.0"]
                 [funcool/promesa "11.0.678"]
                 [persistent-sorted-set "0.3.0"]
                 [org.clojure/core.async "1.8.741"]
-                [io.github.tonsky/extend-clj "0.1.0"]]
+                [io.github.tonsky/extend-clj "0.1.0"]
+                [lambdaisland/kaocha-cljs2 "0.2.72"]]
  :dev-http     {8020 ["out" "resources/public"]
-                8021 "target/test"}
+                8022 ["target/kaocha-test" "resources/public"]}
  :nrepl        {:port       9000
                 :middleware [cider.nrepl/cider-middleware]}
- :builds       {:browser {:target     :browser
-                          :output-dir "out/js"
-                          :asset-path "/js"
-                          :modules    {:main {:entries [absurder-sql.client]
-                                              :init-fn absurder-sql.client/init}}}
-                :datascript {:target     :browser
-                             :output-dir "out/ds"
-                             :asset-path "/ds"
-                             :js-options {:js-provider :shadow}
-                             :compiler-options {:externs ["resources/externs.js"]}
-                             :modules    {:main {:entries [absurder-sql.datascript-client]
-                                                 :init-fn absurder-sql.datascript-client/init}}}
-                :test    {:target      :browser-test
-                          :test-dir    "target/test"
-                          ;; :runner-ns   absurder-sql.test-runner
-                          :ns-regexp   "-test$"
-                          :js-options  {:js-provider :shadow}
-                          :build-hooks [(absurder-sql.build/test-hook)]
-                          :compiler-options {:externs ["resources/externs.js"]}}}}
+ :builds       {:browser         {:target     :browser
+                                  :output-dir "out/js"
+                                  :asset-path "/js"
+                                  :modules    {:main {:entries [absurder-sql.client]
+                                                      :init-fn absurder-sql.client/init}}}
+                :test-kaocha     {:target       :browser-test
+                                  :runner-ns    kaocha.cljs2.shadow-runner
+                                  :test-dir     "target/kaocha-test"
+                                  :ns-regexp    ".*-test$"
+                                  :devtools     {:http-port 1818
+                                                 :http-root "target/kaocha-test"
+                                                 :preloads  [lambdaisland.chui.remote]}}
+                :datascript      {:target           :browser
+                                  :output-dir       "out/ds"
+                                  :asset-path       "/ds"
+                                  :js-options       {:js-provider :shadow}
+                                  :compiler-options {:externs ["resources/externs.js"]}
+                                  :modules          {:main {:entries [absurder-sql.datascript-client]
+                                                            :init-fn absurder-sql.datascript-client/init}}}}}

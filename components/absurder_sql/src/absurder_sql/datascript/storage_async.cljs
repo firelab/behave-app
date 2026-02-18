@@ -1,7 +1,6 @@
 (ns absurder-sql.datascript.storage-async
   "Async storage implementation for Promise-based backends like SQLite"
   (:require
-   [cljs.reader :as reader]
    [absurder-sql.datascript.db :as db]
    [absurder-sql.datascript.util :as util]
    [absurder-sql.datascript.protocols :as proto :refer [IStorage]]
@@ -9,7 +8,9 @@
 
 (def ^:private ^:dynamic *store-buffer*)
 
-(defn serializable-datom [d]
+(defn serializable-datom
+  "Serialize datom into vector of [e a v t]"
+  [d]
   [(.-e d) (.-a d) (.-v d) (.-tx d)])
 
 (def ^:private root-addr 0)
@@ -54,9 +55,23 @@
     ;; Optional: can be used for LRU cache tracking
     nil))
 
+(def ^:private WEAK-REF (.-WEAK RefType))
+(def ^:private SOFT-REF (.-SOFT RefType))
+(def ^:private STRONG-REF (.-STRONG RefType))
+
+(defn- ->ref-type
+  "Coerce a ref-type value to a JS RefType enum string.  Accepts enum strings
+   (pass-through) and keywords (:weak, :soft, :strong) as stored by JVM DataScript."
+  [v]
+  (case v
+    (:weak "WEAK")     WEAK-REF
+    (:soft "SOFT")     SOFT-REF
+    (:strong "STRONG") STRONG-REF
+    WEAK-REF))
+
 (defn make-async-storage-adapter [^IStorage storage opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) (.-WEAK RefType))
+        ref-type (->ref-type (or (:ref-type opts) (.-WEAK RefType)))
         settings (Settings. branching-factor ref-type nil)
         cache (atom {})]
     (AsyncStorageAdapter. storage settings cache)))
@@ -95,7 +110,7 @@
   "Create a sync storage wrapper around an async storage backend"
   [^IStorage storage opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) (.-WEAK RefType))
+        ref-type (->ref-type (or (:ref-type opts) (.-WEAK RefType)))
         settings (Settings. branching-factor ref-type nil)
         async-adapter (AsyncStorageAdapter. storage settings (atom {}))
         cache (atom {})
@@ -238,7 +253,7 @@
 ;; Helper to restore a sorted set by address
 (defn- restore-set-by [cmp addr adapter opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) (.-WEAK RefType))
+        ref-type (->ref-type (or (:ref-type opts) (.-WEAK RefType)))
         settings (Settings. branching-factor ref-type nil)]
     (PersistentSortedSet. cmp adapter settings addr nil -1 0)))
 
@@ -401,3 +416,47 @@
                                           (count used) "used addrs," (count all) "total addrs,"
                                           (count unused) "unused")
                                 (proto/-delete storage' unused))))))))))
+
+(extend-type AsyncStorageAdapter
+  proto/IDatascriptStorageAdapter
+  (-ds-store! [adapter db force?]
+    (store-impl! db adapter force?))
+  (-ds-store-tail! [adapter _db tail]
+    (proto/-store (.-storage adapter)
+                  [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
+  (-ds-get-storage [adapter]
+    (.-storage adapter))
+  (-restore-impl [adapter opts]
+    (restore-impl (.-storage adapter) opts))
+  (-addresses [_adapter dbs]
+    (addresses dbs))
+  (-store-db [_adapter db]
+    (store db))
+  (-storage [adapter]
+    (.-storage adapter))
+  (-restore-storage [adapter opts]
+    (restore (.-storage adapter) opts))
+  (-collect-garbage [adapter]
+    (collect-garbage (.-storage adapter))))
+
+(extend-type SyncStorageWrapper
+  proto/IDatascriptStorageAdapter
+  (-ds-store! [wrapper db force?]
+    (store-impl-sync! db wrapper force?))
+  (-ds-store-tail! [wrapper _db tail]
+    (proto/-store (.-storage (.-async-adapter wrapper))
+                  [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
+  (-ds-get-storage [wrapper]
+    (.-storage (.-async-adapter wrapper)))
+  (-restore-impl [wrapper opts]
+    (restore-impl-sync (.-storage (.-async-adapter wrapper)) opts))
+  (-addresses [_wrapper dbs]
+    (addresses dbs))
+  (-store-db [_wrapper db]
+    (store db))
+  (-storage [wrapper]
+    (.-storage (.-async-adapter wrapper)))
+  (-restore-storage [wrapper opts]
+    (restore-sync (.-storage (.-async-adapter wrapper)) opts))
+  (-collect-garbage [wrapper]
+    (collect-garbage (.-storage (.-async-adapter wrapper)))))

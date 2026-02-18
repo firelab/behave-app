@@ -1,26 +1,25 @@
 (ns absurder-sql.datascript.core
   (:refer-clojure :exclude [filter])
   (:require
-    [#?(:cljs cljs.reader :clj clojure.edn) :as edn]
-    [absurder-sql.datascript.conn :as conn]
-    [absurder-sql.datascript.db :as db #?@(:cljs [:refer [Datom DB FilteredDB]])]
-    #?(:clj [absurder-sql.datascript.pprint])
-    [absurder-sql.datascript.pull-api :as dp]
-    #_[absurder-sql.datascript.serialize :as ds]
-    [#?(:clj absurder-sql.datascript.storage :cljs absurder-sql.datascript.storage) :as storage]
-    [absurder-sql.datascript.query :as dq]
-    [absurder-sql.datascript.impl.entity :as de]
-    [absurder-sql.datascript.util :as util]
-    [me.tonsky.persistent-sorted-set :as set])
+   [#?(:cljs cljs.reader :clj clojure.edn) :as edn]
+   [absurder-sql.datascript.conn :as conn]
+   [absurder-sql.datascript.protocols :as proto :refer [IDatascriptStorageAdapter]]
+   [absurder-sql.datascript.db :as db #?@(:cljs [:refer [Datom DB FilteredDB]])]
+   #?(:clj [absurder-sql.datascript.pprint])
+   [absurder-sql.datascript.pull-api :as dp]
+   #_[absurder-sql.datascript.serialize :as ds]
+   [absurder-sql.datascript.query :as dq]
+   [absurder-sql.datascript.impl.entity :as de]
+   [absurder-sql.datascript.util :as util]
+   [me.tonsky.persistent-sorted-set :as set])
   #?(:clj
      (:import
-       [absurder-sql.datascript.db Datom DB FilteredDB]
-       [absurder-sql.datascript.impl.entity Entity]
-       [java.util UUID])))
+      [absurder-sql.datascript.db Datom DB FilteredDB]
+      [absurder-sql.datascript.impl.entity Entity]
+      [java.util UUID])))
 
-(def ^:const ^:no-doc tx0 
+(def ^:const ^:no-doc tx0
   db/tx0)
-
 
 ; Entities
 
@@ -100,7 +99,6 @@
              ```"}
   touch de/touch)
 
-
 ; Pull
 
 (def ^{:arglists '([db selector eid])
@@ -145,7 +143,6 @@
           ```"}
   q dq/q)
 
-
 ; Creating DB
 
 (defn ^DB empty-db
@@ -167,13 +164,13 @@
    :ref-type         :strong | :soft | :weak, default :soft. How will nodes that are already
                      stored on disk be referenced. Soft or weak means they might be unloaded
                      from memory under memory pressure and later fetched from storage again.
-   :storage          <IStorage>. Will be used to store this db later with `(d/store db)`"
+   :storage          <IDataScriptStorage>. Will be used to store this db later with `(d/store db)`"
   ([]
    (db/empty-db nil {}))
   ([schema]
    (db/empty-db schema {}))
   ([schema opts]
-   (db/empty-db schema (storage/maybe-adapt-storage opts))))
+   (db/empty-db schema opts)))
 
 (def ^{:arglists '([x])
        :doc "Returns `true` if the given value is an immutable database, `false` otherwise."}
@@ -202,10 +199,10 @@
   ([datoms schema]
    (db/init-db datoms schema {}))
   ([datoms schema opts]
-   (db/init-db datoms schema (storage/maybe-adapt-storage opts))))
+   (db/init-db datoms schema opts)))
 
 #_(def ^{:arglists '([db] [db opts])
-       :doc "Converts db into a data structure (not string!) that can be fed to serializer
+         :doc "Converts db into a data structure (not string!) that can be fed to serializer
              of your choice (e.g. `js/JSON.stringify` in CLJS, `cheshire.core/generate-string`
              or `jsonista.core/write-value-as-string` in CLJ).
 
@@ -216,26 +213,24 @@
 
              `:freeze-fn` Non-primitive values will be serialized using this. Optional.
              `pr-str` by default."}
-  serializable ds/serializable)
+    serializable ds/serializable)
 
 #_(def ^{:tag DB
-       :arglists '([serializable] [serializable opts])
-       :doc "Creates db from a data structure (not string!) produced by serializable.
+         :arglists '([serializable] [serializable opts])
+         :doc "Creates db from a data structure (not string!) produced by serializable.
 
              Opts:
 
              `:thaw-fn` Non-primitive values will be deserialized using this.
              Must match :freeze-fn from serializable. Optional. `clojure.edn/read-string`
              by default."}
-  from-serializable ds/from-serializable)
-
+    from-serializable ds/from-serializable)
 
 ; Schema
 
 (def ^{:arglists '([db])
        :doc "Returns a schema of a database."}
   schema db/-schema)
-
 
 ; Filtered db
 
@@ -261,7 +256,6 @@
           orig-db   (.-unfiltered-db fdb)]
       (FilteredDB. orig-db #(and (orig-pred %) (pred orig-db %)) (atom 0)))
     (FilteredDB. db #(pred db %) (atom 0))))
-
 
 ; Changing DB
 
@@ -448,26 +442,33 @@
   "Creates a mutable reference to a given immutable database. See [[create-conn]]."
   conn/conn-from-db)
 
-(def ^{:arglists '([datoms] [datoms schema] [datoms schema opts])} conn-from-datoms
+(defn conn-from-datoms
   "Creates an empty DB and a mutable reference to it. See [[create-conn]]."
-  conn/conn-from-datoms)
+  ([datoms] (conn/conn-from-datoms datoms))
+  ([datoms schema] (conn/conn-from-datoms datoms schema))
+  ([datoms schema opts] (conn/conn-from-datoms datoms schema opts)))
 
-(def ^{:arglists '([] [schema] [schema opts])} create-conn
-  "Creates a mutable reference (a “connection”) to an empty immutable database.
+(defn create-conn
+  "Creates a mutable reference (a \"connection\") to an empty immutable database.
 
    Connections are lightweight in-memory structures (~atoms) with direct support of transaction listeners ([[listen!]], [[unlisten!]]) and other handy Absurdersql.DataScript APIs ([[transact!]], [[reset-conn!]], [[db]]).
 
    To access underlying immutable DB value, deref: `@conn`.
-   
-   For list of options, see [[empty-db]].
-   
-   If you specify `:storage` option, conn will be stored automatically after each transaction"
-  conn/create-conn)
 
-(def ^{:arglists '([storage] [storage opts])} restore-conn
+   For list of options, see [[empty-db]].
+
+   If you specify `:storage` option, conn will be stored automatically after each transaction"
+  ([] (conn/create-conn))
+  ([schema] (conn/create-conn schema))
+  ([schema opts] (conn/create-conn schema opts)))
+
+(defn restore-conn
   "Lazy-load database from storage and make conn out of it.
-   Returns nil if there’s no database yet in storage"
-  conn/restore-conn)
+   Returns nil if there's no database yet in storage"
+  ([storage] (restore-conn storage {}))
+  ([storage opts]
+   (when-some [result (proto/-restore-impl storage opts)]
+     (conn/restore-conn result))))
 
 (def ^{:arglists '([conn tx-data] [conn tx-data tx-meta])} transact!
   "Applies transaction the underlying database value and atomically updates connection reference to point to the result of that transaction, new db value.
@@ -576,7 +577,6 @@
   "Removes registered listener from connection. See also [[listen!]]."
   conn/unlisten!)
 
-
 ; Data Readers
 
 (def ^{:doc "Data readers for EDN readers. In CLJS they’re registered automatically. In CLJ, if `data_readers.clj` do not work, you can always do
@@ -589,7 +589,6 @@
 
 #?(:cljs
    (doseq [[tag cb] data-readers] (edn/register-tag-parser! tag cb)))
-
 
 ;; Datomic compatibility layer
 
@@ -648,7 +647,6 @@
           clojure.lang.IPending
           (isRealized [_] true))))))
 
-
 ;; ersatz future without proper blocking
 #?(:cljs
    (defn- future-call [f]
@@ -672,7 +670,6 @@
    {:pre [(conn? conn)]}
    (future-call #(transact! conn tx-data tx-meta))))
 
-
 ;; squuid
 
 (def ^{:arglists '([] [msec])} squuid
@@ -685,51 +682,35 @@
   "Returns time that was used in [[squuid]] call, in milliseconds, rounded to the closest second."
   util/squuid-time-millis)
 
-
 ;; Storage
-(def ^{:arglists '([db])} storage
-  "Returns IStorage used by DB instance"
-  storage/storage)
-
-(def ^{:arglists '([db] [db storage])} store
+(defn store
   "Stores databases to provided storage. If database was created
       with :storage option or restored from storage, use single-argument version.
       
       Subsequent stores are incremental, i.e. only newly added nodes will be actually stored.
       
       Storing already stored dbs into another storage is not supported (may change)."
-  storage/store)
+  [storage db]
+  (proto/-store-db storage db))
 
-(def ^{:arglists '([storage] [storage opts])} restore
+(defn restore
   "Lazy-loads database from storage. Ultra-fast, fetches the rest as it’s needed"
-  storage/restore)
+  ([^IDatascriptStorageAdapter storage]
+   (restore storage {}))
+  ([^IDatascriptStorageAdapter storage opts]
+   (proto/-restore-storage storage opts)))
 
 (defn addresses
   "Returns all addresses in use by current db (as java.util.HashSet).
       Anything that is not in the return set is safe to be deleted"
-  [& dbs]
-  (storage/addresses dbs))
+  [^IDatascriptStorageAdapter storage & dbs]
+  (proto/-addresses storage dbs))
 
-(def ^{:arglists '([storage])} collect-garbage
+(defn collect-garbage
   "Deletes all keys from storage that are not referenced by any of the currently alive db refs.
       Has a side-effect of fully loading databases fully into memory, so, can be slow"
-  storage/collect-garbage)
-
-#?(:clj
-   (def ^{:arglists '([dir] [dir opts])} file-storage
-     "Default implementation that stores data in files in a dir.
-   
-   Options are:
-   
-   :freeze-fn :: (data)   -> String. A serialization function
-   :thaw-fn   :: (String) -> data. A deserialization function
-   :write-fn  :: (OutputStream data) -> void. Implement your own writer to FileOutputStream
-   :read-fn   :: (InputStream) -> Object. Implement your own reader from FileInputStream
-   :addr->filename-fn :: (UUID) -> String. Construct file name from address
-   :filename->addr-fn :: (String) -> UUID. Reconstruct address from file name
-   
-   All options are optional."
-     storage/file-storage))
+  [^IDatascriptStorageAdapter storage]
+  (proto/-collect-garbage storage))
 
 (defn settings [db]
   (set/settings (:eavt db)))

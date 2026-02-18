@@ -1,13 +1,24 @@
 (ns absurder-sql.build
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as sh]))
 
 (defn test-hook
   {:shadow.build/stage :flush}
   [build-state & _args]
+  (let [test-dir (get-in build-state [:shadow.build/config :test-dir] "target/test")
+        js-dir (io/file test-dir "js")
+        src-dir (io/file "resources/public/js")]
+    (println "Copying SQLite Files to" test-dir)
+    (.mkdirs js-dir)
+    (doseq [f ["sqlite.js" "sqlite.wasm" "users.db"]]
+      (let [src (io/file src-dir f)]
+        (when (.exists src)
+          (io/copy src (io/file js-dir f))))))
+  build-state)
 
-  (println "Copying SQLite Files to tests dir" (io/resource "public/js/sqlite.js"))
-  (io/copy (io/file (io/resource "public/js/sqlite.js")) (io/file "target/test/js/sqlite.js"))
-  (io/copy (io/file (io/resource "public/js/sqlite.wasm")) (io/file "target/test/js/sqlite.wasm"))
-  (io/copy (io/file (io/resource "public/js/users.db")) (io/file "target/test/js/users.db"))
-
+(defn kaocha-hook
+  {:shadow.build/stage :flush}
+  [build-state & _args]
+  (sh/sh "bin/chrome-refresh")
+  (sh/sh "bin/kaocha")
   build-state)

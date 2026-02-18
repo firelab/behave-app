@@ -1,12 +1,11 @@
 (ns absurder-sql.datascript.storage
   (:require
-    [cljs.reader :as reader]
-    [absurder-sql.datascript.db :as db]
-    [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
-    [absurder-sql.datascript.sqlite :refer [SQLiteStore]]
-    [absurder-sql.datascript.storage-async :as async-storage :refer [make-async-storage-adapter SyncStorageWrapper]]
-    [absurder-sql.datascript.util :as util]
-    ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
+   [cljs.reader :as reader]
+   [absurder-sql.datascript.db :as db]
+   [absurder-sql.datascript.protocols :as proto :refer [IPersistentSortedSetStorage IStorage]]
+   [absurder-sql.datascript.storage-async :as async-storage :refer [make-async-storage-adapter SyncStorageWrapper]]
+   [absurder-sql.datascript.util :as util]
+   ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
 
 (def ^:private ^:dynamic *store-buffer*)
 
@@ -68,10 +67,11 @@
 
 (defn maybe-adapt-storage [opts]
   (if-some [storage (:storage opts)]
-    (update opts
-            :storage
-            (if (:async? opts) make-async-storage-adapter make-storage-adapter)
-            opts)
+    (if (satisfies? proto/IDatascriptStorageAdapter storage)
+      opts
+      (update opts :storage
+              (if (:async? opts) make-async-storage-adapter make-storage-adapter)
+              opts))
     opts))
 
 (defn storage-adapter [db]
@@ -87,7 +87,7 @@
   #js [])
 
 (defn- remember-db [db]
- (.push stored-dbs (js/WeakRef. db)))
+  (.push stored-dbs (js/WeakRef. db)))
 
 ;; Helper to store a sorted set
 (defn- store-set [set adapter]
@@ -104,7 +104,7 @@
   ;; If running in Node.js with SharedArrayBuffer, you'd need a different approach
   (if (= (type adapter) SyncStorageWrapper)
     (async-storage/store-impl-sync! db adapter force?)
-    (do 
+    (do
       (remember-db db)
       (binding [*store-buffer* (volatile! (transient []))]
         (let [eavt-addr (store-set (:eavt db) adapter)
@@ -144,47 +144,40 @@
        (store-impl! db adapter false)))))
 
 (defn restore-impl [^IStorage storage opts]
-  (if (= (type storage) SQLiteStore)
-    (async-storage/restore-impl-sync storage opts)
-
     ;; Note: locking not available in JS
-    (when-some [root (proto/-restore storage root-addr)]
-      (let [tail    (proto/-restore storage tail-addr)
-            {:keys [schema eavt aevt avet max-eid max-tx max-addr]} root
-            _       (vswap! *max-addr max max-addr)
-            opts    (merge root opts)
-            adapter (make-storage-adapter storage opts)
-            _       (println [:RESTORED root tail])
-            db      (db/restore-db
-                      {:schema  schema
-                       :eavt    (restore-set-by db/cmp-datoms-eavt eavt adapter opts)
-                       :aevt    (restore-set-by db/cmp-datoms-aevt aevt adapter opts)
-                       :avet    (restore-set-by db/cmp-datoms-avet avet adapter opts)
-                       :max-eid max-eid
-                       :max-tx  max-tx})]
-        (remember-db db)
-        [db (mapv #(mapv (fn [[e a v tx]] (db/datom e a v tx)) %) tail)]))))
+  (when-some [root (proto/-restore storage root-addr)]
+    (let [tail    (proto/-restore storage tail-addr)
+          {:keys [schema eavt aevt avet max-eid max-tx max-addr]} root
+          _       (vswap! *max-addr max max-addr)
+          opts    (merge root opts)
+          adapter (make-storage-adapter storage opts)
+          _       (println [:RESTORED root tail])
+          db      (db/restore-db
+                   {:schema  schema
+                    :eavt    (restore-set-by db/cmp-datoms-eavt eavt adapter opts)
+                    :aevt    (restore-set-by db/cmp-datoms-aevt aevt adapter opts)
+                    :avet    (restore-set-by db/cmp-datoms-avet avet adapter opts)
+                    :max-eid max-eid
+                    :max-tx  max-tx})]
+      (remember-db db)
+      [db (mapv #(mapv (fn [[e a v tx]] (db/datom e a v tx)) %) tail)])))
 
 (defn db-with-tail [db tail]
   (reduce
-    (fn [db datoms]
-      (if (empty? datoms)
-        db
-        (as-> db %
-          (reduce db/with-datom % datoms)
-          (assoc % :max-tx (:tx (first datoms))))))
-    db tail))
+   (fn [db datoms]
+     (if (empty? datoms)
+       db
+       (as-> db %
+         (reduce db/with-datom % datoms)
+         (assoc % :max-tx (:tx (first datoms))))))
+   db tail))
 
 (defn restore
   ([^IStorage storage]
-   (if (= (type storage) SQLiteStore)
-     (async-storage/restore-sync storage)
-     (restore storage {})))
+   (restore storage {}))
   ([^IStorage storage opts]
-   (if (= (type storage) SQLiteStore)
-     (async-storage/restore-sync storage opts)
-     (let [[db tail] (restore-impl storage opts)]
-       (db-with-tail db tail)))))
+   (let [[db tail] (restore-impl storage opts)]
+     (db-with-tail db tail))))
 
 (defn- addresses-impl [db visit-fn]
   {:pre [(db/db? db)]}
@@ -212,17 +205,37 @@
     (persistent! @res)))
 
 (defn collect-garbage [^IStorage storage']
-  (if (= (type storage) SQLiteStore)
-    (async-storage/collect-garbage storage)
     ;; Note: JS doesn't have System/gc, but WeakRef will handle cleanup automatically
-    (let [dbs    (conj
-                  (read-stored-dbs storage')
-                  (restore storage')) ;; make sure we won't gc currently stored db
-          used   (addresses dbs)
-          all    (proto/-list-addresses storage')
-          unused (into [] (remove used) all)]
-      (util/log "GC: found" (count dbs) "alive db refs," (count used) "used addrs," (count all) "total addrs," (count unused) "unused")
-      (proto/-delete storage' unused))))
+  (let [dbs    (conj
+                (read-stored-dbs storage')
+                (restore storage')) ;; make sure we won't gc currently stored db
+        used   (addresses dbs)
+        all    (proto/-list-addresses storage')
+        unused (into [] (remove used) all)]
+    (util/log "GC: found" (count dbs) "alive db refs," (count used) "used addrs," (count all) "total addrs," (count unused) "unused")
+    (proto/-delete storage' unused)))
+
+(extend-type StorageAdapter
+  proto/IDatascriptStorageAdapter
+  (-ds-store! [adapter db force?]
+    (store-impl! db adapter force?))
+  (-ds-store-tail! [adapter _db tail]
+    (proto/-store (.-storage adapter)
+                  [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
+  (-ds-get-storage [adapter]
+    (.-storage adapter))
+  (-restore-impl [adapter opts]
+    (restore-impl (.-storage adapter) opts))
+  (-addresses [_adapter dbs]
+    (addresses dbs))
+  (-store-db [_adapter db]
+    (store db))
+  (-storage [adapter]
+    (.-storage adapter))
+  (-restore-storage [adapter opts]
+    (restore (.-storage adapter) opts))
+  (-collect-garbage [adapter]
+    (collect-garbage (.-storage adapter))))
 
 ;; Browser/Node.js compatible storage implementations
 
@@ -260,8 +273,8 @@
          (doseq [[addr data] addr+data-seq]
            (util/log "localStorage-store" addr)
            (js/localStorage.setItem
-             (addr->key addr)
-             (pr-str data))))
+            (addr->key addr)
+            (pr-str data))))
 
        (-restore [_ addr]
          (util/log "localStorage-restore" addr)
@@ -271,11 +284,11 @@
        (-list-addresses [_]
          (let [len (.-length js/localStorage)]
            (into []
-             (comp
-               (map #(js/localStorage.key %))
-               (filter #(.startsWith % prefix))
-               (map key->addr))
-             (range len))))
+                 (comp
+                  (map #(js/localStorage.key %))
+                  (filter #(.startsWith % prefix))
+                  (map key->addr))
+                 (range len))))
 
        (-delete [_ addrs-seq]
          (doseq [addr addrs-seq]
@@ -287,19 +300,19 @@
   [db-name store-name]
   ;; This is a simplified version - in production you'd want proper async handling
   (let [db-promise (js/Promise.
-                     (fn [resolve reject]
-                       (let [request (.open js/indexedDB db-name 1)]
-                         (set! (.-onupgradeneeded request)
-                           (fn [e]
-                             (let [db (.-result (.-target e))]
-                               (when-not (.contains (.-objectStoreNames db) store-name)
-                                 (.createObjectStore db store-name #js {:keyPath "addr"})))))
-                         (set! (.-onsuccess request)
-                           (fn [e]
-                             (resolve (.-result (.-target e)))))
-                         (set! (.-onerror request)
-                           (fn [e]
-                             (reject (.-error (.-target e))))))))]
+                    (fn [resolve reject]
+                      (let [request (.open js/indexedDB db-name 1)]
+                        (set! (.-onupgradeneeded request)
+                              (fn [e]
+                                (let [db (.-result (.-target e))]
+                                  (when-not (.contains (.-objectStoreNames db) store-name)
+                                    (.createObjectStore db store-name #js {:keyPath "addr"})))))
+                        (set! (.-onsuccess request)
+                              (fn [e]
+                                (resolve (.-result (.-target e)))))
+                        (set! (.-onerror request)
+                              (fn [e]
+                                (reject (.-error (.-target e))))))))]
     (reify IStorage
       (-store [_ addr+data-seq]
         (-> db-promise
@@ -310,42 +323,42 @@
                          (util/log "indexedDB-store" addr)
                          (.put store #js {:addr addr :data (pr-str data)}))
                        (js/Promise.
-                         (fn [resolve reject]
-                           (set! (.-oncomplete tx) #(resolve nil))
-                           (set! (.-onerror tx) #(reject (.-error tx))))))))))
+                        (fn [resolve reject]
+                          (set! (.-oncomplete tx) #(resolve nil))
+                          (set! (.-onerror tx) #(reject (.-error tx))))))))))
 
       (-restore [_ addr]
         (util/log "indexedDB-restore" addr)
         (-> db-promise
             (.then (fn [db]
                      (js/Promise.
-                       (fn [resolve reject]
-                         (let [tx (.transaction db #js [store-name] "readonly")
-                               store (.objectStore tx store-name)
-                               request (.get store addr)]
-                           (set! (.-onsuccess request)
-                             (fn [e]
-                               (if-some [result (.-result (.-target e))]
-                                 (resolve (reader/read-string (.-data result)))
-                                 (resolve nil))))
-                           (set! (.-onerror request)
-                             (fn [e]
-                               (reject (.-error (.-target e))))))))))))
+                      (fn [resolve reject]
+                        (let [tx (.transaction db #js [store-name] "readonly")
+                              store (.objectStore tx store-name)
+                              request (.get store addr)]
+                          (set! (.-onsuccess request)
+                                (fn [e]
+                                  (if-some [result (.-result (.-target e))]
+                                    (resolve (reader/read-string (.-data result)))
+                                    (resolve nil))))
+                          (set! (.-onerror request)
+                                (fn [e]
+                                  (reject (.-error (.-target e))))))))))))
 
       (-list-addresses [_]
         (-> db-promise
             (.then (fn [db]
                      (js/Promise.
-                       (fn [resolve reject]
-                         (let [tx (.transaction db #js [store-name] "readonly")
-                               store (.objectStore tx store-name)
-                               request (.getAllKeys store)]
-                           (set! (.-onsuccess request)
-                             (fn [e]
-                               (resolve (vec (.-result (.-target e))))))
-                           (set! (.-onerror request)
-                             (fn [e]
-                               (reject (.-error (.-target e))))))))))))
+                      (fn [resolve reject]
+                        (let [tx (.transaction db #js [store-name] "readonly")
+                              store (.objectStore tx store-name)
+                              request (.getAllKeys store)]
+                          (set! (.-onsuccess request)
+                                (fn [e]
+                                  (resolve (vec (.-result (.-target e))))))
+                          (set! (.-onerror request)
+                                (fn [e]
+                                  (reject (.-error (.-target e))))))))))))
 
       (-delete [_ addrs-seq]
         (-> db-promise
@@ -356,6 +369,6 @@
                          (util/log "indexedDB-delete" addr)
                          (.delete store addr))
                        (js/Promise.
-                         (fn [resolve reject]
-                           (set! (.-oncomplete tx) #(resolve nil))
-                           (set! (.-onerror tx) #(reject (.-error tx)))))))))))))
+                        (fn [resolve reject]
+                          (set! (.-oncomplete tx) #(resolve nil))
+                          (set! (.-onerror tx) #(reject (.-error tx)))))))))))))
