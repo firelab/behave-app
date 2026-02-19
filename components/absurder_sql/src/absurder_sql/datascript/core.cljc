@@ -11,7 +11,7 @@
    [absurder-sql.datascript.query :as dq]
    [absurder-sql.datascript.impl.entity :as de]
    [absurder-sql.datascript.util :as util]
-   [me.tonsky.persistent-sorted-set :as set])
+   [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.datascript.persistent-sorted-set) :as set])
   #?(:clj
      (:import
       [absurder-sql.datascript.db Datom DB FilteredDB]

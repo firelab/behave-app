@@ -60,9 +60,18 @@
     ;; Optional: can be used for LRU cache tracking
     nil))
 
+(defn- ->ref-type
+  "Coerce a ref-type keyword or string to a JS RefType value."
+  [v]
+  (case v
+    (:weak "WEAK")     (.-WEAK RefType)
+    (:soft "SOFT")     (.-SOFT RefType)
+    (:strong "STRONG") (.-STRONG RefType)
+    (.-WEAK RefType)))
+
 (defn make-storage-adapter [^IStorage storage opts]
   (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (or (:ref-type opts) RefType.WEAK)
+        ref-type (->ref-type (:ref-type opts))
         settings (Settings. branching-factor ref-type nil)]
     (StorageAdapter. storage settings)))
 
@@ -89,6 +98,18 @@
 
 (defn- remember-db [db]
   (.push stored-dbs (js/WeakRef. db)))
+
+(defn- prune-stored-dbs!
+  "Remove dead WeakRefs from stored-dbs array."
+  []
+  (let [alive #js []]
+    (dotimes [i (.-length stored-dbs)]
+      (let [ref (aget stored-dbs i)]
+        (when (some? (.deref ref))
+          (.push alive ref))))
+    (set! (.-length stored-dbs) 0)
+    (dotimes [i (.-length alive)]
+      (.push stored-dbs (aget alive i)))))
 
 ;; Helper to store a sorted set
 (defn- store-set [set adapter]
@@ -124,8 +145,6 @@
             (vswap! *store-buffer* conj! [root-addr meta])
             (vswap! *store-buffer* conj! [tail-addr []])
             (let [^IStorage storage (.-storage adapter)]
-              (println [:STORAGE storage])
-              (println [:STORAGE-KEYS (js-keys storage) (satisfies? IStorage storage)])
               (proto/-store storage (persistent! @*store-buffer*))))
           db)))))
 
@@ -155,7 +174,6 @@
           _       (vswap! *max-addr max max-addr)
           opts    (merge root opts)
           adapter (make-storage-adapter storage opts)
-          _       (println [:RESTORED root tail])
           db      (db/restore-db
                    {:schema  schema
                     :eavt    (restore-set-by db/cmp-datoms-eavt eavt adapter opts)
@@ -209,15 +227,19 @@
     (persistent! @*res)))
 
 (defn collect-garbage [^IStorage storage']
-    ;; Note: JS doesn't have System/gc, but WeakRef will handle cleanup automatically
-  (let [dbs    (conj
-                (read-stored-dbs storage')
-                (restore storage')) ;; make sure we won't gc currently stored db
-        used   (addresses dbs)
-        all    (proto/-list-addresses storage')
-        unused (into [] (remove used) all)]
-    (util/log "GC: found" (count dbs) "alive db refs," (count used) "used addrs," (count all) "total addrs," (count unused) "unused")
-    (proto/-delete storage' unused)))
+  ;; In JS there is no System/gc, so WeakRefs to old db versions may still
+  ;; be alive even after going out of scope. We only protect the currently
+  ;; persisted db — that is the only version that matters for storage GC.
+  ;; We walk the BASE stored db (before tail application) because applying
+  ;; the tail creates in-memory tree nodes whose addresses don't match what's
+  ;; actually persisted in storage.
+  (prune-stored-dbs!)
+  (when-some [[db _tail] (restore-impl storage' {})]
+    (let [used   (addresses [db])
+          all    (proto/-list-addresses storage')
+          unused (into [] (remove used) all)]
+      (util/log "GC: found" (count used) "used addrs," (count all) "total addrs," (count unused) "unused")
+      (proto/-delete storage' unused))))
 
 (extend-type StorageAdapter
   proto/IDatascriptStorageAdapter

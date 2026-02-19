@@ -103,3 +103,120 @@
                  (is (nil? e) (str "Unexpected error: " e)))
                (finally
                  (done)))))))
+
+(deftest import-bp7-pull-test
+  (testing "d/pull retrieves worksheet attributes and component refs"
+    (async done
+           (go
+             (try
+               (let [db-bytes (<p! (fetch-bytes "/behave-test.bp7"))
+                     db-name  (str "bp7-pull-" (random-uuid) ".db")
+                     [db _ sql-conn] (<p! (import-bp7! db-bytes db-name))
+                     ws-eid   (ffirst (d/q '[:find ?e :where [?e :worksheet/uuid _]] db))
+                     pulled   (d/pull db [:worksheet/uuid
+                                          :worksheet/modules
+                                          {:worksheet/input-groups [:input-group/group-uuid
+                                                                    {:input-group/inputs [:input/value]}]}]
+                                      ws-eid)]
+                 (is (some? ws-eid)
+                     "Should find a worksheet entity")
+                 (is (string? (:worksheet/uuid pulled))
+                     "Pulled worksheet should have a UUID string")
+                 (is (some? (:worksheet/modules pulled))
+                     "Pulled worksheet should have modules")
+                 (testing "pull traverses component refs"
+                   (let [input-groups (:worksheet/input-groups pulled)]
+                     (is (seq input-groups)
+                         "Worksheet should have input groups")
+                     (is (every? :input-group/group-uuid input-groups)
+                         "Each input group should have a group-uuid")
+                     (is (seq (mapcat :input-group/inputs input-groups))
+                         "Input groups should contain inputs")))
+                 (<p! (sql/close! sql-conn)))
+               (catch :default e
+                 (is (nil? e) (str "Unexpected error: " e)))
+               (finally
+                 (done)))))))
+
+(deftest import-bp7-entity-test
+  (testing "d/entity provides lazy attribute access on imported db"
+    (async done
+           (go
+             (try
+               (let [db-bytes (<p! (fetch-bytes "/behave-test.bp7"))
+                     db-name  (str "bp7-entity-" (random-uuid) ".db")
+                     [db _ sql-conn] (<p! (import-bp7! db-bytes db-name))
+                     ws-eid   (ffirst (d/q '[:find ?e :where [?e :worksheet/uuid _]] db))
+                     entity   (d/entity db ws-eid)]
+                 (is (some? entity)
+                     "Entity should exist")
+                 (is (= ws-eid (:db/id entity))
+                     "Entity :db/id should match lookup eid")
+                 (is (string? (:worksheet/uuid entity))
+                     "Lazy attribute access should return worksheet UUID")
+                 (is (some? (:worksheet/modules entity))
+                     "Lazy attribute access should return worksheet modules")
+
+                 (testing "entity navigates component refs"
+                   (let [input-groups (:worksheet/input-groups entity)
+                         first-ig     (first input-groups)]
+                     (is (seq input-groups)
+                         "Entity should have input-group refs")
+                     (is (string? (:input-group/group-uuid first-ig))
+                         "Input group entity should have group-uuid")
+                     (is (seq (:input-group/inputs first-ig))
+                         "Input group entity should have inputs")))
+
+                 (testing "entity reverse ref navigation"
+                   (let [ig-eid (ffirst (d/q '[:find ?e :where [?e :input-group/inputs _]] db))
+                         ig     (d/entity db ig-eid)]
+                     (is (some? (:worksheet/_input-groups ig))
+                         "Reverse ref should navigate back to worksheet")))
+
+                 (<p! (sql/close! sql-conn)))
+               (catch :default e
+                 (is (nil? e) (str "Unexpected error: " e)))
+               (finally
+                 (done)))))))
+
+(deftest import-bp7-query-joins-test
+  (testing "d/q with joins across worksheet -> input-group -> input"
+    (async done
+           (go
+             (try
+               (let [db-bytes (<p! (fetch-bytes "/behave-test.bp7"))
+                     db-name  (str "bp7-joins-" (random-uuid) ".db")
+                     [db _ sql-conn] (<p! (import-bp7! db-bytes db-name))
+                     ;; Join worksheet -> input-groups -> inputs, return input values
+                     results (d/q '[:find ?ws-uuid ?gv-uuid ?val
+                                    :where
+                                    [?ws :worksheet/uuid ?ws-uuid]
+                                    [?ws :worksheet/input-groups ?ig]
+                                    [?ig :input-group/inputs ?inp]
+                                    [?inp :input/group-variable-uuid ?gv-uuid]
+                                    [?inp :input/value ?val]]
+                                  db)]
+                 (is (pos? (count results))
+                     "Join query should return results")
+                 (is (every? #(= 3 (count %)) results)
+                     "Each result should be a 3-tuple")
+                 (is (every? #(string? (first %)) results)
+                     "Worksheet UUID should be a string")
+
+                 (testing "aggregation query"
+                   (let [counts (d/q '[:find ?ws-uuid (count ?inp)
+                                       :where
+                                       [?ws :worksheet/uuid ?ws-uuid]
+                                       [?ws :worksheet/input-groups ?ig]
+                                       [?ig :input-group/inputs ?inp]]
+                                     db)]
+                     (is (pos? (count counts))
+                         "Aggregation query should return results")
+                     (is (every? #(pos? (second %)) counts)
+                         "Each worksheet should have at least one input")))
+
+                 (<p! (sql/close! sql-conn)))
+               (catch :default e
+                 (is (nil? e) (str "Unexpected error: " e)))
+               (finally
+                 (done)))))))

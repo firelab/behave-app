@@ -7,7 +7,7 @@
     [absurder-sql.datascript.protocols :as proto :refer [IStorage]]
     [absurder-sql.datascript.storage :as storage]
     [absurder-sql.datascript.util :as util]
-    [me.tonsky.persistent-sorted-set :as set]
+    [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.datascript.persistent-sorted-set) :as set]
     [me.tonsky.persistent-sorted-set.arrays :as arrays])
   #?(:cljs (:require-macros [absurder-sql.datascript.serialize :refer [array dict]]))
   #?(:clj

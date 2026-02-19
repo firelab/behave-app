@@ -33,7 +33,6 @@
                (finally
                  (done)))))))
 
-
 (deftest maybe-adapt-storage-wraps-raw-test
   (testing "raw IStorage gets wrapped by maybe-adapt-storage"
     (async done
@@ -101,19 +100,19 @@
     (async done
            (go
              (try
-               (let [db-name  (str "async-store-" (random-uuid) ".db")
+               (let [db-name (str "async-store-" (random-uuid) ".db")
                      sql-conn (<p! (sql/connect! db-name))
-                     store    (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
-                     wrapper  (storage-async/make-sync-storage-wrapper store {})
-                     conn     (d/create-conn {:name {} :age {}} {:storage wrapper})]
+                     store (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
+                     wrapper (storage-async/make-sync-storage-wrapper store {})
+                     conn (d/create-conn {:name {} :age {}} {:storage wrapper})]
                  (d/transact! conn [{:db/id -1 :name "Alice" :age 30}
                                     {:db/id -2 :name "Bob" :age 25}
                                     {:db/id -3 :name "Carol" :age 40}])
                  (<p! (storage-async/store-impl-sync! (d/db conn) wrapper true))
-                 (let [result       (<p! (storage-async/restore-sync store))
-                       [db _]       result
-                       names        (d/q '[:find ?n :where [_ :name ?n]] db)
-                       ages         (d/q '[:find ?n ?a :where [?e :name ?n] [?e :age ?a]] db)]
+                 (let [result (<p! (storage-async/restore-sync store))
+                       [db _] result
+                       names (d/q '[:find ?n :where [_ :name ?n]] db)
+                       ages (d/q '[:find ?n ?a :where [?e :name ?n] [?e :age ?a]] db)]
                    (is (= #{["Alice"] ["Bob"] ["Carol"]} names))
                    (is (= #{["Alice" 30] ["Bob" 25] ["Carol" 40]} ages)))
                  (<p! (sql/close! sql-conn)))
@@ -128,11 +127,11 @@
            (go
              (try
                ;; 1. Create and populate a DB
-               (let [db-name   (str "export-src-" (random-uuid) ".db")
-                     sql-conn  (<p! (sql/connect! db-name))
-                     store     (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
-                     wrapper   (storage-async/make-sync-storage-wrapper store {})
-                     conn      (d/create-conn {:name {} :age {}} {:storage wrapper})]
+               (let [db-name (str "export-src-" (random-uuid) ".db")
+                     sql-conn (<p! (sql/connect! db-name))
+                     store (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
+                     wrapper (storage-async/make-sync-storage-wrapper store {})
+                     conn (d/create-conn {:name {} :age {}} {:storage wrapper})]
                  (d/transact! conn [{:db/id -1 :name "Alice" :age 30}
                                     {:db/id -2 :name "Bob" :age 25}])
                  (<p! (storage-async/store-impl-sync! (d/db conn) wrapper true))
@@ -143,18 +142,18 @@
 
                    ;; 3. Import into a fresh connection, then reconnect
                    (let [import-name (str "import-dst-" (random-uuid) ".db")
-                         tmp-conn    (<p! (sql/connect! import-name))]
+                         tmp-conn (<p! (sql/connect! import-name))]
                      (<p! (sql/import! tmp-conn db-bytes))
                      (<p! (sql/close! tmp-conn))
 
                      ;; 4. Reconnect and restore DataScript DB
-                     (let [import-conn  (<p! (sql/connect! import-name))
+                     (let [import-conn (<p! (sql/connect! import-name))
                            import-store (ds-sqlite/sqlite-store import-conn {:db-name import-name
                                                                              :skip-ddl true})
-                           result       (<p! (storage-async/restore-sync import-store))
-                           [db _]       result
-                           names        (d/q '[:find ?n :where [_ :name ?n]] db)
-                           ages         (d/q '[:find ?n ?a :where [?e :name ?n] [?e :age ?a]] db)]
+                           result (<p! (storage-async/restore-sync import-store))
+                           [db _] result
+                           names (d/q '[:find ?n :where [_ :name ?n]] db)
+                           ages (d/q '[:find ?n ?a :where [?e :name ?n] [?e :age ?a]] db)]
                        (is (= #{["Alice"] ["Bob"]} names))
                        (is (= #{["Alice" 30] ["Bob" 25]} ages))
                        (<p! (sql/close! import-conn))))))
@@ -168,13 +167,13 @@
     (async done
            (go
              (try
-               (let [db-name   (str "gc-test-" (random-uuid) ".db")
-                     sql-conn  (<p! (sql/connect! db-name))
-                     store     (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
-                     wrapper   (storage-async/make-sync-storage-wrapper store {:branching-factor 32})
-                     conn      (d/create-conn {:str {}} {:storage          wrapper
-                                                         :branching-factor 32
-                                                         :ref-type         :strong})]
+               (let [db-name (str "gc-test-" (random-uuid) ".db")
+                     sql-conn (<p! (sql/connect! db-name))
+                     store (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
+                     wrapper (storage-async/make-sync-storage-wrapper store {:branching-factor 32})
+                     conn (d/create-conn {:str {}} {:storage wrapper
+                                                    :branching-factor 32
+                                                    :ref-type :strong})]
 
                  ;; 1. Transact initial batch and store
                  (d/transact! conn (mapv #(hash-map :db/id (- %) :str (str %)) (range 1 101)))
@@ -189,8 +188,8 @@
                    (<p! (storage-async/store-impl-sync! (d/db conn) wrapper true))
 
                    (let [addrs-after-second (<p! (proto/-list-addresses store))
-                         db-after           (d/db conn)
-                         used               (storage-async/addresses [db-after])]
+                         db-after (d/db conn)
+                         used (storage-async/addresses [db-after])]
                      (is (> (count addrs-after-second) (count used))
                          "There should be garbage addresses after incremental store")
 
@@ -202,13 +201,13 @@
                            "GC should have removed some addresses")
 
                        ;; 4. Restore and verify data is intact
-                       (let [result  (<p! (storage-async/restore-sync store))
-                             [db _]  result
-                             datoms  (d/datoms db :eavt)]
+                       (let [result (<p! (storage-async/restore-sync store))
+                             [db _] result
+                             datoms (d/datoms db :eavt)]
                          (is (= 200 (count datoms))
                              "All 200 entities should survive GC")
                          (is (= "1" (:v (first datoms))))
-                         (is (= "99" (:v (last (d/datoms db :avet)))))))))
+                         (is (= "200" (:v (last datoms))))))))
 
                  (<p! (sql/close! sql-conn)))
                (catch :default e
@@ -221,13 +220,13 @@
     (async done
            (go
              (try
-               (let [db-name   (str "large-export-" (random-uuid) ".db")
-                     sql-conn  (<p! (sql/connect! db-name))
-                     store     (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
-                     wrapper   (storage-async/make-sync-storage-wrapper store {:branching-factor 32})
-                     conn      (d/create-conn {:str {}} {:storage wrapper
-                                                         :branching-factor 32
-                                                         :ref-type :strong})]
+               (let [db-name (str "large-export-" (random-uuid) ".db")
+                     sql-conn (<p! (sql/connect! db-name))
+                     store (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
+                     wrapper (storage-async/make-sync-storage-wrapper store {:branching-factor 32})
+                     conn (d/create-conn {:str {}} {:storage wrapper
+                                                    :branching-factor 32
+                                                    :ref-type :strong})]
                  ;; Insert 100 entities
                  (d/transact! conn (mapv #(hash-map :db/id (- %) :str (str %)) (range 1 101)))
                  (<p! (storage-async/store-impl-sync! (d/db conn) wrapper true))
@@ -236,16 +235,16 @@
                    (<p! (sql/close! sql-conn))
 
                    (let [import-name (str "large-import-" (random-uuid) ".db")
-                         tmp-conn    (<p! (sql/connect! import-name))]
+                         tmp-conn (<p! (sql/connect! import-name))]
                      (<p! (sql/import! tmp-conn db-bytes))
                      (<p! (sql/close! tmp-conn))
 
-                     (let [import-conn  (<p! (sql/connect! import-name))
+                     (let [import-conn (<p! (sql/connect! import-name))
                            import-store (ds-sqlite/sqlite-store import-conn {:db-name import-name
                                                                              :skip-ddl true})
-                           result       (<p! (storage-async/restore-sync import-store))
-                           [db _]       result
-                           count'       (count (d/datoms db :eavt))]
+                           result (<p! (storage-async/restore-sync import-store))
+                           [db _] result
+                           count' (count (d/datoms db :eavt))]
                        (is (= 100 count'))
                        (is (= "1" (:v (first (d/datoms db :eavt)))))
                        (is (= "100" (:v (last (d/datoms db :eavt)))))

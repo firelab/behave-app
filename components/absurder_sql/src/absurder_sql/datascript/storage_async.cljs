@@ -4,6 +4,7 @@
    [absurder-sql.datascript.db :as db]
    [absurder-sql.datascript.util :as util]
    [absurder-sql.datascript.protocols :as proto :refer [IStorage]]
+   [absurder-sql.datascript.persistent-sorted-set :as set]
    ["../../persistent_sorted_set_js/index.min" :as pss :refer [Branch Leaf PersistentSortedSet RefType Settings]]))
 
 (def ^:private ^:dynamic *store-buffer*)
@@ -194,6 +195,18 @@
 (defn- remember-db [db]
   (.push stored-dbs (js/WeakRef. db)))
 
+(defn- prune-stored-dbs!
+  "Remove dead WeakRefs from stored-dbs array."
+  []
+  (let [alive #js []]
+    (dotimes [i (.-length stored-dbs)]
+      (let [ref (aget stored-dbs i)]
+        (when (some? (.deref ref))
+          (.push alive ref))))
+    (set! (.-length stored-dbs) 0)
+    (dotimes [i (.-length alive)]
+      (.push stored-dbs (aget alive i)))))
+
 ;; Helper to store a sorted set
 (defn- store-set [set adapter]
   (.store set adapter))
@@ -252,10 +265,7 @@
 
 ;; Helper to restore a sorted set by address
 (defn- restore-set-by [cmp addr adapter opts]
-  (let [branching-factor (or (:branching-factor opts) 512)
-        ref-type (->ref-type (or (:ref-type opts) (.-WEAK RefType)))
-        settings (Settings. branching-factor ref-type nil)]
-    (PersistentSortedSet. cmp adapter settings addr nil -1 0)))
+  (set/restore-by cmp addr adapter opts))
 
 (defn restore-impl
   "Restore DB from async storage. Returns a Promise that resolves to [db tail]."
@@ -393,29 +403,36 @@
     (persistent! @*set)))
 
 (defn- read-stored-dbs [^IStorage storage']
-  (let [res (transient [])]
+  (let [*res (volatile! (transient []))]
     (dotimes [i (.-length stored-dbs)]
       (let [ref (aget stored-dbs i)
             db  (.deref ref)]
         (when (and (some? db)
                    (identical? (storage db) storage'))
-          (vswap! res conj! db))))
-    (persistent! @res)))
+          (vswap! *res conj! db))))
+    (persistent! @*res)))
 
 (defn collect-garbage
   "Collect garbage from async storage. Returns a Promise."
   [^IStorage storage']
-  (-> (restore storage')
-      (.then (fn [current-db]
-               (let [dbs    (conj (read-stored-dbs storage') current-db)
-                     used   (addresses dbs)]
-                 (-> (proto/-list-addresses storage')
-                     (.then (fn [all]
-                              (let [unused (into [] (remove used) all)]
-                                (util/log "GC: found" (count dbs) "alive db refs,"
-                                          (count used) "used addrs," (count all) "total addrs,"
-                                          (count unused) "unused")
-                                (proto/-delete storage' unused))))))))))
+  (prune-stored-dbs!)
+  ;; Use restore-impl-sync to get the BASE stored db with all nodes prefetched.
+  ;; We need sync access for walkAddresses, and we use the base db (before tail)
+  ;; because applying the tail creates in-memory nodes whose addresses don't
+  ;; match what's persisted in storage.
+  (-> (restore-impl-sync storage' {})
+      (.then (fn [result]
+               (if-not result
+                 (js/Promise.resolve nil)
+                 (let [[db _tail _wrapper] result
+                       used (addresses [db])]
+                   (-> (proto/-list-addresses storage')
+                       (.then (fn [all]
+                                (let [unused (into [] (remove used) all)]
+                                  (util/log "GC: found"
+                                            (count used) "used addrs," (count all) "total addrs,"
+                                            (count unused) "unused")
+                                  (proto/-delete storage' unused)))))))))))
 
 (extend-type AsyncStorageAdapter
   proto/IDatascriptStorageAdapter

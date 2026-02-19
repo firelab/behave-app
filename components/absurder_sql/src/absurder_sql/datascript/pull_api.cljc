@@ -5,7 +5,7 @@
     [absurder-sql.datascript.db :as db #?@(:cljs [:refer [DB]])]
     [absurder-sql.datascript.lru :as lru]
     [absurder-sql.datascript.util :as util]
-    [me.tonsky.persistent-sorted-set :as set])
+    [#?(:clj me.tonsky.persistent-sorted-set :cljs absurder-sql.datascript.persistent-sorted-set) :as set])
   #?(:clj
      (:import
        [clojure.lang ISeq]
