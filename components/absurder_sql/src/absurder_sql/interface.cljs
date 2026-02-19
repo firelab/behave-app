@@ -17,6 +17,10 @@
        :arglists '([connection])}
   close! c/close!)
 
+(def ^{:doc      "Flushes in-memory VFS blocks to IndexedDB."
+       :arglists '([connection])}
+  sync! c/sync!)
+
 (def ^{:doc      "Executes `sql` on a SQLite database connection."
        :arglists '([connection sql])}
   execute! c/execute!)

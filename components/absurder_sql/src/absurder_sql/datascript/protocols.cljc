@@ -17,13 +17,18 @@
      Will be used during GC to remove keys that are no longer used.")
 
   (-delete [_ addrs-seq]
-    "Delete data stored under `addrs` (seq). Will be called during GC"))
+    "Delete data stored under `addrs` (seq). Will be called during GC")
+
+  (-sync [_]
+    "Flush pending writes to durable storage. Returns a Promise."))
 
 (defprotocol IDatascriptStorageAdapter
   (-ds-store! [this db force?]
     "Store db to backing storage. Returns db or promise of db.")
   (-ds-store-tail! [this db tail]
     "Store tail datoms to storage.")
+  (-ds-sync [this]
+    "Flush pending writes to durable storage (IndexedDB). Returns a Promise.")
   (-ds-get-storage [this]
     "Get underlying IStorage instance.")
   (-restore-impl [this opts]

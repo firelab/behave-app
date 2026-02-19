@@ -248,6 +248,8 @@
   (-ds-store-tail! [adapter _db tail]
     (proto/-store (.-storage adapter)
                   [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
+  (-ds-sync [_adapter]
+    (js/Promise.resolve nil))
   (-ds-get-storage [adapter]
     (.-storage adapter))
   (-restore-impl [adapter opts]

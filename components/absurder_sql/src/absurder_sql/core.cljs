@@ -1,57 +1,39 @@
 (ns absurder-sql.core
   (:require [promesa.core :as p]
-            [shadow.dom :as dom]
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 
 ;;; State
+(defonce ^:private sqlite-mod (atom nil))
 (defonce ^:private initialized? (atom false))
 
 ;;; Helpers
 
-(defn- script-added? []
-   (dom/query-one "script[src='/js/sqlite.js']"))
-
-(defn- script-loaded? []
-  (.-sqlite js/window))
-
-(defn- load-external-script! [url callback]
-  (let [script (.createElement js/document "script")]
-    (aset script "type" "text/javascript")
-    (aset script "src" url)
-    (aset script "onload" callback)
-    (.appendChild (.-body js/document) script)))
-
-(defn- init-sqlite! [& [promise]]
-  (-> (.default js/sqlite)
-      (p/handle (fn [result error]
-                  (println "Starting up!")
-                  (if error
-                    (js/alert "Unable to start SQLite DB")
-                    (do 
-                      (reset! initialized? true)
-                      (p/resolve! promise result)))))))
-
 (defn- ensure-connected! []
   (when-not @initialized?
-    (throw (js/Error. "SQLite is not connected. Use `sqlite-js/init!` to initialize."))))
+    (throw (js/Error. "SQLite is not connected. Use `sql/init!` to initialize."))))
+
+(defn- dynamic-import
+  "Calls the browser's native `import()` from a non-module script context."
+  [url]
+  ((js/Function. (str "return import('" url "')"))))
+
+(defn- db-class
+  "Returns the Database class from the dynamically loaded module."
+  []
+  (.-Database @sqlite-mod))
 
 ;;; Public API
 
 (defn init!
-  "Initializes in-browser SQLite via [AbsurderSQL](https://github.com/npiesco/absurder-sql)."
+  "Initializes in-browser SQLite via ES module dynamic import."
   []
-  (let [load-promise (p/deferred)
-        init-promise (p/deferred)]
-    (println "Loading...")
-    (load-external-script! "/js/sqlite.js" #(do
-                                              (println "SQLite JS Loaded!")
-                                              (p/resolve! load-promise nil)))
-    (go 
-      (let [_ (<p! load-promise)]
-        (println "Initializing...")
-        (init-sqlite! init-promise)))
-    init-promise))
+  (-> (dynamic-import "/js/absurder_sql.js")
+      (p/then (fn [mod]
+                (reset! sqlite-mod mod)
+                ((.-default mod) #js {:module_or_path "/js/absurder_sql_bg.wasm"})))
+      (p/then (fn [_]
+                (reset! initialized? true)))))
 
 (defn connected?
   "Returns whether the in-browser SQLite is initialized."
@@ -62,19 +44,25 @@
 (defn connect!
   "Creates a new in-browser SQLite database connection to `db-name`.
    Enables Write-Ahead Log (WAL) mode by default."
-  ^js/sqlite.Database
+  ^js
   [db-name]
   (ensure-connected!)
-  (-> (js/sqlite.Database.newDatabase db-name)
+  (-> (.newDatabase (db-class) db-name)
       (p/then (fn [db]
-                (-> (.execute db "PRAGMA journal_mode=WAL;")
-                    (p/then (fn [_] db)))))))
+                (.allowNonLeaderWrites db true)
+                db))))
 
 (defn close!
   "Closes an existing SQLite database connection."
-  [^js/sqlite.Database connection]
+  [^js connection]
   (ensure-connected!)
   (.close connection))
+
+(defn sync!
+  "Flushes in-memory VFS blocks to IndexedDB."
+  [^js connection]
+  (ensure-connected!)
+  (.sync connection))
 
 (defn- row->map
   "Transforms a JS row `{values: [{type, value}, ...]}` into a Clojure map
@@ -98,7 +86,7 @@
 
 (defn execute!
   "Executes `sql` on a SQLite database connection."
-  [^js/sqlite.Database connection sql]
+  [^js connection sql]
   (ensure-connected!)
   (.execute connection sql))
 
@@ -116,38 +104,38 @@
 (defn execute-params!
   "Executes parameterized `sql` with `params` on a SQLite database connection.
    Params is a Clojure vector of values; each is converted to a ColumnValue."
-  [^js/sqlite.Database connection sql params]
+  [^js connection sql params]
   (ensure-connected!)
   (.executeWithParams connection sql (to-array (mapv ->column-value params))))
 
 (defn select
   "Executes a query and returns a promise of a vector of Clojure maps."
-  [^js/sqlite.Database connection sql]
+  [^js connection sql]
   (p/then (execute! connection sql) result->maps))
 
 (defn select-params
   "Executes a parameterized query and returns a promise of a vector of Clojure maps."
-  [^js/sqlite.Database connection sql params]
+  [^js connection sql params]
   (p/then (execute-params! connection sql params) result->maps))
 
 (defn import!
   "Imports `db-bytes` to a SQLite Database."
-  [^js/sqlite.Database connection ^js/Uint8Array db-bytes]
+  [^js connection ^js/Uint8Array db-bytes]
   (ensure-connected!)
   (.importFromFile connection db-bytes))
 
 (defn export!
   "Exports a SQLite Database as bytes to download/share."
   ^js/Uint8Array
-  [^js/sqlite.Database connection]
+  [^js connection]
   (ensure-connected!)
   (.exportToFile connection))
 
 (defn download!
   "Downloads a SQLite Database."
-  [^js/sqlite.Database connection db-name]
+  [^js connection db-name]
   (ensure-connected!)
-  (go 
+  (go
     (let [db-bytes (<p! (export! connection))
           blob     (js/Blob. [db-bytes] {:type "application/octet-stream"})
           url      (.createObjectURL js/URL. blob)

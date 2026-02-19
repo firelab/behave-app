@@ -75,7 +75,10 @@
     (list-impl conn opts))
 
   (-delete [_ addr-seq]
-    (delete-impl conn opts addr-seq)))
+    (delete-impl conn opts addr-seq))
+
+  (-sync [_]
+    (sql/sync! conn)))
 
 (defn sqlite-store
   "Create new DataScript storage from in-browser SQLite DB.

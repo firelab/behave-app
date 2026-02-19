@@ -36,13 +36,14 @@
 ;;; DataScript Operations
 
 (defn- transact! []
-  (let [text (.-value (.getElementById js/document "tx-input"))]
-    (try
-      (let [report (d/transact! (:conn @state) (reader/read-string text))]
-        (log! (str "Transacted " (count (:tx-data report)) " datom(s)."))
-        (render-results! (mapv str (:tx-data report))))
-      (catch :default e
-        (log! (str "TX ERROR: " (.-message e)))))))
+  (try
+    (let [{:keys [conn]} @state
+          text   (.-value (.getElementById js/document "tx-input"))
+          report (d/transact! conn (reader/read-string text))]
+      (log! (str "Transacted " (count (:tx-data report)) " datom(s)."))
+      (render-results! (mapv str (:tx-data report))))
+    (catch :default e
+      (log! (str "TX ERROR: " (or (.-message e) (str e)))))))
 
 (defn- query! []
   (let [text   (.-value (.getElementById js/document "q-input"))
@@ -168,8 +169,10 @@
                                               (set-status! "connected")
                                               (log! "DataScript + SQLite ready."))))))))))
       (p/catch (fn [e]
-                 (set-status! "error")
-                 (log! (str "Init failed: " (.-message e))))))
+                 (let [msg (or (.-message e) (str e))]
+                   (set-status! "error")
+                   (log! (str "Init failed: " msg))
+                   (js/console.error "Init failed:" e)))))
 
   (.addEventListener (.getElementById js/document "btn-transact")
                      "click" (fn [_] (transact!)))

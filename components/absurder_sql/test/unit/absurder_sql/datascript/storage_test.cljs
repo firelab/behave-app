@@ -58,6 +58,8 @@
   (-ds-store-tail! [this _db tail]
     (proto/-store this
                   [[tail-addr (mapv #(mapv storage/serializable-datom %) tail)]]))
+  (-ds-sync [_this]
+    (js/Promise.resolve nil))
   (-ds-get-storage [this] this)
   (-restore-impl [this opts]
     (storage/restore-impl this opts))

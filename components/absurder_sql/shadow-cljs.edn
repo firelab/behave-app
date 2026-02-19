@@ -1,12 +1,5 @@
 ;; shadow-cljs configuration
-{:source-paths ["src" "resources" "test/unit"]
- :dependencies [[cider/cider-nrepl "0.55.7"]
-                [refactor-nrepl "3.11.0"]
-                [funcool/promesa "11.0.678"]
-                [persistent-sorted-set "0.3.0"]
-                [org.clojure/core.async "1.8.741"]
-                [io.github.tonsky/extend-clj "0.1.0"]
-                [lambdaisland/kaocha-cljs2 "0.2.72"]]
+{:deps         true
  :dev-http     {8020 ["out" "resources/public"]
                 8022 ["target/kaocha-test" "resources/public"]}
  :nrepl        {:port       9000

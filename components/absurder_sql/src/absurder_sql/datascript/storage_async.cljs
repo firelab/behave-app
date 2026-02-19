@@ -441,6 +441,8 @@
   (-ds-store-tail! [adapter _db tail]
     (proto/-store (.-storage adapter)
                   [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
+  (-ds-sync [adapter]
+    (proto/-sync (.-storage adapter)))
   (-ds-get-storage [adapter]
     (.-storage adapter))
   (-restore-impl [adapter opts]
@@ -463,6 +465,8 @@
   (-ds-store-tail! [wrapper _db tail]
     (proto/-store (.-storage (.-async-adapter wrapper))
                   [[tail-addr (mapv #(mapv serializable-datom %) tail)]]))
+  (-ds-sync [wrapper]
+    (proto/-sync (.-storage (.-async-adapter wrapper))))
   (-ds-get-storage [wrapper]
     (.-storage (.-async-adapter wrapper)))
   (-restore-impl [wrapper opts]

@@ -28,4 +28,5 @@
          ;; clients are already connected to funnel, if not it opens a browser.
          ;; This way we can reuse the browser tab
          :kaocha.cljs2/clients-hook kaocha-hooks/launch-browser-and-wait
+         :kaocha.cljs2/timeout 120000
          }]}

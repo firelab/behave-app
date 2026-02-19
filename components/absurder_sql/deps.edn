@@ -1,10 +1,13 @@
-{:paths ["src" "test" "resources"]
+{:paths ["src" "test/unit" "resources"]
  :deps {org.clojure/clojurescript                   {:mvn/version "1.12.134"}
+        org.clojure/core.async                      {:mvn/version "1.8.741"}
         thheller/shadow-cljs                        {:mvn/version "3.3.6"}
         funcool/promesa                             {:mvn/version "11.0.678"}
         persistent-sorted-set/persistent-sorted-set {:mvn/version "0.3.0"}
-        cider/cider-nrepl                           {:mvn/version "0.42.1"}
-        io.github.tonsky/extend-clj                 {:mvn/version "0.1.0"}}
+        cider/cider-nrepl                           {:mvn/version "0.55.7"}
+        io.github.tonsky/extend-clj                 {:mvn/version "0.1.0"}
+        refactor-nrepl/refactor-nrepl               {:mvn/version  "3.11.0"}
+        lambdaisland/kaocha-cljs2                   {:mvn/version "0.2.72"}}
  :aliases {:test   {:extra-paths ["test"]
                     :extra-deps  {lambdaisland/kaocha-cljs2 {:mvn/version "0.2.72"}}}
            :funnel {:replace-deps {lambdaisland/funnel {:mvn/version "1.6.93"}}

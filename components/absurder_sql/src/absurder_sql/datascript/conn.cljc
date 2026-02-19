@@ -48,7 +48,7 @@
 
 (defn conn? [conn]
   (and
-   #?(:clj  (instance? clojure.lang.IDeref conn)
+   #?(:clj (instance? clojure.lang.IDeref conn)
       :cljs (satisfies? cljs.core/IDeref conn))
    (if-some [db @conn]
      (db/db? db)

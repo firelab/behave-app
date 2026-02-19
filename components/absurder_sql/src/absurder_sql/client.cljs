@@ -57,12 +57,9 @@
         (catch :default e
           (log! (str "ERROR: " (.-message e))))))))
 
-(sql/execute! @db "SELECT * FROM test")
-(p/then *1 #(println %1))
-
 (defn ^:export init []
   (set-status! "initializing SQLite...")
-  (log! "Initializing AbsurderSQL...")
+  (println "Initializing AbsurderSQL...")
   (-> (sql/init!)
       (p/then (fn [_]
                 (println "Initialized promise resolved.")
