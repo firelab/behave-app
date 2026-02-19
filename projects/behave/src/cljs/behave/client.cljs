@@ -9,7 +9,6 @@
             [behave.help.views         :refer [help-area]]
             [behave.settings.views     :as settings]
             [behave.store              :refer [load-store!]]
-            [behave.sqlite-store       :as ds-sqlite]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t bp]]
             [behave.vms.store          :refer [load-vms!]]
@@ -52,7 +51,6 @@
     (rf/dispatch [:system/add-script issue-collector]))
   (when sentry
     (rf/dispatch [:system/add-script sentry])))
-
 
 (defn- before-unload-fn [e]
   (when-not (str/includes? (.-pathname (.-location js/window)) "print")
@@ -147,7 +145,6 @@
           [:span
            {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
            "Disclaimer"]]]])]))
-
 
 (def ^:private route-params-atom (atom nil))
 

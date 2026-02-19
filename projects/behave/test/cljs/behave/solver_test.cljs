@@ -3,7 +3,7 @@
             [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
             [csv-parser.interface :refer [parse-csv]]
             [data-utils.interface :refer [parse-float parse-int]]
-            [datascript.core      :as d]
+            [absurder-sql.datascript.core :as d]
             [behave.fixtures      :as fx]
             [behave.lib.enums     :as enums]
             [behave.solver.core   :refer [solve-worksheet]]
@@ -27,7 +27,7 @@
 
 (defn- clean-values [row]
   (into {}
-        (map (fn remove-quotes[[key val]]
+        (map (fn remove-quotes [[key val]]
                (if (string? val)
                  [key (str/replace val "\"" "")]
                  [key val])))
@@ -83,7 +83,7 @@
 ;;; Fixtures
 
 (use-fixtures :each
-  {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet fx/log-rf-events])
+  {:before (join-fixtures [fx/setup-vms! fx/setup-empty-db fx/with-new-worksheet fx/log-rf-events])
    :after  (join-fixtures [fx/teardown-db fx/stop-logging-rf-events])})
 
 ;;; Tests
@@ -209,8 +209,7 @@
         "setWindAndSpreadOrientationMode"  "windAndSpreadOrientationMode"
         "setWindDirection"                 "windDirection"
         "setWindHeightInputMode"           "windHeightInputMode"
-        "setWindSpeed"                     "windSpeed"
-        )
+        "setWindSpeed"                     "windSpeed")
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
         "setDownwindCoverHeight"    "downwindCoverHeight"
@@ -247,7 +246,6 @@
       (outputs-exist? spot
                       "getMaxMountainousTerrainSpottingDistanceFromTorchingTrees"
                       "getFlameHeightForTorchingTrees"))
-
 
     (testing "Crown Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
@@ -449,7 +447,7 @@
 
 (defn test-crown-worksheet [row-idx row]
   (let [module-input  (fn [class-name acc & args]
-                         (conj acc (apply ws-input class-name args)))
+                        (conj acc (apply ws-input class-name args)))
         crown-input   (partial module-input "SIGCrown")
         surface-input (partial module-input "SIGSurface")
         crown-output  (partial ws-output "SIGCrown")
@@ -517,7 +515,7 @@
                                _              (println [:CROWN [:EXPECTED header expected-value] [:OBSERVED gv-uuid observed-value]])]
                            (when-not (js/isNaN expected-value)
                              (is (within-millionth? expected-value observed-value)
-                                 (str "Expected value: " expected-value"  Observed: " observed-value))))
+                                 (str "Expected value: " expected-value "  Observed: " observed-value))))
                          (str "header not in csv: " header))))]
 
     ;; Assert
@@ -528,7 +526,7 @@
           observed-value (-> observed (get fire-type-output) (first) (parse-int))]
       (testing (str "Crown Worksheet Testing:" header)
         (is (= expected-value observed-value)
-            (str "Expected value: " expected-value"  Observed: " observed-value))))))
+            (str "Expected value: " expected-value "  Observed: " observed-value))))))
 
 (deftest crown-worksheet
   (let [rows (->> (inline-resource "public/csv/crown.csv")

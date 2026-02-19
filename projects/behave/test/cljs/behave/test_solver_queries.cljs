@@ -1,15 +1,15 @@
 (ns behave.test-solver-queries
   (:require [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
             [behave.solver.queries :refer [q-vms]]
-            [behave.fixtures :refer [setup-empty-db teardown-db with-new-worksheet]]
+            [behave.fixtures :as fx]
             [behave.store :as store]
             [behave.vms.store :refer [vms-conn]]
-            [datascript.core :as d]
+            [absurder-sql.datascript.core :as d]
             [behave.schema.core :refer [rules]]
             [re-frame.core :as rf]))
 
-(use-fixtures :each {:before (join-fixtures [setup-empty-db with-new-worksheet])
-                     :after  teardown-db})
+(use-fixtures :each {:before (join-fixtures [fx/setup-vms! fx/setup-empty-db fx/with-new-worksheet])
+                     :after  fx/teardown-db})
 
 (deftest testing-q-vms
   (testing "Can query both VMS and Worksheet"

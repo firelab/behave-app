@@ -5,9 +5,11 @@
    [behave.fixtures :as fx]
    [behave.test-utils :as utils]
    [day8.re-frame.test :as rf-test]
-   [datascript.core :as d]
+   [absurder-sql.datascript.core :as d]
    [behave.worksheet.events]
    [behave.worksheet.subs]
+   [behave.vms.subs]
+   [behave.wizard.subs]
    [austinbirch.reactive-entity :as re]))
 
 ;; =================================================================================================
@@ -15,7 +17,7 @@
 ;; =================================================================================================
 
 (use-fixtures :each
-  {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet fx/log-rf-events])
+  {:before (join-fixtures [fx/setup-vms! fx/setup-empty-db fx/with-new-worksheet fx/log-rf-events])
    :after  (join-fixtures [fx/teardown-db fx/stop-logging-rf-events])})
 
 ;; =================================================================================================
@@ -420,10 +422,10 @@
        (is (seq result-table-cell-data))
 
        (if (= single-or-multi :single)
-        (is (= 1 (inc (apply max (map first result-table-cell-data))))
-            (with-output-name output-name "should only have one row of data"))
-        (is (= 4 (inc (apply max (map first result-table-cell-data))))
-            (with-output-name output-name "should only have four rows of data")))
+         (is (= 1 (inc (apply max (map first result-table-cell-data))))
+             (with-output-name output-name "should only have one row of data"))
+         (is (= 4 (inc (apply max (map first result-table-cell-data))))
+             (with-output-name output-name "should only have four rows of data")))
 
        (is (= 6 (count (into #{} (map (fn [[_row col-uuid repeat-id _value]]
                                         (str col-uuid "-" repeat-id)))

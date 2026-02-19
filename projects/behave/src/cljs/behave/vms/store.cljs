@@ -1,9 +1,9 @@
 (ns behave.vms.store
   (:require [ajax.core                  :refer [ajax-request]]
             [ajax.protocols             :as pr]
-            [datascript.core            :as d]
+            [absurder-sql.datascript.core :as d]
             [posh.reagent               :refer [pull pull-many q posh!]
-                                        :rename {q posh-query pull posh-pull pull-many posh-pull-many}]
+             :rename {q posh-query pull posh-pull pull-many posh-pull-many}]
             [datom-utils.interface      :refer [db-attrs
                                                 datoms->map]]
             [re-frame.core              :as rf]

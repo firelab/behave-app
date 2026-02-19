@@ -7,15 +7,14 @@
             [behave.wizard.subs          :refer [all-conditionals-pass?]]
             [clojure.set                 :as set]
             [clojure.string              :as str]
-            [datascript.core             :as d]
+            [absurder-sql.datascript.core :as d]
             [goog.string                 :as gstring]
             [map-utils.interface         :refer [index-by]]
             [number-utils.core           :refer [parse-float]]
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]
             [string-utils.interface      :refer [->kebab ->str]]
-            [behave.solver.queries :as q]
-            ))
+            [behave.solver.queries :as q]))
 
 ;; Helpers
 (defn make-tree
@@ -790,7 +789,7 @@
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid )
+      (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [min-v]
                               (let [min-float   (js/parseFloat min-v)
                                     value-float (js/parseFloat value)]
@@ -807,7 +806,7 @@
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid )
+      (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [[min-v max-v]]
                               (let [min-float   (js/parseFloat min-v)
                                     max-float   (js/parseFloat max-v)
@@ -826,7 +825,7 @@
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid )
+      (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [max-v]
                               (let [max-float   (js/parseFloat max-v)
                                     value-float (js/parseFloat value)]
@@ -1192,7 +1191,6 @@
    (rf/subscribe [:worksheet/modules ws-uuid]))
  (fn [modules]
    (mapcat :module/search-tables modules)))
-
 
 (rf/reg-sub
  :worksheet/output-eid

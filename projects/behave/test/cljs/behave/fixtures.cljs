@@ -3,7 +3,9 @@
    [behave.schema.core :refer [all-schemas]]
    [behave.store :as bs]
    [behave.vms.store :as vms]
-   [datascript.core :as d]
+   [absurder-sql.datascript.core :as d]
+   [datom-compressor.interface :as c]
+   [datom-utils.interface :refer [db-attrs datoms->map]]
    [ds-schema-utils.interface :refer [->ds-schema]]
    [re-frame.core :as rf]
    [re-posh.core :as rp]
@@ -41,6 +43,35 @@
 (defn setup-empty-vms-db [& [f]]
   (vms/init! {:datoms [] :schema (->ds-schema all-schemas)})
   (when (fn? f) (f))) ; necessary for allowing composition of fixtures
+
+(defn- str->arraybuffer
+  "Convert a binary string (one byte per char) to an ArrayBuffer."
+  [s]
+  (let [n   (.-length s)
+        buf (js/ArrayBuffer. n)
+        u8  (js/Uint8Array. buf)]
+    (dotimes [i n]
+      (aset u8 i (.charCodeAt s i)))
+    buf))
+
+(defn setup-vms!
+  "Load VMS data from layout.msgpack via synchronous XHR.
+   Idempotent — skips if vms-conn is already initialized."
+  [& [f]]
+  (when-not @vms/vms-conn
+    (let [xhr (js/XMLHttpRequest.)]
+      (.open xhr "GET" "/layout.msgpack" false)
+      (.overrideMimeType xhr "text/plain; charset=x-user-defined")
+      (.send xhr)
+      (let [raw-datoms (c/unpack (str->arraybuffer (.-responseText xhr)))
+            bad-attrs  (db-attrs raw-datoms)
+            datoms     (remove (fn [[_ attr vval]]
+                                 (or (bad-attrs attr) (nil? vval)))
+                               raw-datoms)
+            datoms-map (datoms->map datoms)]
+        (vms/init! {:datoms datoms-map
+                    :schema (->ds-schema all-schemas)}))))
+  (when (fn? f) (f)))
 
 (defn teardown-vms-db [& [f]]
   (reset! rpdb/store nil)

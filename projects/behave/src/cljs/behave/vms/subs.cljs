@@ -9,7 +9,7 @@
                                         vms-conn]]
             [behave.translate            :refer [<t]]
             [map-utils.interface         :refer [index-by]]
-            [datascript.core    :as d]
+            [absurder-sql.datascript.core :as d]
             [re-frame.core      :refer [reg-sub subscribe]]
             [re-frame.core :as rf]))
 
@@ -34,7 +34,7 @@
    @(q '[:find  ?e
          :in    $ ?attr
          :where [?e ?attr]]
-        attr)))
+       attr)))
 
 (reg-sub
  :vms/pull-with-attr
@@ -51,7 +51,7 @@
    @(q '[:find  ?children
          :in    $ ?child-attr ?e
          :where [?e ?child-attr ?children]]
-        child-attr eid)))
+       child-attr eid)))
 
 (reg-sub
  :vms/pull-children
@@ -113,13 +113,13 @@
                                    :in $ ?app-name
                                    :where
                                    [?app-id :application/name ?app-name]]
-                                  "BehavePlus")
+                                 "BehavePlus")
          module-eids         @(q '[:find [?m ...]
                                    :in $ ?app-id
                                    :where
                                    [?app-id :application/modules ?m]
                                    [?m :module/name ?name]]
-                                  app-id)
+                                 app-id)
          modules             (mapv entity-from-eid module-eids)
          normal-order        (->> (for [module (->> modules
                                                     (sort-by :module/order))]
@@ -156,8 +156,7 @@
           (group-variable _ ?gv ?v)
           [?v :variable/kind :continuous]
           [?v :variable/native-unit-uuid ?unit-uuid]]
-         @@vms-conn rules gv-uuid)))
-
+        @@vms-conn rules gv-uuid)))
 
 (reg-sub
  :entity-uuid->name
@@ -179,7 +178,7 @@
                [?l :language/translation ?t]
                [?t :translation/key ?key]
                [?t :translation/translation ?translation]]
-              @@vms-conn language-short-code)
+             @@vms-conn language-short-code)
         (into {}))))
 
 (reg-sub
@@ -190,7 +189,7 @@
           :where
           [?gv :bp/uuid ?gv-uuid]
           [?gv :group-variable/discrete-multiple? ?discrete-multiple]]
-         @@vms-conn gv-uuid)))
+        @@vms-conn gv-uuid)))
 
 (reg-sub
  :vms/gv-uuid->list-eid
@@ -201,8 +200,7 @@
           [?gv :bp/uuid ?gv-uuid]
           [?v :variable/group-variables ?gv]
           [?v :variable/list ?l]]
-         @@vms-conn gv-uuid)))
-
+        @@vms-conn gv-uuid)))
 
 (reg-sub
  :vms/group-variable-eid->variable-name
@@ -212,7 +210,7 @@
           :where
           [?v :variable/group-variables ?gv]
           [?v :variable/name ?v-name]]
-         @@vms-conn group-variable-eid)))
+        @@vms-conn group-variable-eid)))
 
 (reg-sub
  :vms/group-variable-is-output?
@@ -224,8 +222,7 @@
           (submodule-root ?sm ?g)
           [?sm :submodule/io ?io]
           [(= ?io :output) ?is-output]]
-         @@vms-conn rules group-variable-id)))
-
+        @@vms-conn rules group-variable-id)))
 
 (reg-sub
  :vms/directional-group-variable-uuids
@@ -235,7 +232,7 @@
           :where
           [?gv :bp/uuid ?gv-uuid]
           [?gv :group-variable/direction ?direction]]
-         @@vms-conn)))
+        @@vms-conn)))
 
 (reg-sub
  :vms/group-variable-is-directional?
@@ -245,8 +242,8 @@
              :where
              [?gv :bp/uuid ?gv-uuid]
              [?gv :group-variable/direction ?direction]]
-            @@vms-conn
-            gv-uuid)
+           @@vms-conn
+           gv-uuid)
       direction)))
 
 (reg-sub

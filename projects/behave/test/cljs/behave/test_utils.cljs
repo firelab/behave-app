@@ -1,11 +1,11 @@
 (ns behave.test-utils
-  (:require [datascript.impl.entity]
-            [datascript.core :as d]
+  (:require [absurder-sql.datascript.impl.entity :as de]
+            [absurder-sql.datascript.core :as d]
             [behave.store :as s]
             [austinbirch.reactive-entity :as re]))
 
 (defn is-entity? [e]
-  (= (type e) datascript.impl.entity/Entity))
+  (de/entity? e))
 
 (defn entity->cljs [entity]
   (cond
@@ -30,7 +30,6 @@
 
     :else
     entity))
-
 
 (defn re-entity->cljs [entity]
   (entity->cljs (re/current-state entity)))

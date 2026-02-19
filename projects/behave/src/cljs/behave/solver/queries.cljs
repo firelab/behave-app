@@ -1,5 +1,5 @@
 (ns behave.solver.queries
-  (:require [datascript.core    :as d]
+  (:require [absurder-sql.datascript.core :as d]
             [data-utils.interface :refer [is-digit? parse-int parse-float]]
             [behave.store        :as store]
             [behave.schema.core  :refer [rules]]
@@ -90,11 +90,11 @@
                    (-> var-entity
                        :variable/english-unit-uuid))
       :metric  (or (-> var-entity
-                      :variable/domain-uuid
-                      uuid->entity
-                      :domain/metric-unit-uuid)
-                  (-> var-entity
-                      :variable/metric-unit-uuid)))))
+                       :variable/domain-uuid
+                       uuid->entity
+                       :domain/metric-unit-uuid)
+                   (-> var-entity
+                       :variable/metric-unit-uuid)))))
 
 (defn unit-uuid->enum-value
   "Given a uuid to a unit entity return the enum value for that unit."

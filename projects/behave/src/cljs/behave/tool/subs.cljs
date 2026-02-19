@@ -1,7 +1,7 @@
 (ns behave.tool.subs
   (:require [behave.vms.store       :as s]
             [clojure.set            :refer [rename-keys]]
-            [datascript.core        :as d]
+            [absurder-sql.datascript.core :as d]
             [re-frame.core          :refer [reg-sub path] :as rf]))
 
 (reg-sub

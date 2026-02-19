@@ -1,7 +1,7 @@
 (ns behave.print.subs
   (:require [behave.store :as s]
             [clojure.string :as str]
-            [datascript.core :as d]
+            [absurder-sql.datascript.core :as d]
             [re-frame.core :as rf]
             [re-posh.core :as rp]
             [string-utils.interface :refer [split-commas-or-spaces]]))

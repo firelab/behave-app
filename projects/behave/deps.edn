@@ -29,7 +29,9 @@
              day8.re-frame/http-fx         {:mvn/version "0.2.4"}
              day8.re-frame/test            {:mvn/version "0.1.5"}
              re-frame-utils/re-frame-utils {:mvn/version "0.1.0"}
-             re-posh/re-posh               {:mvn/version "0.3.3"}
+             sig/posh                      {:local/root "../../components/posh"}
+             sig/re-posh                   {:local/root "../../components/re_posh"}
+             sig/absurder-sql              {:local/root "../../components/absurder_sql"}
              reagent/reagent               {:mvn/version "0.10.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server]}
              cljsjs/react                  {:mvn/version "16.13.0-0" :exclusions [cljsjs/react-dom]}
              cljsjs/react-dom              {:mvn/version "16.13.0-0" :exclusions [cljsjs/react-dom-server]}
@@ -99,4 +101,16 @@
                                 :main-opts  ["-m" "depot.outdated.main"]}
              :download-vms     {:exec-fn behave.download-vms/exec-export-from-vms}
              :test             {:extra-paths ["test/cljs"]
-                                :extra-deps  {}}}}
+                                :extra-deps  {}}
+             :shadow           {:extra-paths ["test/cljs"]
+                                :extra-deps  {org.clojure/clojurescript          {:mvn/version "1.12.134"}
+                                              thheller/shadow-cljs              {:mvn/version "3.3.6"}
+                                              lambdaisland/kaocha-cljs2         {:mvn/version "0.2.72"}
+                                              persistent-sorted-set/persistent-sorted-set {:mvn/version "0.3.0"}
+                                              io.github.tonsky/extend-clj       {:mvn/version "0.1.0"}}}
+             :funnel           {:replace-deps {lambdaisland/funnel {:mvn/version "1.6.93"}}
+                                :main-opts    ["-m" "lambdaisland.funnel"]}
+             :kaocha           {:main-opts  ["-m" "kaocha.runner"]
+                                :extra-deps {lambdaisland/kaocha       {:mvn/version "1.91.1392"}
+                                             lambdaisland/chui         {:mvn/version "1.2.205"}
+                                             lambdaisland/kaocha-cljs2 {:mvn/version "0.2.72"}}}}}

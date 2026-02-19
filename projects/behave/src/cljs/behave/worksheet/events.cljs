@@ -1,7 +1,7 @@
 (ns behave.worksheet.events
   (:require [re-frame.core    :as rf]
             [re-posh.core     :as rp]
-            [datascript.core  :as d]
+            [absurder-sql.datascript.core :as d]
             [behave.components.toolbar :refer [step-priority]]
             [behave.importer           :refer [import-worksheet]]
             [behave.logger             :refer [log]]
@@ -135,8 +135,7 @@
 (rp/reg-event-fx
  :worksheet/upsert-multi-select-input
  [(rp/inject-cofx :ds)]
- (fn [
-      {:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
    (let [group-id    (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
          input-id    (q-input-variable ds group-id group-variable-uuid)
          input-value (q-input-value ds ws-uuid group-uuid repeat-id)
@@ -745,7 +744,7 @@
                                 [?d  :worksheet.diagram/group-variable-uuid ?gv-uuid]
                                 [?d  :worksheet.diagram/row-id              ?row-id]]
                               ds ws-uuid group-variable-uuid row-id)
-         semi-major-axis (max elliptical-A elliptical-B )
+         semi-major-axis (max elliptical-A elliptical-B)
          semi-minor-axis (min elliptical-A elliptical-B)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]

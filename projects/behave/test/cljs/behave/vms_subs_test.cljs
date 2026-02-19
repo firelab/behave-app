@@ -1,8 +1,9 @@
-(ns behave.vms-sub-test
+(ns behave.vms-subs-test
   (:require
    [cljs.test :refer [use-fixtures deftest is join-fixtures] :include-macros true]
    [re-frame.core :as rf]
-   [behave.fixtures :refer [setup-empty-db teardown-db]]))
+   [behave.fixtures :as fx]
+   [behave.vms.subs]))
 
 
 ;; =================================================================================================
@@ -10,8 +11,8 @@
 ;; =================================================================================================
 
 (use-fixtures :each
-  {:before (join-fixtures [setup-empty-db])
-   :after  (join-fixtures [teardown-db])})
+  {:before (join-fixtures [fx/setup-vms! fx/setup-empty-db])
+   :after  (join-fixtures [fx/teardown-db])})
 
 ;; =================================================================================================
 ;; Tests

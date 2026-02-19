@@ -1,6 +1,6 @@
 (ns behave.settings.subs
   (:require [re-frame.core    :as rf]
-            [datascript.core  :as d]
+            [absurder-sql.datascript.core :as d]
             [behave.vms.store :refer [vms-conn]]))
 
 (rf/reg-sub

@@ -5,7 +5,7 @@
    [behave.fixtures :as fx]))
 
 (use-fixtures :each
-  {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet fx/with-dummy-results-table])
+  {:before (join-fixtures [fx/setup-vms! fx/setup-empty-db fx/with-new-worksheet fx/with-dummy-results-table])
    :after  (join-fixtures [fx/teardown-db])})
 
 (deftest sub-worksheet-test

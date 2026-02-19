@@ -9,7 +9,7 @@
             [goog.string                   :as gstring]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
-            [datascript.core               :as d]
+            [absurder-sql.datascript.core   :as d]
             [re-frame.core                 :as rf]
             [number-utils.interface        :refer [is-numeric? parse-float]]
             [string-utils.interface        :refer [->str]]
@@ -180,7 +180,6 @@
  (fn [_cfx _query]
    {:fx [[:dispatch [:state/update [:worksheet :show-add-note-form?] not]]]}))
 
-
 (rf/reg-event-fx
  :wizard/results-select-tab
  (fn [_cfx [_ {:keys [tab]}]]
@@ -265,7 +264,6 @@
                    (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]]))]
      {:fx effects})))
 
-
 ;; Update input variable with units
 ;; If units provided is different from the stored units, set the progress bar's furthest step back to inputs.
 ;; Also clear the input value from the worksheet.
@@ -308,7 +306,6 @@
  :wizard/open
  (fn [_ [_ file]]
    (s/open-worksheet! {:file file})))
-
 
 (rf/reg-event-fx
  :wizard/new-worksheet

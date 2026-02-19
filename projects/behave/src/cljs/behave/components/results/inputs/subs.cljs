@@ -4,9 +4,9 @@
             [behave.vms.store    :refer [vms-conn]]
             [behave.wizard.subs  :refer [all-conditionals-pass?]]
             [clojure.walk        :refer [prewalk]]
-            [datascript.core     :as d]
+            [absurder-sql.datascript.core :as d]
             [string-utils.interface :as s]
-            [datascript.impl.entity]
+            [absurder-sql.datascript.impl.entity :as de]
             [map-utils.interface :refer [index-by]]
             [re-frame.core       :refer [reg-sub subscribe]]))
 
@@ -14,7 +14,7 @@
   [entity]
   (prewalk
    (fn [x]
-     (if (instance? datascript.impl.entity/Entity x)
+     (if (de/entity? x)
        (into {} x)
        x))
    entity))

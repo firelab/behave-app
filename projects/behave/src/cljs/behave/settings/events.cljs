@@ -78,7 +78,6 @@
      (vector? k)
      (assoc-in settings k v))))
 
-
 (rf/reg-event-fx
  :settings/set-units-system
  (fn [_ [_ units-system]]
