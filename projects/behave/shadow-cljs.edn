@@ -6,16 +6,25 @@
  :nrepl    {:port       9001
             :middleware [cider.nrepl/cider-middleware]}
  :builds   {:test-kaocha {:target       :browser-test
-                           :runner-ns    kaocha.cljs2.shadow-runner
-                           :test-dir     "target/kaocha-test"
-                           :ns-regexp    "^behave\\..*-test$"
-                           :build-hooks  [(behave.test-build/flush-hook)]
-                           :devtools     {:http-port 1819
-                                          :http-root "target/kaocha-test"
-                                          :preloads  [lambdaisland.chui.remote]}}
+                          :runner-ns    kaocha.cljs2.shadow-runner
+                          :test-dir     "target/kaocha-test"
+                          :ns-regexp    "^behave\\..*-test$"
+                          :build-hooks  [(behave.test-build/flush-hook)]
+                          :devtools     {:http-port 1819
+                                         :http-root "target/kaocha-test"
+                                         :preloads  [lambdaisland.chui.remote]}}
 
-             :browser    {:target      :browser
-                          :output-dir  "target/browser/js"
-                          :asset-path  "/js"
-                          :modules     {:app {:entries [behave.client]}}
-                          :build-hooks [(behave.test-build/browser-flush-hook)]}}}
+            :browser    {:target          :browser
+                         :output-dir      "target/browser/js"
+                         :asset-path      "/js"
+                         :modules         {:app {:entries [behave.client]}}
+                         :build-hooks     [(behave.test-build/browser-flush-hook)]
+                         :devtools        {:preloads [day8.re-frame-10x.preload]}
+                         :dev             {:compiler-options
+                                           {:closure-defines
+                                            {re-frame.trace.trace-enabled?        true
+                                             day8.re-frame.tracing.trace-enabled? true}}}
+                         :release         {:build-options
+                                           {:ns-aliases
+                                            {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
+                         :closure-defines {re-frame.trace/trace-enabled? true}}}}
