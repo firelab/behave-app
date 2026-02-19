@@ -102,10 +102,33 @@
   (ensure-connected!)
   (.execute connection sql))
 
+(defn- ->column-value
+  "Convert a Clojure value to a serde-compatible ColumnValue object.
+   The WASM binding expects adjacently tagged enums: {type, value}."
+  [v]
+  (cond
+    (nil? v)     #js {:type "Null"}
+    (string? v)  #js {:type "Text"    :value v}
+    (int? v)     #js {:type "Integer" :value v}
+    (float? v)   #js {:type "Real"    :value v}
+    :else        #js {:type "Text"    :value (str v)}))
+
+(defn execute-params!
+  "Executes parameterized `sql` with `params` on a SQLite database connection.
+   Params is a Clojure vector of values; each is converted to a ColumnValue."
+  [^js/sqlite.Database connection sql params]
+  (ensure-connected!)
+  (.executeWithParams connection sql (to-array (mapv ->column-value params))))
+
 (defn select
   "Executes a query and returns a promise of a vector of Clojure maps."
   [^js/sqlite.Database connection sql]
   (p/then (execute! connection sql) result->maps))
+
+(defn select-params
+  "Executes a parameterized query and returns a promise of a vector of Clojure maps."
+  [^js/sqlite.Database connection sql params]
+  (p/then (execute-params! connection sql params) result->maps))
 
 (defn import!
   "Imports `db-bytes` to a SQLite Database."

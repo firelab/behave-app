@@ -791,9 +791,11 @@
     (fn [acc [_row-id gv-uuid _repeat-id value]]
       (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [min-v]
-                              (let [min-float   (js/parseFloat min-v)
-                                    value-float (js/parseFloat value)]
-                                (min (or min-float ##Inf) value-float))))
+                              (if min-v
+                                (let [min-float   (js/parseFloat min-v)
+                                      value-float (js/parseFloat value)]
+                                  (min (or min-float ##Inf) value-float))
+                                (js/parseFloat value))))
         acc))
     {}
     result-table-cell-data)))
@@ -808,11 +810,13 @@
     (fn [acc [_row-id gv-uuid _repeat-id value]]
       (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [[min-v max-v]]
-                              (let [min-float   (js/parseFloat min-v)
-                                    max-float   (js/parseFloat max-v)
-                                    value-float (js/parseFloat value)]
-                                [(min (or min-float ##Inf) value-float)
-                                 (max (or max-float ##-Inf) value-float)])))
+                              (if (and (nil? min-v) (nil? max-v))
+                                [(js/parseFloat value) (js/parseFloat value)]
+                                (let [min-float   (js/parseFloat min-v)
+                                      max-float   (js/parseFloat max-v)
+                                      value-float (js/parseFloat value)]
+                                  [(min (or min-float ##Inf) value-float)
+                                   (max (or max-float ##-Inf) value-float)]))))
         acc))
     {}
     result-table-cell-data)))
@@ -827,9 +831,11 @@
     (fn [acc [_row-id gv-uuid _repeat-id value]]
       (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [max-v]
-                              (let [max-float   (js/parseFloat max-v)
-                                    value-float (js/parseFloat value)]
-                                (max (or max-float ##-Inf) value-float))))
+                              (if max-v
+                                (let [max-float   (js/parseFloat max-v)
+                                      value-float (js/parseFloat value)]
+                                  (max (or max-float ##-Inf) value-float))
+                                (js/parseFloat value))))
         acc))
     {}
     result-table-cell-data)))

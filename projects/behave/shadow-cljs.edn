@@ -1,7 +1,8 @@
 ;; shadow-cljs configuration for behave project
 ;; Uses deps.edn :shadow alias for classpath resolution
 {:deps     {:aliases [:shadow]}
- :dev-http {8030 ["target/kaocha-test" "resources/public"]}
+ :dev-http {8030 ["target/kaocha-test" "resources/public"]
+            8040 ["target/browser" "target/classes/public" "resources/public"]}
  :nrepl    {:port       9001
             :middleware [cider.nrepl/cider-middleware]}
  :builds   {:test-kaocha {:target       :browser-test
@@ -11,4 +12,10 @@
                            :build-hooks  [(behave.test-build/flush-hook)]
                            :devtools     {:http-port 1819
                                           :http-root "target/kaocha-test"
-                                          :preloads  [lambdaisland.chui.remote]}}}}
+                                          :preloads  [lambdaisland.chui.remote]}}
+
+             :browser    {:target      :browser
+                          :output-dir  "target/browser/js"
+                          :asset-path  "/js"
+                          :modules     {:app {:entries [behave.client]}}
+                          :build-hooks [(behave.test-build/browser-flush-hook)]}}}

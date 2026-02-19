@@ -187,6 +187,29 @@
                                                  :content-type "application/msgpack"
                                                  :read         pr/-body}})))))
 
+(defn load-store-local!
+  "Initialize a local DataScript connection backed by SQLite.
+   When `ws-uuid` is provided, attempts to restore an existing DB named
+   `worksheet-<ws-uuid>.db`. Otherwise creates a fresh DB with a random name."
+  ([] (load-store-local! nil))
+  ([ws-uuid]
+   (let [schema  (->ds-schema all-schemas)
+         db-name (str "worksheet-" (or ws-uuid (random-uuid)) ".db")]
+     (-> (sql/init!)
+         (p/then (fn [_] (init-sql-conn! schema db-name)))
+         (p/then (fn [{ds-conn :conn :keys [wrapper sql-conn]}]
+                   (swap! sql-state assoc
+                          :sql-conn sql-conn
+                          :wrapper  wrapper
+                          :db-name  db-name)
+                   (setup-conn! ds-conn)
+                   (d/listen! ds-conn :auto-save (fn [_] (debounced-save-to-sqlite)))
+                   (rf/dispatch-sync [:state/set :sync-loaded? true])))
+         (p/catch (fn [e]
+                    (js/console.error "Failed to initialize local store:" e)
+                    (setup-conn! (d/create-conn schema))
+                    (rf/dispatch-sync [:state/set :sync-loaded? true])))))))
+
 ;;; Save Worksheet (export .bp7)
 
 (defn save-worksheet! [{:keys [file-name]}]
@@ -238,7 +261,8 @@
 
 (defn new-worksheet! [nname modules _submodule workflow]
   (let [schema  (->ds-schema all-schemas)
-        db-name (str "worksheet-" (random-uuid) ".db")]
+        ws-uuid (str (d/squuid))
+        db-name (str "worksheet-" ws-uuid ".db")]
     (reset-conn-state!)
     (reset-sql-state!)
     (reset! worksheet-from-file? false)
@@ -251,14 +275,13 @@
                   (setup-conn! ds-conn)
                   (d/listen! ds-conn :auto-save (fn [_] (debounced-save-to-sqlite)))
                   (rf/dispatch-sync [:state/set :sync-loaded? true])
-                  (let [ws-uuid (str (d/squuid))]
-                    (rf/dispatch-sync [:worksheet/new {:name    nname
-                                                       :modules (vec modules)
-                                                       :uuid    ws-uuid
-                                                       :version @(rf/subscribe [:state :app-version])}])
-                    (reset! current-route-order
-                            @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
-                    (rf/dispatch-sync [:navigate (first @current-route-order)]))))
+                  (rf/dispatch-sync [:worksheet/new {:name    nname
+                                                     :modules (vec modules)
+                                                     :uuid    ws-uuid
+                                                     :version @(rf/subscribe [:state :app-version])}])
+                  (reset! current-route-order
+                          @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
+                  (rf/dispatch-sync [:navigate (first @current-route-order)])))
         (p/catch (fn [e]
                    (js/console.error "New worksheet failed:" e))))))
 

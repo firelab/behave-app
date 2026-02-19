@@ -1,0 +1,24 @@
+#kaocha/v1
+{:plugins [:print-invocations :hooks]
+ :reporter kaocha.report/documentation
+
+ :capture-output? false
+ :bindings {kaocha.stacktrace/*stacktrace-filters* []}
+
+ :tests [{:id :browser
+          :type :kaocha.type/cljs2
+          :ns-patterns      ["-test$"]
+          :source-paths     ["src/cljs"]
+          :test-paths       ["test/cljs"]
+
+          :kaocha.cljs2/clients-hook kaocha-hooks/launch-browser-and-wait}
+
+         {:id :integration
+          :type :kaocha.type/cljs2
+          :ns-patterns      ["store-integration-test$" "execute-params-test$"]
+          :source-paths     ["src/cljs"]
+          :test-paths       ["test/cljs"]
+          :kaocha.filter/focus-meta [:integration]
+          :kaocha.cljs2/timeout 60000
+
+          :kaocha.cljs2/clients-hook kaocha-hooks/launch-browser-and-wait}]}

@@ -85,7 +85,7 @@
    'quot quot, 'rem rem, 'mod mod, 'inc inc, 'dec dec, 'max max, 'min min,
    'zero? zero?, 'pos? pos?, 'neg? neg?, 'even? even?, 'odd? odd?, 'compare compare,
    'rand rand, 'rand-int rand-int,
-   'true? true?, 'false? false?, 'nil? nil?, 'some? some?, 'not not, 'and and-fn, 'or or-fn,
+   'true? true?, 'false? false?, 'nil? nil?, 'some? some?, 'number? number?, 'not not, 'and and-fn, 'or or-fn,
    'complement complement, 'identical? identical?,
    'identity identity, 'keyword keyword, 'meta meta, 'name name, 'namespace namespace, 'type type,
    'vector vector, 'list list, 'set set, 'hash-map hash-map, 'array-map array-map,

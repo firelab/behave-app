@@ -1,6 +1,5 @@
 (ns absurder-sql.datascript.sqlite
   (:require
-   [clojure.string          :as str]
    [clojure.edn             :as edn]
    [absurder-sql.interface  :as sql]
    [absurder-sql.datascript.protocols :refer [IStorage]]))
@@ -13,38 +12,26 @@
 
 ;;; Helpers
 
-(defn- sql-replace [sql & values]
-  (let [values (if (seq values) values [values])]
-    (reduce (fn [sql v]
-              (let [v (if (string? v) (str "'" v "'") v)]
-                (str/replace-first sql "?" v)))
-            sql
-            values)))
-
-(defn- upsert-dml [table]
-  (str
-   "insert into " table " (addr, content) "
-   "values (?, ?) "
-   "on conflict(addr) do update set content = ?"))
-
 (defn- store-impl [conn opts addr+data-seq]
   (let [{:keys [table binary? freeze-str freeze-bytes batch-size]} opts
-        sql (upsert-dml table)
+        upsert (str "insert into " table " (addr, content) values (?, ?) "
+                    "on conflict(addr) do update set content = excluded.content")
         promises (for [part (partition-all batch-size addr+data-seq)
                        [addr data] part]
                    (let [content (if binary? (freeze-bytes data) (freeze-str data))]
-                     (sql/execute! conn (sql-replace sql addr content content))))]
+                     (sql/execute-params! conn upsert [addr content])))]
     (js/Promise.all (to-array promises))))
 
 (defn- restore-impl [conn opts addr]
-  (-> (sql/select conn (sql-replace (str "select content from " (:table opts) " where addr = ?") addr))
-      (.then (fn [results]
-               (let [{:keys [binary? thaw-str thaw-bytes]} opts
-                     content (-> results first :content)]
-                 (when content
-                   (if binary?
-                     (thaw-bytes content)
-                     (thaw-str content))))))))
+  (let [sql (str "select content from " (:table opts) " where addr = ?")]
+    (-> (sql/select-params conn sql [addr])
+        (.then (fn [results]
+                 (let [{:keys [binary? thaw-str thaw-bytes]} opts
+                       content (-> results first :content)]
+                   (when content
+                     (if binary?
+                       (thaw-bytes content)
+                       (thaw-str content)))))))))
 
 (defn- list-impl [conn opts]
   (-> (sql/select conn (str "select addr from " (:table opts)))
@@ -52,10 +39,10 @@
                (mapv :addr results)))))
 
 (defn- delete-impl [conn opts addr-seq]
-  (let [sql (str "delete from " (:table opts) " where addr = ?")
+  (let [sql      (str "delete from " (:table opts) " where addr = ?")
         promises (for [part (partition-all (:batch-size opts) addr-seq)
                        addr part]
-                   (sql/execute! conn (sql-replace sql addr)))]
+                   (sql/execute-params! conn sql [addr]))]
     (js/Promise.all (to-array promises))))
 
 (defn- ddl [{:keys [table]}]

@@ -1,5 +1,6 @@
 (ns ^:figwheel-hooks behave.client
-  (:require [clojure.string            :as str]
+  (:require [bidi.bidi                 :as bidi]
+            [clojure.string            :as str]
             [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
             [behave.components.core    :as c]
@@ -8,7 +9,7 @@
             [behave.components.modal   :refer [modal]]
             [behave.help.views         :refer [help-area]]
             [behave.settings.views     :as settings]
-            [behave.store              :refer [load-store!]]
+            [behave.store              :refer [load-store! load-store-local!]]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t bp]]
             [behave.vms.store          :refer [load-vms!]]
@@ -19,6 +20,7 @@
                                                import-worksheet-page
                                                module-selection-page
                                                workflow-selection-page]]
+            [behave-routing.main       :refer [routes]]
             [behave.events]
             [behave.subs]
             [day8.re-frame.http-fx]))
@@ -158,7 +160,13 @@
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
     (load-vms! (:vms-version params))
-    (load-store!)
+    (if (:standalone params)
+      (let [ws-uuid (or (:ws-uuid params)
+                        (:ws-uuid (:route-params
+                                   (bidi/match-route routes
+                                     (.-pathname (.-location js/window))))))]
+        (load-store-local! ws-uuid))
+      (load-store!))
     (load-scripts! params)
     (add-before-unload-event! params)
     (render [app-shell params] (.getElementById js/document "app"))))

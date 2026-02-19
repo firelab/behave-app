@@ -166,6 +166,7 @@
   '[;; -- Variable associated with Group Variable
     ;;    lookup can be performed with either Entity ID or a UUID
     [(variable ?gv ?v) ;; By Entity ID
+     [(number? ?gv)]
      [?v :variable/group-variables ?gv]]
 
     [(variable ?gv-uuid ?v) ;; By UUID
@@ -180,21 +181,25 @@
     [(variable-fn ?gv-uuid ?fn)
      (ref ?gv-uuid :group-variable/cpp-function ?fn)]
     [(variable-fn ?gv ?fn)
+     [(number? ?gv)]
      [?gv :group-variable/cpp-function ?fn]]
 
     [(variable-fn ?gv-uuid ?fn) ;; Subtool Variant
      (ref ?gv-uuid :subtool-variable/cpp-function-uuid ?fn)]
     [(variable-fn ?gv ?fn)
+     [(number? ?gv)]
      [?gv :subtool-variable/cpp-function ?fn]]
 
     ;; -- Goup variable's parameter
     [(variable-param ?gv-uuid ?p)
      (ref ?uuid :group-variable/cpp-parameter ?p)]
     [(variable-param ?gv ?p)
+     [(number? ?gv)]
      [?gv :group-variable/cpp-parameter ?p]]
     [(variable-param ?gv-uuid ?p)
      (ref ?uuid :subtool-variable/cpp-parameter ?p)]
     [(variable-param ?gv ?p)
+     [(number? ?gv)]
      [?gv :subtool-variable/cpp-parameter ?p]]
 
     ;; -- Variable's UUID ---
@@ -225,6 +230,7 @@
 
     ;; -- Variable's kind
     [(variable-kind ?v ?kind)
+     [(number? ?v)]
      [?v :variable/kind ?kind]]
 
     [(variable-kind ?gv-uuid ?kind)
