@@ -1,0 +1,2 @@
+{:paths ["src"]
+ :deps  {org.clojure/core.match {:mvn/version "1.0.1"}}}

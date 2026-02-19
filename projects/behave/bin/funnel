@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+DAEMONIZE=false
+ARGS=()
+
+for arg in "$@"; do
+  if [[ "$arg" == "--daemonize" ]]; then
+    DAEMONIZE=true
+  else
+    ARGS+=("$arg")
+  fi
+done
+
+if [[ "$DAEMONIZE" == true ]]; then
+  clojure -M:funnel "${ARGS[@]}" &
+else
+  clojure -M:funnel "${ARGS[@]}"
+fi

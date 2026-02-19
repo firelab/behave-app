@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "shadow-cljs": "2.20.5"
+  },
+  "dependencies": {
+    "@npiesco/absurder-sql": "^0.1.23",
+    "platform": "1.3.5",
+    "react": "18",
+    "react-dom": "18",
+    "stack-trace": "0.0.10",
+    "stacktrace-js": "2.0.2",
+    "ws": "7.3.1"
+  },
+  "scripts": {}
+}
