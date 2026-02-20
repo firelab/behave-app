@@ -1,14 +1,17 @@
 (ns behave.core
   (:gen-class)
-  (:import [javax.swing JFrame SwingUtilities UIManager]
+  (:import [java.awt.event WindowEvent]
+           [javax.swing JFrame SwingUtilities UIManager]
            [javax.imageio ImageIO])
   (:require [clojure.java.io      :as io]
             [behave.handlers      :refer [create-cef-handler-stack]]
             [behave.server        :refer [init-config! init-db!]]
+            [behave.windows       :as windows]
             [file-utils.interface :refer [os-type app-data-dir]]
             [config.interface     :refer [get-config]]
-            [jcef.core            :refer [show-dev-tools!]]
-            [jcef.interface       :refer [create-cef-app! custom-request-handler show-loader!]]
+            [jcef.interface       :refer [init-cef-app! open-window!
+                                          custom-request-handler show-loader!
+                                          show-dev-tools!]]
             [logging.interface    :as l :refer [log-str]]))
 
 ;;; Logging
@@ -58,51 +61,97 @@
       "apple.awt.application.appearance"                "system"
       "com.apple.mrj.application.apple.menu.about.name" title})))
 
-(defonce ^:private the-app (atom nil))
+;;; CefApp singleton (shared across windows)
+
+(defonce ^:private *cef-app (atom nil))
+(defonce ^:private *win-res (atom nil))
+
+;;; Menu
+
+(declare open-app-window!)
+
+(defn- build-app-menu
+  "Returns a menu definition vector for the app window."
+  []
+  [{:title "File"
+    :items [{:label    "New Window"
+             :shortcut "N"
+             :on-select (fn [_] (SwingUtilities/invokeLater #(open-app-window!)))}
+            {:separator? true}
+            {:label    "Close Window"
+             :shortcut "W"
+             :on-select (fn [{:keys [app]}]
+                          (let [^JFrame frame (:frame app)]
+                            (.dispatchEvent frame
+                                            (WindowEvent. frame WindowEvent/WINDOW_CLOSING))))}]}])
+
+;;; Window Factory
+
+(defn- open-app-window!
+  "Opens a new independent app window."
+  ([] (open-app-window! nil))
+  ([loader]
+   (let [window-id       (str (random-uuid))
+         http-port       (or (get-config :server :http-port) 8080)
+         my-app-data-dir (app-data-dir (get-config :site :org-name)
+                                       (get-config :site :app-name))
+         cache-path      (str (io/file my-app-data-dir ".cache"))
+         request-handler (custom-request-handler
+                          {:protocol     "http"
+                           :authority    (format "localhost:%s" http-port)
+                           :resource-dir "public"
+                           :ring-handler (create-cef-handler-stack window-id)})]
+     (open-window!
+      @*cef-app
+      {:title           (get-config :site :title)
+       :url             (str "http://localhost:" http-port)
+       :cache-path      cache-path
+       :fullscreen?     true
+       :menu            (build-app-menu)
+       :request-handler request-handler
+       :on-shown        (fn [app & _]
+                          (windows/register-window! window-id {:app app})
+                          (when loader (.dispose (:frame loader))))
+       :on-close        (fn [] (windows/deregister-window! window-id))
+       :on-before-launch
+       (fn [{:keys [frame]}]
+         (on-before-launch frame (get-config :site :title)))}))))
 
 (defn -main
   "CEF client start method."
   [& _args]
   (init-config!)
-  (let [loader          (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
-        mode            (get-config :server :mode)
-        http-port       (or (get-config :server :http-port) 8080)
-        org-name        (get-config :site :org-name)
-        app-name        (get-config :site :app-name)
-        my-app-data-dir (app-data-dir org-name app-name)
-        log-config      (if (= "prod" mode)
-                          (assoc (get-config :logging) :log-dir (str (io/file my-app-data-dir "logs")))
-                          (get-config :logging))
-        db-config       (if (= "prod" mode)
-                          (assoc-in (get-config :database :config)
-                                    [:store :path]
-                                    (str (io/file my-app-data-dir "db")))
-                          (get-config :database :config))
-        cache-path      (str (io/file my-app-data-dir ".cache"))
-        request-handler (custom-request-handler
-                         {:protocol     "http"
-                          :authority    (format "localhost:%s" http-port)
-                          :resource-dir "public"
-                          :ring-handler (create-cef-handler-stack)})]
-
+  (let [loader     (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
+        mode       (get-config :server :mode)
+        log-config (if (= "prod" mode)
+                     (let [dir (app-data-dir (get-config :site :org-name)
+                                             (get-config :site :app-name))]
+                       (assoc (get-config :logging) :log-dir (str (io/file dir "logs"))))
+                     (get-config :logging))
+        db-config  (if (= "prod" mode)
+                     (let [dir (app-data-dir (get-config :site :org-name)
+                                             (get-config :site :app-name))]
+                       (assoc-in (get-config :database :config)
+                                 [:store :path]
+                                 (str (io/file dir "db"))))
+                     (get-config :database :config))
+        cef-app    (init-cef-app!
+                    {:cache-path (str (io/file (app-data-dir (get-config :site :org-name)
+                                                             (get-config :site :app-name))
+                                               ".cache"))})]
     (start-logging! log-config)
     (init-db! db-config)
-
-    (create-cef-app!
-     {:title           (get-config :site :title)
-      :url             (str "http://localhost:" http-port)
-      :cache-path      cache-path
-      :fullscreen?     true
-      :on-shown        (fn [app & _]
-                         (reset! the-app app)
-                         (.dispose (:frame loader)))
-      :request-handler request-handler
-      :on-before-launch
-      (fn [{:keys [frame]}]
-        (on-before-launch frame (get-config :site :title)))})))
+    (reset! *cef-app cef-app)
+    (SwingUtilities/invokeLater #(let [res (open-app-window! loader)]
+                                   (.openDevTools (:browser res))
+                                   (reset! *win-res res)))))
 
 (comment
   (-main)
-  ;; Dev Tools
-  (require '[jcef.core :as jc])
-  (jc/show-dev-tools! (:browser @the-app)))
+
+  (def browser (:browser @*win-res))
+  (.openDevTools browser)
+
+  (show-dev-tools! (:browser @*win-res))
+
+  (windows/window-count))

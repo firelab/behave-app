@@ -2,7 +2,7 @@
   (:require [absurder-sql.interface :as sut]
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
-            [absurder-sql.core :refer [db-class]]
+            ["../js/absurder_sql/index.js" :refer [Database]]
             [cljs.test :as t :include-macros true :refer [async deftest is use-fixtures]]))
 
 (defn- with-sqlite []
@@ -21,7 +21,7 @@
     (go
       (let [db (<p! (sut/connect! "first.db"))]
         (println [:SQLiteDB db (type db)])
-        (is (= (db-class) (type db)))
+        (is (= Database (type db)))
         (done)))))
 
 (deftest connect-execute-test

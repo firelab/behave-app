@@ -2,7 +2,7 @@
  * Extern for behave.js
  * Everything was added manually by RJ.
  **********************************************************************/
-const Module = {};
+var Module = {};
 
 Module.SIGContainAdapter = class {
   constructor() {}

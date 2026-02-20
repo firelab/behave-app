@@ -27,4 +27,22 @@
                          :release         {:build-options
                                            {:ns-aliases
                                             {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
-                         :closure-defines {re-frame.trace/trace-enabled? true}}}}
+                         :closure-defines {re-frame.trace/trace-enabled? true}}
+
+            :app        {:target      :browser
+                         :output-dir  "resources/public/cljs"
+                         :asset-path  "/cljs"
+                         :modules     {:app {:entries [behave.client]}}
+                         :build-hooks [(behave.test-build/app-configure-hook)
+                                       (behave.test-build/app-flush-hook)]
+                         :devtools    {:preloads [day8.re-frame-10x.preload]}
+                         :dev         {:compiler-options
+                                       {:closure-defines
+                                        {re-frame.trace.trace-enabled?        true
+                                         day8.re-frame.tracing.trace-enabled? true}}}
+                         :compiler-options {:optimizations :advanced
+                                            :externs ["resources/behave_externs.js"
+                                                      "../../components/absurder_sql/resources/externs.js"]}
+                         :release     {:build-options
+                                       {:ns-aliases
+                                        {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}}}}

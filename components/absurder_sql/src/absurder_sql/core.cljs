@@ -1,10 +1,11 @@
 (ns absurder-sql.core
-  (:require [promesa.core :as p]
-            [cljs.core.async :refer [go]]
-            [cljs.core.async.interop :refer-macros [<p!]]))
+  (:require
+   ["../js/absurder_sql/index.js" :as sqlite :refer [Database]]
+   [promesa.core :as p]
+   [cljs.core.async :refer [go]]
+   [cljs.core.async.interop :refer-macros [<p!]]))
 
 ;;; State
-(defonce ^:private sqlite-mod (atom nil))
 (defonce ^:private initialized? (atom false))
 
 ;;; Helpers
@@ -13,25 +14,12 @@
   (when-not @initialized?
     (throw (js/Error. "SQLite is not connected. Use `sql/init!` to initialize."))))
 
-(defn- dynamic-import
-  "Calls the browser's native `import()` from a non-module script context."
-  [url]
-  ((js/Function. (str "return import('" url "')"))))
-
 ;;; Public API
-
-(defn db-class
-  "Returns the Database class from the dynamically loaded module."
-  []
-  (.-Database @sqlite-mod))
 
 (defn init!
   "Initializes in-browser SQLite via ES module dynamic import."
   []
-  (-> (dynamic-import "/js/absurder_sql.js")
-      (p/then (fn [mod]
-                (reset! sqlite-mod mod)
-                ((.-default mod) #js {:module_or_path "/js/absurder_sql_bg.wasm"})))
+  (-> (.load sqlite #js {:module_or_path "/js/absurder_sql_bg.wasm"})
       (p/then (fn [_]
                 (reset! initialized? true)))))
 
@@ -47,7 +35,7 @@
   ^js
   [db-name]
   (ensure-connected!)
-  (-> (.newDatabase (db-class) db-name)
+  (-> (.newDatabase Database db-name)
       (p/then (fn [db]
                 (.allowNonLeaderWrites db true)
                 db))))

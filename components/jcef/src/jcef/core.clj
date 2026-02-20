@@ -95,19 +95,34 @@
        (build-menu-bar menu-bar remaining)
        menu-bar))))
 
+;;; CefApp Singleton
+
+(defonce ^:private *cef-app (atom nil))
+
+(defn init-cef-app!
+  "Initializes the CefApp singleton. Idempotent — returns the cached instance
+   on subsequent calls. Takes an options map:
+   - `:use-osr?`           - Use Windowless Rendering (Default: false)
+   - `:cache-path`         - Path for browser cache
+   - `:remote-debug-port`  - Port for remote debugging"
+  [{:keys [use-osr? cache-path remote-debug-port]
+    :or   {use-osr? false}}]
+  (or @*cef-app
+      (let [builder  (jcef-builder)
+            settings (.getCefSettings builder)
+            _        (set! (.-windowless_rendering_enabled settings) use-osr?)
+            _        (when cache-path (set! (.-cache_path settings) cache-path))
+            _        (when remote-debug-port (set! (.-remote_debugging_port settings) remote-debug-port))
+            cef-app  (.build builder)]
+        (reset! *cef-app cef-app)
+        cef-app)))
+
 ;;; Views
 
 (defn show-dev-tools!
   "Show the Developer Tools for a CefBrowser"
   [^CefBrowser browser]
-  (let [jframe       (JFrame. "DevTools")
-        content-pane (.getContentPane jframe)
-        dev-tools    (.getDevTools browser)]
-    (.add content-pane (.getUIComponent dev-tools) BorderLayout/CENTER)
-    (SwingUtilities/invokeLater #(doto jframe
-                                   (.pack)
-                                   (.setSize 800 600)
-                                   (.setVisible true)))))
+  (.openDevTools browser))
 
 (defn- create-popup-window! [client title url & [width height]]
   (let [width        (or width 800)
@@ -132,9 +147,10 @@
     (browse-url target-url))
   true)
 
-(defn build-cef-app!
-  "Creates a CEF app frame with the following options map:
-   - `:title`         [Req.] - Title of the app.
+(defn open-window!
+  "Creates a new JCEF browser window from an existing CefApp instance.
+   Takes a CefApp and an options map:
+   - `:title`         [Req.] - Title of the window.
    - `:url`           [Req.] - URL to start the browser at.
    - `:on-close`      [Opt.] - Function to execute when the window closes.
    - `:use-osr?`      [Opt.] - Use Windowless Rendering (Default: false)
@@ -142,20 +158,14 @@
    - `:address-bar?`  [Opt.] - Show an address bar. (Default: false)
 
    Returns a map with:
-  - `:frame`   - `JFrame` Application
-  - `:browser` - `CefBrowser`
-  - `:client`  - `CefClient`"
-  [{:keys [title menu url use-osr? size request-handler cache-path remote-debug-port
-           transparent? address-bar? fullscreen? dev-tools?
-           on-close on-blur on-focus on-hidden on-shown on-before-launch]
-    :or   {use-osr? false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
-  (let [builder       (jcef-builder)
-        settings      (.getCefSettings builder)
-        _             (set! (.-windowless_rendering_enabled settings) use-osr?)
-        _             (when cache-path (set! (.-cache_path settings) cache-path))
-        _             (when remote-debug-port (set! (.-remote_debugging_port settings) remote-debug-port))
-        cef-app       (.build builder)
-        client        (.createClient cef-app)
+   - `:frame`   - `JFrame`
+   - `:browser` - `CefBrowser`
+   - `:client`  - `CefClient`"
+  [cef-app {:keys [title menu url use-osr? size request-handler
+                   transparent? address-bar? fullscreen? dev-tools?
+                   on-close on-blur on-focus on-hidden on-shown on-before-launch]
+            :or   {use-osr? false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
+  (let [client        (.createClient cef-app)
         msg-router    (CefMessageRouter/create)
         _             (.addMessageRouter client msg-router)
         browser       (.createBrowser client url use-osr? transparent?)
@@ -183,7 +193,7 @@
     (when request-handler
       (.addRequestHandler client request-handler))
 
-    (doto client 
+    (doto client
       (.addDownloadHandler (proxy [CefDownloadHandler] []
                              (onBeforeDownload [& args]
                                (let [callback (last args)]
@@ -241,16 +251,23 @@
       (.setJMenuBar jframe menu-bar))
 
     (doto jframe
-      (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE) ;; Exit on Close
-      #_(.setUndecorated true) ;; Remove title bar
+      (.setDefaultCloseOperation JFrame/DISPOSE_ON_CLOSE)
       (.pack)
       (.setSize (first size) (second size))
       (.setVisible true)
       (.addWindowListener (proxy [WindowAdapter] []
                             (windowClosing [_]
-                              (when (fn? on-close) (on-close))
-                              (.dispose (CefApp/getInstance))))))
+                              (when (fn? on-close) (on-close))))))
     app))
+
+(defn build-cef-app!
+  "Creates a CEF app frame. Backward-compatible wrapper around `init-cef-app!`
+   and `open-window!`. See `open-window!` for the full options map."
+  [{:keys [use-osr? cache-path remote-debug-port] :as opts}]
+  (let [cef-app (init-cef-app! {:use-osr?           use-osr?
+                                :cache-path         cache-path
+                                :remote-debug-port  remote-debug-port})]
+    (open-window! cef-app opts)))
 
 (defn create-cef-app!
   "Wrap builder in `invokeLater` to ensure it executes on separate thread."
@@ -272,7 +289,6 @@
     (let [return-val (.showSaveDialog chooser frame)]
       (when (= return-val JFileChooser/APPROVE_OPTION)
         (callback (.getSelectedFile chooser))))))
-
 
 (comment
   (require '[config.interface :refer [get-config]])
@@ -331,14 +347,9 @@
          true))))
   (.addMessageRouter (:client @app) msg-router)
 
-
   (.removeLifeSpanHandler (:client @app))
   (.addLifeSpanHandler (:client @app)
                        (proxy [CefLifeSpanHandlerAdapter] []
                          (onBeforePopup [& args]
                            (apply open-new-link! (:client @app) args)
-                           true)))
-
-
-
-  )
+                           true))))

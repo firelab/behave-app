@@ -6,6 +6,7 @@
             [behave.save                       :refer [save-handler]]
             [behave.sync                       :refer [sync-handler]]
             [behave.views                      :refer [render-page render-tests-page]]
+            [behave.windows                    :as windows]
             [bidi.bidi                         :refer [match-route]]
             [clojure.core.async                :refer [<! alts! chan go-loop put! timeout]]
             [clojure.edn                       :as edn]
@@ -72,19 +73,22 @@
 ;;; Handlers
 
 (defn- close-handler
-  [{:keys [params]}]
-  (log-str "Got /close request:" params)
+  [{:keys [params window-id]}]
+  (log-str "Got /close request:" params "window-id:" window-id)
   (if (= (get-config :server :mode) "prod")
     (let [{:keys [cancel]} params]
       (cond
         (nil? cancel)
-        (do
-          (reset! close-time (now-in-ms))
-          (put! @kill-channel true))
+        (if window-id
+          (do (windows/deregister-window! window-id)
+              {:status 200 :body "OK"})
+          (do (reset! close-time (now-in-ms))
+              (put! @kill-channel true)
+              {:status 200 :body "OK"}))
 
         :else
-        (put! @cancel-channel true))
-      {:status 200 :body "OK"})
+        (do (put! @cancel-channel true)
+            {:status 200 :body "OK"})))
     {:status 404 :body "Not Found"}))
 
 (defn- bad-uri?
@@ -182,15 +186,25 @@
       wrap-exceptions
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
+(defn- wrap-window-id
+  "Injects a closed-over `window-id` into each request map."
+  [handler window-id]
+  (fn [req]
+    (handler (assoc req :window-id window-id))))
+
 (defn create-cef-handler-stack
-  "Custom handler stack for Chrome Embedded Framework."
-  []
-  (-> routing-handler
-      wrap-params
-      wrap-keyword-params
-      wrap-query-params
-      wrap-req-content-type+accept
-      wrap-exceptions))
+  "Custom handler stack for Chrome Embedded Framework.
+   Optionally takes a `window-id` to associate requests with a window."
+  ([]
+   (create-cef-handler-stack nil))
+  ([window-id]
+   (cond-> (-> routing-handler
+               wrap-params
+               wrap-keyword-params
+               wrap-query-params
+               wrap-req-content-type+accept
+               wrap-exceptions)
+     window-id (wrap-window-id window-id))))
 
 ;; This is for Figwheel
 (def ^{:doc "Figwheel handler."}

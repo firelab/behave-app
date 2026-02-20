@@ -160,13 +160,11 @@
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
     (load-vms! (:vms-version params))
-    (if (:standalone params)
-      (let [ws-uuid (or (:ws-uuid params)
-                        (:ws-uuid (:route-params
-                                   (bidi/match-route routes
-                                     (.-pathname (.-location js/window))))))]
-        (load-store-local! ws-uuid))
-      (load-store!))
+    (let [ws-uuid (or (:ws-uuid params)
+                      (:ws-uuid (:route-params
+                                 (bidi/match-route routes
+                                   (.-pathname (.-location js/window))))))]
+      (load-store-local! ws-uuid))
     (load-scripts! params)
     (add-before-unload-event! params)
     (render [app-shell params] (.getElementById js/document "app"))))

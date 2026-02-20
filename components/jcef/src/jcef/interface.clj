@@ -4,19 +4,21 @@
             [jcef.loading :as l]))
 
 (def ^{:arglists '([options])
-       :doc      "Creates a CEF app frame with the following options map:
-             - `:title`           [Req.] - Title of the app.
-             - `:url`             [Req.] - URL to start the browser at.
-             - `:on-close`        [Opt.] - Function to execute when the window closes.
-             - `:use-osr?`        [Opt.] - Use Windowless Rendering (Default: false)
-             - `:is-transparent?` [Opt.] - Transparent window (Default: false)
-             - `:address-bar?`    [Opt.] - Show an address bar. (Default: false)
+       :doc      "Initializes the CefApp singleton. Idempotent — returns the cached
+             instance on subsequent calls. Takes an options map:
+             - `:use-osr?`           - Use Windowless Rendering (Default: false)
+             - `:cache-path`         - Path for browser cache
+             - `:remote-debug-port`  - Port for remote debugging"}
+  init-cef-app! c/init-cef-app!)
 
-             Returns a map with:
-             - `:app`     - `JFrame` Application
-             - `:browser` - `CefBrowser`
-             - `:client`  - `CefClient`"}
+(def ^{:arglists '([cef-app options])
+       :doc      "Creates a new JCEF browser window from an existing CefApp instance.
+             See `jcef.core/open-window!` for the full options map."}
+  open-window! c/open-window!)
 
+(def ^{:arglists '([options])
+       :doc      "Creates a CEF app frame. Backward-compatible wrapper around
+             `init-cef-app!` and `open-window!`."}
   create-cef-app! c/create-cef-app!)
 
 (def ^{:arglists '([options])
@@ -34,3 +36,7 @@
               - `:progress` - JProgressBar, which can be updated with
                               `(.setValue progress-bar <value>)`"}
   show-loader! l/show-loader!)
+
+(def ^{:arglists '([browser])
+       :doc "Show the Developer Tools for a CefBrowser"}
+  show-dev-tools! c/show-dev-tools!)

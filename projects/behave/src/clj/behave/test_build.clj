@@ -1,6 +1,7 @@
 (ns behave.test-build
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]))
+  (:require [clojure.java.io    :as io]
+            [clojure.string     :as str]
+            [clj-commons.digest :as digest]))
 
 (defn- inline-onload-js []
   (slurp (io/resource "onload.js")))
@@ -73,7 +74,6 @@
     (inline-onload-js)
     "  </script>"
     "  <script src=\"/js/behave-min.js\"></script>"
-    "  <script src=\"/js/sqlite.js\"></script>"
     "  <script src=\"/js/katex.min.js\"></script>"
     "  <script src=\"/js/bodymovin.js\"></script>"
     "</body>"
@@ -89,9 +89,43 @@
         js-dir  (io/file app-dir "js")
         src-dir (io/file "resources/public/js")]
     (.mkdirs js-dir)
-    (doseq [f ["behave-min.js" "behave-min.wasm" "sqlite.js" "katex.min.js" "bodymovin.js"]]
+    (doseq [f ["behave-min.js" "behave-min.wasm" "katex.min.js" "bodymovin.js"]]
       (let [src (io/file src-dir f)]
         (when (.exists src)
           (io/copy src (io/file js-dir f)))))
     (spit (io/file app-dir "index.html") (browser-index-html)))
+  build-state)
+
+;;; JCEF app build
+
+(defn- clean-cljs-dir!
+  "Remove stale build artifacts (app-*.js, manifest.edn) from `dir`."
+  [dir]
+  (when (.isDirectory dir)
+    (doseq [f (.listFiles dir)]
+      (.delete f))))
+
+(defn app-configure-hook
+  "Shadow-cljs :configure hook for the :app build — cleans stale artifacts
+   from the output dir before compilation."
+  {:shadow.build/stage :configure}
+  [build-state & _args]
+  (let [out-dir (get-in build-state [:shadow.build/config :output-dir] "resources/public/cljs")]
+    (clean-cljs-dir! (io/file out-dir)))
+  build-state)
+
+(defn app-flush-hook
+  "Shadow-cljs :flush hook for the :app build — generates a fingerprinted
+   copy of app.js and a manifest.edn that views.clj's `find-app-js` reads."
+  {:shadow.build/stage :flush}
+  [build-state & _args]
+  (let [out-dir  (get-in build-state [:shadow.build/config :output-dir] "resources/public/cljs")
+        app-js   (io/file out-dir "app.js")]
+    (when (.exists app-js)
+      (let [md5      (subs (digest/md5 app-js) 0 7)
+            dest     (io/file out-dir (str "app-" md5 ".js"))
+            manifest {"resources/public/cljs/app.js"
+                      (str "resources/public/cljs/app-" md5 ".js")}]
+        (io/copy app-js dest)
+        (spit (io/file out-dir "manifest.edn") (pr-str manifest)))))
   build-state)
