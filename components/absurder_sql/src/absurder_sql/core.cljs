@@ -18,12 +18,12 @@
   [url]
   ((js/Function. (str "return import('" url "')"))))
 
-(defn- db-class
+;;; Public API
+
+(defn db-class
   "Returns the Database class from the dynamically loaded module."
   []
   (.-Database @sqlite-mod))
-
-;;; Public API
 
 (defn init!
   "Initializes in-browser SQLite via ES module dynamic import."

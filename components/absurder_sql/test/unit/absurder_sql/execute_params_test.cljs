@@ -3,7 +3,7 @@
    Verifies the serde ColumnValue format, type handling, SQL injection
    safety, and upsert patterns used by the DataScript storage layer."
   (:require [absurder-sql.interface :as sql]
-            [cljs.core.async :refer [go]]
+            [cljs.core.async :refer [go <!]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.test :refer [async deftest is use-fixtures] :include-macros true]))
 
@@ -35,7 +35,7 @@
 (deftest params-integer-and-text-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn
                                   "insert into kv (k, v) values (?, ?)"
                                   [1 "hello"]))
@@ -48,7 +48,7 @@
 (deftest params-null-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn
                                   "insert into kv (k, v) values (?, ?)"
                                   [1 nil]))
@@ -61,7 +61,7 @@
 (deftest params-empty-string-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn
                                   "insert into kv (k, v) values (?, ?)"
                                   [1 ""]))
@@ -75,7 +75,7 @@
 (deftest params-single-quotes-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn
                                   "insert into kv (k, v) values (?, ?)"
                                   [1 "it's a 'test'"]))
@@ -87,7 +87,7 @@
 (deftest params-injection-drop-table-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn
                                   "insert into kv (k, v) values (?, ?)"
                                   [1 "'; DROP TABLE kv; --"]))
@@ -101,7 +101,7 @@
 (deftest params-injection-insert-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn
                                   "insert into kv (k, v) values (?, ?)"
                                   [1 "abc'; INSERT INTO kv VALUES(999,'hacked'); --"]))
@@ -117,7 +117,7 @@
 (deftest params-select-where-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn "insert into kv (k, v) values (?, ?)" [1 "alpha"]))
         (<p! (sql/execute-params! conn "insert into kv (k, v) values (?, ?)" [2 "beta"]))
         (let [rows (<p! (sql/select-params conn "select k, v from kv where k = ?" [2]))]
@@ -131,7 +131,7 @@
 (deftest params-upsert-test
   (async done
     (go
-      (let [conn (<p! (fresh-conn!))]
+      (let [conn (<! (fresh-conn!))]
         (<p! (sql/execute-params!
               conn
               "insert into kv (k, v) values (?, ?) on conflict(k) do update set v = excluded.v"
@@ -157,7 +157,7 @@
                                        {:id 2 :val "has 'quotes' and \"doubles\""}
                                        {:id 3 :val "question? marks?"}]
                                :meta "some' tricky; -- data"})
-            conn (<p! (fresh-conn!))]
+            conn (<! (fresh-conn!))]
         (<p! (sql/execute-params! conn "insert into kv (k, v) values (?, ?)" [1 big-data]))
         (let [rows (<p! (sql/select-params conn "select v from kv where k = ?" [1]))]
           (is (= big-data (:v (first rows)))

@@ -253,3 +253,52 @@
                  (is (nil? e) (str "Unexpected error: " e)))
                (finally
                  (done)))))))
+
+(def ^:private sync-test-key "sync-persist-test-db-name")
+
+(defn- sync-test-phase []
+  (if-let [db-name (.getItem js/localStorage sync-test-key)]
+    :verify
+    :store))
+
+(deftest ^:persist sync-persists-to-indexeddb-test
+  (testing "data stored and synced survives a page refresh"
+    (async done
+           (go
+             (try
+               (case (sync-test-phase)
+                 :store
+                 (let [db-name (str "sync-persist-" (random-uuid) ".db")
+                       sql-conn (<p! (sql/connect! db-name))
+                       store (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
+                       wrapper (storage-async/make-sync-storage-wrapper store {})
+                       conn (d/create-conn {:name {} :age {}} {:storage wrapper})]
+                   (d/transact! conn [{:db/id -1 :name "Alice" :age 30}
+                                      {:db/id -2 :name "Bob" :age 25}
+                                      {:db/id -3 :name "Carol" :age 40}])
+                   (<p! (storage-async/store-impl-sync! (d/db conn) wrapper true))
+                   (<p! (sql/sync! sql-conn))
+                   (<p! (sql/close! sql-conn))
+                   ;; Stash db-name and reload to clear WASM heap
+                   (.setItem js/localStorage sync-test-key db-name)
+                   (.reload js/location))
+
+                 :verify
+                 (let [db-name (.getItem js/localStorage sync-test-key)]
+                   (.removeItem js/localStorage sync-test-key)
+                   (let [sql-conn (<p! (sql/connect! db-name))
+                         store (ds-sqlite/sqlite-store sql-conn {:db-name db-name})
+                         result (<p! (storage-async/restore-sync store))]
+                     (is (some? result)
+                         "restore-sync should find persisted data after page refresh")
+                     (when result
+                       (let [[db _] result
+                             names (d/q '[:find ?n :where [_ :name ?n]] db)
+                             ages (d/q '[:find ?n ?a :where [?e :name ?n] [?e :age ?a]] db)]
+                         (is (= #{["Alice"] ["Bob"] ["Carol"]} names))
+                         (is (= #{["Alice" 30] ["Bob" 25] ["Carol" 40]} ages))))
+                     (<p! (sql/close! sql-conn))
+                     (done))))
+               (catch :default e
+                 (is (nil? e) (str "Error: " (.getMessage e)))
+                 (done)))))))
