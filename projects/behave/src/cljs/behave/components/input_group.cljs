@@ -256,8 +256,10 @@
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
   (let [{group-translation-key :group/translation-key
          group-uuid            :bp/uuid} group
-        *repeat-ids                      (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
-        next-repeat-id                   (or  (some->> @*repeat-ids seq (apply max) inc)
+        repeat-ids                       (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+                                            (deref)
+                                            (sort))
+        next-repeat-id                   (or  (some->> repeat-ids seq (apply max) inc)
                                               0)]
     [:<>
      (map-indexed
@@ -277,7 +279,7 @@
                       :size      "small"
                       :icon-name "delete"
                       :on-click  #(rf/dispatch [:worksheet/delete-repeat-input-group ws-uuid group-uuid repeat-id])}]]]])
-      @*repeat-ids)
+      repeat-ids)
      [:div {:style {:display         "flex"
                     :padding         "20px"
                     :align-items     "center"
