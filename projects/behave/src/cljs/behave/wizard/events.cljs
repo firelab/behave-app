@@ -1,18 +1,15 @@
 (ns behave.wizard.events
   (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.lib.units              :refer [convert]]
-            [browser-utils.core :refer [scroll-top!]]
             [behave.solver.core            :refer [solve-worksheet]]
             [behave.vms.store              :as vms]
             [behave.store                  :as s]
             [bidi.bidi                     :refer [path-for]]
-            [goog.string                   :as gstring]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [absurder-sql.datascript.core   :as d]
             [re-frame.core                 :as rf]
             [number-utils.interface        :refer [is-numeric? parse-float]]
-            [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers

@@ -276,7 +276,7 @@
                  (-> (proto/-restore storage tail-addr)
                      (.then (fn [tail]
                               (let [{:keys [schema eavt aevt avet max-eid max-tx max-addr]} root
-                                    _       (vswap! *max-addr max max-addr)
+                                    _       (vreset! *max-addr max-addr)
                                     opts    (merge root opts)
                                     adapter (make-async-storage-adapter storage opts)
                                     db      (db/restore-db
@@ -297,7 +297,7 @@
       (.then (fn [root]
                (if root
                  (let [{:keys [schema eavt aevt avet max-eid max-tx max-addr]} root
-                       _ (vswap! *max-addr max max-addr)
+                       _ (vreset! *max-addr max-addr)
                        opts (merge root opts)
                        wrapper (make-sync-storage-wrapper storage opts)]
                    ;; Prefetch all three index trees

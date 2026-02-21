@@ -98,6 +98,7 @@
 ;;; CefApp Singleton
 
 (defonce ^:private *cef-app (atom nil))
+(defonce ^:private *popups (atom {}))
 
 (defn init-cef-app!
   "Initializes the CefApp singleton. Idempotent — returns the cached instance
@@ -124,21 +125,32 @@
   [^CefBrowser browser]
   (.openDevTools browser))
 
+(defn popups
+  "Returns a map of all open popup windows `{id {:browser ... :frame ... :client ... :url ...}}`."
+  []
+  @*popups)
+
 (defn- create-popup-window! [client title url & [width height]]
   (let [width        (or width 800)
         height       (or height 600)
         browser      (.createBrowser client url false true)
         jframe       (JFrame. title)
         content-pane (.getContentPane jframe)
-        screen-size  (max-screen-size)]
+        screen-size  (max-screen-size)
+        popup-id     (str (gensym "popup-"))
+        popup        {:browser browser :frame jframe :client client :url url}]
     (.add content-pane (.getUIComponent browser) BorderLayout/CENTER)
     (doto jframe
       (.pack)
       (.setSize width height)
       (.setLocation (- (/ (first screen-size) 2) (/ width 2))
-                    (- (/ (second screen-size) 2) (/ height 2))) ; Center the frame
-      (.setVisible true))
-    #_(show-dev-tools! browser)))
+                    (- (/ (second screen-size) 2) (/ height 2)))
+      (.setVisible true)
+      (.addWindowListener (proxy [WindowAdapter] []
+                            (windowClosing [_]
+                              (swap! *popups dissoc popup-id)))))
+    (swap! *popups assoc popup-id popup)
+    popup))
 
 (defn- open-new-link! [client _browser _frame target-url _target-frame-name]
   (if (re-find #"localhost.*\/print" target-url)

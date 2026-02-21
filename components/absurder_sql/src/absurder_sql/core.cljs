@@ -2,7 +2,7 @@
   (:require
    ["../js/absurder_sql/index.js" :as sqlite :refer [Database]]
    [promesa.core :as p]
-   [cljs.core.async :refer [go]]
+   [cljs.core.async :refer [<! go go-loop put! chan sliding-buffer]]
    [cljs.core.async.interop :refer-macros [<p!]]))
 
 ;;; State
@@ -13,6 +13,50 @@
 (defn- ensure-connected! []
   (when-not @initialized?
     (throw (js/Error. "SQLite is not connected. Use `sql/init!` to initialize."))))
+
+;;; Auto-sync — flushes VFS to IndexedDB after 100 writes or 5s timeout
+;;  A sliding-buffer(1) channel per connection serializes .sync calls:
+;;  the go-loop takes one request at a time, and duplicates are coalesced.
+
+(defonce ^:private sync-state (atom {}))
+;; Per-connection map: {conn {:count n, :timer-id id, :chan ch}}
+
+(def ^:private sync-batch-size 100)
+(def ^:private sync-timeout-ms 2000)
+
+(defn- sync-chan [^js connection]
+  (or (get-in @sync-state [connection :chan])
+      (let [ch (chan (sliding-buffer 1))]
+        (go-loop []
+          (when (<! ch)
+            (try
+              (<p! (.sync connection))
+              (catch :default err
+                (js/console.error "sync failed:" err)))
+            (recur)))
+        (swap! sync-state assoc-in [connection :chan] ch)
+        ch)))
+
+(defn- do-sync! [^js connection]
+  (when-let [tid (get-in @sync-state [connection :timer-id])]
+    (js/clearTimeout tid))
+  (swap! sync-state update connection assoc :timer-id nil :count 0)
+  (put! (sync-chan connection) true))
+
+(defn- schedule-sync! [^js connection]
+  (when-not (get-in @sync-state [connection :timer-id])
+    (let [tid (js/setTimeout #(do-sync! connection) sync-timeout-ms)]
+      (swap! sync-state assoc-in [connection :timer-id] tid))))
+
+(defn- track-execution! [^js connection promise]
+  (schedule-sync! connection)
+  (p/then promise
+          (fn [result]
+            (let [n (-> (swap! sync-state update-in [connection :count] (fnil inc 0))
+                        (get-in [connection :count]))]
+              (when (>= n sync-batch-size)
+                (do-sync! connection)))
+            result)))
 
 ;;; Public API
 
@@ -73,10 +117,13 @@
     (mapv (partial row->map columns) (array-seq rows))))
 
 (defn execute!
-  "Executes `sql` on a SQLite database connection."
+  "Executes `sql` on a SQLite database connection.
+   Automatically schedules a sync to IndexedDB after a batch of writes."
   [^js connection sql]
   (ensure-connected!)
-  (.execute connection sql))
+  (track-execution!
+   connection
+   (.execute connection sql)))
 
 (defn- ->column-value
   "Convert a Clojure value to a serde-compatible ColumnValue object.
@@ -91,20 +138,23 @@
 
 (defn execute-params!
   "Executes parameterized `sql` with `params` on a SQLite database connection.
-   Params is a Clojure vector of values; each is converted to a ColumnValue."
+   Params is a Clojure vector of values; each is converted to a ColumnValue.
+   Automatically schedules a sync to IndexedDB after a batch of writes."
   [^js connection sql params]
   (ensure-connected!)
-  (.executeWithParams connection sql (to-array (mapv ->column-value params))))
+  (track-execution!
+   connection
+   (.executeWithParams connection sql (to-array (mapv ->column-value params)))))
 
 (defn select
   "Executes a query and returns a promise of a vector of Clojure maps."
   [^js connection sql]
-  (p/then (execute! connection sql) result->maps))
+  (p/then (.execute connection sql) result->maps))
 
 (defn select-params
   "Executes a parameterized query and returns a promise of a vector of Clojure maps."
   [^js connection sql params]
-  (p/then (execute-params! connection sql params) result->maps))
+  (p/then (.executeWithParams connection sql (to-array (mapv ->column-value params))) result->maps))
 
 (defn import!
   "Imports `db-bytes` to a SQLite Database."
@@ -113,11 +163,13 @@
   (.importFromFile connection db-bytes))
 
 (defn export!
-  "Exports a SQLite Database as bytes to download/share."
+  "Exports a SQLite Database as bytes to download/share.
+   Forces a sync to IndexedDB before exporting to ensure data is flushed."
   ^js/Uint8Array
   [^js connection]
   (ensure-connected!)
-  (.exportToFile connection))
+  (p/then (.sync connection)
+          (fn [_] (.exportToFile connection))))
 
 (defn download!
   "Downloads a SQLite Database."

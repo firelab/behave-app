@@ -58,7 +58,7 @@
   {:pre [(db/db? db)]}
   (if-some [adapter (storage-adapter db)]
     (do
-      (proto/-ds-store! adapter db false)
+      (proto/-ds-store! adapter db true)
       (make-conn
        {:db db
         :tx-tail []

@@ -79,10 +79,13 @@
 (rf/reg-event-fx
  :ws/worksheet-selected
  (fn [{db :db} [_ files]]
-   (let [file (first (array-seq files))]
-     {:db                  (assoc-in db [:state :worksheet :file] {:name (.-name file)
-                                                                   :obj  file})
-      :ws/import-worksheet (import-worksheet file)})))
+   (let [file     (first (array-seq files))
+         filename (.-name file)]
+     (merge
+      {:db (assoc-in db [:state :worksheet :file] {:name (.-name file)
+                                                   :obj  file})}
+      (when (str/ends-with? filename ".bp6")
+        {:ws/import-worksheet (import-worksheet file)})))))
 
 (rf/reg-event-fx
  :worksheet/solve
@@ -91,13 +94,17 @@
 
 (rp/reg-event-fx
  :worksheet/new
- (fn [_ [_ {:keys [uuid name modules version]}]]
-   (let [tx (cond-> {:worksheet/uuid    (or uuid (str (d/squuid)))
+ (fn [_ [_ {:keys [ws-uuid ws-name modules version]}]]
+   (let [tx (cond-> {:worksheet/uuid    (or ws-uuid (str (d/squuid)))
                      :worksheet/modules modules
                      :worksheet/created (.now js/Date)}
+
               version
-              (assoc :worksheet/version version))]
-     {:transact [(merge tx (when name {:worksheet/name name}))]})))
+              (assoc :worksheet/version version)
+
+              ws-name
+              (assoc :worksheet/name ws-name))]
+     {:transact [tx]})))
 
 (rp/reg-event-fx
  :worksheet/update-attr
@@ -199,7 +206,7 @@
 (rp/reg-event-fx
  :worksheet/insert-output-units
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid gv-uuid]] [:worksheet/output-eid ws-uuid gv-uuid]))]
- (fn [{output-eid :worksheet/output-eid} [_ _ gv-uuid unit-uuid]]
+ (fn [{output-eid :worksheet/output-eid} [_ _ _gv-uuid unit-uuid]]
    (when output-eid
      (let [payload [{:db/id        output-eid
                      :output/units-uuid unit-uuid}]]

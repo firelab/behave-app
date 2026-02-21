@@ -40,3 +40,8 @@
 (def ^{:arglists '([browser])
        :doc "Show the Developer Tools for a CefBrowser"}
   show-dev-tools! c/show-dev-tools!)
+
+(def ^{:arglists '([])
+       :doc "Returns a map of all open popup windows
+             `{id {:browser ... :frame ... :client ... :url ...}}`."}
+  popups c/popups)

@@ -9,7 +9,7 @@
             [behave.components.modal   :refer [modal]]
             [behave.help.views         :refer [help-area]]
             [behave.settings.views     :as settings]
-            [behave.store              :refer [load-store! load-store-local!]]
+            [behave.store              :refer [load-store-local!]]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t bp]]
             [behave.vms.store          :refer [load-vms!]]

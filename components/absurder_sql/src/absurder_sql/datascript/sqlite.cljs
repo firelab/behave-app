@@ -2,13 +2,7 @@
   (:require
    [clojure.edn             :as edn]
    [absurder-sql.interface  :as sql]
-   [absurder-sql.datascript.protocols :refer [IStorage]]))
-
-;;; State
-
-(defonce ^:private sqlite-db       (atom nil))
-#_(defonce ^:private datascript-db   (atom nil))
-#_(defonce ^:private datascript-conn (atom nil))
+   [absurder-sql.datascript.protocols :as proto :refer [IStorage]]))
 
 ;;; Helpers
 
@@ -62,6 +56,8 @@
                     :binary? (boolean (and (:freeze-bytes opts) (:thaw-bytes opts))))]
     (merge {:ddl (ddl opts)} opts)))
 
+;;; Public API
+
 (deftype SQLiteStorage [conn opts]
   Object
   IStorage
@@ -107,39 +103,5 @@
 (defn close!
   "If storage was created with DataSource that also implements AutoCloseable,
    it will close that DataSource"
-  [datasource]
-  (let [conn (:conn (meta datasource))]
-    (sql/close! conn)
-    (reset! sqlite-db nil)
-    #_(reset! datascript-conn nil)))
-
-#_(defn init!
-    "Initializes DataScript backed by in-browser SQLite DB with:
-  - `datoms`  [required] - should end in `.db`
-  - `schema`  [required]
-  - `db-name` [required] - should end in `.db`"
-    [datoms schema db-name]
-    (-> (sql/init!)
-        (.then (fn [_] (sql/connect! db-name)))
-        (.then (fn [conn]
-                 (println [:DS-CONN conn])
-                 (reset! sqlite-db conn)
-                 (let [store        (sqlite-store conn {:db-name db-name})
-                       sync-adapter (storage/make-sync-storage-wrapper store {})]
-                   (println [:SQLITE-STORE store])
-                   (reset! datascript-db (db/init-db datoms schema {:storage sync-adapter}))
-                   (reset! datascript-conn (d/conn-from-db @datascript-db))
-                   @datascript-conn)))))
-
-#_(comment
-    (def schema {:aka {:db/cardinality :db.cardinality/many}})
-    (def db (init! [] schema "ds-second.db"))
-    (require '[promesa.core :as p])
-    (p/wait-all db)
-    *1
-    (init!)
-
-    (d/transact! conn [{:db/id -1
-                        :name   "Maksim"
-                        :age    45
-                        :aka    ["Max Otto von Stierlitz", "Jack Ryan"]}]))
+  [conn]
+  (sql/close! conn))

@@ -6,14 +6,10 @@
             [behave-routing.main                    :refer [current-route-order]]
             [behave.schema.core                     :refer [all-schemas]]
             [browser-utils.core                     :refer [download]]
-            [browser-utils.interface                :refer [debounce]]
-            [clojure.set                            :refer [union]]
             [absurder-sql.datascript.core           :as d]
             [absurder-sql.datascript.sqlite         :as ds-sqlite]
             [absurder-sql.datascript.storage-async  :as storage-async]
             [absurder-sql.interface                 :as sql]
-            [datom-compressor.interface             :as c]
-            [datom-utils.interface                  :refer [split-datom]]
             [ds-schema-utils.interface              :refer [->ds-schema]]
             [re-frame.core                          :as rf]
             [re-posh.core                           :as rp]
@@ -22,10 +18,7 @@
 ;;; State
 
 (defonce conn (atom nil))
-(defonce my-txs (atom #{}))
-(defonce sync-txs (atom #{}))
-(defonce batch (atom []))
-(defonce worksheet-from-file? (atom false))
+(defonce ^:private worksheet-from-file? (atom false))
 
 (defonce ^:private sql-state
   (atom {:sql-conn nil
@@ -100,15 +93,18 @@
                                  :wrapper  wrapper
                                  :sql-conn sql-conn}))))))))
 
-(declare debounced-batch-sync-tx-data)
+(defn- new-worksheet-tx [ds-conn ws-name ws-uuid modules]
+  (let [version @(rf/subscribe [:state :app-version])
+        tx (cond-> {:worksheet/uuid    ws-uuid
+                    :worksheet/modules modules
+                    :worksheet/created (.now js/Date)}
 
-;;; Helpers
+             version
+             (assoc :worksheet/version version)
 
-(defn- txs [datoms]
-  (into #{} (map #(nth % 3) datoms)))
-
-(defn- new-datom? [datom]
-  (not (contains? (union @my-txs @sync-txs) (nth datom 3))))
+             ws-name
+             (assoc :worksheet/name ws-name))]
+    (d/transact ds-conn [tx])))
 
 ;;; Conn Initialization
 
@@ -117,75 +113,15 @@
    re-posh and reactive-entity."
   [ds-conn]
   (reset! conn ds-conn)
-  (d/listen! ds-conn :sync-tx-data
-             (fn [{:keys [tx-data]}]
-               (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]
-                 (when (seq datoms)
-                   (swap! my-txs union (txs datoms))
-                   (swap! batch concat datoms)
-                   (debounced-batch-sync-tx-data)))))
   (rp/connect! ds-conn)
   (re/init! ds-conn)
   ds-conn)
 
 (defn- reset-conn-state! []
   (reset! conn nil)
-  (reset! sync-txs #{})
-  (reset! my-txs #{})
-  (reset! batch []))
+  (reset! worksheet-from-file? false))
 
-;;; Batch Sync (server-side persistence, currently disabled)
-
-(defn- batch-sync-tx-data []
-  (when (seq @batch)
-    (reset! batch [])))
-
-(def ^:private debounced-batch-sync-tx-data (debounce batch-sync-tx-data 2000))
-
-;;; Auto-save to SQLite
-
-(defn save-to-sqlite!
-  "Persist the current DB state to local SQLite storage. Returns a Promise."
-  []
-  (when-let [{:keys [wrapper]} @sql-state]
-    (when (and @conn wrapper)
-      (storage-async/store-impl-sync! (d/db @conn) wrapper true))))
-
-(def ^:private debounced-save-to-sqlite (debounce save-to-sqlite! 3000))
-
-;;; Server Sync (load initial state from server)
-
-(defn- load-data-handler [[ok body]]
-  (when ok
-    (let [datoms  (mapv #(apply d/datom %) (c/unpack body))
-          schema  (->ds-schema all-schemas)
-          db-name (str "worksheet-" (random-uuid) ".db")]
-      (swap! sync-txs union (txs datoms))
-      (-> (init-sql-conn-from-datoms! schema datoms db-name)
-          (p/then (fn [{ds-conn :conn :keys [wrapper sql-conn]}]
-                    (swap! sql-state assoc
-                           :sql-conn sql-conn
-                           :wrapper  wrapper
-                           :db-name  db-name)
-                    (setup-conn! ds-conn)
-                    (d/listen! ds-conn :auto-save (fn [_] (debounced-save-to-sqlite)))
-                    (rf/dispatch-sync [:state/set :sync-loaded? true])))
-          (p/catch (fn [e]
-                     (js/console.error "Failed to initialize SQLite storage:" e)
-                     ;; Fallback: in-memory conn
-                     (setup-conn! (d/conn-from-datoms datoms schema))
-                     (rf/dispatch-sync [:state/set :sync-loaded? true])))))))
-
-(defn load-store! []
-  (-> (sql/init!)
-      (p/then (fn [_]
-                (ajax-request {:uri             "/api/sync"
-                               :handler         load-data-handler
-                               :format          {:content-type "application/text" :write str}
-                               :response-format {:description  "ArrayBuffer"
-                                                 :type         :arraybuffer
-                                                 :content-type "application/msgpack"
-                                                 :read         pr/-body}})))))
+;;; SQLite Sync (load initial state from AbsurderSQL/IndexedDB)
 
 (defn load-store-local!
   "Initialize a local DataScript connection backed by SQLite.
@@ -203,7 +139,6 @@
                           :wrapper  wrapper
                           :db-name  db-name)
                    (setup-conn! ds-conn)
-                   (d/listen! ds-conn :auto-save (fn [_] (debounced-save-to-sqlite)))
                    (rf/dispatch-sync [:state/set :sync-loaded? true])))
          (p/catch (fn [e]
                     (js/console.error "Failed to initialize local store:" e)
@@ -249,7 +184,6 @@
                          :wrapper  wrapper
                          :db-name  db-name)
                   (setup-conn! ds-conn)
-                  (d/listen! ds-conn :auto-save (fn [_] (debounced-save-to-sqlite)))
                   (rf/dispatch-sync [:state/set :sync-loaded? true])
                   (rf/dispatch-sync [:state/set :ws-version
                                      @(rf/subscribe [:worksheet/version
@@ -259,10 +193,11 @@
 
 ;;; New Worksheet
 
-(defn new-worksheet! [nname modules _submodule workflow]
+(defn new-worksheet! [ws-name modules _submodule workflow]
   (let [schema  (->ds-schema all-schemas)
         ws-uuid (str (d/squuid))
         db-name (str "worksheet-" ws-uuid ".db")]
+    (rf/dispatch-sync [:state/set :sync-loaded? false])
     (reset-conn-state!)
     (reset-sql-state!)
     (reset! worksheet-from-file? false)
@@ -273,28 +208,13 @@
                          :wrapper  wrapper
                          :db-name  db-name)
                   (setup-conn! ds-conn)
-                  (d/listen! ds-conn :auto-save (fn [_] (debounced-save-to-sqlite)))
-                  (rf/dispatch-sync [:state/set :sync-loaded? true])
-                  (rf/dispatch-sync [:worksheet/new {:name    nname
-                                                     :modules (vec modules)
-                                                     :uuid    ws-uuid
-                                                     :version @(rf/subscribe [:state :app-version])}])
+                  (new-worksheet-tx ds-conn ws-name ws-uuid modules)
                   (reset! current-route-order
                           @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
+                  (rf/dispatch-sync [:state/set :sync-loaded? true])
                   (rf/dispatch-sync [:navigate (first @current-route-order)])))
         (p/catch (fn [e]
                    (js/console.error "New worksheet failed:" e))))))
-
-;;; Sync Helpers (kept for future server-sync support)
-
-(defn apply-latest-datoms [[ok body]]
-  (when ok
-    (let [datoms (->> (c/unpack body)
-                      (filter new-datom?)
-                      (map (partial apply d/datom)))]
-      (when (seq datoms)
-        (swap! sync-txs union (txs datoms))
-        (d/transact @conn datoms)))))
 
 ;;; Public Fns
 
