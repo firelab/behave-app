@@ -19,7 +19,7 @@
                          :asset-path      "/js"
                          :modules         {:app {:entries [behave.client]}}
                          :build-hooks     [(behave.test-build/browser-flush-hook)]
-                         :devtools        {:preloads [day8.re-frame-10x.preload]}
+                         :devtools        {:preloads [day8.re-frame-10x.preload devtools.preload]}
                          :dev             {:compiler-options
                                            {:closure-defines
                                             {re-frame.trace.trace-enabled?        true
