@@ -155,8 +155,8 @@
   [params]
   (let [params (js->clj params :keywordize-keys true)]
     (reset! route-params-atom params)
-    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:initialize])
+    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
     (load-vms! (:vms-version params))
