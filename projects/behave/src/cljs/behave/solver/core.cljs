@@ -127,7 +127,7 @@
         (apply-multi-cpp-fn fns module repeat-group)))))
 
 (defn get-outputs [ws-uuid module fns outputs]
-  (let [units-system @(rf/subscribe [:settings/units-system])]
+  (let [units-system @(rf/subscribe [:settings/application-units-system])]
     (reduce
      (fn [acc group-variable-uuid]
        (let [var-uuid             (q/variable-uuid group-variable-uuid)

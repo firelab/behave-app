@@ -208,7 +208,7 @@
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid gv-uuid]] [:worksheet/output-eid ws-uuid gv-uuid]))]
  (fn [{output-eid :worksheet/output-eid} [_ _ _gv-uuid unit-uuid]]
    (when output-eid
-     (let [payload [{:db/id        output-eid
+     (let [payload [{:db/id             output-eid
                      :output/units-uuid unit-uuid}]]
        {:transact payload}))))
 
@@ -741,8 +741,8 @@
                     direction-of-max-spread
                     wind-direction
                     _wind-speed
+                    slope-direction
                     _elapsed-time]]
-   (log "503:")
    (let [existing-eid    (d/q '[:find  ?d .
                                 :in    $ ?uuid ?gv-uuid ?row-id
                                 :where
@@ -771,7 +771,19 @@
                                                            ;; arrow points much further out of othe ellipse.
                                                            ;; Discuss if if we should use this or not.
                                                            :arrow/rotation  wind-direction
-                                                           :arrow/color     "blue"}]}]})))
+                                                           :arrow/color     "blue"
+                                                           :arrow/dashed? true}
+
+                                                          {:arrow/legend-id "Max Spread"
+                                                           :arrow/length    semi-major-axis
+                                                           :arrow/rotation  direction-of-max-spread
+                                                           :arrow/color     "black"}
+
+                                                          {:arrow/legend-id "Slope"
+                                                           :arrow/length    semi-major-axis
+                                                           :arrow/rotation  slope-direction
+                                                           :arrow/color     "red"
+                                                           :arrow/dashed?   true}]}]})))
 (rp/reg-event-fx
  :worksheet/add-wind-slope-spread-direction-diagram
  [(rp/inject-cofx :ds)]
@@ -861,6 +873,16 @@
    {:transact [[:db/retract input-eid :input/value]]}))
 
 (rf/reg-event-fx
+ :worksheet/remove-unused-inputs
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/input-eids-to-delete ws-uuid]))]
+ (fn [{input-eids :worksheet/input-eids-to-delete} _]
+   (let [payload (mapv
+                  (fn [input-eid]
+                    [:db.fn/retractEntity input-eid])
+                  input-eids)]
+     {:transact payload})))
+
+(rf/reg-event-fx
  :worksheet/proccess-conditonally-set-output-group-variables
 
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet  ws-uuid]))
@@ -919,3 +941,10 @@
                                (:bp/uuid group-variable)
                                true]])]
      {:fx payload})))
+
+(rf/reg-event-fx
+ :worksheet/update-worksheet-name-from-import
+ (fn [_ [_ ws-uuid file-name]]
+   (let [payload [{:db/id          [:worksheet/uuid ws-uuid]
+                   :worksheet/name file-name}]]
+     {:transact payload})))

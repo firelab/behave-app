@@ -33,6 +33,7 @@
                            behave.stories.tab-stories
                            behave.stories.tab-group-stories
                            behave.stories.table-stories
+                           behave.stories.toggle-stories
                            behave.stories.matrix-table-stories
 
                            ; Inputs

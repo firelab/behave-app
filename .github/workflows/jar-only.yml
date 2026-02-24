@@ -1,0 +1,98 @@
+name: Build JAR
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to checkout (tag, branch, or SHA)'
+        required: false
+        type: string
+      version:
+        description: 'Version string (e.g., v7.1.4)'
+        required: false
+        type: string
+    secrets:
+      VMS_URL:
+        required: true
+      VMS_AUTH_TOKEN:
+        required: true
+
+jobs:
+  build-jar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Setup Clojure
+        uses: DeLaGuardo/setup-clojure@12.5
+        with:
+          cli: 'latest'
+          bb: 'latest'
+
+      - name: Cache Clojure Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+          key: clojure-deps-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            clojure-deps-
+
+      - name: Set the version
+        run: |
+          if [[ -n "${{ inputs.version }}" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            REF="${{ inputs.ref || github.ref }}"
+            VERSION=$(echo "$REF" | sed -e 's/refs\/tags\///g')
+          fi
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Set the date
+        run: |
+          DATE=$(date '+%Y-%m-%d')
+          echo "date=$DATE" >> "$GITHUB_ENV"
+
+      - name: Build JAR
+        env:
+          VMS_URL: ${{ secrets.VMS_URL }}
+          VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
+        run: |
+          cd projects/behave
+          clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
+          bb build-js
+          mv resources/config.standalone.edn resources/config.edn
+          echo '{:version "${{ env.version }}"}' > resources/version.edn
+          bb uber
+
+      - name: List built artifacts
+        run: |
+          ls -lh projects/behave/target/*.jar || true
+          echo "JAR file built!"
+
+      - name: Rename JAR
+        run: |
+          cd projects/behave/target
+          JAR_FILE=$(ls behave7*.jar | head -1)
+          mv "$JAR_FILE" behave7.jar
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: behave7-jar
+          path: projects/behave/target/behave7.jar
+          retention-days: 5

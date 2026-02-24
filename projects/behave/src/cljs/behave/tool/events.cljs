@@ -65,11 +65,8 @@
 
 (rf/reg-event-db
  :tool/close-tool
- (rf/path db-tool)
  (fn [db _]
-   (-> db
-       (dissoc :selected-tool)
-       (dissoc :selected-subtool))))
+   (assoc-in db [:state :tool] nil)))
 
 (rf/reg-event-fx
  :tool/select-tool

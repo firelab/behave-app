@@ -45,6 +45,7 @@ public:
   void setWindSpeedAndWindHeightInputMode(double windwindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
   void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
   void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
+  void setDownwindCoverHeight(double downwindCoverHeight, LengthUnits::LengthUnitsEnum downwindCoverHeightUnits);
   double getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const;
   double getMaxMountainousTerrainSpottingDistanceFromActiveCrown(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const;
 

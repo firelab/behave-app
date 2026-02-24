@@ -89,6 +89,7 @@
    [bool-setting "Conditionally Set?" :group-variable/conditionally-set? group-variable]
    [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]
    [bool-setting "Hide from CSV Export?" :group-variable/hide-csv? group-variable]
+   [bool-setting "Hide from Graphs?" :group-variable/hide-graph? group-variable]
    [dropdown-setting "Direction" :group-variable/direction group-variable]])
 
 ;;; Public Views

@@ -13,8 +13,7 @@
             [number-utils.core           :refer [parse-float]]
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]
-            [string-utils.interface      :refer [->kebab ->str]]
-            [behave.solver.queries :as q]))
+            [string-utils.interface      :refer [->kebab ->str]]))
 
 ;; Helpers
 (defn make-tree
@@ -249,6 +248,19 @@
     :variables [ws-uuid group-uuid]}))
 
 (rf/reg-sub
+ :worksheet/all-input-entities
+ (fn [_ [_ ws-uuid]]
+   (let [input-eids @(rf/subscribe [:query
+                                    '[:find  [?i ...]
+                                      :in    $ ?ws-uuid
+                                      :where
+                                      [?w :worksheet/uuid ?ws-uuid]
+                                      [?w :worksheet/input-groups ?g]
+                                      [?g :input-group/inputs ?i]]
+                                    [ws-uuid]])]
+     (map #(d/entity @@s/conn %) input-eids))))
+
+(rf/reg-sub
  :worksheet/all-inputs-vector
  (fn [_ [_ ws-uuid]]
    (let [inputs @(rf/subscribe [:query
@@ -268,7 +280,7 @@
 (rf/reg-sub
  :worksheet/all-variable-level-units
  (fn [_]
-   (rf/subscribe [:settings/units-system]))
+   (rf/subscribe [:settings/application-units-system]))
  (fn [units-system [_ ws-uuid]]
    (let [units-system-attr (case units-system
                              :native  :variable/native-unit-uuid
@@ -293,7 +305,7 @@
 (rf/reg-sub
  :worksheet/all-domain-level-units
  (fn [_]
-   (rf/subscribe [:settings/units-system]))
+   (rf/subscribe [:settings/application-units-system]))
  (fn [units-system [_ ws-uuid]]
    (let [units-system-attr (case units-system
                              :english :domain/english-unit-uuid
@@ -526,6 +538,35 @@
         (map first))))
 
 (rf/reg-sub
+ :worksheet/graphed-output-uuids
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+ (fn [worksheet [_ ws-uuid]]
+   (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
+               :in    $ $ws % ?ws-uuid
+               :where
+               [$ws ?w :worksheet/uuid ?ws-uuid]
+               [$ws ?w :worksheet/outputs ?o]
+               [$ws ?o :output/group-variable-uuid ?uuid]
+               [$ws ?o :output/enabled? true]
+               (lookup ?uuid ?gv)
+               [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]
+               [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]]
+             @@vms-conn
+             @@s/conn
+             rules
+             ws-uuid)
+        (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
+        (map first)
+        (map (fn [gv-uuid] @(rf/subscribe [:vms/entity-from-uuid gv-uuid])))
+        (remove #(if (seq (:group-variable/hide-result-conditionals %))
+                   (all-conditionals-pass? worksheet
+                                           (:group-variable/hide-result-conditional-operator %)
+                                           (:group-variable/hide-result-conditionals %))
+                   false))
+        (map :bp/uuid))))
+
+(rf/reg-sub
  :worksheet/all-output-uuids
  (fn [_ [_ ws-uuid]]
    (->> (d/q '[:find  [?uuid ...]
@@ -564,10 +605,12 @@
 
 (rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
- (fn [_ [_ ws-uuid]]
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/graphed-output-uuids ws-uuid]))
+ (fn [graph-output-uuids [_ ws-uuid]]
    {:type      :query
     :query     '[:find ?group-var-uuid ?min ?max
-                 :in   $ ?ws-uuid
+                 :in   $ ?ws-uuid [?group-var-uuid ...]
                  :where
                  [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/graph-settings ?g]
@@ -576,9 +619,8 @@
                  [?y :y-axis-limit/min ?min]
                  [?y :y-axis-limit/max ?max]
                  [?w :worksheet/outputs ?o]
-                 [?o :output/group-variable-uuid ?group-var-uuid]
-                 [?o :output/enabled? true]]
-    :variables [ws-uuid]}))
+                 [?o :output/group-variable-uuid ?group-var-uuid]]
+    :variables [ws-uuid graph-output-uuids]}))
 
 (rf/reg-sub
  :worksheet/graph-settings-y-axis-limits-filtered
@@ -776,10 +818,6 @@
       (or (contains? (set multi-input-uuids) col-uuid)
           (is-directional? col-uuid direction)))
     data)))
-
-(comment
-  (rf/subscribe [:worksheet/multi-value-input-uuids "6685957e-39fc-454d-bd3d-6f7dafa5775a"])
-  (rf/subscribe [:worksheet/result-table-cell-data-direction "6685957e-39fc-454d-bd3d-6f7dafa5775a" :heading]))
 
 (rf/reg-sub
  :worksheet/output-uuid->result-min-values
@@ -1224,3 +1262,53 @@
         @@s/conn
         ws-uuid
         gv-uuid)))
+
+(rf/reg-sub
+ :worksheet/repeat-groups?
+ (fn [_ [_ ws-uuid]]
+   (some pos? (d/q '[:find [?rid ...]
+                     :in  $ ?ws-uuid
+                     :where
+                     [?w :worksheet/uuid ?ws-uuid]
+                     [?w :worksheet/input-groups ?g]
+                     [?g :input-group/group-uuid ?g-uuid]
+                     [?g :input-group/repeat-id ?rid]]
+                   @@s/conn ws-uuid))))
+
+(rf/reg-sub
+ :worksheet/should-keep-input?
+ (fn [[_ _ws-uuid gv-uuid]]
+   (rf/subscribe [:vms/group-variable-heirarchy gv-uuid]))
+ (fn [hierarchy-eids [_ ws-uuid _gv-uuid]]
+   (let [[submodule & groups] (map #(d/pull @@vms-conn
+                                            '[:db/id
+                                              :group/name
+                                              :group/translation-key
+                                              :group/conditionals-operator
+                                              :submodule/name
+                                              :submodule/conditionals-operator]
+                                            (:db/id %))
+                                   hierarchy-eids)]
+     (and
+      (true? @(rf/subscribe [:wizard/show-submodule?
+                             ws-uuid
+                             (:db/id submodule)
+                             (:submodule/conditionals-operator submodule)]))
+
+      (every? true?
+              (map #(deref (rf/subscribe [:wizard/show-group?
+                                          ws-uuid
+                                          (:db/id %)
+                                          (:group/conditionals-operator %)]))
+                   groups))))))
+
+(rf/reg-sub
+ :worksheet/input-eids-to-delete
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/all-input-entities ws-uuid]))
+ (fn [inputs [_ ws-uuid]]
+   (prn inputs)
+   (map :db/id
+        (remove (fn [{group-variable-uuid :input/group-variable-uuid}]
+                  @(rf/subscribe [:worksheet/should-keep-input? ws-uuid group-variable-uuid]))
+                inputs))))

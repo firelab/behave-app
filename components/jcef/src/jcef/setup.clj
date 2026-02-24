@@ -37,5 +37,11 @@
   "Produces a `CEFAppBuilder` with the installation
    directory set according to the System OS."
   []
-  (doto (CefAppBuilder.)
-    (.setInstallDir (get-jcef-dir))))
+  (let [app-dir  (System/getProperty "app.dir")
+        jcef-dir (get-jcef-dir)]
+    (if (nil? app-dir)
+      (doto (CefAppBuilder.)
+        (.setInstallDir jcef-dir))
+      (doto (CefAppBuilder.)
+        (.setInstallDir jcef-dir)
+        (.setSkipInstallation true)))))

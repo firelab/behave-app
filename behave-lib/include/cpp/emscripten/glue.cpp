@@ -1,34 +1,35 @@
 
 #include <emscripten.h>
-#include <stdlib.h>
 
-EM_JS_DEPS(webidl_binder, "$intArrayFromString,$UTF8ToString,$alignMemory,$addOnInit");
+EM_JS_DEPS(webidl_binder, "$intArrayFromString");
 
 extern "C" {
 
-// Define custom allocator functions that we can force export using
-// EMSCRIPTEN_KEEPALIVE.  This avoids all webidl users having to add
-// malloc/free to -sEXPORTED_FUNCTIONS.
-EMSCRIPTEN_KEEPALIVE void webidl_free(void* p) { free(p); }
-EMSCRIPTEN_KEEPALIVE void* webidl_malloc(size_t len) { return malloc(len); }
+// Not using size_t for array indices as the values used by the javascript code are signed.
 
+EM_JS(void, array_bounds_check_error, (size_t idx, size_t size), {
+  throw 'Array index ' + idx + ' out of bounds: [0,' + size + ')';
+});
 
-// Interface: VoidPtr
+void array_bounds_check(const int array_size, const int array_idx) {
+  if (array_idx < 0 || array_idx >= array_size) {
+    array_bounds_check_error(array_idx, array_size);
+  }
+}
 
+// VoidPtr
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_VoidPtr___destroy___0(void** self) {
   delete self;
 }
 
-// Interface: DoublePtr
-
+// DoublePtr
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_DoublePtr___destroy___0(DoublePtr* self) {
   delete self;
 }
 
-// Interface: BoolVector
-
+// BoolVector
 
 BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector_BoolVector_0() {
   return new BoolVector();
@@ -58,8 +59,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector___destroy___0(BoolVector* s
   delete self;
 }
 
-// Interface: CharVector
-
+// CharVector
 
 CharVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector_CharVector_0() {
   return new CharVector();
@@ -89,8 +89,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector___destroy___0(CharVector* s
   delete self;
 }
 
-// Interface: IntVector
-
+// IntVector
 
 IntVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector_IntVector_0() {
   return new IntVector();
@@ -120,8 +119,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector___destroy___0(IntVector* sel
   delete self;
 }
 
-// Interface: DoubleVector
-
+// DoubleVector
 
 DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector_DoubleVector_0() {
   return new DoubleVector();
@@ -151,8 +149,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector___destroy___0(DoubleVecto
   delete self;
 }
 
-// Interface: SpeciesMasterTableRecordVector
-
+// SpeciesMasterTableRecordVector
 
 SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0() {
   return new SpeciesMasterTableRecordVector();
@@ -182,263 +179,245 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector___destr
   delete self;
 }
 
-// Interface: AreaUnits
+// AreaUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits_toBaseUnits_2(double value, AreaUnits_AreaUnitsEnum units) {
-  return AreaUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits_toBaseUnits_2(AreaUnits* self, double value, AreaUnits_AreaUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits_fromBaseUnits_2(double value, AreaUnits_AreaUnitsEnum units) {
-  return AreaUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits_fromBaseUnits_2(AreaUnits* self, double value, AreaUnits_AreaUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits___destroy___0(AreaUnits* self) {
   delete self;
 }
 
-// Interface: BasalAreaUnits
+// BasalAreaUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits_toBaseUnits_2(double value, BasalAreaUnits_BasalAreaUnitsEnum units) {
-  return BasalAreaUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits_toBaseUnits_2(BasalAreaUnits* self, double value, BasalAreaUnits_BasalAreaUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits_fromBaseUnits_2(double value, BasalAreaUnits_BasalAreaUnitsEnum units) {
-  return BasalAreaUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits_fromBaseUnits_2(BasalAreaUnits* self, double value, BasalAreaUnits_BasalAreaUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits___destroy___0(BasalAreaUnits* self) {
   delete self;
 }
 
-// Interface: FractionUnits
+// FractionUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits_toBaseUnits_2(double value, FractionUnits_FractionUnitsEnum units) {
-  return FractionUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits_toBaseUnits_2(FractionUnits* self, double value, FractionUnits_FractionUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits_fromBaseUnits_2(double value, FractionUnits_FractionUnitsEnum units) {
-  return FractionUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits_fromBaseUnits_2(FractionUnits* self, double value, FractionUnits_FractionUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits___destroy___0(FractionUnits* self) {
   delete self;
 }
 
-// Interface: LengthUnits
+// LengthUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits_toBaseUnits_2(double value, LengthUnits_LengthUnitsEnum units) {
-  return LengthUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits_toBaseUnits_2(LengthUnits* self, double value, LengthUnits_LengthUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits_fromBaseUnits_2(double value, LengthUnits_LengthUnitsEnum units) {
-  return LengthUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits_fromBaseUnits_2(LengthUnits* self, double value, LengthUnits_LengthUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits___destroy___0(LengthUnits* self) {
   delete self;
 }
 
-// Interface: LoadingUnits
+// LoadingUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits_toBaseUnits_2(double value, LoadingUnits_LoadingUnitsEnum units) {
-  return LoadingUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits_toBaseUnits_2(LoadingUnits* self, double value, LoadingUnits_LoadingUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits_fromBaseUnits_2(double value, LoadingUnits_LoadingUnitsEnum units) {
-  return LoadingUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits_fromBaseUnits_2(LoadingUnits* self, double value, LoadingUnits_LoadingUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits___destroy___0(LoadingUnits* self) {
   delete self;
 }
 
-// Interface: SurfaceAreaToVolumeUnits
+// SurfaceAreaToVolumeUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits_toBaseUnits_2(double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units) {
-  return SurfaceAreaToVolumeUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits_toBaseUnits_2(SurfaceAreaToVolumeUnits* self, double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits_fromBaseUnits_2(double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units) {
-  return SurfaceAreaToVolumeUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits_fromBaseUnits_2(SurfaceAreaToVolumeUnits* self, double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits___destroy___0(SurfaceAreaToVolumeUnits* self) {
   delete self;
 }
 
-// Interface: SpeedUnits
+// SpeedUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits_toBaseUnits_2(double value, SpeedUnits_SpeedUnitsEnum units) {
-  return SpeedUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits_toBaseUnits_2(SpeedUnits* self, double value, SpeedUnits_SpeedUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits_fromBaseUnits_2(double value, SpeedUnits_SpeedUnitsEnum units) {
-  return SpeedUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits_fromBaseUnits_2(SpeedUnits* self, double value, SpeedUnits_SpeedUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits___destroy___0(SpeedUnits* self) {
   delete self;
 }
 
-// Interface: PressureUnits
+// PressureUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits_toBaseUnits_2(double value, PressureUnits_PressureUnitsEnum units) {
-  return PressureUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits_toBaseUnits_2(PressureUnits* self, double value, PressureUnits_PressureUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits_fromBaseUnits_2(double value, PressureUnits_PressureUnitsEnum units) {
-  return PressureUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits_fromBaseUnits_2(PressureUnits* self, double value, PressureUnits_PressureUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits___destroy___0(PressureUnits* self) {
   delete self;
 }
 
-// Interface: SlopeUnits
+// SlopeUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits_toBaseUnits_2(double value, SlopeUnits_SlopeUnitsEnum units) {
-  return SlopeUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits_toBaseUnits_2(SlopeUnits* self, double value, SlopeUnits_SlopeUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits_fromBaseUnits_2(double value, SlopeUnits_SlopeUnitsEnum units) {
-  return SlopeUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits_fromBaseUnits_2(SlopeUnits* self, double value, SlopeUnits_SlopeUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits___destroy___0(SlopeUnits* self) {
   delete self;
 }
 
-// Interface: DensityUnits
+// DensityUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits_toBaseUnits_2(double value, DensityUnits_DensityUnitsEnum units) {
-  return DensityUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits_toBaseUnits_2(DensityUnits* self, double value, DensityUnits_DensityUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits_fromBaseUnits_2(double value, DensityUnits_DensityUnitsEnum units) {
-  return DensityUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits_fromBaseUnits_2(DensityUnits* self, double value, DensityUnits_DensityUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits___destroy___0(DensityUnits* self) {
   delete self;
 }
 
-// Interface: HeatOfCombustionUnits
+// HeatOfCombustionUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits_toBaseUnits_2(double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units) {
-  return HeatOfCombustionUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits_toBaseUnits_2(HeatOfCombustionUnits* self, double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits_fromBaseUnits_2(double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units) {
-  return HeatOfCombustionUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits_fromBaseUnits_2(HeatOfCombustionUnits* self, double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits___destroy___0(HeatOfCombustionUnits* self) {
   delete self;
 }
 
-// Interface: HeatSinkUnits
+// HeatSinkUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits_toBaseUnits_2(double value, HeatSinkUnits_HeatSinkUnitsEnum units) {
-  return HeatSinkUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits_toBaseUnits_2(HeatSinkUnits* self, double value, HeatSinkUnits_HeatSinkUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits_fromBaseUnits_2(double value, HeatSinkUnits_HeatSinkUnitsEnum units) {
-  return HeatSinkUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits_fromBaseUnits_2(HeatSinkUnits* self, double value, HeatSinkUnits_HeatSinkUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits___destroy___0(HeatSinkUnits* self) {
   delete self;
 }
 
-// Interface: HeatPerUnitAreaUnits
+// HeatPerUnitAreaUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits_toBaseUnits_2(double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units) {
-  return HeatPerUnitAreaUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits_toBaseUnits_2(HeatPerUnitAreaUnits* self, double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits_fromBaseUnits_2(double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units) {
-  return HeatPerUnitAreaUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits_fromBaseUnits_2(HeatPerUnitAreaUnits* self, double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits___destroy___0(HeatPerUnitAreaUnits* self) {
   delete self;
 }
 
-// Interface: HeatSourceAndReactionIntensityUnits
+// HeatSourceAndReactionIntensityUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits_toBaseUnits_2(double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units) {
-  return HeatSourceAndReactionIntensityUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits_toBaseUnits_2(HeatSourceAndReactionIntensityUnits* self, double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits_fromBaseUnits_2(double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units) {
-  return HeatSourceAndReactionIntensityUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits_fromBaseUnits_2(HeatSourceAndReactionIntensityUnits* self, double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits___destroy___0(HeatSourceAndReactionIntensityUnits* self) {
   delete self;
 }
 
-// Interface: FirelineIntensityUnits
+// FirelineIntensityUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits_toBaseUnits_2(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units) {
-  return FirelineIntensityUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits_toBaseUnits_2(FirelineIntensityUnits* self, double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits_fromBaseUnits_2(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units) {
-  return FirelineIntensityUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits_fromBaseUnits_2(FirelineIntensityUnits* self, double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits___destroy___0(FirelineIntensityUnits* self) {
   delete self;
 }
 
-// Interface: TemperatureUnits
+// TemperatureUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits_toBaseUnits_2(double value, TemperatureUnits_TemperatureUnitsEnum units) {
-  return TemperatureUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits_toBaseUnits_2(TemperatureUnits* self, double value, TemperatureUnits_TemperatureUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits_fromBaseUnits_2(double value, TemperatureUnits_TemperatureUnitsEnum units) {
-  return TemperatureUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits_fromBaseUnits_2(TemperatureUnits* self, double value, TemperatureUnits_TemperatureUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits___destroy___0(TemperatureUnits* self) {
   delete self;
 }
 
-// Interface: TimeUnits
+// TimeUnits
 
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits_toBaseUnits_2(double value, TimeUnits_TimeUnitsEnum units) {
-  return TimeUnits::toBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits_toBaseUnits_2(TimeUnits* self, double value, TimeUnits_TimeUnitsEnum units) {
+  return self->toBaseUnits(value, units);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits_fromBaseUnits_2(double value, TimeUnits_TimeUnitsEnum units) {
-  return TimeUnits::fromBaseUnits(value, units);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits_fromBaseUnits_2(TimeUnits* self, double value, TimeUnits_TimeUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits___destroy___0(TimeUnits* self) {
   delete self;
 }
 
-// Interface: FireSize
-
+// FireSize
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getBackingSpreadRate_1(FireSize* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getBackingSpreadRate(spreadRateUnits);
@@ -496,8 +475,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize___destroy___0(FireSize* self)
   delete self;
 }
 
-// Interface: SIGContainAdapter
-
+// SIGContainAdapter
 
 SIGContainAdapter* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_SIGContainAdapter_0() {
   return new SIGContainAdapter();
@@ -508,12 +486,12 @@ ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainA
 }
 
 DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePerimeterX_0(SIGContainAdapter* self) {
-  static thread_local DoubleVector temp;
+  static DoubleVector temp;
   return (temp = self->getFirePerimeterX(), &temp);
 }
 
 DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePerimeterY_0(SIGContainAdapter* self) {
-  static thread_local DoubleVector temp;
+  static DoubleVector temp;
   return (temp = self->getFirePerimeterY(), &temp);
 }
 
@@ -681,8 +659,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter___destroy___0(SIGCon
   delete self;
 }
 
-// Interface: SIGIgnite
-
+// SIGIgnite
 
 SIGIgnite* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_SIGIgnite_0() {
   return new SIGIgnite();
@@ -776,8 +753,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite___destroy___0(SIGIgnite* sel
   delete self;
 }
 
-// Interface: SIGMoistureScenarios
-
+// SIGMoistureScenarios
 
 SIGMoistureScenarios* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0() {
   return new SIGMoistureScenarios();
@@ -855,8 +831,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios___destroy___0(SIG
   delete self;
 }
 
-// Interface: SIGSpot
-
+// SIGSpot
 
 SIGSpot* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_SIGSpot_0() {
   return new SIGSpot();
@@ -1082,8 +1057,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot___destroy___0(SIGSpot* self) {
   delete self;
 }
 
-// Interface: SIGFuelModels
-
+// SIGFuelModels
 
 SIGFuelModels* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_SIGFuelModels_0() {
   return new SIGFuelModels();
@@ -1181,8 +1155,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels___destroy___0(SIGFuelMod
   delete self;
 }
 
-// Interface: SIGSurface
-
+// SIGSurface
 
 SIGSurface* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_SIGSurface_1(SIGFuelModels* fuelModels) {
   return new SIGSurface(*fuelModels);
@@ -2060,8 +2033,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface___destroy___0(SIGSurface* s
   delete self;
 }
 
-// Interface: PalmettoGallberry
-
+// PalmettoGallberry
 
 PalmettoGallberry* EMSCRIPTEN_KEEPALIVE emscripten_bind_PalmettoGallberry_PalmettoGallberry_0() {
   return new PalmettoGallberry();
@@ -2151,8 +2123,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_PalmettoGallberry___destroy___0(Palmet
   delete self;
 }
 
-// Interface: WesternAspen
-
+// WesternAspen
 
 WesternAspen* EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_WesternAspen_0() {
   return new WesternAspen();
@@ -2222,8 +2193,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen___destroy___0(WesternAspe
   delete self;
 }
 
-// Interface: SIGCrown
-
+// SIGCrown
 
 SIGCrown* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_SIGCrown_1(SIGFuelModels* fuelModels) {
   return new SIGCrown(*fuelModels);
@@ -2673,8 +2643,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown___destroy___0(SIGCrown* self)
   delete self;
 }
 
-// Interface: SpeciesMasterTableRecord
-
+// SpeciesMasterTableRecord
 
 SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0() {
   return new SpeciesMasterTableRecord();
@@ -2688,8 +2657,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecord___destroy___0
   delete self;
 }
 
-// Interface: SpeciesMasterTable
-
+// SpeciesMasterTable
 
 SpeciesMasterTable* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0() {
   return new SpeciesMasterTable();
@@ -2715,8 +2683,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTable___destroy___0(Speci
   delete self;
 }
 
-// Interface: SIGMortality
-
+// SIGMortality
 
 SIGMortality* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_SIGMortality_1(SpeciesMasterTable* speciesMasterTable) {
   return new SIGMortality(*speciesMasterTable);
@@ -3122,8 +3089,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality___destroy___0(SIGMortalit
   delete self;
 }
 
-// Interface: WindSpeedUtility
-
+// WindSpeedUtility
 
 WindSpeedUtility* EMSCRIPTEN_KEEPALIVE emscripten_bind_WindSpeedUtility_WindSpeedUtility_0() {
   return new WindSpeedUtility();
@@ -3141,8 +3107,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_WindSpeedUtility___destroy___0(WindSpe
   delete self;
 }
 
-// Interface: SIGFineDeadFuelMoistureTool
-
+// SIGFineDeadFuelMoistureTool
 
 SIGFineDeadFuelMoistureTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0() {
   return new SIGFineDeadFuelMoistureTool();
@@ -3236,8 +3201,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool___destroy_
   delete self;
 }
 
-// Interface: SIGSlopeTool
-
+// SIGSlopeTool
 
 SIGSlopeTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_SIGSlopeTool_0() {
   return new SIGSlopeTool();
@@ -3387,8 +3351,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool___destroy___0(SIGSlopeToo
   delete self;
 }
 
-// Interface: VaporPressureDeficitCalculator
-
+// VaporPressureDeficitCalculator
 
 VaporPressureDeficitCalculator* EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0() {
   return new VaporPressureDeficitCalculator();
@@ -3414,8 +3377,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator___destr
   delete self;
 }
 
-// Interface: RelativeHumidityTool
-
+// RelativeHumidityTool
 
 RelativeHumidityTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0() {
   return new RelativeHumidityTool();
@@ -3465,8 +3427,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool___destroy___0(Rel
   delete self;
 }
 
-// Interface: SafeSeparationDistanceCalculator
-
+// SafeSeparationDistanceCalculator
 
 SafeSeparationDistanceCalculator* EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0() {
   return new SafeSeparationDistanceCalculator();
@@ -3524,7 +3485,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator___des
   delete self;
 }
 
-// $AreaUnits_AreaUnitsEnum
+// AreaUnits_AreaUnitsEnum
 AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet() {
   return AreaUnits::SquareFeet;
 }
@@ -3544,7 +3505,7 @@ AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnits
   return AreaUnits::SquareKilometers;
 }
 
-// $BasalAreaUnits_BasalAreaUnitsEnum
+// BasalAreaUnits_BasalAreaUnitsEnum
 BasalAreaUnits_BasalAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre() {
   return BasalAreaUnits::SquareFeetPerAcre;
 }
@@ -3552,7 +3513,7 @@ BasalAreaUnits_BasalAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BasalArea
   return BasalAreaUnits::SquareMetersPerHectare;
 }
 
-// $FractionUnits_FractionUnitsEnum
+// FractionUnits_FractionUnitsEnum
 FractionUnits_FractionUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction() {
   return FractionUnits::Fraction;
 }
@@ -3560,7 +3521,7 @@ FractionUnits_FractionUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FractionUni
   return FractionUnits::Percent;
 }
 
-// $LengthUnits_LengthUnitsEnum
+// LengthUnits_LengthUnitsEnum
 LengthUnits_LengthUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LengthUnits_LengthUnitsEnum_Feet() {
   return LengthUnits::Feet;
 }
@@ -3586,7 +3547,7 @@ LengthUnits_LengthUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LengthUnits_Len
   return LengthUnits::Kilometers;
 }
 
-// $LoadingUnits_LoadingUnitsEnum
+// LoadingUnits_LoadingUnitsEnum
 LoadingUnits_LoadingUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot() {
   return LoadingUnits::PoundsPerSquareFoot;
 }
@@ -3600,7 +3561,7 @@ LoadingUnits_LoadingUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LoadingUnits_
   return LoadingUnits::KilogramsPerSquareMeter;
 }
 
-// $SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
+// SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
 SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet() {
   return SurfaceAreaToVolumeUnits::SquareFeetOverCubicFeet;
 }
@@ -3614,7 +3575,7 @@ SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum EMSCRIPTEN_KEEPALIVE emscr
   return SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimeters;
 }
 
-// $SpeedUnits_SpeedUnitsEnum
+// SpeedUnits_SpeedUnitsEnum
 SpeedUnits_SpeedUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute() {
   return SpeedUnits::FeetPerMinute;
 }
@@ -3634,7 +3595,7 @@ SpeedUnits_SpeedUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedUnits_SpeedU
   return SpeedUnits::KilometersPerHour;
 }
 
-// $PressureUnits_PressureUnitsEnum
+// PressureUnits_PressureUnitsEnum
 PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal() {
   return PressureUnits::Pascal;
 }
@@ -3663,7 +3624,7 @@ PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUni
   return PressureUnits::PoundPerSquareInch;
 }
 
-// $SlopeUnits_SlopeUnitsEnum
+// SlopeUnits_SlopeUnitsEnum
 SlopeUnits_SlopeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees() {
   return SlopeUnits::Degrees;
 }
@@ -3671,7 +3632,7 @@ SlopeUnits_SlopeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SlopeUnits_SlopeU
   return SlopeUnits::Percent;
 }
 
-// $DensityUnits_DensityUnitsEnum
+// DensityUnits_DensityUnitsEnum
 DensityUnits_DensityUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot() {
   return DensityUnits::PoundsPerCubicFoot;
 }
@@ -3679,7 +3640,7 @@ DensityUnits_DensityUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_DensityUnits_
   return DensityUnits::KilogramsPerCubicMeter;
 }
 
-// $HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
+// HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
 HeatOfCombustionUnits_HeatOfCombustionUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound() {
   return HeatOfCombustionUnits::BtusPerPound;
 }
@@ -3687,7 +3648,7 @@ HeatOfCombustionUnits_HeatOfCombustionUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_
   return HeatOfCombustionUnits::KilojoulesPerKilogram;
 }
 
-// $HeatSinkUnits_HeatSinkUnitsEnum
+// HeatSinkUnits_HeatSinkUnitsEnum
 HeatSinkUnits_HeatSinkUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot() {
   return HeatSinkUnits::BtusPerCubicFoot;
 }
@@ -3695,7 +3656,7 @@ HeatSinkUnits_HeatSinkUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatSinkUni
   return HeatSinkUnits::KilojoulesPerCubicMeter;
 }
 
-// $HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
+// HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
 HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot() {
   return HeatPerUnitAreaUnits::BtusPerSquareFoot;
 }
@@ -3706,7 +3667,7 @@ HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_en
   return HeatPerUnitAreaUnits::KilowattSecondsPerSquareMeter;
 }
 
-// $HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
+// HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
 HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute() {
   return HeatSourceAndReactionIntensityUnits::BtusPerSquareFootPerMinute;
 }
@@ -3723,7 +3684,7 @@ HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum EMSC
   return HeatSourceAndReactionIntensityUnits::KilowattsPerSquareMeter;
 }
 
-// $FirelineIntensityUnits_FirelineIntensityUnitsEnum
+// FirelineIntensityUnits_FirelineIntensityUnitsEnum
 FirelineIntensityUnits_FirelineIntensityUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond() {
   return FirelineIntensityUnits::BtusPerFootPerSecond;
 }
@@ -3740,7 +3701,7 @@ FirelineIntensityUnits_FirelineIntensityUnitsEnum EMSCRIPTEN_KEEPALIVE emscripte
   return FirelineIntensityUnits::KilowattsPerMeter;
 }
 
-// $TemperatureUnits_TemperatureUnitsEnum
+// TemperatureUnits_TemperatureUnitsEnum
 TemperatureUnits_TemperatureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit() {
   return TemperatureUnits::Fahrenheit;
 }
@@ -3751,7 +3712,7 @@ TemperatureUnits_TemperatureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Tempe
   return TemperatureUnits::Kelvin;
 }
 
-// $TimeUnits_TimeUnitsEnum
+// TimeUnits_TimeUnitsEnum
 TimeUnits_TimeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes() {
   return TimeUnits::Minutes;
 }
@@ -3762,7 +3723,7 @@ TimeUnits_TimeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_TimeUnits_TimeUnits
   return TimeUnits::Hours;
 }
 
-// $ContainTactic_ContainTacticEnum
+// ContainTactic_ContainTacticEnum
 ContainTactic_ContainTacticEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack() {
   return ContainTactic::HeadAttack;
 }
@@ -3770,7 +3731,7 @@ ContainTactic_ContainTacticEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainTact
   return ContainTactic::RearAttack;
 }
 
-// $ContainStatus_ContainStatusEnum
+// ContainStatus_ContainStatusEnum
 ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Unreported() {
   return ContainStatus::Unreported;
 }
@@ -3799,7 +3760,7 @@ ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStat
   return ContainStatus::TimeLimitExceeded;
 }
 
-// $ContainFlank_ContainFlankEnum
+// ContainFlank_ContainFlankEnum
 ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank() {
   return ContainFlank::LeftFlank;
 }
@@ -3813,7 +3774,7 @@ ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_
   return ContainFlank::NeitherFlank;
 }
 
-// $ContainMode
+// ContainMode
 ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_Default() {
   return ContainMode::Default;
 }
@@ -3821,7 +3782,7 @@ ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_ComputeWithOptimalR
   return ContainMode::ComputeWithOptimalResource;
 }
 
-// $IgnitionFuelBedType_IgnitionFuelBedTypeEnum
+// IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter() {
   return IgnitionFuelBedType::PonderosaPineLitter;
 }
@@ -3847,7 +3808,7 @@ IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum
   return IgnitionFuelBedType::PeatMoss;
 }
 
-// $LightningCharge_LightningChargeEnum
+// LightningCharge_LightningChargeEnum
 LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LightningCharge_LightningChargeEnum_Negative() {
   return LightningCharge::Negative;
 }
@@ -3858,7 +3819,7 @@ LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Lightni
   return LightningCharge::Unknown;
 }
 
-// $SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
+// SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
 SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED() {
   return SpotDownWindCanopyMode::CLOSED;
 }
@@ -3866,7 +3827,7 @@ SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum EMSCRIPTEN_KEEPALIVE emscripte
   return SpotDownWindCanopyMode::OPEN;
 }
 
-// $SpotTreeSpecies_SpotTreeSpeciesEnum
+// SpotTreeSpecies_SpotTreeSpeciesEnum
 SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE() {
   return SpotTreeSpecies::ENGELMANN_SPRUCE;
 }
@@ -3910,7 +3871,7 @@ SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTre
   return SpotTreeSpecies::LOBLOLLY_PINE;
 }
 
-// $SpotFireLocation_SpotFireLocationEnum
+// SpotFireLocation_SpotFireLocationEnum
 SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD() {
   return SpotFireLocation::MIDSLOPE_WINDWARD;
 }
@@ -3924,7 +3885,7 @@ SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotF
   return SpotFireLocation::RIDGE_TOP;
 }
 
-// $FuelLifeState_FuelLifeStateEnum
+// FuelLifeState_FuelLifeStateEnum
 FuelLifeState_FuelLifeStateEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead() {
   return FuelLifeState::Dead;
 }
@@ -3932,7 +3893,7 @@ FuelLifeState_FuelLifeStateEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelLifeSta
   return FuelLifeState::Live;
 }
 
-// $FuelConstantsEnum_FuelConstantsEnum
+// FuelConstantsEnum_FuelConstantsEnum
 FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates() {
   return FuelConstants::MaxLifeStates;
 }
@@ -3952,7 +3913,7 @@ FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelCon
   return FuelConstants::MaxFuelModels;
 }
 
-// $AspenFireSeverity_AspenFireSeverityEnum
+// AspenFireSeverity_AspenFireSeverityEnum
 AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low() {
   return AspenFireSeverity::Low;
 }
@@ -3960,7 +3921,7 @@ AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Asp
   return AspenFireSeverity::Moderate;
 }
 
-// $ChaparralFuelType_ChaparralFuelTypeEnum
+// ChaparralFuelType_ChaparralFuelTypeEnum
 ChaparralFuelType_ChaparralFuelTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet() {
   return ChaparralFuelType::NotSet;
 }
@@ -3971,7 +3932,7 @@ ChaparralFuelType_ChaparralFuelTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Cha
   return ChaparralFuelType::MixedBrush;
 }
 
-// $ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum
+// ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum
 ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad() {
   return ChaparralFuelLoadInputMode::DirectFuelLoad;
 }
@@ -3979,7 +3940,7 @@ ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum EMSCRIPTEN_KEEPALIVE e
   return ChaparralFuelLoadInputMode::FuelLoadFromDepthAndChaparralType;
 }
 
-// $MoistureInputMode_MoistureInputModeEnum
+// MoistureInputMode_MoistureInputModeEnum
 MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass() {
   return MoistureInputMode::BySizeClass;
 }
@@ -3996,7 +3957,7 @@ MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Moi
   return MoistureInputMode::MoistureScenario;
 }
 
-// $MoistureClassInput_MoistureClassInputEnum
+// MoistureClassInput_MoistureClassInputEnum
 MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour() {
   return MoistureClassInput::OneHour;
 }
@@ -4019,7 +3980,7 @@ MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_M
   return MoistureClassInput::LiveAggregate;
 }
 
-// $SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
+// SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
 SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint() {
   return SurfaceFireSpreadDirectionMode::FromIgnitionPoint;
 }
@@ -4027,7 +3988,7 @@ SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum EMSCRIPTEN_KEE
   return SurfaceFireSpreadDirectionMode::FromPerimeter;
 }
 
-// $TwoFuelModelsMethod_TwoFuelModelsMethodEnum
+// TwoFuelModelsMethod_TwoFuelModelsMethodEnum
 TwoFuelModelsMethod_TwoFuelModelsMethodEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod() {
   return TwoFuelModelsMethod::NoMethod;
 }
@@ -4041,7 +4002,7 @@ TwoFuelModelsMethod_TwoFuelModelsMethodEnum EMSCRIPTEN_KEEPALIVE emscripten_enum
   return TwoFuelModelsMethod::TwoDimensional;
 }
 
-// $WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum
+// WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum
 WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered() {
   return WindAdjustmentFactorShelterMethod::Unsheltered;
 }
@@ -4049,7 +4010,7 @@ WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum EMSCRIPT
   return WindAdjustmentFactorShelterMethod::Sheltered;
 }
 
-// $WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum
+// WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum
 WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput() {
   return WindAdjustmentFactorCalculationMethod::UserInput;
 }
@@ -4060,7 +4021,7 @@ WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum 
   return WindAdjustmentFactorCalculationMethod::DontUseCrownRatio;
 }
 
-// $WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum
+// WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum
 WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope() {
   return WindAndSpreadOrientationMode::RelativeToUpslope;
 }
@@ -4068,7 +4029,7 @@ WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum EMSCRIPTEN_KEEPALI
   return WindAndSpreadOrientationMode::RelativeToNorth;
 }
 
-// $WindHeightInputMode_WindHeightInputModeEnum
+// WindHeightInputMode_WindHeightInputModeEnum
 WindHeightInputMode_WindHeightInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame() {
   return WindHeightInputMode::DirectMidflame;
 }
@@ -4079,7 +4040,7 @@ WindHeightInputMode_WindHeightInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum
   return WindHeightInputMode::TenMeter;
 }
 
-// $WindUpslopeAlignmentMode
+// WindUpslopeAlignmentMode
 WindUpslopeAlignmentMode EMSCRIPTEN_KEEPALIVE emscripten_enum_WindUpslopeAlignmentMode_NotAligned() {
   return WindUpslopeAlignmentMode::NotAligned;
 }
@@ -4087,7 +4048,7 @@ WindUpslopeAlignmentMode EMSCRIPTEN_KEEPALIVE emscripten_enum_WindUpslopeAlignme
   return WindUpslopeAlignmentMode::Aligned;
 }
 
-// $SurfaceRunInDirectionOf
+// SurfaceRunInDirectionOf
 SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirectionOf_MaxSpread() {
   return SurfaceRunInDirectionOf::MaxSpread;
 }
@@ -4098,7 +4059,7 @@ SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirecti
   return SurfaceRunInDirectionOf::HeadingBackingFlanking;
 }
 
-// $FireType_FireTypeEnum
+// FireType_FireTypeEnum
 FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FireType_FireTypeEnum_Surface() {
   return FireType::Surface;
 }
@@ -4112,7 +4073,7 @@ FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FireType_FireTypeEnum
   return FireType::Crowning;
 }
 
-// $BeetleDamage
+// BeetleDamage
 BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_enum_BeetleDamage_not_set() {
   return BeetleDamage::not_set;
 }
@@ -4123,7 +4084,7 @@ BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_enum_BeetleDamage_yes() {
   return BeetleDamage::yes;
 }
 
-// $CrownFireCalculationMethod
+// CrownFireCalculationMethod
 CrownFireCalculationMethod EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownFireCalculationMethod_rothermel() {
   return CrownFireCalculationMethod::rothermel;
 }
@@ -4131,7 +4092,7 @@ CrownFireCalculationMethod EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownFireCalcula
   return CrownFireCalculationMethod::scott_and_reinhardt;
 }
 
-// $CrownDamageEquationCode
+// CrownDamageEquationCode
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_not_set() {
   return CrownDamageEquationCode::not_set;
 }
@@ -4169,7 +4130,7 @@ CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquation
   return CrownDamageEquationCode::douglas_fir;
 }
 
-// $CrownDamageType
+// CrownDamageType
 CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_not_set() {
   return CrownDamageType::not_set;
 }
@@ -4183,7 +4144,7 @@ CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_kill(
   return CrownDamageType::crown_kill;
 }
 
-// $EquationType
+// EquationType
 EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_not_set() {
   return EquationType::not_set;
 }
@@ -4197,7 +4158,7 @@ EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_crown_damage() {
   return EquationType::crown_damage;
 }
 
-// $FireSeverity
+// FireSeverity
 FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_enum_FireSeverity_not_set() {
   return FireSeverity::not_set;
 }
@@ -4208,7 +4169,7 @@ FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_enum_FireSeverity_low() {
   return FireSeverity::low;
 }
 
-// $FlameLengthOrScorchHeightSwitch
+// FlameLengthOrScorchHeightSwitch
 FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length() {
   return FlameLengthOrScorchHeightSwitch::flame_length;
 }
@@ -4216,7 +4177,7 @@ FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_enum_FlameLength
   return FlameLengthOrScorchHeightSwitch::scorch_height;
 }
 
-// $GACC
+// GACC
 GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_NotSet() {
   return GACC::NotSet;
 }
@@ -4248,7 +4209,7 @@ GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_Southwest() {
   return GACC::Southwest;
 }
 
-// $RequiredFieldNames
+// RequiredFieldNames
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_region() {
   return RequiredFieldNames::region;
 }
@@ -4292,7 +4253,7 @@ RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_num_i
   return RequiredFieldNames::num_inputs;
 }
 
-// $FDFMToolAspectIndex_AspectIndexEnum
+// FDFMToolAspectIndex_AspectIndexEnum
 FDFMToolAspectIndex_AspectIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH() {
   return FDFMToolAspectIndex::NORTH;
 }
@@ -4306,7 +4267,7 @@ FDFMToolAspectIndex_AspectIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToo
   return FDFMToolAspectIndex::WEST;
 }
 
-// $FDFMToolDryBulbIndex_DryBulbIndexEnum
+// FDFMToolDryBulbIndex_DryBulbIndexEnum
 FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F() {
   return FDFMToolDryBulbIndex::TEN_TO_TWENTY_NINE_DEGREES_F;
 }
@@ -4326,7 +4287,7 @@ FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMT
   return FDFMToolDryBulbIndex::GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F;
 }
 
-// $FDFMToolElevationIndex_ElevationIndexEnum
+// FDFMToolElevationIndex_ElevationIndexEnum
 FDFMToolElevationIndex_ElevationIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT() {
   return FDFMToolElevationIndex::BELOW_1000_TO_2000_FT;
 }
@@ -4337,7 +4298,7 @@ FDFMToolElevationIndex_ElevationIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_F
   return FDFMToolElevationIndex::ABOVE_1000_TO_2000_FT;
 }
 
-// $FDFMToolMonthIndex_MonthIndexEnum
+// FDFMToolMonthIndex_MonthIndexEnum
 FDFMToolMonthIndex_MonthIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY() {
   return FDFMToolMonthIndex::MAY_JUNE_JULY;
 }
@@ -4348,7 +4309,7 @@ FDFMToolMonthIndex_MonthIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolM
   return FDFMToolMonthIndex::NOV_DEC_JAN;
 }
 
-// $FDFMToolRHIndex_RHIndexEnum
+// FDFMToolRHIndex_RHIndexEnum
 FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT() {
   return FDFMToolRHIndex::ZERO_TO_FOUR_PERCENT;
 }
@@ -4413,7 +4374,7 @@ FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex
   return FDFMToolRHIndex::ONE_HUNDRED_PERCENT;
 }
 
-// $FDFMToolShadingIndex_ShadingIndexEnum
+// FDFMToolShadingIndex_ShadingIndexEnum
 FDFMToolShadingIndex_ShadingIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED() {
   return FDFMToolShadingIndex::EXPOSED;
 }
@@ -4421,7 +4382,7 @@ FDFMToolShadingIndex_ShadingIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMT
   return FDFMToolShadingIndex::SHADED;
 }
 
-// $FDFMToolSlopeIndex_SlopeIndexEnum
+// FDFMToolSlopeIndex_SlopeIndexEnum
 FDFMToolSlopeIndex_SlopeIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT() {
   return FDFMToolSlopeIndex::ZERO_TO_THIRTY_PERCENT;
 }
@@ -4429,7 +4390,7 @@ FDFMToolSlopeIndex_SlopeIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolS
   return FDFMToolSlopeIndex::GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT;
 }
 
-// $FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
+// FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
 FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE() {
   return FDFMToolTimeOfDayIndex::EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE;
 }
@@ -4449,7 +4410,7 @@ FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_F
   return FDFMToolTimeOfDayIndex::EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET;
 }
 
-// $RepresentativeFraction_RepresentativeFractionEnum
+// RepresentativeFraction_RepresentativeFractionEnum
 RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY() {
   return RepresentativeFraction::NINTEEN_HUNDRED_EIGHTY;
 }
@@ -4505,7 +4466,7 @@ RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripte
   return RepresentativeFraction::ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY;
 }
 
-// $HorizontalDistanceIndex_HorizontalDistanceIndexEnum
+// HorizontalDistanceIndex_HorizontalDistanceIndexEnum
 HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES() {
   return HorizontalDistanceIndex::UPSLOPE_ZERO_DEGREES;
 }
@@ -4528,7 +4489,7 @@ HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscrip
   return HorizontalDistanceIndex::CROSS_SLOPE_NINETY_DEGREES;
 }
 
-// $BurningCondition_BurningConditionEnum
+// BurningCondition_BurningConditionEnum
 BurningCondition_BurningConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BurningCondition_BurningConditionEnum_Low() {
   return BurningCondition::Low;
 }
@@ -4539,7 +4500,7 @@ BurningCondition_BurningConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Burni
   return BurningCondition::Extreme;
 }
 
-// $SlopeClass_SlopeClassEnum
+// SlopeClass_SlopeClassEnum
 SlopeClass_SlopeClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SlopeClass_SlopeClassEnum_Flat() {
   return SlopeClass::Flat;
 }
@@ -4550,7 +4511,7 @@ SlopeClass_SlopeClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SlopeClass_SlopeC
   return SlopeClass::Steep;
 }
 
-// $SpeedClass_SpeedClassEnum
+// SpeedClass_SpeedClassEnum
 SpeedClass_SpeedClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedClass_SpeedClassEnum_Light() {
   return SpeedClass::Light;
 }
@@ -4561,7 +4522,7 @@ SpeedClass_SpeedClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedClass_SpeedC
   return SpeedClass::High;
 }
 
-// $SafetyCondition_SafetyConditionEnum
+// SafetyCondition_SafetyConditionEnum
 SafetyCondition_SafetyConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SafetyCondition_SafetyConditionEnum_Low() {
   return SafetyCondition::Low;
 }

@@ -362,12 +362,7 @@
                       :variant       "highlight"
                       :icon-name     "arrow2"
                       :icon-position "right"
-                      :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                          (js/setTimeout
-                                           (fn []
-                                             (dispatch-sync [:wizard/solve params])
-                                             (dispatch-sync [:wizard/after-solve params]))
-                                           300))}]]]]])]))
+                      :on-click      #(dispatch [:wizard/run-solve params])}]]]]])]))
 
 ;; Wizard Results Settings Page
 
@@ -663,6 +658,7 @@
         *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
+        repeat-groups?       @(subscribe [:worksheet/repeat-groups? ws-uuid])
         tabs                 (cond-> []
 
                                (seq @*notes)
@@ -739,7 +735,8 @@
            [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
-            (search-tables ws-uuid)
+            (when (not repeat-groups?)
+             (search-tables ws-uuid))
             [pivot-tables ws-uuid]
             [result-matrices ws-uuid]
             [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
@@ -883,12 +880,7 @@
                         :variant       "highlight"
                         :icon-name     "arrow2"
                         :icon-position "right"
-                        :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                            (js/setTimeout
-                                             (fn []
-                                               (dispatch-sync [:wizard/solve params])
-                                               (dispatch-sync [:wizard/after-solve params]))
-                                             300))}]
+                        :on-click      #(dispatch [:wizard/run-solve params])}]
              [c/button {:label         @(<t (bp "next"))
                         :variant       "highlight"
                         :icon-name     "arrow2"

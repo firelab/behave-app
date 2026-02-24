@@ -37,7 +37,8 @@
 
 (defn unit-display
   "Displays the units for a continuous variable, and enables unit selection."
-  [domain-uuid *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid & [on-change-units]]
+  [domain-uuid *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid &
+   [on-change-units static-units?]]
   (r/with-let [domain            (rf/subscribe [:vms/entity-from-uuid domain-uuid])
                dimension         (rf/subscribe [:vms/entity-from-uuid dimension-uuid])
                filtered-units    (set (:domain/filtered-unit-uuids @domain))
@@ -50,7 +51,7 @@
                native-unit       @(rf/subscribe [:vms/entity-from-uuid native-unit-uuid])
                english-unit      @(rf/subscribe [:vms/entity-from-uuid english-unit-uuid])
                metric-unit       @(rf/subscribe [:vms/entity-from-uuid metric-unit-uuid])
-               units-system       @(rf/subscribe [:settings/units-system])
+               units-system      @(rf/subscribe [:settings/application-units-system])
                default-unit      (or @*cached-unit
                                      (case units-system
                                        :english english-unit
@@ -62,7 +63,7 @@
                                  (reset! show-selector? false))
                pre-selected-unit (or (get units-by-uuid *unit-uuid) default-unit)]
     [:div.wizard-input__units
-     (if (or (>= 1 (count units)) (nil? @dimension))
+     (if (or (>= 1 (count units)) (nil? @dimension) static-units?)
        [:div.wizard-input__units__text
         (str @(<t (bp "units_used")) " " (:unit/short-code pre-selected-unit))]
        [unit-selector (:bp/uuid pre-selected-unit) units on-click])]))

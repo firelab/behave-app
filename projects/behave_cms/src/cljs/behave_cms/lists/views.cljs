@@ -1,12 +1,13 @@
 (ns behave-cms.lists.views
-  (:require [clojure.set :refer [rename-keys]]
-            [re-frame.core                     :as rf]
-            [behave-cms.components.common      :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]
-            [behave-cms.events]
-            [behave-cms.subs]
-            [behave-cms.components.translations :refer [all-translations]]
-            [string-utils.interface             :refer [->kebab]]))
+  (:require
+   [clojure.set                        :refer [rename-keys]]
+   [re-frame.core                      :as rf]
+   [behave-cms.components.common       :refer [simple-table]]
+   [behave-cms.components.entity-form  :refer [entity-form]]
+   [behave-cms.events]
+   [behave-cms.subs]
+   [behave-cms.components.translations :refer [all-translations]]
+   [string-utils.interface             :refer [->kebab]]))
 
 (defn- lists-table []
   (let [lists     (rf/subscribe [:pull-with-attr :list/name '[* {:list/options [*]}]])
@@ -26,7 +27,7 @@
                           deref
                           (map (fn [option]
                                  (assoc option
-                                        :list-option/tags      @(rf/subscribe [:list-option/tags (:db/id option)])
+                                        :list-option/tags @(rf/subscribe [:list-option/tags (:db/id option)])
                                         :list-option/color-tag @(rf/subscribe [:list-option/color-tag (:db/id option)])))))
         on-select    #(rf/dispatch [:state/set-state :list-option %])
         on-delete    #(when (js/confirm (str "Are you sure you want to delete the list " (:list-option/name %) "?"))
@@ -50,7 +51,7 @@
      [:h3 (if @*list-option "Edit Option" "Add Option")]
      [entity-form {:entity       :list-options
                    :parent-field :list/_options
-                   :parent-id    (:db/id list)
+                   :parent-id    (:db/id llist)
                    :id           (:db/id @*list-option)
                    :on-create    #(-> %
                                       (assoc :list-option/order (count @list-options))
@@ -87,7 +88,11 @@
      [:h4 "Result Translation"]
      [all-translations (:list-option/result-translation-key @*list-option)]
      [:h4 "Export Translation"]
-     [all-translations (:list-option/export-translation-key @*list-option)]]))
+     [all-translations (:list-option/export-translation-key @*list-option)]
+     [:h4 "English Translation"]
+     [all-translations (:list-option/english-units-translation-key @*list-option)]
+     [:h4 "Metric Translation"]
+     [all-translations (:list-option/metric-units-translation-key @*list-option)]]))
 
 (defn- list-form [llist]
   (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
