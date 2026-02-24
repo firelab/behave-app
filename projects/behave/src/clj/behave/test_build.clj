@@ -68,14 +68,14 @@
     "</head>"
     "<body>"
     "  <div id=\"app\"></div>"
-    "  <script>"
+    "  <script src=\"/js/behave-min.js\"></script>"
+    "  <script src=\"/js/katex.min.js\"></script>"
+    "  <script src=\"/js/bodymovin.js\"></script>"
+    "  <script type=\"text/javascript\">"
     "    window.onWASMModuleLoadedPath = \"/js/app.js\";"
     "    window.onAppLoaded = function () { behave.client.init({standalone: true}); };"
     (inline-onload-js)
     "  </script>"
-    "  <script src=\"/js/behave-min.js\"></script>"
-    "  <script src=\"/js/katex.min.js\"></script>"
-    "  <script src=\"/js/bodymovin.js\"></script>"
     "</body>"
     "</html>"]))
 
