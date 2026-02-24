@@ -228,7 +228,7 @@
                                   :workflow workflow}))]
        {:fx (cond-> [[:dispatch [:navigate path]]]
               (= handler :ws/home)
-              (into [[:dispatch [:state/set [:sidebar :*modules] nil]]
+              (into [[:dispatch [:sidebar/set-modules nil]]
                      [:dispatch [:state/set [:worksheet :*modules] nil]]]))}))))
 
 (rf/reg-event-fx
@@ -320,14 +320,14 @@
    (let [sidebar-hidden?   (get-in db [:state :sidebar :hidden?])
          help-area-hidden? (get-in db [:state :help-area :hidden?])
          all-hidden?       (and sidebar-hidden? help-area-hidden?)]
-     {:fx [[:dispatch [:state/set [:sidebar :hidden?] (not all-hidden?)]]
+     {:fx [[:dispatch [:sidebar/set-hidden (not all-hidden?)]]
            [:dispatch [:state/set [:help-area :hidden?] (not all-hidden?)]]]})))
 
 (rf/reg-event-fx
  :wizard/navigate-home
  (fn []
    {:fx [[:dispatch [:navigate "/"]]
-         [:dispatch [:state/set [:sidebar :*modules] nil]]
+         [:dispatch [:sidebar/set-modules nil]]
          [:dispatch [:state/set [:worksheet :*modules] nil]]]}))
 
 (rf/reg-event-fx

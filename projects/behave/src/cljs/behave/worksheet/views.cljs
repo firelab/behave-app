@@ -76,7 +76,7 @@
       [:div.workflow-select__content
        [c/card-group {:on-select #(do
                                     (rf/dispatch [:local-storage/update-in [:state :worksheet :*modules] (:module %)])
-                                    (rf/dispatch [:state/set [:sidebar :*modules] (set (:module %))])
+                                    (rf/dispatch [:sidebar/set-modules (set (:module %))])
                                     (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
 
                       :flex-direction "row"
