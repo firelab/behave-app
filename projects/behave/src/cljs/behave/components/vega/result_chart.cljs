@@ -16,11 +16,16 @@
         (defaults to 1)."
   [{:keys [data x y z z2 width height]}]
   (when (and x y)
-    (let [line-chart {:mark     (cond-> {:type (if (:discrete? x)
-                                                 "bar"
-                                                 "line")}
-                                  (:scale y)
-                                  (assoc :clip true))
+    (let [line-chart {:mark (cond-> {}
+                              (:discrete? x)
+                              (assoc :type "bar")
+
+                              (not (:discrete? x))
+                              (merge {:type        "line"
+                                      :interpolate "monotone"})
+
+                              (:scale y)
+                              (assoc :clip true))
                       :encoding (cond-> {:x     (cond-> {:field (:name x)
                                                          :type  (if (:discrete? x)
                                                                   "nominal"
@@ -44,9 +49,9 @@
                                                  :type    "nominal"
                                                  :legend  nil
                                                  :columns (or (:columns z2) 1)}))
-                      :resolve {:axis {:x "independent" :y "independent"}}
-                      :width   width
-                      :height  height}
+                      :resolve  {:axis {:x "independent" :y "independent"}}
+                      :width    width
+                      :height   height}
           z-name   (:name z)
           z-legend {:mark     {:type "point"}
                     :title    z-name
