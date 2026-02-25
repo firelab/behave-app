@@ -1,12 +1,9 @@
 (ns behave.components.sidebar.views
-  (:require
-   [behave.components.core :as c]
-   [behave.components.a11y :refer [on-enter]]
-   [behave.components.sidebar.events]
-   [behave.components.sidebar.subs]
-   [behave.translate       :refer [<t bp]]
-   [clojure.string         :as str]
-   [re-frame.core          :as rf]))
+  (:require [behave.components.core :as c]
+            [behave.components.a11y :refer [on-enter]]
+            [behave.translate       :refer [<t bp]]
+            [clojure.string         :as str]
+            [re-frame.core          :as rf]))
 
 (defn- sidebar-module [{icon-name       :icon
                         translation-key :label
