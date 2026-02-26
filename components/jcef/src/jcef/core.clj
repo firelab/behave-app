@@ -14,6 +14,9 @@
             CefMessageRouterHandler]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
            [java.awt.event ActionListener ComponentAdapter WindowAdapter]
+           [java.awt FileDialog]
+           [java.io FileOutputStream]
+           [java.util Base64]
            [javax.swing JFileChooser JFrame JMenu JMenuBar JMenuItem JTextField KeyStroke SwingUtilities]
            [javax.swing.filechooser FileNameExtensionFilter]))
 
@@ -159,6 +162,34 @@
     (browse-url target-url))
   true)
 
+(defn- save-file-from-query!
+  "Handles a cefQuery save-file request. Decodes base64 bytes, shows a
+   native OS save dialog, and writes the file. Calls callback on completion."
+  [^JFrame frame request ^org.cef.callback.CefQueryCallback callback]
+  (let [sep-idx    (.indexOf ^String request "|")
+        filename   (subs request (count "save-file:") sep-idx)
+        b64-data   (subs request (inc sep-idx))
+        file-bytes (.decode (Base64/getDecoder) ^String b64-data)]
+    (SwingUtilities/invokeLater
+     (fn []
+       (try
+         (let [dialog (FileDialog. frame "Save Worksheet" FileDialog/SAVE)]
+           (.setFile dialog filename)
+           (.setVisible dialog true)
+           (let [dir  (.getDirectory dialog)
+                 file (.getFile dialog)]
+             (if (and dir file)
+               (let [path (str dir file)
+                     dest (if (str/ends-with? path ".bp7")
+                            (java.io.File. path)
+                            (java.io.File. (str path ".bp7")))]
+                 (with-open [fos (FileOutputStream. dest)]
+                   (.write fos ^bytes file-bytes))
+                 (.success callback (str "Saved to " dest)))
+               (.success callback "cancelled"))))
+         (catch Exception e
+           (.failure callback 0 (str "Save failed: " (.getMessage e)))))))))
+
 (defn open-window!
   "Creates a new JCEF browser window from an existing CefApp instance.
    Takes a CefApp and an options map:
@@ -175,10 +206,27 @@
    - `:client`  - `CefClient`"
   [cef-app {:keys [title menu url use-osr? size request-handler
                    transparent? address-bar? fullscreen? dev-tools?
-                   on-close on-blur on-focus on-hidden on-shown on-before-launch]
+                   on-close on-blur on-focus on-hidden on-shown on-before-launch
+                   on-telemetry]
             :or   {use-osr? false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
   (let [client        (.createClient cef-app)
         msg-router    (CefMessageRouter/create)
+        _             (.addHandler msg-router
+                                   (proxy [CefMessageRouterHandler] []
+                                     (onQuery [_browser _frame _query-id request _persistent? callback]
+                                       (cond
+                                         (str/starts-with? request "save-file:")
+                                         (do (save-file-from-query! nil request callback)
+                                             true)
+
+                                         (str/starts-with? request "telemetry:")
+                                         (do (when on-telemetry (on-telemetry request))
+                                             (.success callback "ok")
+                                             true)
+
+                                         :else false))
+                                     (onQueryCanceled [_browser _frame _query-id]))
+                                   true)
         _             (.addMessageRouter client msg-router)
         browser       (.createBrowser client url use-osr? transparent?)
         browser-ui    (.getUIComponent browser)

@@ -1,5 +1,6 @@
 (ns behave.print.views
-  (:require [re-frame.core                          :refer [subscribe dispatch]]
+  (:require [re-frame.core                          :refer [subscribe]]
+            [reagent.dom                             :as rd]
             [behave.print.subs]
             [behave.components.results.graphs       :refer [result-graphs]]
             [behave.components.results.diagrams     :refer [result-diagrams]]
@@ -22,8 +23,6 @@
   (.toDateString (js/Date. epoch)))
 
 (defn print-page [{:keys [ws-uuid]}]
-  (dispatch [:dev/close-after-print])
-  (js/setTimeout #(dispatch [:dev/print]) 1000)
   (let [worksheet           @(subscribe [:worksheet ws-uuid])
         ws-date-created     (:worksheet/created worksheet)
         ws-version          (:worksheet/version worksheet)
@@ -50,3 +49,54 @@
       [result-matrices ws-uuid]
       [result-graphs ws-uuid graph-data]
       [result-diagrams ws-uuid]]]))
+
+(defn print-iframe! [ws-uuid]
+  (let [overlay    (.createElement js/document "div")
+        dialog     (.createElement js/document "div")
+        header     (.createElement js/document "div")
+        title      (.createElement js/document "span")
+        btn-bar    (.createElement js/document "div")
+        print-btn  (.createElement js/document "button")
+        cancel-btn (.createElement js/document "button")
+        iframe     (.createElement js/document "iframe")
+        cleanup!   #(.remove overlay)]
+    (set! (.-className overlay) "print-preview")
+    (set! (.-className dialog) "print-preview__dialog")
+    (set! (.-className header) "print-preview__header")
+    (set! (.-textContent title) "Print Preview")
+    (set! (.-className title) "print-preview__title")
+    (set! (.-className btn-bar) "print-preview__buttons")
+    (set! (.-textContent print-btn) "Print")
+    (set! (.-className print-btn) "print-preview__btn print-preview__btn--print")
+    (set! (.-textContent cancel-btn) "Cancel")
+    (set! (.-className cancel-btn) "print-preview__btn print-preview__btn--cancel")
+    (.appendChild header title)
+    (.appendChild btn-bar print-btn)
+    (.appendChild btn-bar cancel-btn)
+    (.appendChild header btn-bar)
+    (.appendChild dialog header)
+    (let [page (.createElement js/document "div")]
+      (set! (.-className page) "print-preview__page")
+      (set! (.-className iframe) "print-preview__iframe")
+      (.appendChild page iframe)
+      (.appendChild dialog page))
+    (.appendChild overlay dialog)
+    (.appendChild (.querySelector js/document ".app-shell") overlay)
+    (let [idoc  (.-contentDocument iframe)
+          ihead (.-head idoc)
+          ibody (.-body idoc)
+          base  (.createElement idoc "base")]
+      (set! (.-href base) (.-origin js/location))
+      (.appendChild ihead base)
+      (doseq [link (array-seq (.querySelectorAll js/document "link[rel=stylesheet]"))]
+        (.appendChild ihead (.cloneNode link true)))
+      (doseq [style (array-seq (.querySelectorAll js/document "style"))]
+        (.appendChild ihead (.cloneNode style true)))
+      (let [container (.createElement idoc "div")]
+        (.appendChild ibody container)
+        (rd/render [print-page {:ws-uuid ws-uuid}] container)))
+    (.addEventListener cancel-btn "click" cleanup!)
+    (.addEventListener print-btn "click"
+      (fn []
+        (.addEventListener (.-contentWindow iframe) "afterprint" cleanup!)
+        (.print (.-contentWindow iframe))))))

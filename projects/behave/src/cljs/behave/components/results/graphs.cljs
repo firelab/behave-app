@@ -47,7 +47,7 @@
                                   :scale (when (and y-min y-max) [y-min y-max])}
                          :width  250
                          :height 250}
-                  x-axis-group-variable-uuid
+                  :always
                   (assoc :x {:name      @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
                                                      x-axis-group-variable-uuid])
                              :scale     (when (and x-min x-max) [x-min x-max])

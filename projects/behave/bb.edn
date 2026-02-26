@@ -9,7 +9,7 @@
               :task (shell (format "systemctl --user start %s" -project))}
   stop       {:depends [-project]
               :task (shell (format "systemctl --user stop %s" -project))}
-  build-js   (clojure "-M:compile-cljs")
+  build-js   (shell "bun shadow-cljs compile :app");; (clojure "-M:compile-cljs")
   uber       (clojure "-X:build-uberjar")
   pull       (do
                (shell "git pull")

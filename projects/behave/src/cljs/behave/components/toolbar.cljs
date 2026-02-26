@@ -235,7 +235,8 @@
                                           (rf/dispatch [:wizard/save
                                                         ws-uuid
                                                         (gstring/format "behave7-%s.bp7"
-                                                                        (or worksheet-name ws-uuid))])))}
+                                                                        (or worksheet-name ws-uuid))
+                                                        (:jar-local? params)])))}
                           {:icon     :print
                            :label    @(<t (bp "print"))
                            :on-click (when ws-uuid

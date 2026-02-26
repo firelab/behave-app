@@ -21,6 +21,7 @@
                                                module-selection-page
                                                workflow-selection-page]]
             [behave-routing.main       :refer [routes]]
+            [behave.telemetry          :as telemetry]
             [behave.events]
             [behave.subs]
             [day8.re-frame.http-fx]))
@@ -167,6 +168,8 @@
       (load-store-local! ws-uuid))
     (load-scripts! params)
     (add-before-unload-event! params)
+    (when (:jar-local? params)
+      (telemetry/init!))
     (render [app-shell params] (.getElementById js/document "app"))))
 
 (defn- ^:after-load mount-root!

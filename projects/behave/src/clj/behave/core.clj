@@ -113,6 +113,12 @@
                           (windows/register-window! window-id {:app app})
                           (when loader (.dispose (:frame loader))))
        :on-close        (fn [] (windows/deregister-window! window-id))
+       :on-telemetry    (fn [^String request]
+                          (let [payload (subs request (count "telemetry:"))
+                                sep-idx (.indexOf payload ":")
+                                level   (if (pos? sep-idx) (subs payload 0 sep-idx) "info")
+                                message (if (pos? sep-idx) (subs payload (inc sep-idx)) payload)]
+                            (log-str "[BROWSER:" (str/upper-case level) "] " message)))
        :on-before-launch
        (fn [{:keys [frame]}]
          (on-before-launch frame (get-config :site :title)))}))))

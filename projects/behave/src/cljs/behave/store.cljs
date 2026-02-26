@@ -147,26 +147,50 @@
 
 ;;; Save Worksheet (export .bp7)
 
-(defn save-worksheet! [{:keys [file-name]}]
+(defn- uint8-array->base64
+  "Encode a Uint8Array to a base64 string in chunks to avoid stack overflow."
+  [^js uint8arr]
+  (let [len    (.-length uint8arr)
+        chunks (array)]
+    (loop [i 0]
+      (when (< i len)
+        (.push chunks (.apply (.-fromCharCode js/String)
+                              nil
+                              (.subarray uint8arr i (min (+ i 8192) len))))
+        (recur (+ i 8192))))
+    (js/btoa (.join chunks ""))))
+
+(defn- export-db-bytes!
+  "Persist DataScript to SQLite and export as bytes. Returns a Promise of Uint8Array."
+  []
   (let [{:keys [sql-conn wrapper]} @sql-state]
-    (if (and sql-conn wrapper)
+    (when (and sql-conn wrapper)
       (-> (storage-async/store-impl-sync! (d/db @conn) wrapper true)
-          (p/then (fn [_] (sql/export! sql-conn)))
-          (p/then (fn [db-bytes]
-                    (download db-bytes file-name "application/x-sqlite3")))
-          (p/catch (fn [e]
-                     (js/console.error "Save failed:" e))))
-      ;; Fallback: server-side save
-      (ajax-request {:uri             "/api/save"
-                     :params          {:file-name file-name}
-                     :method          :post
-                     :handler         (fn [[ok body]]
-                                        (when ok (download body file-name "application/x-sqlite3")))
-                     :format          (edn-request-format)
-                     :response-format {:description  "ArrayBuffer"
-                                       :type         :arraybuffer
-                                       :content-type "application/x-sqlite3"
-                                       :read         pr/-body}}))))
+          (p/then (fn [_] (sql/export! sql-conn)))))))
+
+(defn- save-worksheet-browser!
+  "Save worksheet via browser blob download."
+  [file-name db-bytes]
+  (download db-bytes file-name "application/x-sqlite3"))
+
+(defn- save-worksheet-cef!
+  "Save worksheet via cefQuery message to JCEF backend for native save dialog."
+  [file-name db-bytes]
+  (let [b64 (uint8-array->base64 db-bytes)]
+    (js/window.cefQuery
+     #js {:request   (str "save-file:" file-name "|" b64)
+          :onSuccess (fn [response] (js/console.log "Save result:" response))
+          :onFailure (fn [error-code error-message]
+                       (js/console.error "Save failed:" error-code error-message))})))
+
+(defn save-worksheet! [{:keys [file-name jar-local?]}]
+  (-> (export-db-bytes!)
+      (p/then (fn [db-bytes]
+                (if jar-local?
+                  (save-worksheet-cef! file-name db-bytes)
+                  (save-worksheet-browser! file-name db-bytes))))
+      (p/catch (fn [e]
+                 (js/console.error "Save failed:" e)))))
 
 ;;; Open Worksheet (import .bp7)
 

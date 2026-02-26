@@ -9,6 +9,7 @@
             [vimsical.re-frame.cofx.inject :as inject]
             [ajax.core :as ajax]
             [re-frame.core :as rf]
+            [behave.print.views :as print-views]
             [behave.help.events]
             [behave.tool.events]))
 
@@ -207,4 +208,5 @@
 (rf/reg-event-fx
  :toolbar/print
  (fn [_ [_ ws-uuid]]
-   (.open js/window (str "/worksheets/" ws-uuid "/print"))))
+   (print-views/print-iframe! ws-uuid)
+   nil))

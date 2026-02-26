@@ -308,9 +308,10 @@
 
 (rf/reg-event-fx
  :wizard/save
- (fn [_ [_ ws-uuid file-name]]
-   (s/save-worksheet! {:ws-uuid   ws-uuid
-                       :file-name file-name})
+ (fn [_ [_ ws-uuid file-name jar-local?]]
+   (s/save-worksheet! {:ws-uuid    ws-uuid
+                       :file-name  file-name
+                       :jar-local? jar-local?})
    {}))
 
 (rf/reg-event-fx

@@ -2,7 +2,7 @@
 ;; Uses deps.edn :shadow alias for classpath resolution
 {:deps     {:aliases [:shadow]}
  :dev-http {8030 ["target/kaocha-test" "resources/public"]
-            8040 ["target/browser" "target/classes/public" "resources/public"]}
+            8040 ["target/browser" "resources/public"]}
  :nrepl    {:port       9001
             :middleware [cider.nrepl/cider-middleware]}
  :builds   {:test-kaocha {:target       :browser-test
@@ -35,11 +35,6 @@
                          :modules     {:app {:entries [behave.client]}}
                          :build-hooks [(behave.test-build/app-configure-hook)
                                        (behave.test-build/app-flush-hook)]
-                         :devtools    {:preloads [day8.re-frame-10x.preload]}
-                         :dev         {:compiler-options
-                                       {:closure-defines
-                                        {re-frame.trace.trace-enabled?        true
-                                         day8.re-frame.tracing.trace-enabled? true}}}
                          :compiler-options {:optimizations :advanced
                                             :externs ["resources/behave_externs.js"
                                                       "../../components/absurder_sql/resources/externs.js"]}
