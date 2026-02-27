@@ -4,6 +4,7 @@
   [:tr {:class ["table-row"
                 (when shaded? "table-row--strikethrough")]}
    (for [column columns]
+     ^{:key column}
      [:td {:class ["table-cell"]} (get row column)])])
 
 (defmulti table-header
@@ -16,9 +17,10 @@
   [title headers col-cnt]
   [:thead.table-header
    [:tr {:class ["table__title"]}
-    [:th {:col-span col-cnt} title]]
+    [:th {:colSpan col-cnt} title]]
    [:tr
     (for [header headers]
+      ^{:key header}
       [:th.table-header__header {:scope "col"} header])]])
 
 (defn- map->leaf-paths
@@ -66,14 +68,19 @@
                            (map #(mapcat frequencies (partition-by identity %))))]
     [:thead.table-header
      [:tr.table__title
-      [:th {:col-span col-cnt} title]]
-     (for [header group-headers]
-       [:tr.table-header__group
-        (map (fn [[header-name cnt]]
-               [:th {:col-span cnt} header-name])
-             header)])
+      [:th {:colSpan col-cnt} title]]
+     (map-indexed
+      (fn [i header]
+        ^{:key i}
+        [:tr.table-header__group
+         (map-indexed (fn [j [header-name cnt]]
+                        ^{:key j}
+                        [:th {:colSpan cnt} header-name])
+                      header)])
+      group-headers)
      [:tr
       (for [header (map last leaf-paths)]
+        ^{:key header}
         [:th.table-header__header {:scope "col"} header])]]))
 
 (defn table [{:keys [title headers columns rows]}]
@@ -83,5 +90,8 @@
     [:table {:class ["table"]}
      [table-header title headers (count columns)]
      [:tbody.table__body
-      (for [row rows]
-        [table-row columns row])]]))
+      (map-indexed
+       (fn [i row]
+         ^{:key i}
+         [table-row columns row])
+       rows)]]))

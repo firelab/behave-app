@@ -304,6 +304,7 @@
                                                            :tool-uuid     tool-uuid
                                                            :subtool-uuid  subtool-uuid
                                                            :auto-compute? true}]]
+       ^{:key (:db/id variable)}
        (if (= io :input)
          [tool-input params]
          [tool-output params]))
@@ -320,6 +321,7 @@
         output-variables @(rf/subscribe [:subtool/output-variables subtool-uuid])]
     [:div
      (for [variable input-variables]
+       ^{:key (:db/id variable)}
        [tool-input {:variable     variable
                     :tool-uuid    tool-uuid
                     :subtool-uuid subtool-uuid}])
@@ -330,6 +332,7 @@
                  :icon-position "right"
                  :on-click      #(rf/dispatch [:tool/solve tool-uuid subtool-uuid])}]]
      (for [variable output-variables]
+       ^{:key (:db/id variable)}
        [tool-output
         {:variable      variable
          :tool-uuid     tool-uuid

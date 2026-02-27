@@ -244,6 +244,7 @@
         column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)]
     [:div.print__construct-result-matrices
      (for [{output-gv-uuid :bp/uuid output-units :units} output-entities]
+       ^{:key output-gv-uuid}
        (let [output-name     @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])
              output-fmt-fn   (get formatters output-gv-uuid identity)
              matrix-data-raw (fetch-matrix-data-2d {:ws-uuid           ws-uuid
@@ -260,6 +261,7 @@
              [:<>
               (when (process-map-units? output-gv-uuid)
                 [:div.print__result-table
+                 {:key (str output-gv-uuid "-map-units")}
                  (let [data (build-matrix-data-with-map-units {:matrix-data-raw matrix-data-raw
                                                                :row-fmt-fn      row-fmt-fn
                                                                :col-fmt-fn      col-fmt-fn
@@ -276,6 +278,7 @@
                                     :column-headers column-headers
                                     :data           data}))])
               [:div.print__result-table
+               {:key output-gv-uuid}
                (c/matrix-table {:title          (header-label output-name output-units)
                                 :sub-title      sub-title
                                 :rows-label     (header-label row-name row-units)
@@ -294,6 +297,7 @@
         rest-multi-valued-inputs                   (filter (fn [[_ _ gv-uuid]] (not= gv-uuid z2-axis-group-variable-uuid)) multi-valued-inputs)]
     [:div.print__result-table
      (for [value values]
+       ^{:key value}
        [:div.print__result-table
         [construct-result-matrices
          {:ws-uuid               ws-uuid
@@ -342,6 +346,7 @@
       [:div.wizard-results
        (when (seq directional-gv-uuids)
          (for [direction directions]
+           ^{:key direction}
            (let [output-gv-uuids (filter #(deref (subscribe [:vms/group-variable-is-directional? % direction])) directional-gv-uuids)
                  group-variables (map (fn [gv-uuid] @(subscribe [:wizard/group-variable gv-uuid])) output-gv-uuids)
                  output-entities (map (fn [gv] (merge gv {:units (get units-lookup (:bp/uuid gv))})) group-variables)

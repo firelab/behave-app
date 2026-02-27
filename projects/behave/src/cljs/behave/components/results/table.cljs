@@ -155,6 +155,7 @@
     (when (seq tables)
       [:div.wizard-results__pivot-tables
        (for [pivot-table tables]
+         ^{:key (:db/id pivot-table)}
          (let [pivot-fields-uuids     @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])
                pivot-values           @(subscribe [:worksheet/pivot-table-values (:db/id pivot-table)])
                table-data             (build-result-table-data {:ws-uuid ws-uuid
@@ -202,12 +203,14 @@
               search-table-translation-key       :search-table/translation-key
               search-table-error-translation-key :search-table/error-translation-key
               search-table-conditionals          :search-table/show-conditionals
-              search-table-conditional-operator  :search-table/conditoinals-operator} tables
+              search-table-conditional-operator  :search-table/conditoinals-operator
+              search-table-id                    :db/id} tables
              :when                                                                   (if (seq search-table-conditionals)
                                                                                        (all-conditionals-pass? @(subscribe [:worksheet ws-uuid])
                                                                                                                search-table-conditional-operator
                                                                                                                search-table-conditionals)
                                                                                        true)]
+         ^{:key search-table-id}
          (let [search-table-group-variable-uuid (:bp/uuid search-table-group-variable)
                filter-fns                       (map (fn [search-filter]
                                                        (let [filter-gv-uuid (:bp/uuid (:search-table-filter/group-variable search-filter))

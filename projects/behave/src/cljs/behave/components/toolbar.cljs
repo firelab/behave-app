@@ -254,7 +254,7 @@
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]
-        ^{:key (:label tool)}
+        ^{:key (:icon tool)}
         [toolbar-tool tool])
       #_[c/text-input {:disabled?   false
                        :error?      false

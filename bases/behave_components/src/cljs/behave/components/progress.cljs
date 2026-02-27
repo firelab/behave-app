@@ -3,7 +3,7 @@
 
 (defn progress-nob [{:keys [selected? label on-select] :as s}]
   [:div {:on-click     #(on-select s)
-         :tabindex     0
+         :tabIndex     0
          :on-key-press (on-space-enter #(on-select s))
          :class        ["progress-nob"
                         (when selected? " progress-nob--selected")]}
@@ -15,7 +15,7 @@
   (let [steps (sort-by :step-id steps)]
     [:div {:class "progress"}
      [:div {:class "progress__header-bar"}]
-     (for [{:keys [step-id completed?] :as s} (butlast steps)]
+     (for [{:keys [step-id completed?] :as s} (map-indexed (fn [i s] (update s :step-id #(or % i))) (butlast steps))]
        [:div {:key   step-id
               :class ["progress__step"
                       (when (= completed-last-step-id step-id) "progress__step--completed-last")

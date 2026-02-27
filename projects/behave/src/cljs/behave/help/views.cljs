@@ -212,7 +212,7 @@
 (defn- help-content [help-keys & [children]]
   (let [help-highlighted-key (subscribe [:help/current-highlighted-key])]
     [:div.help-area__content
-     {:tabindex 0}
+     {:tabIndex 0}
      (cond
        children
        [children]

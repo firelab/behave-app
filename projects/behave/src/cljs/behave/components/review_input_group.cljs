@@ -87,6 +87,7 @@
        [:div.wizard-review__input--discrete__label (str @(<t group-translation-key) "s:")]
        [:div.wizard-review__input--multi-discrete
         (for [enum resolved-enum-values]
+          ^{:key enum}
           [:div.wizard-review__input--discrete__value enum])]
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))

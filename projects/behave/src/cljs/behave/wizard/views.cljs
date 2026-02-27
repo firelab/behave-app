@@ -41,13 +41,13 @@
       [:<>
        (doall
         (for [group groups]
-          ^{:key (:db/id group)}
           (when (and (not (:group/research? group)) ;; TODO: Remove when "Research Mode" is enabled
                      @(subscribe [:wizard/show-group?
                                   ws-uuid
                                   (:db/id group)
                                   (:group/conditionals-operator group)]))
             (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
+              ^{:key (:db/id group)}
               [:<>
                [component-fn params group variables level]
                [:div.wizard-subgroup__indent
@@ -119,6 +119,7 @@
                                                @(subscribe [:wizard/show-submodule? ws-uuid id op])))))
                    module-name (str/lower-case (:module/name m))]
             :when (seq submodules)]
+        ^{:key (:db/id m)}
         [:div.wizard-header__submodules__group
          {:data-theme-color module-name}
          [c/tab-group {:variant  "themed"
@@ -332,6 +333,7 @@
              (wizard-notes @*notes))
            (for [module modules
                  :let   [module-name (:module/name module)]]
+             ^{:key (:db/id module)}
              [:div {:data-theme-color module-name}
               [:div.wizard-review__module
                (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
@@ -346,6 +348,7 @@
                                                       :module    (str/lower-case module-name)
                                                       :io        :input
                                                       :submodule (:slug submodule)})]]
+                 ^{:key (:db/id submodule)}
                  [:<>
                   [:div.wizard-review__submodule-header (:submodule/name submodule)]
                   [build-groups (assoc params :edit-route edit-route) (:submodule/groups submodule) review/input-group]])]])]
@@ -839,6 +842,7 @@
            (doall
             (for [module modules
                   :let   [module-name (:module/name module)]]
+              ^{:key (:db/id module)}
               [:div {:data-theme-color module-name}
                (if (= io :input)
                  (let [submodules (subscribe [:wizard/submodules-io-input-only (:db/id module)])]

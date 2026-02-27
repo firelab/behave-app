@@ -34,7 +34,8 @@
                                               (first))
                             y-min (:y-axis-limit/min y-axis-limit)
                             y-max (:y-axis-limit/max y-axis-limit)]]
-           [:div.wizard-results__graph
+           ^{:key output-uuid}
+           [:div.wizard-graph
             [:div.wizard-graph__output-header
              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])]
             [:div.wizard-results__graph
@@ -44,9 +45,7 @@
                (result-chart
                 (cond-> {:data   graph-data
                          :y      {:name  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])
-                                  :scale (when (and y-min y-max) [y-min y-max])}
-                         :width  250
-                         :height 250}
+                                  :scale (when (and y-min y-max) [y-min y-max])}}
                   :always
                   (assoc :x {:name      @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
                                                      x-axis-group-variable-uuid])

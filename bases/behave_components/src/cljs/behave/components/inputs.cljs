@@ -19,7 +19,7 @@
            :for   id}
    [:div
     {:class        "input-checkbox__box"
-     :tabindex     0
+     :tabIndex     0
      :on-key-press (on-space on-change)}
     [:div {:class "input-checkbox__box__check"}]]
    [:input
@@ -111,7 +111,7 @@
                    (when disabled? "input-radio--disabled")]}
    [:div
     {:class        "input-radio__circle"
-     :tabindex     0
+     :tabIndex     0
      :on-key-press (on-space on-change)}
     [:div {:class "input-radio__circle__dot"}]]
    [:input
@@ -198,9 +198,13 @@
       :id        id
       :name      name
       :on-change on-change}
-     (for [{:keys [group] :as opt} options]
+     (for [{:keys [group value] :as opt} options]
        (if (some? group)
-         [option-group group (for [o (:options opt)] [option o])]
+         ^{:key group}
+         [option-group group (for [o (:options opt)]
+                               ^{:key (:value o)}
+                               [option o])]
+         ^{:key value}
          [option opt]))]]])
 
 ;;==============================================================================
@@ -335,7 +339,7 @@
         (when (seq color-tags)
           [:div.multi-select__color-tags
            (for [{:keys [label color]} color-tags]
-             ^{:key color}
+             ^{:key label}
              [:div {:class "multi-select__color-tags__tag"
                     :style {:border-color color}}
               label])])

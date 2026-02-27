@@ -33,6 +33,7 @@
                    (str "tab-group--flat-edge-" flat-edge)
                    (str "tab-group--align-" align)]}
      (for [t (sort-by :order-id tabs)]
+       ^{:key (:label t)}
        [tab (merge t {:variant   variant
                       :flat-edge flat-edge
                       :on-click  on-click})])]))

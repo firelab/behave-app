@@ -94,7 +94,7 @@
                                         :english)])}]]
        [:div.settings__general-units__table
         (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
-                                         ^{:key domain-sets}
+                                         ^{:key domain-set-name}
                                          {:label   domain-set-name
                                           :content (c/table {:headers [@(<t (bp "variable_domain"))
                                                                        @(<t (bp "units"))

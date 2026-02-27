@@ -15,7 +15,7 @@
     [:div {:class        "sidebar-group__module"
            :on-click     (when (not disabled?)
                            #(on-select c))
-           :tabindex     0
+           :tabIndex     0
            :on-key-press (on-enter #(on-select c))}
      [:div.sidebar-group__module__icon
       [c/icon {:icon-name icon-name

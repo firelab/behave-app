@@ -12,12 +12,13 @@
                           (when selected? "card--selected")
                           (when disabled? "card--disabled")
                           (when error?    "card--error")]
-           :tabindex     0
+           :tabIndex     0
            :on-key-press (on-enter #(on-select c))
            :on-click     #(on-select c)}
      (when (= icon-position "top")
        [:div {:class "card__header__icons"}
         (for [icon-name icons-clj]
+          ^{:key (:icon-name icon-name)}
           [:div {:class "card__header__icon"}
            [icon (merge icon-name {:disabled? disabled?
                                    :error?    error?
@@ -26,6 +27,7 @@
       (when (= icon-position "left")
         [:div {:class "card__header__icons"}
          (for [icon-name icons-clj]
+           ^{:key (:icon-name icon-name)}
            [:div {:class "card__header__icon"}
             [icon (merge icon-name {:disabled? disabled?
                                     :error?    error?

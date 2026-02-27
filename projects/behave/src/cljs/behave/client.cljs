@@ -118,7 +118,7 @@
            [:div.behave-identity
             {:href     "#"
              :on-click #(rf/dispatch [:wizard/navigate-home])
-             :tabindex 0}
+             :tabIndex 0}
             [:div
              [:img {:src "/images/logo.svg"}]
              [:div app-version]]]]

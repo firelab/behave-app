@@ -4,6 +4,7 @@
            [javax.swing JFrame SwingUtilities UIManager]
            [javax.imageio ImageIO])
   (:require [clojure.java.io      :as io]
+            [clojure.string       :as str]
             [behave.handlers      :refer [create-cef-handler-stack]]
             [behave.server        :refer [init-config! init-db!]]
             [behave.windows       :as windows]
