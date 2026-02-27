@@ -2,7 +2,7 @@
   (:require [behave.vms.store       :as s]
             [clojure.set            :refer [rename-keys]]
             [behave.translate       :refer [<t]]
-            [datascript.core        :as d]
+            [absurder-sql.datascript.core :as d]
             [re-frame.core          :refer [reg-sub path] :as rf]))
 
 (reg-sub
