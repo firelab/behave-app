@@ -1,47 +1,34 @@
 (ns behave-cms.tools.views
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.common       :refer [accordion simple-table window]]
-            [behave-cms.components.entity-form  :refer [entity-form]]
-            [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
-            [behave-cms.components.translations :refer [all-translations]]
-            [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.tools.subs]))
-
-
-(defn- subtool-form [tool-id id num-subtools]
-  [entity-form {:entity        :subtool
-                :parent-field  :tool/_subtools
-                :parent-id     tool-id
-                :id            id
-                :fields        [{:label     "Name"
-                                 :required? true
-                                 :field-key :subtool/name}
-                                {:label     "Auto Compute?"
-                                 :required? true
-                                 :field-key :subtool/auto-compute?
-                                 :type      :checkbox
-                                 :options   [{:value true}]}]
-                :on-create     #(assoc % :subtool/order num-subtools)}])
-
-(defn- manage-subtool [tool-id *subtool num-subtools]
-  [:div.col-6
-   [:h5 (if (nil? tool-id) "Add" "Edit") " Subtool"
-    [subtool-form tool-id *subtool num-subtools]]])
+  (:require
+   [behave-cms.components.common            :refer [accordion window]]
+   [behave-cms.components.sidebar           :refer [->sidebar-links sidebar sidebar-width]]
+   [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+   [behave-cms.components.translations      :refer [all-translations]]
+   [behave-cms.help.views                   :refer [help-editor]]
+   [re-frame.core                           :as rf]))
 
 (defn- subtools-table [tool-id]
-  (let [subtools (rf/subscribe [:tool/subtools tool-id])]
-    [:<>
-     [:h5 "Subtools"]
-     [simple-table
-      [:subtool/name
-       :subtool/auto-compute?]
-      (sort-by :subtool/order @subtools)
-      {:on-select   #(rf/dispatch [:state/set-state :subtool (:db/id %)])
-       :on-delete   #(when (js/confirm (str "Are you sure you want to delete the subtool "
-                                            (:subtool/name %) "?"))
-                       (rf/dispatch [:api/delete-entity %]))
-       :on-increase #(rf/dispatch [:api/reorder % subtools :subtool/order :inc])
-       :on-decrease #(rf/dispatch [:api/reorder % subtools :subtool/order :dec])}]]))
+  (let [selected-state-path [:selected :subtool]
+        editor-state-path   [:editors :subtool]
+        entities            (rf/subscribe [:tool/subtools tool-id])]
+    [table-entity-form
+     {:entity             :module
+      :form-state-path    editor-state-path
+      :entities           (sort-by :subtool/order @entities)
+      :on-select          (table-entity-form-on-select selected-state-path)
+      :parent-id          tool-id
+      :parent-field       :tool/_subtools
+      :table-header-attrs [:subtool/name
+                           :subtool/auto-compute?]
+      :order-attr         :subtool/order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :subtool/name}
+                           {:label     "Auto Compute?"
+                            :required? true
+                            :field-key :subtool/auto-compute?
+                            :type      :checkbox
+                            :options   [{:value true}]}]}]))
 
 (defn tools-page
   "Displays Tools page. Takes a map with:
@@ -50,8 +37,7 @@
   (let [tool            (rf/subscribe [:entity [:bp/nid nid] '[* {:application/_tools [*]}]])
         tool-eid        (:db/id @tool)
         application-nid (get-in @tool [:application/_tools 0 :bp/nid])
-        subtools        (rf/subscribe [:tool/subtools tool-eid])
-        *subtool        (rf/subscribe [:state :subtool])]
+        subtools        (rf/subscribe [:tool/subtools tool-eid])]
     [:<>
      [sidebar
       "Subtools"
@@ -64,10 +50,8 @@
         [:h2 (:tool/name @tool)]]
        [accordion
         "Subtools"
-        [:div.col-6
-         [subtools-table tool-eid]]
-        [:div.col-6
-         [manage-subtool tool-eid @*subtool (count @subtools)]]]
+        [:div.col-12
+         [subtools-table tool-eid]]]
        [:hr]
        [accordion
         "Translations"

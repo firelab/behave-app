@@ -1,6 +1,6 @@
 (ns behave-cms.tags.views
-  (:require [re-frame.core                     :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
+  (:require [re-frame.core                           :as rf]
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.events]
             [behave-cms.subs]))
 
@@ -12,7 +12,7 @@
       :form-state-path    editor-state-path
       :entity             :tag-set
       :entities           (sort-by :tag/name entities)
-      :on-select          (on-select selected-state-path)
+      :on-select          (table-entity-form-on-select selected-state-path)
       :parent-field       :tag-set/_tags
       :table-header-attrs [:tag/name]
       :order-attr         :tag/order
@@ -26,13 +26,13 @@
                             :field-key :tag/color}]}]))
 
 (defn- tag-sets-table [selected-state-path editor-state-path other-state-paths-to-clear]
-  (let [entities        (rf/subscribe [:pull-with-attr :tag-set/name])]
+  (let [entities (rf/subscribe [:pull-with-attr :tag-set/name])]
     [table-entity-form
      {:title              "Tag Sets"
       :form-state-path    editor-state-path
       :entity             :tag-set
       :entities           (sort-by :tag-set/name @entities)
-      :on-select          (on-select selected-state-path other-state-paths-to-clear)
+      :on-select          (table-entity-form-on-select selected-state-path other-state-paths-to-clear)
       :table-header-attrs [:tag-set/name]
       :entity-form-fields [{:label     "Name"
                             :required? true
@@ -47,9 +47,9 @@
   "Page to manage Tag Sets and Tags"
   [_]
   (let [selected-tag-set-state-path [:selected :tag-set]
-        tag-set-editor-path         [:editors  :tag-set]
+        tag-set-editor-path         [:editors :tag-set]
         selected-tag-state-path     [:selected :tag]
-        tag-editor-path             [:editors  :tag]
+        tag-editor-path             [:editors :tag]
         selected-tag-set            (rf/subscribe [:state selected-tag-set-state-path])]
     [:div.container
      [:div {:style {:height "500px"}}

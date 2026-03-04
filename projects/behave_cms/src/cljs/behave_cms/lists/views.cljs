@@ -1,9 +1,9 @@
 (ns behave-cms.lists.views
-  (:require [clojure.set :refer [rename-keys]]
-            [re-frame.core                     :as rf]
+  (:require [clojure.set                             :refer [rename-keys]]
+            [re-frame.core                           :as rf]
             [behave-cms.events]
             [behave-cms.subs]
-            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]))
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]))
 
 (defn- list-option-table [selected-state-path editor-state-path selected-list-path]
   (let [selected-list     (rf/subscribe [:state selected-list-path])
@@ -11,7 +11,7 @@
                                deref
                                (map (fn [option]
                                       (assoc option
-                                             :list-option/tags      @(rf/subscribe [:list-option/tags (:db/id option)])
+                                             :list-option/tags @(rf/subscribe [:list-option/tags (:db/id option)])
                                              :list-option/color-tag @(rf/subscribe [:list-option/color-tag (:db/id option)])))))
         tag-options       (rf/subscribe [:list-option/tags-to-select (:db/id @selected-list)])
         color-tag-options (rf/subscribe [:list-option/color-tags-to-select (:db/id @selected-list)])]
@@ -20,7 +20,7 @@
       :form-state-path    editor-state-path
       :entity             :list-option
       :entities           list-options
-      :on-select          (on-select selected-state-path)
+      :on-select          (table-entity-form-on-select selected-state-path)
       :parent-id          (:db/id @selected-list)
       :parent-field       :list/_options
       :order-attr         :list-option/order
@@ -66,7 +66,7 @@
       :entity             :list
       :entities           (sort-by :list/name
                                    @(rf/subscribe [:pull-with-attr :list/name]))
-      :on-select          (on-select selected-state-path selected-list-option-state-path)
+      :on-select          (table-entity-form-on-select selected-state-path selected-list-option-state-path)
       :table-header-attrs [:list/name]
       :entity-form-fields [{:label     "Name"
                             :required? true
@@ -85,9 +85,9 @@
   [_]
   (if @(rf/subscribe [:state :loaded?])
     (let [selected-list-state-path        [:selected :list]
-          list-editor-path                [:editors  :list]
+          list-editor-path                [:editors :list]
           selected-list-option-state-path [:selected :list-option]
-          list-option-editor-path         [:editors  :list-option]
+          list-option-editor-path         [:editors :list-option]
           selected-list                   (rf/subscribe [:state selected-list-state-path])]
       [:div.container
        [:div {:style {:height "500px"}}

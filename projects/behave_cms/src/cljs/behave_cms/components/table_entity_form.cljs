@@ -1,11 +1,11 @@
 (ns behave-cms.components.table-entity-form
   (:require
-   [behave-cms.components.common       :refer [simple-table]]
-   [behave-cms.components.entity-form  :refer [entity-form]]
-   [re-frame.core                      :as rf]
-   [reagent.core                       :as r]))
+   [behave-cms.components.common      :refer [simple-table]]
+   [behave-cms.components.entity-form :refer [entity-form]]
+   [re-frame.core                     :as rf]
+   [reagent.core                      :as r]))
 
-(defn on-select
+(defn table-entity-form-on-select
   "On select function to be passed into table-entity-form. Returns a function that expects an entity. Function will also update the `selected-state-path` as well as clearing the state of any related paths (`other-state-paths-to-clear`)"
   [selected-state-path & other-state-paths-to-clear]
   #(let [selected-entity-id (:db/id @(rf/subscribe [:state selected-state-path]))]
@@ -42,12 +42,11 @@
   display buttons to re order the list in the table.
 
   "
-  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
-           form-state-path]}]
+  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr form-state-path on-select]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"
-                   :height "100%"
+                   :height  "100%"
                    :padding "30px"}}
      [:div {:style {:padding-right "10px"
                     :width         "100%"}}
@@ -72,11 +71,11 @@
                                     (reset! show-entity-form? true)
                                     (reset! entity-id-atom (:db/id %))
                                     (when on-select (on-select %))))}
-         title      (assoc :caption title)
+         title (assoc :caption title)
          order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
                             :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]
      (when @show-entity-form?
-       [:div {:style {:height "100%"
+       [:div {:style {:height     "100%"
                       :overflow-y "auto"}}
         [entity-form {:title        title
                       :state-path   form-state-path

@@ -1,12 +1,12 @@
 (ns behave-cms.groups.views
-  (:require [re-frame.core :as rf]
-            [string-utils.interface :refer [->str]]
-            [behave-cms.components.common          :refer [accordion checkbox window]]
-            [behave-cms.components.conditionals    :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations    :refer [all-translations]]
-            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
-            [behave-cms.help.views                 :refer [help-editor]]
+  (:require [re-frame.core                           :as rf]
+            [string-utils.interface                  :refer [->str]]
+            [behave-cms.components.common            :refer [accordion checkbox window]]
+            [behave-cms.components.conditionals      :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.sidebar           :refer [sidebar sidebar-width]]
+            [behave-cms.components.translations      :refer [all-translations]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+            [behave-cms.help.views                   :refer [help-editor]]
             [behave-cms.groups.subs]))
 
 (defn- groups-table [submodule-id]
@@ -18,7 +18,7 @@
       {:entity             :group
        :form-state-path    editor-state-path
        :entities           (sort-by :group/order @groups)
-       :on-select          (on-select selected-state-path)
+       :on-select          (table-entity-form-on-select selected-state-path)
        :parent-id          submodule-id
        :parent-field       :submodule/_groups
        :table-header-attrs [:group/name]
