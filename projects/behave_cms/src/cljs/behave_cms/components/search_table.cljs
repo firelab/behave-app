@@ -41,49 +41,49 @@
                               :on-create    #(do (swap! show-add-search-table? not) %)}]
                 [:div {:style {:height "500px"}}
                  [table-entity-form {:title              "Search Table Filters"
-                                    :entity             :search-table-filter
-                                    :entities           @(rf/subscribe [:search-table/filters search-table-id])
-                                    :table-header-attrs [:variable/name :search-table-filter/operator :search-table-filter/value]
-                                    :entity-form-fields [{:label     "Group Variable"
-                                                          :field-key :search-table-filter/group-variable
-                                                          :app-id    @(rf/subscribe [:module/_app-module-id module-id])
-                                                          :required? true
-                                                          :type      :group-variable}
-                                                         {:label     "Operator"
-                                                          :field-key :search-table-filter/operator
-                                                          :required? true
-                                                          :type      :radio
-                                                          :options   [{:value :equal :label "="}
-                                                                      {:value :not-equal :label "!="}]}
-                                                         {:label                    "Value"
-                                                          :field-key                :search-table-filter/value
-                                                          :required?                true
-                                                          :group-variable-field-key :search-table-filter/group-variable
-                                                          :type                     :group-variable-value}]
-                                    :parent-id          search-table-id
-                                    :parent-field       :search-table/_filters}]]
+                                     :entity             :search-table-filter
+                                     :entities           @(rf/subscribe [:search-table/filters search-table-id])
+                                     :table-header-attrs [:variable/name :search-table-filter/operator :search-table-filter/value]
+                                     :entity-form-fields [{:label     "Group Variable"
+                                                           :field-key :search-table-filter/group-variable
+                                                           :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                           :required? true
+                                                           :type      :group-variable}
+                                                          {:label     "Operator"
+                                                           :field-key :search-table-filter/operator
+                                                           :required? true
+                                                           :type      :radio
+                                                           :options   [{:value :equal :label "="}
+                                                                       {:value :not-equal :label "!="}]}
+                                                          {:label                    "Value"
+                                                           :field-key                :search-table-filter/value
+                                                           :required?                true
+                                                           :group-variable-field-key :search-table-filter/group-variable
+                                                           :type                     :group-variable-value}]
+                                     :parent-id          search-table-id
+                                     :parent-field       :search-table/_filters}]]
                 [:div {:style {:height "500px"}}
                  [table-entity-form {:title              "Search Table Columns"
-                                    :entity             :search-table-column
-                                    :entities           @(rf/subscribe [:search-table/columns search-table-id])
-                                    :table-header-attrs [:search-table-column/name :search-table-column/translation-key]
-                                    :entity-form-fields [{:label     "Name"
-                                                          :required? true
-                                                          :field-key :search-table-column/name
-                                                          :type      :default}
-                                                         {:label     "Group Variable"
-                                                          :app-id    @(rf/subscribe [:module/_app-module-id module-id])
-                                                          :required? true
-                                                          :field-key :search-table-column/group-variable
-                                                          :type      :group-variable}
-                                                         {:label     "Translation Key (Optional: Auto Generated)"
-                                                          :app-id    @(rf/subscribe [:module/_app-module-id module-id])
-                                                          :required? false
-                                                          :field-key :search-table-column/translation-key
-                                                          :type      :translation-key}]
-                                    :parent-id          search-table-id
-                                    :parent-field       :search-table/_columns
-                                    :order-attr         :search-table-column/order}]]
+                                     :entity             :search-table-column
+                                     :entities           @(rf/subscribe [:search-table/columns search-table-id])
+                                     :table-header-attrs [:search-table-column/name :search-table-column/translation-key]
+                                     :entity-form-fields [{:label     "Name"
+                                                           :required? true
+                                                           :field-key :search-table-column/name
+                                                           :type      :default}
+                                                          {:label     "Group Variable"
+                                                           :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                           :required? true
+                                                           :field-key :search-table-column/group-variable
+                                                           :type      :group-variable}
+                                                          {:label     "Translation Key (Optional: Auto Generated)"
+                                                           :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                           :required? false
+                                                           :field-key :search-table-column/translation-key
+                                                           :type      :translation-key}]
+                                     :parent-id          search-table-id
+                                     :parent-field       :search-table/_columns
+                                     :order-attr         :search-table-column/order}]]
                 [:div.row
                  {:style {:padding "5px"}}
                  [btn-sm

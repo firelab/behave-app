@@ -18,7 +18,7 @@
       (str/split app #"/")
       (last app)
       (str "/cljs/" app))
-     "/cljs/app.js"))
+    "/cljs/app.js"))
 
 (defn head-meta-css
   "Specifies head tag elements."
@@ -53,10 +53,10 @@
     {:status  (if (some? match) 200 404)
      :headers {"Content-Type" "text/html"}
      :body    (html5
-                (head-meta-css)
-                [:body
-                 [:div#app]
-                 (cljs-init (merge route-params params))])}))
+               (head-meta-css)
+               [:body
+                [:div#app]
+                (cljs-init (merge route-params params))])}))
 
 (defn body->transit [body & [fmt]]
   (let [out    (ByteArrayOutputStream. 4096)

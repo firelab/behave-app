@@ -45,30 +45,30 @@
 
 (reg-sub
  :group/discrete-variable-options
-  (fn [[_ gv-uuid]]
-    (subscribe [:query
-                   '[:find ?l .
-                     :in $ ?gv-uuid
-                     :where
-                     [?gv :bp/uuid ?gv-uuid]
-                     [?v  :variable/group-variables ?gv]
-                     [?v  :variable/kind :discrete]
-                     [?v  :variable/list ?l]]
-                   [gv-uuid]]))
-  (fn [list-eid]
-    @(subscribe [:pull-children :list/options list-eid])))
+ (fn [[_ gv-uuid]]
+   (subscribe [:query
+               '[:find ?l .
+                 :in $ ?gv-uuid
+                 :where
+                 [?gv :bp/uuid ?gv-uuid]
+                 [?v  :variable/group-variables ?gv]
+                 [?v  :variable/kind :discrete]
+                 [?v  :variable/list ?l]]
+               [gv-uuid]]))
+ (fn [list-eid]
+   @(subscribe [:pull-children :list/options list-eid])))
 
 (reg-sub
  :submodule/is-output?
-  (fn [[_ submodule-id]]
-    (subscribe [:query
-                   '[:find ?io .
-                     :in $ ?sm
-                     :where
-                     [?sm :submodule/io ?io]]
-                   [submodule-id]]))
-  (fn [io]
-    (= io :output)))
+ (fn [[_ submodule-id]]
+   (subscribe [:query
+               '[:find ?io .
+                 :in $ ?sm
+                 :where
+                 [?sm :submodule/io ?io]]
+               [submodule-id]]))
+ (fn [io]
+   (= io :output)))
 
 ;;; Subgroups
 

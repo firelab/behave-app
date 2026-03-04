@@ -58,12 +58,12 @@
   (let [nid-pair (fn [eid] (if-let [nid (get nid-map eid)]
                              [:bp/nid nid]
                              eid))]
-  (cond-> datom
-    :always
-    (update 0 nid-pair)
+    (cond-> datom
+      :always
+      (update 0 nid-pair)
 
-    (@ref-attrs (second datom))
-    (update 2 nid-pair))))
+      (@ref-attrs (second datom))
+      (update 2 nid-pair))))
 
 (defn- record-nid-map! [conn]
   (reset! nid-map (into {} (d/q '[:find ?eid ?nid
@@ -73,9 +73,9 @@
 (defn- update-nid-map! [datoms]
   (let [new-nid-map
         (->> datoms
-                         (filter #(= (second %) :bp/nid))
-                         (map (juxt first third))
-                         (into {}))]
+             (filter #(= (second %) :bp/nid))
+             (map (juxt first third))
+             (into {}))]
     (reset! nid-map (merge @nid-map new-nid-map))))
 
 (defn- sync-tx-data [{:keys [tx-data]}]

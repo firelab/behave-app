@@ -210,7 +210,7 @@
      [:button.btn.btn-sm.btn-outline-primary.mt-4
       {:type     "submit"
        :disabled (not (s/valid? :behave/conditional @conditional))}
-      "Save"]]) )
+      "Save"]]))
 
 (defn manage-conditionals
   "Component to manage conditional for an entity. Takes:
@@ -218,16 +218,16 @@
    - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)"
   [entity-id cond-attr]
   [conditional-editor
-   {:title                              "Manage Conditionals"
-    :entity-id                          entity-id
-    :cond-attr                          cond-attr
-    :clear-show-sub-conditional-editor? true
+   {:title                                                                              "Manage Conditionals"
+    :entity-id                                                                          entity-id
+    :cond-attr                                                                          cond-attr
+    :clear-show-sub-conditional-editor?                                                 true
     :on-submit
     #(do (let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
-        (if (:bp/nid conditional)
-          (update-conditional! conditional)
-          (rf/dispatch [:api/create-entity
-                        (merge conditional {(inverse-attr cond-attr) entity-id})])))
+           (if (:bp/nid conditional)
+             (update-conditional! conditional)
+             (rf/dispatch [:api/create-entity
+                           (merge conditional {(inverse-attr cond-attr) entity-id})])))
          (rf/dispatch [:state/set-state cond-attr nil])
          (clear-editor))}])
 
@@ -238,9 +238,9 @@
    - sub-conditional-eid: the ID of the sub conditional"
   [entity-id cond-attr sub-conditional-eid]
   [conditional-editor
-   {:title                              "Add Sub Conditional"
-    :entity-id                          entity-id
-    :cond-attr                          cond-attr
+   {:title                                                                                         "Add Sub Conditional"
+    :entity-id                                                                                     entity-id
+    :cond-attr                                                                                     cond-attr
     :on-submit
     #(let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
        (if (:bp/nid conditional)
@@ -328,10 +328,10 @@
                                                          (clear-show-sub-conditional-editor)
                                                          (update-draft cond-attr conditional-entity))]
                   [btn-sm :outline-danger    "Delete" #(when
-                                                           (js/confirm
-                                                            (str "Are you sure you want to delete the conditional "
-                                                                 (:variable/name %)
-                                                                 "?"))
+                                                        (js/confirm
+                                                         (str "Are you sure you want to delete the conditional "
+                                                              (:variable/name %)
+                                                              "?"))
                                                          (rf/dispatch [:api/delete-entity conditional-entity]))]
                   [btn-sm :outline-secondary "Add Sub Conditional"
                    #(do

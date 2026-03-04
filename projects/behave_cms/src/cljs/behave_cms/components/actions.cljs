@@ -75,7 +75,6 @@
     (rf/dispatch [:state/set-state :action nil])
     (rf/dispatch [:state/set-state :editors {}])))
 
-
 (defn- get-list-options [gv-id]
   (get-in @(rf/subscribe [:pull '[{:variable/_group-variables
                                    [{:variable/list
@@ -113,7 +112,7 @@
                            {:value (str/lower-case label) :label label})
                          @all-modules)]
     [:div.mb-2
-     {:key idx
+     {:key   idx
       :style {:background "whitesmoke" :padding "1em"}}
      [:h6 "Enabled with Modules:"]
      [checkboxes
@@ -232,11 +231,11 @@
 (defn- manage-conditional
   "Displays editor for modifying conditionals."
   [group-id conditional idx remove-cond!]
-  (let [cond-path   [:editors :action :action/conditionals idx]
-        cond-type   (rf/subscribe [:state (conj cond-path :conditional/type)])
-        set-type    #(rf/dispatch [:state/set-state
+  (let [cond-path [:editors :action :action/conditionals idx]
+        cond-type (rf/subscribe [:state (conj cond-path :conditional/type)])
+        set-type  #(rf/dispatch [:state/set-state
                                  cond-path
-                                 (merge 
+                                 (merge
                                   (select-keys conditional [:db/id :bp/nid :bp/uuid])
                                   {:conditional/type % :conditional/operator :equal})])]
 
@@ -252,12 +251,12 @@
       [radio-buttons
        "Conditional Type:"
        (->str @cond-type)
-       [{:label "Module"   :value "module"}
+       [{:label "Module" :value "module"}
         {:label "Variable" :value "group-variable"}]
        #(set-type (keyword (u/input-value %)))]]
 
      (condp = @cond-type
-       :module 
+       :module
        [manage-module-conditional group-id conditional idx]
 
        :group-variable
@@ -319,7 +318,7 @@
     [:form.row
      {:on-submit (u/on-submit #(on-submit gv-id action-id))}
      [:h4 (str (if action-id "Edit" "Add") " Action:")]
-     [:<> 
+     [:<>
       [labeled-input
        "Action Name:"
        (get-field :action/name)

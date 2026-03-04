@@ -103,7 +103,7 @@
 
                                   :else nil)
                                 (->kebab (get state name-attr)))
-        help-key (str translation-key ":help")]
+        help-key           (str translation-key ":help")]
     (merge state
            {parent-field parent-id}
            (when (and parent-translation (db-translation-attrs translation-attr)) {translation-attr translation-key})
@@ -163,8 +163,8 @@
              :checked   checked?
              :on-change #(let [enable? (.. % -target -checked)
                                state   (vec (if enable?
-                                             (conj state-as-set value)
-                                             (disj state-as-set value)))]
+                                              (conj state-as-set value)
+                                              (disj state-as-set value)))]
                            (on-change state))}]
            [:label.form-check-label {:for id} label]])))]))
 
@@ -421,42 +421,42 @@
                                                           :else
                                                           "")]
                                              result)))
-        on-submit (u/on-submit #(let [state @(rf/subscribe [:state state-path])]
-                                  (cond-> state
-                                    id
-                                    (merge {:db/id id})
+        on-submit    (u/on-submit #(let [state @(rf/subscribe [:state state-path])]
+                                     (cond-> state
+                                       id
+                                       (merge {:db/id id})
 
-                                    (and id (fn? on-update))
-                                    (on-update)
+                                       (and id (fn? on-update))
+                                       (on-update)
 
-                                    (and (nil? id) parent-field parent-id)
-                                    (merge-parent-fields original entity parent-field parent-id parent)
+                                       (and (nil? id) parent-field parent-id)
+                                       (merge-parent-fields original entity parent-field parent-id parent)
 
-                                    (and (nil? id) (fn? on-create))
-                                    (on-create)
+                                       (and (nil? id) (fn? on-create))
+                                       (on-create)
 
-                                    (and id (cardinality-many-fields? fields state))
-                                    (retract-cardinality-many-values original)
+                                       (and id (cardinality-many-fields? fields state))
+                                       (retract-cardinality-many-values original)
 
-                                    :always
-                                    (dissoc :group-variable-lookup)
+                                       :always
+                                       (dissoc :group-variable-lookup)
 
-                                    :always
-                                    (upsert-entity!))
-                                  (rf/dispatch [:state/set-state state-path nil])))]
+                                       :always
+                                       (upsert-entity!))
+                                     (rf/dispatch [:state/set-state state-path nil])))]
     [:form {:on-submit on-submit}
      (for [{:keys [field-key type] :as field} fields]
        ^{:key field-key}
        (if (= type :keywords)
          [field-input (merge field
-                             {:on-change (update-state field-key)
-                              :state     (r/track #(let [result (cond
-                                                                  (not (nil? @(rf/subscribe [:state (conj state-path field-key)])))
-                                                                  @(rf/subscribe [:state (conj state-path field-key)])
+                             {:on-change         (update-state field-key)
+                              :state             (r/track #(let [result (cond
+                                                                          (not (nil? @(rf/subscribe [:state (conj state-path field-key)])))
+                                                                          @(rf/subscribe [:state (conj state-path field-key)])
 
-                                                                  :else
-                                                                  "")]
-                                                     result))
+                                                                          :else
+                                                                          "")]
+                                                             result))
                               :on-delete-keyword (fn [kkeyword]
                                                    (rf/dispatch [:api/retract-entity-attr-value
                                                                  id :list-option/tags kkeyword]))

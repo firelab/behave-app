@@ -11,7 +11,6 @@
             [data-utils.interface       :refer [parse-int]]
             [behave-cms.utils           :as u]))
 
-
 ;;; Editor
 
 (rf/reg-event-db

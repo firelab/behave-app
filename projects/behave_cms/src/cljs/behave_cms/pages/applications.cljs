@@ -9,9 +9,9 @@
 
 (defn applications-table []
   (let [applications (rf/subscribe [:entities :applications])
-        on-select #(rf/dispatch [:state/set-state :application (:uuid %)])
-        on-delete #(when (js/confirm (str "Are you sure you want to delete the application " (:application_name %) "?"))
-                     (rf/dispatch [:api/delete-entity :applications %]))]
+        on-select    #(rf/dispatch [:state/set-state :application (:uuid %)])
+        on-delete    #(when (js/confirm (str "Are you sure you want to delete the application " (:application_name %) "?"))
+                        (rf/dispatch [:api/delete-entity :applications %]))]
     [simple-table
      columns
      (->> @applications

@@ -279,13 +279,13 @@
                                :padding         "5px"}}
     [:div {:style {:font-size "1.5rem"}} caption]
     (when add-entity-fn
-     [:div [btn-sm
-            :primary
-            "Add Entry"
-            add-entity-fn]])]
-   [:div.table-wrapper {:style {:height           "100%"
-                                :overflow-y       "auto"
-                                :scroll-snap-type "y mandatory"
+      [:div [btn-sm
+             :primary
+             "Add Entry"
+             add-entity-fn]])]
+   [:div.table-wrapper {:style {:height             "100%"
+                                :overflow-y         "auto"
+                                :scroll-snap-type   "y mandatory"
                                 :scroll-padding-top "41px"}}
     [:table.table.table-hover
      {:style {:border-collapse "collapse"

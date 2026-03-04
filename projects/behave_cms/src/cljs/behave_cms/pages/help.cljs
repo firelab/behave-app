@@ -12,7 +12,7 @@
 (defn get-files [data-tx]
   (if-let [items (.-items data-tx)]
     (keep #(when (= (.-kind %) "file")
-        (.getAsFile %)) items)
+             (.getAsFile %)) items)
     (.-files data-tx)))
 
 (defn on-drop-image! [ev]
@@ -26,14 +26,14 @@
       (rf/dispatch [:files/upload file [:state :editors :help-page]]))))
 
 (defn file->url [file callback]
-  (let [reader    (js/FileReader.)
-        on-load   #(callback (j/get reader :result))]
+  (let [reader  (js/FileReader.)
+        on-load #(callback (j/get reader :result))]
     (.addEventListener reader "load" on-load)
     (.readAsDataURL reader file)))
 
 (defn file->blob [file callback]
-  (let [reader    (js/FileReader.)
-        on-load   #(callback (j/get reader :result))]
+  (let [reader  (js/FileReader.)
+        on-load #(callback (j/get reader :result))]
     (.addEventListener reader "load" on-load)
     (.readAsArrayBuffer reader file)))
 
@@ -49,8 +49,8 @@
     (rf/dispatch [:state/set-state [:editors :help-page :cursor] [start end]])))
 
 (defn $textarea []
-   {:font-family "var(--bs-font-monospace)"
-    :width "100%"})
+  {:font-family "var(--bs-font-monospace)"
+   :width       "100%"})
 
 (defn textarea [state {:keys [on-drop on-change update-cursor]}]
   [:textarea.form-control
@@ -69,11 +69,11 @@
 (defn editor-toolbar []
   [:div.mb-3
    [:label.form-label {:for "help-upload"} "Upload File"]
-   [:input.form-control {:type "file"
+   [:input.form-control {:type      "file"
                          :on-change #(on-select-image! %)
-                         :accept "image/*"
-                         :multiple false
-                         :id "help-upload"}]])
+                         :accept    "image/*"
+                         :multiple  false
+                         :id        "help-upload"}]])
 
 (defn image-preview []
   (let [uploading? (rf/subscribe [:state [:editors :help-page :uploading?]])]
@@ -170,10 +170,10 @@
 (defn style-map [s]
   (println s)
   (persistent!
-    (as-> s $
-      (str/split $ #";")
-      (map #(str/split % #":") $)
-      (reduce (fn [acc [k v]] (assoc! acc (keyword k) (str/trim v))) (transient {}) $))))
+   (as-> s $
+     (str/split $ #";")
+     (map #(str/split % #":") $)
+     (reduce (fn [acc [k v]] (assoc! acc (keyword k) (str/trim v))) (transient {}) $))))
 
 (defn md->hiccup [md]
   (->> md
@@ -192,7 +192,7 @@
 (defn markdown-editor [init-value]
   (when init-value
     (rf/dispatch [:state/set-state [:editors :help-page :content] init-value]))
-  (let [content (rf/subscribe [:state [:editors :help-page :content]])
+  (let [content   (rf/subscribe [:state [:editors :help-page :content]])
         on-change #(rf/dispatch [:state/set-state [:editors :help-page :content] %])]
     [:div.row {:class (<class $markdown-editor)}
      [:div.col-6
@@ -207,7 +207,7 @@
       [:h3.mb-3 "Preview"]
       (when (some? @content)
 
-      [:<> (md->hiccup @content)])]]))
+        [:<> (md->hiccup @content)])]]))
 
 (defn root-component [_]
   [:div.container

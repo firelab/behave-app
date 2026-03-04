@@ -38,14 +38,14 @@
 (defonce *current-path   (atom nil))
 
 (def menu-pages
-  [{:page "Applications"         :path "/applications"}
-   {:page "Variables"            :path "/variables"}
-   {:page "Variable  Domains"    :path "/domains"}
-   {:page "Lists"                :path "/lists"}
-   {:page "Tags"                 :path "/tags"}
-   {:page "Units"                :path "/units"}
-   {:page "Languages"            :path "/languages"}
-   {:page "Invite User"          :path "/invite-user"}])
+  [{:page "Applications" :path "/applications"}
+   {:page "Variables" :path "/variables"}
+   {:page "Variable  Domains" :path "/domains"}
+   {:page "Lists" :path "/lists"}
+   {:page "Tags" :path "/tags"}
+   {:page "Units" :path "/units"}
+   {:page "Languages" :path "/languages"}
+   {:page "Invite User" :path "/invite-user"}])
 
 (def app-pages {:applications         list-applications-page
                 :dashboard            dashboard/root-component

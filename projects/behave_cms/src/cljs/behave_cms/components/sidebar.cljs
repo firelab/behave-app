@@ -19,11 +19,11 @@
   ^{:pseudo {:hover {:background-color ($c :light-blue)
                      :color            "white"
                      :cursor           "pointer"}}}
-  {:display          "block"
-   :border-bottom    (str "1px solid " ($c :gray))
-   :padding          "8px"
-   :text-decoration  "none"
-   :color            "inherit"})
+  {:display         "block"
+   :border-bottom   (str "1px solid " ($c :gray))
+   :padding         "8px"
+   :text-decoration "none"
+   :color           "inherit"})
 
 (defn- $sidebar []
   {:position         "fixed"
@@ -35,10 +35,10 @@
    :background-color "white"})
 
 (defn- $sidebar-back []
-  ^{:pseudo {:hover {:text-decoration  "underline"
-                     :cursor           "pointer"}}}
-  {:font-weight      "bold"
-   :font-size        "0.8rem"})
+  ^{:pseudo {:hover {:text-decoration "underline"
+                     :cursor          "pointer"}}}
+  {:font-weight "bold"
+   :font-size   "0.8rem"})
 
 ;;; Helpers
 
@@ -55,10 +55,10 @@
 
 (defn- sidebar-header [title parent-title parent-link]
   [:div
-   {:style {:display       "flex"
+   {:style {:display        "flex"
             :flex-direction "column"
-            :background    "rgb(245, 245, 245)"
-            :padding       "10px"}}
+            :background     "rgb(245, 245, 245)"
+            :padding        "10px"}}
    (when (some? parent-title)
      [:div
       {:class        (<class $sidebar-back)

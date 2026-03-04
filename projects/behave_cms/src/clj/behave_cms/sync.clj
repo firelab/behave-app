@@ -15,8 +15,8 @@
          [?e :db/ident ?attr]
          [?e :db/valueType ?v]
          [?v :db/ident ?value-type]]
-        (d/db @s/datomic-conn)
-        attr))
+       (d/db @s/datomic-conn)
+       attr))
 
 (defn sync-handler [{:keys [request-method params accept session] :as all}]
   (let [res-type (or (mime->type accept) :edn)]
