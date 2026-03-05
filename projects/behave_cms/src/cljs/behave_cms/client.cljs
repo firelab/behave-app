@@ -3,7 +3,6 @@
             [reagent.core                       :as r]
             [reagent.dom                        :refer [render]]
             [re-frame.core                      :as rf]
-            [re-frisk.core                      :as re-frisk]
             [behave-cms.store                   :as s]
             [behave-cms.config                  :refer [update-config]]
             [behave-cms.events]
@@ -38,14 +37,14 @@
 (defonce *current-path   (atom nil))
 
 (def menu-pages
-  [{:page "Applications"         :path "/applications"}
-   {:page "Variables"            :path "/variables"}
-   {:page "Variable  Domains"    :path "/domains"}
-   {:page "Lists"                :path "/lists"}
-   {:page "Tags"                 :path "/tags"}
-   {:page "Units"                :path "/units"}
-   {:page "Languages"            :path "/languages"}
-   {:page "Invite User"          :path "/invite-user"}])
+  [{:page "Applications" :path "/applications"}
+   {:page "Variables" :path "/variables"}
+   {:page "Variable  Domains" :path "/domains"}
+   {:page "Lists" :path "/lists"}
+   {:page "Tags" :path "/tags"}
+   {:page "Units" :path "/units"}
+   {:page "Languages" :path "/languages"}
+   {:page "Invite User" :path "/invite-user"}])
 
 (def app-pages {:applications         list-applications-page
                 :dashboard            dashboard/root-component
@@ -134,8 +133,7 @@
                      @original-params)]
     (update-config (:client-config clj-params))
     (render-root cur-params)
-    (rf/dispatch-sync [:initialize])
-    (re-frisk/enable)))
+    (rf/dispatch-sync [:initialize])))
 
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."

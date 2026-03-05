@@ -45,10 +45,10 @@
 ;;; Groups
 
 (reg-sub
-  :groups
-  (fn [[_ submodule-id]]
-    (subscribe [:pull-children :submodule/groups submodule-id]))
-  identity)
+ :groups
+ (fn [[_ submodule-id]]
+   (subscribe [:pull-children :submodule/groups submodule-id]))
+ identity)
 
 ;;; Groups w/ Subgroups
 
@@ -69,25 +69,25 @@
       acc)))
 
 (reg-sub
-  :submodule/groups-w-subgroups
-  (fn [[_ submodule-id]]
-    (subscribe [:pull-children :submodule/groups submodule-id]))
-  (fn [groups]
-    (reduce
-     accumulate-subgroups
-     []
-     groups)))
+ :submodule/groups-w-subgroups
+ (fn [[_ submodule-id]]
+   (subscribe [:pull-children :submodule/groups submodule-id]))
+ (fn [groups]
+   (reduce
+    accumulate-subgroups
+    []
+    groups)))
 
 ;;; Sidebar
 
 (reg-sub
-  :sidebar/groups
-  (fn [[_ submodule-id]]
-    (subscribe [:groups submodule-id]))
+ :sidebar/groups
+ (fn [[_ submodule-id]]
+   (subscribe [:groups submodule-id]))
 
-  (fn [groups]
-    (->> groups
-         (map (fn [{nid :bp/nid name :group/name}]
-                {:label name
-                 :link  (path-for app-routes :get-group :nid nid)}))
-         (sort-by :label))))
+ (fn [groups]
+   (->> groups
+        (map (fn [{nid :bp/nid name :group/name}]
+               {:label name
+                :link  (path-for app-routes :get-group :nid nid)}))
+        (sort-by :label))))

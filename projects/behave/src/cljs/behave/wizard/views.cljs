@@ -9,7 +9,6 @@
             [behave.components.results.graphs     :refer [result-graphs]]
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link
-                                                          directional-result-tables
                                                           pivot-tables
                                                           search-tables]]
             [behave.tool.views                    :refer [tool tool-selector]]
@@ -30,9 +29,7 @@
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
             [string-utils.core :as s]
-            [clojure.string :as str]
-            [behave.schema.submodule :as submodule]
-            [re-frame.core :as rf]))
+            [clojure.string :as str]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
@@ -276,13 +273,11 @@
 
 ;; Review page
 
-(defn run-description [ws-uuid]
+(defn- run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
         description (:worksheet/run-description @*worksheet)
         value-atom  (r/atom (or description ""))]
     [:div.wizard-review__run-desciption
-     [:div.wizard-review__run-description__header
-      @(<t "behaveplus:run_description")]
      [:div.wizard-review-group__inputs
       [:div.wizard-review__run-description__input
        [c/text-input {:label       @(<t (bp "run_description"))
@@ -333,7 +328,6 @@
             [:div.wizard-header__banner__title @(<t (bp "worksheet_review"))]
             (show-or-close-notes-button @*show-notes?)]]
           [:div.wizard-review
-           [run-description ws-uuid]
            (when @*show-notes?
              (wizard-notes @*notes))
            (for [module modules
@@ -368,12 +362,7 @@
                       :variant       "highlight"
                       :icon-name     "arrow2"
                       :icon-position "right"
-                      :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                          (js/setTimeout
-                                           (fn []
-                                             (dispatch-sync [:wizard/solve params])
-                                             (dispatch-sync [:wizard/after-solve params]))
-                                           300))}]]]]])]))
+                      :on-click      #(dispatch [:wizard/run-solve params])}]]]]])]))
 
 ;; Wizard Results Settings Page
 
@@ -667,9 +656,9 @@
         *notes               (subscribe [:wizard/notes ws-uuid])
         *tab-selected        (subscribe [:wizard/results-tab-selected])
         *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
+        repeat-groups?       @(subscribe [:worksheet/repeat-groups? ws-uuid])
         tabs                 (cond-> []
 
                                (seq @*notes)
@@ -730,6 +719,7 @@
           [:div.wizard-header__results-toolbar__date
            [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
            [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
+         [run-description ws-uuid]
          [:div.wizard-header__results-tabs
           [c/tab-group {:variant  "highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
@@ -745,11 +735,10 @@
            [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
-            (search-tables ws-uuid)
+            (when (not repeat-groups?)
+             (search-tables ws-uuid))
             [pivot-tables ws-uuid]
-            (if @*directional-tables?
-              [directional-result-tables ws-uuid]
-              [result-matrices ws-uuid])
+            [result-matrices ws-uuid]
             [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
             ;; [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])
@@ -844,7 +833,7 @@
                              {:value submodule-name
                               :label (str module-name " - " submodule-name)})]
               [c/dropdown
-               {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
+               {:on-change #(dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
                 :options   (map ->option all-submodules)}])]]
           [:div.wizard-page__body
            (doall
@@ -891,12 +880,7 @@
                         :variant       "highlight"
                         :icon-name     "arrow2"
                         :icon-position "right"
-                        :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                            (js/setTimeout
-                                             (fn []
-                                               (dispatch-sync [:wizard/solve params])
-                                               (dispatch-sync [:wizard/after-solve params]))
-                                             300))}]
+                        :on-click      #(dispatch [:wizard/run-solve params])}]
              [c/button {:label         @(<t (bp "next"))
                         :variant       "highlight"
                         :icon-name     "arrow2"

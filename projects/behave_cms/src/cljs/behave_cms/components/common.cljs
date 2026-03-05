@@ -283,9 +283,9 @@
              :primary
              "Add Entry"
              add-entity-fn]])]
-   [:div.table-wrapper {:style {:height           "100%"
-                                :overflow-y       "auto"
-                                :scroll-snap-type "y mandatory"
+   [:div.table-wrapper {:style {:height             "100%"
+                                :overflow-y         "auto"
+                                :scroll-snap-type   "y mandatory"
                                 :scroll-padding-top "41px"}}
     [:table.table.table-hover
      {:style {:border-collapse "collapse"

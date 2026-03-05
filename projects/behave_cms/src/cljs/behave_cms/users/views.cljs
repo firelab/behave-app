@@ -6,7 +6,7 @@
 (def columns [:email :name])
 
 (defn users-table []
-  (let [users (rf/subscribe [:entities :users])
+  (let [users     (rf/subscribe [:entities :users])
         on-select #(rf/dispatch [:state/set-state :user (:uuid %)])
         on-delete #(when (js/confirm (str "Are you sure you want to delete the user " (:user %) "?"))
                      (rf/dispatch [:api/delete-entity :users %]))]

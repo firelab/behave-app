@@ -20,7 +20,7 @@
     :query     '[:find  ?h .
                  :in    $ ?l ?help-key
                  :where [?h :help-page/key ?help-key]
-                        [?l :language/help-page ?h]]
+                 [?l :language/help-page ?h]]
     :variables [language help-key]}))
 
 (rp/reg-sub
@@ -30,8 +30,8 @@
     :query     '[:find  ?content .
                  :in    $ ?l ?help-key
                  :where [?h :help-page/key ?help-key]
-                        [?l :language/help-page ?h]
-                        [?h :help-page/content ?content]]
+                 [?l :language/help-page ?h]
+                 [?h :help-page/content ?content]]
     :variables [language help-key]}))
 
 (rf/reg-sub

@@ -8,7 +8,10 @@ Module.SIGContainAdapter = class {
   constructor() {}
   doContainRun() {}
   addResource() {}
+  setResourceArrivalTime() {}
+  setResourceDuration() {}
   setAttackDistance() {}
+  setContainMode() {}
   setFireStartTime() {}
   setLwRatio() {}
   setMaxFireSize() {}
@@ -23,6 +26,7 @@ Module.SIGContainAdapter = class {
   removeResourceWithThisDesc() {}
   removeResourceAt() {}
   removeAllResourcesWithThisDesc() {}
+  getAutoComputedResourceProductionRate() {}
   getContainmentStatus() {}
   getFinalContainmentArea() {}
   getFinalCost() {}
@@ -795,4 +799,34 @@ Module.TemperatureUnits = class {
 Module.TimeUnits = class {
   toBaseUnits() {}
   fromBaseUnits() {}
+};
+
+Module.RelativeHumidityTool = class {
+  RelativeHumidityTool() {}
+  calculate() {}
+  getDryBulbTemperature() {}
+  getSiteElevation() {}
+  getWetBulbTemperature() {}
+  getDewPointTemperature() {}
+  getRelativeHumidity() {}
+  getWetBulbDepression() {}
+  setDryBulbTemperature() {}
+  setSiteElevation() {}
+  setWetBulbTemperature() {}
+};
+
+Module.SafeSeparationDistanceCalculator = class {
+  SafeSeparationDistanceCalculator() {}
+  calculate() {}
+  getBurningCondition() {}
+  getSlopeClass() {}
+  getSpeedClass() {}
+  getSafeSeparationDistance() {}
+  getSafetyZoneSize() {}
+  getVegetationHeight() {}
+  getSafetyCondition() {}
+  setBurningCondition() {}
+  setSlopeClass() {}
+  setSpeedClass() {}
+  setVegetationHeight() {}
 };

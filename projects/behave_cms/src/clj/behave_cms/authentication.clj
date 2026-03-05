@@ -33,11 +33,11 @@
 ;; https://stackoverflow.com/questions/64034761/fast-random-string-generator-in-clojure
 (defn- rand-string
   ^String [^Long len]
-  (let [leftLimit 97
-        rightLimit 122
-        random (Random.)
+  (let [leftLimit     97
+        rightLimit    122
+        random        (Random.)
         stringBuilder (StringBuilder. len)
-        diff (- rightLimit leftLimit)]
+        diff          (- rightLimit leftLimit)]
     (dotimes [_ len]
       (let [ch (char (.intValue ^Double (+ leftLimit (* (.nextFloat ^Random random) (+ diff 1)))))]
         (.append ^StringBuilder stringBuilder ch)))

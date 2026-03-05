@@ -5,7 +5,7 @@
    [behave-cms.components.sidebar           :refer [sidebar sidebar-width ->sidebar-links]]
    [behave-cms.components.translations      :refer [app-translations]]
    [behave-cms.help.views                   :refer [help-editor]]
-   [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]))
+   [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]))
 
 ;;; Modules
 
@@ -17,7 +17,7 @@
      {:entity             :module
       :form-state-path    editor-state-path
       :entities           (sort-by :module/order @entities)
-      :on-select          (on-select selected-state-path)
+      :on-select          (table-entity-form-on-select selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_modules
       :table-header-attrs [:module/name]
@@ -50,7 +50,7 @@
      {:entity             :tool
       :form-state-path    editor-state-path
       :entities           (sort-by :tool/order @entities)
-      :on-select          (on-select selected-state-path)
+      :on-select          (table-entity-form-on-select selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_tools
       :table-header-attrs [:tool/name]
@@ -72,7 +72,7 @@
      {:entity             :prioritized-results
       :form-state-path    editor-state-path
       :entities           (sort-by :prioritized-results/order @entities)
-      :on-select          (on-select selected-state-path)
+      :on-select          (table-entity-form-on-select selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_prioritized-results
       :table-header-attrs [:variable/name]

@@ -7,8 +7,11 @@
                                         pull-many
                                         q
                                         vms-conn]]
+            [behave.translate            :refer [<t]]
+            [map-utils.interface         :refer [index-by]]
             [datascript.core    :as d]
-            [re-frame.core      :refer [reg-sub subscribe]]))
+            [re-frame.core      :refer [reg-sub subscribe]]
+            [re-frame.core :as rf]))
 
 (reg-sub
  :vms/query
@@ -31,7 +34,7 @@
    @(q '[:find  ?e
          :in    $ ?attr
          :where [?e ?attr]]
-       attr)))
+        attr)))
 
 (reg-sub
  :vms/pull-with-attr
@@ -48,7 +51,7 @@
    @(q '[:find  ?children
          :in    $ ?child-attr ?e
          :where [?e ?child-attr ?children]]
-       child-attr eid)))
+        child-attr eid)))
 
 (reg-sub
  :vms/pull-children
@@ -110,13 +113,13 @@
                                    :in $ ?app-name
                                    :where
                                    [?app-id :application/name ?app-name]]
-                                 "BehavePlus")
+                                  "BehavePlus")
          module-eids         @(q '[:find [?m ...]
                                    :in $ ?app-id
                                    :where
                                    [?app-id :application/modules ?m]
                                    [?m :module/name ?name]]
-                                 app-id)
+                                  app-id)
          modules             (mapv entity-from-eid module-eids)
          normal-order        (->> (for [module (->> modules
                                                     (sort-by :module/order))]
@@ -153,7 +156,7 @@
           (group-variable _ ?gv ?v)
           [?v :variable/kind :continuous]
           [?v :variable/native-unit-uuid ?unit-uuid]]
-        @@vms-conn rules gv-uuid)))
+         @@vms-conn rules gv-uuid)))
 
 
 (reg-sub
@@ -176,7 +179,7 @@
                [?l :language/translation ?t]
                [?t :translation/key ?key]
                [?t :translation/translation ?translation]]
-             @@vms-conn language-short-code)
+              @@vms-conn language-short-code)
         (into {}))))
 
 (reg-sub
@@ -187,7 +190,7 @@
           :where
           [?gv :bp/uuid ?gv-uuid]
           [?gv :group-variable/discrete-multiple? ?discrete-multiple]]
-        @@vms-conn gv-uuid)))
+         @@vms-conn gv-uuid)))
 
 (reg-sub
  :vms/gv-uuid->list-eid
@@ -198,7 +201,7 @@
           [?gv :bp/uuid ?gv-uuid]
           [?v :variable/group-variables ?gv]
           [?v :variable/list ?l]]
-        @@vms-conn gv-uuid)))
+         @@vms-conn gv-uuid)))
 
 
 (reg-sub
@@ -209,7 +212,7 @@
           :where
           [?v :variable/group-variables ?gv]
           [?v :variable/name ?v-name]]
-        @@vms-conn group-variable-eid)))
+         @@vms-conn group-variable-eid)))
 
 (reg-sub
  :vms/group-variable-is-output?
@@ -221,4 +224,116 @@
           (submodule-root ?sm ?g)
           [?sm :submodule/io ?io]
           [(= ?io :output) ?is-output]]
-        @@vms-conn rules group-variable-id)))
+         @@vms-conn rules group-variable-id)))
+
+
+(reg-sub
+ :vms/directional-group-variable-uuids
+ (fn [_]
+   (d/q '[:find  [?gv-uuid ...]
+          :in $
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?gv :group-variable/direction ?direction]]
+         @@vms-conn)))
+
+(reg-sub
+ :vms/group-variable-is-directional?
+ (fn [_ [_ gv-uuid direction]]
+   (= (d/q '[:find  ?direction .
+             :in $ ?gv-uuid
+             :where
+             [?gv :bp/uuid ?gv-uuid]
+             [?gv :group-variable/direction ?direction]]
+            @@vms-conn
+            gv-uuid)
+      direction)))
+
+(reg-sub
+ :vms/resolve-enum-translation
+ (fn [_ [_ gv-uuid value]]
+   (let [result                  (d/pull @@vms-conn '[{:variable/_group-variables
+                                                       [{:variable/list [* {:list/options [*]}]}]}]
+                                         [:bp/uuid gv-uuid])
+         variable                (first (:variable/_group-variables result))
+         {v-list :variable/list} variable
+         {options :list/options} v-list
+         options                 (index-by :list-option/value options)]
+     (if-let [option (get options value)]
+       (or @(<t (:list-option/result-translation-key option))
+           @(<t (:list-option/translation-key option)))
+       value))))
+
+
+(defn- get-group-variable-hierarchy
+  "Returns a sequence of datomic entities from submodule down to group.
+
+  Uses datomic rules from behave.schema.rules for cleaner queries:
+  - lookup: Find entity by UUID
+  - group-variable: Link group-variable to its parent group
+  - submodule-root: Recursively find the submodule for any (sub)group
+  - subgroup: Recursively find all ancestor groups
+
+  Returns: [{:db/id submodule} {:db/id parent-1} ... {:db/id immediate-group}]
+
+  Arguments:
+    db - Datomic database value
+    gv-uuid - UUID of the group-variable
+
+  Returns:
+    Sequence of entities (just :db/id) from submodule to immediate group,
+    or nil if group-variable not found"
+  [db gv-uuid]
+  ;; Use rules to find the immediate group and submodule
+  (when-let [[submodule-eid immediate-group-eid]
+             (d/q '[:find [?submodule ?group]
+                    :in $ % ?gv-uuid
+                    :where
+                    (lookup ?gv-uuid ?gv)
+                    (group-variable ?group ?gv ?v)
+                    (submodule-root ?submodule ?group)]
+                  db
+                  rules
+                  gv-uuid)]
+
+    ;; Use the subgroup rule to find all ancestor groups
+    ;; The subgroup rule: (subgroup ?parent ?child) means ?child is a subgroup of ?parent
+    (let [ancestor-eids (d/q '[:find [?ancestor ...]
+                               :in $ % ?child
+                               :where
+                               (subgroup ?ancestor ?child)]
+                             db
+                             rules
+                             immediate-group-eid)
+
+          ;; Pull all groups with their parent references to sort them
+          all-groups          (cons immediate-group-eid ancestor-eids)
+          groups-with-parents (map #(d/pull db '[:db/id {:group/_children [:db/id]}] %)
+                                   all-groups)
+
+          ;; Build a map of child -> parent for quick lookup
+          parent-map (into {} (map (fn [g]
+                                     [(:db/id g)
+                                      (when-let [parent (:group/_children g)]
+                                        (:db/id parent))])
+                                   groups-with-parents))
+
+          ;; Sort groups from root to leaf by following parent chain
+          sort-groups (fn [group-eid]
+                        (loop [current group-eid
+                               path    []]
+                          (if-let [parent (get parent-map current)]
+                            (recur parent (conj path current))
+                            (reverse (conj path current)))))
+
+          sorted-group-eids (sort-groups immediate-group-eid)
+          submodule         {:db/id submodule-eid}]
+
+      ;; Return: [submodule parent-groups... immediate-group]
+      (cons submodule (map #(hash-map :db/id %) sorted-group-eids)))))
+
+(reg-sub
+ :vms/group-variable-heirarchy
+ (fn [_ [_ gv-uuid]]
+   (get-group-variable-hierarchy @@vms-conn gv-uuid)))
+

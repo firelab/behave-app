@@ -42,30 +42,33 @@
                                      group-uuid
                                      repeat-id
                                      repeat-group?]
-  (let [value                   (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
-        value-atom              (r/atom @value)
-        *domain                 (rf/subscribe [:vms/entity-from-uuid domain-uuid])
-        native-unit-uuid        (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
-        *unit-uuid              (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id gv-uuid])
-        units-used              (or @*unit-uuid native-unit-uuid)
-        *native-unit-short-code (rf/subscribe [:vms/units-uuid->short-code native-unit-uuid])
-        *unit-uuid-short-code   (rf/subscribe [:vms/units-uuid->short-code units-used])
-        *place-holder           (rf/subscribe [:wizard/input-min-max-placeholder
-                                               var-min
-                                               var-max
-                                               @*native-unit-short-code
-                                               @*unit-uuid-short-code])
-        on-change-units         #(let [new-units-uuid %
-                                       old-units-uuid (or @*unit-uuid native-unit-uuid)
-                                       value          @value]
-                                   (rf/dispatch [:wizard/update-input-units
-                                                 (vmap ws-uuid group-uuid repeat-id gv-uuid value new-units-uuid old-units-uuid)]))
-        *outside-range?         (rf/subscribe [:wizard/outside-range? native-unit-uuid @*unit-uuid var-min var-max @value])
-        *outside-range-msg      (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid @*unit-uuid var-min var-max])
-        warn-limit?             (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
-        acceptable-char-codes   (set (map #(.charCodeAt % 0) "0123456789., "))
-        on-focus-click          (partial highlight-help-section help-key)
-        show-range-selector?    (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
+  (let [value                        (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+        value-atom                   (r/atom @value)
+        *domain                      (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+        native-unit-uuid             (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
+        *unit-uuid                   (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id gv-uuid])
+        units-used                   (or @*unit-uuid native-unit-uuid)
+        *native-unit-short-code      (rf/subscribe [:vms/units-uuid->short-code native-unit-uuid])
+        *unit-uuid-short-code        (rf/subscribe [:vms/units-uuid->short-code units-used])
+        *place-holder                (rf/subscribe [:wizard/input-min-max-placeholder
+                                                    var-min
+                                                    var-max
+                                                    @*native-unit-short-code
+                                                    @*unit-uuid-short-code])
+        on-change-units              #(let [new-units-uuid %
+                                            old-units-uuid (or @*unit-uuid native-unit-uuid)
+                                            value          @value]
+                                        (rf/dispatch [:wizard/update-input-units
+                                                      (vmap ws-uuid group-uuid repeat-id gv-uuid value new-units-uuid old-units-uuid)]))
+        *disable-multi-valued-input? (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid])
+        acceptable-char-codes        (set (map #(.charCodeAt % 0)
+                                               (if @*disable-multi-valued-input?
+                                                 "0123456789."
+                                                 "0123456789., ")))
+        on-focus-click               (partial highlight-help-section help-key)
+        show-range-selector?         (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])
+        *error?                      (rf/subscribe [:wizard/input-error? ws-uuid gv-uuid native-unit-uuid @*unit-uuid var-min var-max @value])
+        *error-msgs                  (rf/subscribe [:wizard/input-error-msgs ws-uuid gv-uuid native-unit-uuid @*unit-uuid var-min var-max @value])]
     [:div
      [:div.wizard-input
       [:div.wizard-input__input
@@ -78,8 +81,8 @@
                       :placeholder  @*place-holder
                       :value-atom   value-atom
                       :required?    true
-                      :error?       (or warn-limit? @*outside-range?)
-                      :error-msg    @*outside-range-msg
+                      :error?       @*error?
+                      :error-msg    @*error-msgs
                       :on-change    #(reset! value-atom (input-value %))
                       :on-key-press (fn [event]
                                       (when-not (contains? acceptable-char-codes (.-charCode event))
@@ -89,13 +92,14 @@
                                                    repeat-id
                                                    gv-uuid
                                                    @value-atom)}]]
-      [:div
-       {:class [(if @show-range-selector?
-                  "wizard-input__range-selector-button--selected"
-                  "wizard-input__range-selector-button")]}
-       [c/button {:variant  "secondary"
-                  :label    @(<t (bp "range_selector"))
-                  :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]
+      (when (not @*disable-multi-valued-input?)
+        [:div
+         {:class [(if @show-range-selector?
+                    "wizard-input__range-selector-button--selected"
+                    "wizard-input__range-selector-button")]}
+         [c/button {:variant  "secondary"
+                    :label    @(<t (bp "range_selector"))
+                    :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]])
       [unit-display
        domain-uuid
        @*unit-uuid
@@ -188,14 +192,16 @@
                                              :selected?   (contains? ws-input-values value)}
                                             (when tags {:tags (set (map :bp/nid tags))})
                                             (when color-tag {:color-tag {:color (:tag/color color-tag)}})))]
-    (let [*variable-name (rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
+    (let [*disable-multi-valued-input? (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid])
+          *variable-name               (rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
       [:div.wizard-input
        {:on-click on-focus-click
         :on-focus on-focus-click}
        [c/multi-select-input
-        (cond-> {:input-label @*variable-name
-                 :search      (= workflow :standard)
-                 :options     (doall (map ->option options))}
+        (cond-> {:input-label                 @*variable-name
+                 :disable-multi-valued-input? @*disable-multi-valued-input?
+                 :search                      (= workflow :standard)
+                 :options                     (doall (map ->option options))}
 
 
           (= workflow :standard)

@@ -18,12 +18,11 @@ bind:
 	${WEBIDL} include/idl/behave.idl include/js/glue
 	mv include/js/glue.cpp include/cpp/emscripten/glue.cpp
 
-compile: bind
+compile: clean bind
 	emcmake cmake -B ${BUILD_DIR}
 	cmake --build ${BUILD_DIR}
 
 install: compile
-#	cp build/behave.js ../projects/behave/resources/public/js
 	cp build/behave-min.* ../projects/behave/resources/public/js
 
 test:

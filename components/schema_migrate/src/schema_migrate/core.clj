@@ -155,6 +155,9 @@
           [?e :module/translation-key ?k]
           [?e :submodule/translation-key ?k]
           [?e :group/translation-key ?k]
+          [?e :subtool-variable/translation-key ?k]
+          [?e :tag/translation-key ?k]
+          [?e :tag-set/translation-key ?k]
           [?e :group-variable/translation-key ?k])] (d/db conn) eid))
 
 (defn t-key->uuid
@@ -162,8 +165,11 @@
   [conn t]
   (when-let [e (or (d/entity (ds/unwrap-db conn) [:group-variable/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:group-variable/result-translation-key t])
+                   (d/entity (ds/unwrap-db conn) [:subtool-variable/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:group/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:module/translation-key t])
+                   (d/entity (ds/unwrap-db conn) [:tag-set/translation-key t])
+                   (d/entity (ds/unwrap-db conn) [:tag/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:color-tag/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:search-table/translation-key t])
                    (submodule conn t))]
@@ -231,12 +237,12 @@
       (ds/transact conn newdata))))
 
 (defn- insert-bp-uuid [x]
-  (if (map? x)
+  (if (and (map? x) (nil? (:bp/uuid x)))
     (assoc x :bp/uuid (str (squuid)))
     x))
 
 (defn- insert-bp-nid [x]
-  (if (map? x)
+  (if (and (map? x) (nil? (:bp/nid x)))
     (assoc x :bp/nid (nano-id))
     x))
 
@@ -342,6 +348,8 @@
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                  (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                   (:db/id params)          (assoc :db/id (:db/id params))
                   group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
                   ttype                    (assoc :conditional/type ttype)
@@ -357,6 +365,8 @@
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                  (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                   (:db/id params)          (assoc :db/id (:db/id params))
                   nname                    (assoc :action/name nname)
                   ttype                    (assoc :action/type ttype)
@@ -367,14 +377,21 @@
       (spec/explain :behave/action payload))))
 
 (defn ->variable
-  [_conn {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?] :as params}]
+  [_conn {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?
+                 dimension-uuid native-unit-uuid metric-unit-uuid english-unit-uuid] :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                  (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                   (:db/id params)          (assoc :db/id (:db/id params))
                   nname                    (assoc :variable/name nname)
                   kind                     (assoc :variable/kind kind)
                   domain-uuid              (assoc :variable/domain-uuid domain-uuid)
+                  dimension-uuid           (assoc :variable/dimension-uuid dimension-uuid)
+                  native-unit-uuid         (assoc :variable/native-unit-uuid native-unit-uuid)
+                  english-unit-uuid        (assoc :variable/english-unit-uuid english-unit-uuid)
+                  metric-unit-uuid         (assoc :variable/metric-unit-uuid metric-unit-uuid)
                   list-eid                 (assoc :variable/list list-eid)
                   translation-key          (assoc :variable/translation-key translation-key)
                   help-key                 (assoc :variable/help-translation-key help-key)
@@ -387,25 +404,33 @@
 
 (defn ->group-variable
   "Payload for a new Group Variable."
-  [conn {:keys [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key conditionally-set? actions] :as params}]
+  [conn {:keys
+         [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key conditionally-set? actions
+          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator] :as params}]
   (let [payload (if (spec/valid? :behave/group-variable params)
                   params
                   (cond-> {}
-                    (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
-                    (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
-                    (:db/id params)          (assoc :db/id (:db/id params))
-                    parent-group-eid         (assoc :group/_group-variables parent-group-eid)
-                    order                    (assoc :group-variable/order order)
-                    variable-eid             (assoc :variable/_group-variables variable-eid)
-                    cpp-namespace            (assoc :group-variable/cpp-namespace (cpp-ns->uuid conn cpp-namespace))
-                    cpp-class                (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
-                    cpp-function             (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
-                    cpp-parameter            (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
-                    translation-key          (assoc :group-variable/translation-key translation-key)
-                    translation-key          (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
-                    translation-key          (assoc :group-variable/help-key (str translation-key ":help"))
-                    conditionally-set?       (assoc :group-variable/conditionally-set? conditionally-set?)
-                    (seq actions)            (assoc :group-variable/actions (map #(cond->> % (map? %) (->action conn)) actions))))]
+                    (nil? (:bp/uuid params))                        (assoc :bp/uuid  (rand-uuid))
+                    (not  (:bp/nid params))                         (assoc :bp/nid  (nano-id))
+                    (:bp/uuid params)                               (assoc :bp/uuid (:bp/uuid params))
+                    (:bp/nid params)                                (assoc :bp/nid (:bp/nid params))
+                    (:db/id params)                                 (assoc :db/id (:db/id params))
+                    parent-group-eid                                (assoc :group/_group-variables parent-group-eid)
+                    order                                           (assoc :group-variable/order order)
+                    variable-eid                                    (assoc :variable/_group-variables variable-eid)
+                    cpp-namespace                                   (assoc :group-variable/cpp-namespace (cpp-ns->uuid conn cpp-namespace))
+                    cpp-class                                       (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
+                    cpp-function                                    (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
+                    cpp-parameter                                   (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
+                    translation-key                                 (assoc :group-variable/translation-key translation-key)
+                    translation-key                                 (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                    translation-key                                 (assoc :group-variable/help-key (str translation-key ":help"))
+                    conditionally-set?                              (assoc :group-variable/conditionally-set? conditionally-set?)
+                    (seq actions)                                   (assoc :group-variable/actions (map #(cond->> % (map? %) (->action conn)) actions))
+                    hide-result?                                    (assoc :group-variable/hide-result? hide-result?)
+                    (seq hide-result-conditionals)                  (assoc :group-variable/hide-result-conditionals (map #(cond->> % (map? %) (->conditional conn)) hide-result-conditionals))
+                    disable-multi-valued-input-conditional-operator (assoc :group-variable/disable-multi-valued-input-conditional-operator disable-multi-valued-input-conditional-operator)
+                    (seq disable-multi-valued-input-conditionals)   (assoc :group-variable/disable-multi-valued-input-conditionals (map #(cond->> % (map? %) (->conditional conn)) disable-multi-valued-input-conditionals))))]
     (if (spec/valid? :behave/group-variable payload)
       payload
       (spec/explain :behave/group-variable payload))))
@@ -418,6 +443,8 @@
                   (cond-> {}
                     (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                     (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                    (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                     (:db/id params)          (assoc :db/id (:db/id params))
                     parent-submodule-eid     (assoc :submodule/_groups parent-submodule-eid)
                     parent-group-eid         (assoc :group/_children parent-group-eid)
@@ -443,6 +470,8 @@
                   (cond-> {}
                     (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                     (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                    (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                     (:db/id params)          (assoc :db/id (:db/id params))
                     io                       (assoc :submodule/io io)
                     submodule-name           (assoc :submodule/name submodule-name)

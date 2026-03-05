@@ -2,21 +2,34 @@
   (:require [behave.components.vega.diagram :refer [output-diagram]]
             [clojure.set                    :refer [rename-keys]]
             [clojure.string                 :as str]
-            [re-frame.core                  :refer [subscribe]]))
+            [re-frame.core                  :refer [subscribe]]
+            [goog.string            :as gstring]
+            [re-frame.core :as rf]))
 
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
-  (let [outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
+  (let [gv-order @(subscribe [:vms/group-variable-order])
+        outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
+        output-formatters @(subscribe [:worksheet/result-table-formatters outputs-to-filter])
         outputs           (->> (subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
                                deref
                                (filter (fn [[gv-uuid]] (contains? outputs-to-filter gv-uuid)))
-                               (map (fn resolve-gv-uuid->name[[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])))))
+                               (sort-by (fn [[gv-uuid]] (.indexOf gv-order gv-uuid)))
+                               (map (fn resolve-gv-uuid->name [[gv-uuid value units]]
+                                      (let [fmt-fn (get output-formatters gv-uuid identity)]
+                                        [@(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
+                                         (fmt-fn value)
+                                         units]))))
         inputs-to-filter  (set @(subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
+        input-formatters  @(subscribe [:worksheet/result-table-formatters inputs-to-filter])
         inputs            (->> (subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
                                deref
                                (filter (fn [[gv-uuid]] (contains? inputs-to-filter gv-uuid)))
-                               (map (fn resolve-gv-uuid->name [[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])))))]
+                               (sort-by (fn [[gv-uuid]] (.indexOf gv-order gv-uuid)))
+                               (map (fn resolve-gv-uuid->name [[gv-uuid value units]]
+                                      (let [fmt-fn (get input-formatters gv-uuid identity)]
+                                        [@(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
+                                         (fmt-fn value)
+                                         units]))))]
     [:div
      [:table.diagram__table
       (map (fn [[variable-name value units]]
@@ -34,6 +47,23 @@
                      (str value " (" units ")")
                      value)]])
            outputs)]]))
+
+(defn- build-title [ws-uuid diagram-title row-id]
+  (let [multi-valued-input-uuids  (set @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
+        *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
+        input-gv-uuid+value+units (sort-by #(.indexOf @*gv-order (first %))
+                                           @(subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id]))
+        result                    (->> input-gv-uuid+value+units
+                                       (filter (fn [[gv-uuid _ _]]
+                                                 (contains? multi-valued-input-uuids gv-uuid)))
+                                       (map (fn [[gv-uuid value unit]]
+                                              (gstring/format
+                                               "%s=%s (%s) "
+                                               @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                                               value
+                                               unit)))
+                                       (apply str))]
+    (gstring/format "%s for: %s" diagram-title result)))
 
 (defn- construct-diagram [ws-uuid
                           {row-id              :worksheet.diagram/row-id
@@ -53,7 +83,7 @@
                                        (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
                                        (map #(Math/abs (double %))))))]
     [:div.diagram
-     [output-diagram {:title         (str title " for result row: " (inc row-id))
+     [output-diagram {:title         (build-title ws-uuid title row-id)
                       :width         500
                       :height        500
                       :x-axis        {:domain        [(* -1 domain) domain]

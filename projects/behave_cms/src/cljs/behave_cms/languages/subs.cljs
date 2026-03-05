@@ -12,12 +12,12 @@
  identity)
 
 (rp/reg-sub
-  :language/english-eid
-  (fn [_ _]
-    {:type :query
-     :query '[:find ?e .
-              :where
-              [?e :language/shortcode "en-US"]]}))
+ :language/english-eid
+ (fn [_ _]
+   {:type  :query
+    :query '[:find ?e .
+             :where
+             [?e :language/shortcode "en-US"]]}))
 
 ;;; Translations
 
@@ -33,7 +33,7 @@
  (fn [[_ translation-key]]
    (rf/subscribe [:query
                   '[:find  [?e ...]
-                    :in    $ ?translation-key 
+                    :in    $ ?translation-key
                     :where [?e :translation/key ?translation-key]]
                   [translation-key]]))
  identity)

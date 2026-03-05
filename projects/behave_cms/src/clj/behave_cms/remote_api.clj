@@ -22,13 +22,13 @@
 (def name->fn {"sync-images" sync-images})
 
 (def api-handlers {; Authorization
-                   :api/login                  login!
-                   :api/logout                 logout!
-                   :api/invite-user            invite-user!
-                   :api/reset-password         reset-password!
-                   :api/set-email              set-email!
-                   :api/reset-key              reset-key!
-                   :api/verify-email           verify-email!})
+                   :api/login          login!
+                   :api/logout         logout!
+                   :api/invite-user    invite-user!
+                   :api/reset-password reset-password!
+                   :api/set-email      set-email!
+                   :api/reset-key      reset-key!
+                   :api/verify-email   verify-email!})
 
 (defn- fn->sym [f]
   (-> (str f)

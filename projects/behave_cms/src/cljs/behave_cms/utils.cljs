@@ -73,16 +73,16 @@
 (defn- get-files [data-tx]
   (if-let [items (.-items data-tx)]
     (keep #(when (= (.-kind %) "file")
-        (.getAsFile %)) items)
+             (.getAsFile %)) items)
     (.-files data-tx)))
 
 (defn on-drop-image [event f]
    ; Prevent default behavior (Prevent file from being opened)
-   (.preventDefault event)
-   (let [files (get-files (j/get event :dataTransfer))
-         file  (first files)]
-     (when (str/starts-with? (j/get file :type) "image/")
-       (f file))))
+  (.preventDefault event)
+  (let [files (get-files (j/get event :dataTransfer))
+        file  (first files)]
+    (when (str/starts-with? (j/get file :type) "image/")
+      (f file))))
 
 (defn file->url [file callback]
   (let [reader  (js/FileReader.)
@@ -243,7 +243,7 @@
                             (str/join "&")
                             (js/encodeURIComponent))
           fetch-params {:method  "get"
-                        :headers {"Accept" "application/edn"
+                        :headers {"Accept"       "application/edn"
                                   "Content-Type" "application/edn"}}
           response     (<! (fetch (str url (when (not= query-string "") (str "?" query-string)))
                                   fetch-params))]
@@ -747,10 +747,10 @@
    with nil."
   [last-clicked-info no-data-quantities]
   (map (fn [entry]
-        (let [band-val (:band entry)]
-          (assoc entry :band (if (contains? no-data-quantities (str band-val))
-                               nil
-                               band-val))))
+         (let [band-val (:band entry)]
+           (assoc entry :band (if (contains? no-data-quantities (str band-val))
+                                nil
+                                band-val))))
        last-clicked-info))
 
 (defn ->text-input-value

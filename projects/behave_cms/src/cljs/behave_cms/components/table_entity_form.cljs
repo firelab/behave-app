@@ -1,11 +1,12 @@
 (ns behave-cms.components.table-entity-form
   (:require
-   [behave-cms.components.common      :refer [simple-table]]
-   [behave-cms.components.entity-form :refer [entity-form]]
-   [re-frame.core                     :as rf]
-   [reagent.core                      :as r]))
+   [behave-cms.components.common       :refer [simple-table]]
+   [behave-cms.components.entity-form  :refer [entity-form]]
+   [behave-cms.components.translations :refer [all-translations]]
+   [re-frame.core                      :as rf]
+   [reagent.core                       :as r]))
 
-(defn on-select
+(defn table-entity-form-on-select
   "On select function to be passed into table-entity-form. Returns a function that expects an entity. Function will also update the `selected-state-path` as well as clearing the state of any related paths (`other-state-paths-to-clear`)"
   [selected-state-path & other-state-paths-to-clear]
   #(let [selected-entity-id (:db/id @(rf/subscribe [:state selected-state-path]))]
@@ -15,6 +16,16 @@
              (rf/dispatch [:state/set-state path nil])))
        (rf/dispatch [:state/set-state selected-state-path
                      @(rf/subscribe [:re-entity (:db/id %)])]))))
+
+(defn- create-translation! [data entity {:keys [key-fn text-fn]}]
+  (let [t-key       (if (keyword? key-fn) (get data key-fn) (key-fn data))
+        t-text      (if (keyword? text-fn) (get data text-fn) (text-fn data))
+        english-eid @(rf/subscribe [:language/english-eid])
+        key-attr    (keyword (name entity) "translation-key")]
+    (rf/dispatch [:api/create-entity {:translation/key         t-key
+                                      :language/_translation   english-eid
+                                      :translation/translation t-text}])
+    (assoc data key-attr t-key)))
 
 (defn table-entity-form
   "A component that has simple table with a togglable entity-form. Use this
@@ -41,13 +52,21 @@
   `order-attr` - (optional) if entities have an order attribute this will
   display buttons to re order the list in the table.
 
+  `translation-config` - (optional) map with `:key-fn` and `:text-fn` (each a keyword
+  or fn from entity data -> string). When present, a translation entity is automatically
+  created on entity creation and `:<entity>/translation-key` is assoc'd onto the data.
+
+  `translation-attrs` - (optional) vector of `{:label \"...\" :attr :entity/translation-key}`
+  maps. When an existing entity is selected, renders an [all-translations] table for
+  each attr that has a non-nil value on the entity.
+
   "
-  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr on-select modify? form-state-path]
+  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr form-state-path on-select translation-config translation-attrs modify?]
     :or {modify? true}}]
-  (r/with-let [entity-id-atom (r/atom nil)
+  (r/with-let [entity-id-atom    (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"
-                   :height "100%"
+                   :height  "100%"
                    :padding "30px"}}
      [:div {:style {:padding-right "10px"
                     :width         "100%"}}
@@ -79,7 +98,7 @@
          order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
                             :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]
      (when @show-entity-form?
-       [:div {:style {:height "100%"
+       [:div {:style {:height     "100%"
                       :overflow-y "auto"}}
         [entity-form {:title        title
                       :state-path   form-state-path
@@ -88,11 +107,22 @@
                       :parent-field parent-field
                       :parent-id    parent-id
                       :fields       entity-form-fields
-                      :on-update    #(do (reset! entity-id-atom nil) %)
+                      :on-update    #(do (reset! entity-id-atom nil)
+                                         (swap! show-entity-form? not)
+                                         %)
                       :on-create    #(do
                                        (reset! entity-id-atom nil)
                                        (swap! show-entity-form? not)
-                                       (if order-attr
-                                         (let [next-order (count entities)]
-                                           (assoc % order-attr next-order))
-                                         %))}]])]))
+                                       (cond-> %
+                                         translation-config (create-translation! entity translation-config)
+                                         order-attr         (assoc order-attr (count entities))))}]
+        (when (and (seq translation-attrs) @entity-id-atom)
+          (let [entity-data @(rf/subscribe [:re-entity @entity-id-atom])]
+            [:<>
+             (for [{:keys [label attr]} translation-attrs
+                   :let                 [t-key (get entity-data attr)]
+                   :when                t-key]
+               ^{:key (str attr)}
+               [:<>
+                [:h4 label]
+                [all-translations t-key]])]))])]))

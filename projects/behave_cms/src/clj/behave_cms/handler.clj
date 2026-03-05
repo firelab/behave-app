@@ -79,14 +79,14 @@
 (defn wrap-request-logging [handler]
   (fn [request]
     (let [{:keys [uri request-method params]} request
-          param-str (pr-str (dissoc params :auth-token :password :re-password))]
+          param-str                           (pr-str (dissoc params :auth-token :password :re-password))]
       (log-str "Request(" (name request-method) "): \"" uri "\" " param-str)
       (handler request))))
 
 (defn wrap-response-logging [handler]
   (fn [request]
     (let [{:keys [status headers body] :as response} (handler request)
-          content-type (headers "Content-Type")]
+          content-type                               (headers "Content-Type")]
       (log-str "Response(" status "): "
                (cond
                  (str/includes? content-type "text/html")
@@ -115,9 +115,9 @@
 (defn wrap-edn-params [handler]
   (fn [{:keys [content-type request-method query-string body params] :as request}]
     (if (= content-type "application/edn")
-      (let [get-params (when (and (= request-method :get)
-                                  (not (str/blank? query-string)))
-                         (parse-query-string query-string))
+      (let [get-params  (when (and (= request-method :get)
+                                   (not (str/blank? query-string)))
+                          (parse-query-string query-string))
             post-params (when (and (= request-method :post)
                                    (not (nil? body)))
                           (edn/read-string (slurp body)))]
@@ -127,9 +127,9 @@
 (defn wrap-transit-params [handler]
   (fn [{:keys [content-type request-method query-string body params] :as request}]
     (if (= content-type "application/transit+json")
-      (let [get-params (when (and (= request-method :get)
-                                  (not (str/blank? query-string)))
-                         (parse-query-string query-string))
+      (let [get-params  (when (and (= request-method :get)
+                                   (not (str/blank? query-string)))
+                          (parse-query-string query-string))
             post-params (when (and (= request-method :post)
                                    (not (nil? body)))
                           (transit/read (transit/reader body :json)))]
@@ -146,7 +146,7 @@
       (handler request)
       (catch Exception e
         (let [{:keys [data cause]} (Throwable->map e)
-              status (:status data)]
+              status               (:status data)]
           (log-str "Error: " cause)
           (log-str (st/print-stack-trace e))
           (data-response cause {:status (or status 500)}))))))

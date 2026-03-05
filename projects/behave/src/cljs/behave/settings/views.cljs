@@ -1,15 +1,15 @@
 (ns behave.settings.views
-  (:require [behave.components.core  :as c]
-            [behave.settings.events]
-            [behave.translate        :refer [<t bp]]
-            [dom-utils.interface     :refer [input-value]]
-            [reagent.core            :as r]
-            [re-frame.core           :as rf]))
+  (:require
+   [behave.components.core :as c]
+   [behave.settings.events]
+   [behave.translate       :refer [<t bp]]
+   [dom-utils.interface    :refer [input-value]]
+   [reagent.core           :as r]
+   [re-frame.core          :as rf]))
 
 ;;==============================================================================
 ;; Fuel Model Set Selection Tab
 ;;==============================================================================
-
 
 (defn- fuel-model-tab []
   [:div "Coming soon!"])
@@ -43,50 +43,70 @@
                                 (sort-by :label))))}]]))
 
 (defn- build-rows [ws-uuid domain-set domain-unit-settings]
-  (map
-   (fn [[domain-uuid {:keys [domain-name
-                             domain-dimension-uuid
-                             domain-native-unit-uuid
-                             domain-decimals]}]]
-     {:domain   domain-name
-      :units    (if (not= domain-dimension-uuid "N/A")
-                  (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
-                        units     (:dimension/units @dimension)
-                        on-click  #(rf/dispatch-sync [:settings/cache-unit-preference
-                                                      domain-set
-                                                      domain-uuid
-                                                      %
-                                                      ws-uuid])]
-                    [unit-selector domain-native-unit-uuid units on-click])
-                  [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
-      :decimals (when (not= domain-decimals "N/A")
-                  (let [decimal-atom (r/atom domain-decimals)]
-                    [c/number-input {:value-atom decimal-atom
-                                     :on-change  #(reset! decimal-atom (input-value %))
-                                     :on-blur    #(rf/dispatch-sync [:settings/cache-decimal-preference
-                                                                     domain-set domain-uuid @decimal-atom])}]))})
-   domain-unit-settings))
+  (let [cached-units-system @(rf/subscribe [:settings/application-units-system])]
+    (map
+     (fn [[domain-uuid {:keys [domain-name
+                               domain-dimension-uuid
+                               domain-cached-unit-uuid
+                               domain-native-unit-uuid
+                               domain-english-unit-uuid
+                               domain-metric-unit-uuid
+                               domain-decimals]}]]
+       {:domain   domain-name
+        :units    (if (not= domain-dimension-uuid "N/A")
+                    (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
+                          units     (:dimension/units @dimension)
+                          on-click  #(rf/dispatch-sync [:settings/cache-unit-preference
+                                                        domain-set
+                                                        domain-uuid
+                                                        %
+                                                        ws-uuid])]
+                      [unit-selector
+                       (or domain-cached-unit-uuid
+                           (case cached-units-system
+                             :english domain-english-unit-uuid
+                             :metric  domain-metric-unit-uuid
+                             domain-native-unit-uuid))
+                       units on-click])
+                    [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
+        :decimals (when (not= domain-decimals "N/A")
+                    (let [decimal-atom (r/atom domain-decimals)]
+                      [c/number-input {:value-atom decimal-atom
+                                       :on-change  #(reset! decimal-atom (input-value %))
+                                       :on-blur    #(rf/dispatch-sync [:settings/cache-decimal-preference
+                                                                       domain-set domain-uuid @decimal-atom])}]))})
+     domain-unit-settings)))
 
 (defn- general-units-tab [{:keys [ws-uuid]}]
   (r/with-let [_ (rf/dispatch [:settings/load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
           domain-sets     (sort-by first @*state-settings)]
       [:div.settings__general-units
-       (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
-                                        ^{:key domain-sets}
-                                        {:label   domain-set-name
-                                         :content (c/table {:headers [@(<t (bp "variable_domain"))
-                                                                      @(<t (bp "units"))
-                                                                      @(<t (bp "decimals"))]
-                                                            :columns [:domain :units :decimals]
-                                                            :rows    (build-rows
-                                                                      ws-uuid
-                                                                      domain-set-name
-                                                                      (sort-by
-                                                                       (fn [[_ domain]]
-                                                                         (:domain-name domain))
-                                                                       domain-unit-settings))})})})])))
-
+       [:div.settings__general-units__units-system-selection
+        [c/toggle
+         {:label       @(<t (bp "units_system"))
+          :left-label  @(<t (bp "english"))
+          :right-label @(<t (bp "metric"))
+          :checked?    (= @(rf/subscribe [:settings/application-units-system]) :metric)
+          :on-change   #(rf/dispatch [:settings/set-units-system
+                                      (if (= @(rf/subscribe [:settings/application-units-system]) :english)
+                                        :metric
+                                        :english)])}]]
+       [:div.settings__general-units__table
+        (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
+                                         ^{:key domain-sets}
+                                         {:label   domain-set-name
+                                          :content (c/table {:headers [@(<t (bp "variable_domain"))
+                                                                       @(<t (bp "units"))
+                                                                       @(<t (bp "decimals"))]
+                                                             :columns [:domain :units :decimals]
+                                                             :rows    (build-rows
+                                                                       ws-uuid
+                                                                       domain-set-name
+                                                                       (sort-by
+                                                                        (fn [[_ domain]]
+                                                                          (:domain-name domain))
+                                                                        domain-unit-settings))})})})]])))
 
 ;;==============================================================================
 ;; Root Component
@@ -120,4 +140,5 @@
                  :variant       "highlight"
                  :icon-name     "arrow2"
                  :icon-position "right"
-                 :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]]))
+                 :on-click      #(when (js/confirm @(<t (bp "are_you_sure_you_want_to_reset_your_unit_preferences?")))
+                                   (rf/dispatch [:settings/reset-custom-unit-preferences]))}]]]))

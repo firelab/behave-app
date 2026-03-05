@@ -14,6 +14,7 @@
  :output-dir    "projects/behave_cms/resources/public/cljs"
  :output-to     "projects/behave_cms/resources/public/cljs/app.js"
  :asset-path    "/cljs"
+ :preloads      [re-frisk.preload]
  :source-map    true
  :optimizations :none
  :pretty-print  true}

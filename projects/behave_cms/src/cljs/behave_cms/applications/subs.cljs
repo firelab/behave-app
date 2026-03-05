@@ -7,32 +7,32 @@
             [behave-cms.routes :refer [app-routes]]))
 
 (rf/reg-sub
-  :applications
-  (fn [_]
-    (rf/subscribe [:pull-with-attr :application/name]))
-  identity)
+ :applications
+ (fn [_]
+   (rf/subscribe [:pull-with-attr :application/name]))
+ identity)
 
 (rf/reg-sub
-  :application
-  (fn [[_ id]]
-    (rf/subscribe [:entity id]))
-  (fn [result _]
-    (let [app-name        (:application/name result)
-          translation-key (->kebab app-name)
-          help-key        (str translation-key ":help")]
-      (assoc result
-             :application/help-key help-key
-             :application/translation-key translation-key))))
+ :application
+ (fn [[_ id]]
+   (rf/subscribe [:entity id]))
+ (fn [result _]
+   (let [app-name        (:application/name result)
+         translation-key (->kebab app-name)
+         help-key        (str translation-key ":help")]
+     (assoc result
+            :application/help-key help-key
+            :application/translation-key translation-key))))
 
 (rf/reg-sub
-  :sidebar/applications
-  :<- [:applications]
-  (fn [applications _]
-    (->> applications
-         (map (fn [{nid :bp/nid app-name :application/name}]
-                {:label app-name
-                 :link  (path-for app-routes :get-application :nid nid)}))
-         (sort-by :label))))
+ :sidebar/applications
+ :<- [:applications]
+ (fn [applications _]
+   (->> applications
+        (map (fn [{nid :bp/nid app-name :application/name}]
+               {:label app-name
+                :link  (path-for app-routes :get-application :nid nid)}))
+        (sort-by :label))))
 
 ;;; Modules
 

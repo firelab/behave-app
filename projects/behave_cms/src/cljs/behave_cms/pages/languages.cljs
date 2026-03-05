@@ -3,7 +3,7 @@
             [behave-cms.components.common :refer [simple-table]]
             [behave-cms.components.entity-form :refer [entity-form]]))
 
-(def columns [:shortcode :language ])
+(def columns [:shortcode :language])
 
 (defn languages-table []
   (let [languages (rf/subscribe [:entities :languages])

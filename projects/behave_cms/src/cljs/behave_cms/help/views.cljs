@@ -15,8 +15,8 @@
 ;;; Styling
 
 (defn $textarea []
-   {:font-family "var(--bs-font-monospace)"
-    :width "100%"})
+  {:font-family "var(--bs-font-monospace)"
+   :width       "100%"})
 
 (defn $markdown-editor []
   ^{:combinators {[:> :img] {:max-width "100%"
@@ -161,11 +161,8 @@
 
 (comment
 
-
   (def help-key "behaveplus:contain:help")
   (def language (rf/subscribe [:help-editor/state help-key :language]))
   language
   (rf/subscribe [:help/page help-key @language])
-  (rf/subscribe [:help-editor/state help-key])
-
-  )
+  (rf/subscribe [:help-editor/state help-key]))

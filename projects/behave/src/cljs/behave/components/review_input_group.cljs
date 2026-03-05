@@ -15,7 +15,7 @@
 (defmethod wizard-input :continuous [{gv-uuid  :bp/uuid
                                       help-key :group-variable/help-key}
                                      ws-uuid
-                                     {group-uuid :bp/uuid
+                                     {group-uuid            :bp/uuid
                                       group-translation-key :group/translation-key}
                                      repeat-id
                                      _repeat-group?
@@ -119,12 +119,13 @@
                   :size     "small"
                   :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}])]))
 
-(defn- repeat-group-input [variables ws-uuid group-uuid repeat-id route]
-  (let [first-value @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid (first variables))])
-        ws-values   (map #(deref (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid %)]))
-                       (rest variables))]
+(defn- repeat-group-input [variables ws-uuid group repeat-id route]
+  (let [{group-uuid :bp/uuid} group
+        first-value           @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid (first variables))])
+        ws-values             (map #(deref (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid %)]))
+                         (rest variables))]
     [:div.wizard-review-repeat-group__input
-     [wizard-input (first variables) ws-uuid group-uuid repeat-id true route]
+     [wizard-input (first variables) ws-uuid group repeat-id true route]
      (when (and (some #(missing-input? %) ws-values) first-value)
        [:div.wizard-review__run-description__message
         [c/button {:label         @(<t (bp "required"))
@@ -164,7 +165,7 @@
          [:div.wizard-group__inputs
           (let [variables (sort-by :group-variable/variable-order variables)]
             [:div.wizard-input
-             [repeat-group-input variables ws-uuid group-uuid repeat-id edit-route]])]])
+             [repeat-group-input variables ws-uuid group repeat-id edit-route]])]])
       @*repeat-ids)
      [:div {:style {:display         "flex"
                     :padding         "20px"
