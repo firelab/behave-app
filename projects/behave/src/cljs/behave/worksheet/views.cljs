@@ -118,8 +118,7 @@
                                           :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                                           :icons     [{:icon-name "contain"}]
                                           :selected? (= @*modules [:contain])
-                                          :module    [:contain]}
-                                       ]}]]
+                                          :module    [:contain]}]}]]
       [wizard-navigation {:next-label     @(<t (bp "next"))
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)

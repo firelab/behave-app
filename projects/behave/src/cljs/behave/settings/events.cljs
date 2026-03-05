@@ -1,8 +1,8 @@
 (ns behave.settings.events
-  (:require [re-frame.core :as rf]
-            [re-posh.core     :as rp]
+  (:require [re-frame.core                 :as rf]
+            [re-posh.core                  :as rp]
             [vimsical.re-frame.cofx.inject :as inject]
-            [behave.translate :refer [<t bp]]))
+            [behave.translate              :refer [<t bp]]))
 
 (rp/reg-event-fx
  :settings/clear-inputs-in-domain

@@ -11,7 +11,6 @@
  (fn [db _]
    (get-in db [:state :sidebar :*modules])))
 
-
 (rf/reg-sub
  :sidebar/worksheet-modules
  (fn [[_ ws-uuid]]

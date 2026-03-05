@@ -1,7 +1,7 @@
 (ns behave.wizard.events
   (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.lib.units              :refer [convert]]
-            [browser-utils.core :refer [scroll-top!]]
+            [browser-utils.core            :refer [scroll-top!]]
             [behave.solver.core            :refer [solve-worksheet]]
             [behave.vms.store              :as vms]
             [behave.store                  :as s]
@@ -179,7 +179,6 @@
  (fn [_cfx _query]
    {:fx [[:dispatch [:state/update [:worksheet :show-add-note-form?] not]]]}))
 
-
 (rf/reg-event-fx
  :wizard/results-select-tab
  (fn [_cfx [_ {:keys [tab]}]]
@@ -264,7 +263,6 @@
                    (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]]))]
      {:fx effects})))
 
-
 ;; Update input variable with units
 ;; If units provided is different from the stored units, set the progress bar's furthest step back to inputs.
 ;; Also clear the input value from the worksheet.
@@ -306,7 +304,6 @@
  :wizard/open
  (fn [_ [_ file]]
    (s/open-worksheet! {:file file})))
-
 
 (rf/reg-event-fx
  :wizard/new-worksheet
