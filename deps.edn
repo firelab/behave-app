@@ -172,6 +172,12 @@
                 {:mvn/version "0.2.17-alpha"}}
    :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}
 
+  :cucumber/core
+  {:exec-fn run-cucumber/run-core}
+
+  :cucumber/all
+  {:exec-fn run-cucumber/run-all}
+
   :import-help
   {:extra-paths
    ["projects/behave_cms/src/clj"

@@ -23,6 +23,13 @@
                    (println (format "Done! \n\n Please add \"projects/%s/src\" to the :paths section of your deps.edn file." project)))
 
 
+  ;;; Cucumber Tests
+  cucumber-core {:doc  "Run core cucumber tests (~30 min)"
+                 :task (clojure "-X:dev:cucumber/core")}
+
+  cucumber-all  {:doc  "Run all cucumber tests (~3 hr)"
+                 :task (clojure "-X:dev:cucumber/all")}
+
   ;;; Commands
   import-help (do
                 (clojure "-X:dev:import-help")
