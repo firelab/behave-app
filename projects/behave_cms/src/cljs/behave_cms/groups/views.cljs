@@ -1,13 +1,13 @@
 (ns behave-cms.groups.views
-  (:require [re-frame.core                            :as rf]
-            [string-utils.interface                   :refer [->str]]
-            [behave-cms.components.common             :refer [accordion checkbox window]]
+  (:require [behave-cms.components.common             :refer [accordion checkbox window]]
             [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.sidebar            :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations       :refer [all-translations]]
             [behave-cms.components.table-entity-form  :refer [table-entity-form table-entity-form-on-select]]
+            [behave-cms.components.translations       :refer [all-translations]]
+            [behave-cms.groups.subs]
             [behave-cms.help.views                    :refer [help-editor]]
-            [behave-cms.groups.subs]))
+            [re-frame.core                            :as rf]
+            [string-utils.interface                   :refer [->str]]))
 
 (defn- groups-results-order-table [submodule-id]
   (let [groups (rf/subscribe [:groups submodule-id])]

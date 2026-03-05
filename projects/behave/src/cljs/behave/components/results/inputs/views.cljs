@@ -1,7 +1,7 @@
 (ns behave.components.results.inputs.views
   (:require [behave.components.core :as c]
-            [behave.print.subs]
             [behave.components.results.inputs.subs]
+            [behave.print.subs]
             [behave.translate       :refer [<t]]
             [clojure.string         :as str]
             [goog.string            :as gstring]
@@ -31,16 +31,16 @@
             single-var?      (= (count variables) 1)
             multi-var?       (> (count variables) 1)
             new-entries      (cond single-var?
-                                   (let [gv-uuid      (:bp/uuid (first variables))
-                                         list-eid     @(subscribe [:vms/gv-uuid->list-eid gv-uuid])
-                                         fmt-fn       (get formatters gv-uuid identity)
-                                         fvar         (first variables)
-                                         units        (get gv-uuid->units gv-uuid)
-                                         value        @(subscribe [:worksheet/input-value
-                                                                   ws-uuid
-                                                                   (:bp/uuid current-group)
-                                                                   0 ;repeat-id
-                                                                   gv-uuid])]
+                                   (let [gv-uuid  (:bp/uuid (first variables))
+                                         list-eid @(subscribe [:vms/gv-uuid->list-eid gv-uuid])
+                                         fmt-fn   (get formatters gv-uuid identity)
+                                         fvar     (first variables)
+                                         units    (get gv-uuid->units gv-uuid)
+                                         value    @(subscribe [:worksheet/input-value
+                                                               ws-uuid
+                                                               (:bp/uuid current-group)
+                                                               0 ;repeat-id
+                                                               gv-uuid])]
                                      (when (seq value)
                                        (if (:group-variable/discrete-multiple? fvar)
                                          (let [values (->> (str/split value ",")
@@ -126,11 +126,11 @@
           submodules))
 
 (defn inputs-table [ws-uuid]
-  (let [*worksheet     (subscribe [:worksheet ws-uuid])
-        module-kws        (:worksheet/modules @*worksheet)
-        all-inputs     @(subscribe [:worksheet/all-inputs-vector ws-uuid])
-        formatters     @(subscribe [:result.inputs/table-formatters (map #(nth % 2) all-inputs)])
-        gv-uuid->units @(subscribe [:worksheet/result-table-gv-uuid->units ws-uuid])
+  (let [*worksheet      (subscribe [:worksheet ws-uuid])
+        module-kws      (:worksheet/modules @*worksheet)
+        all-inputs      @(subscribe [:worksheet/all-inputs-vector ws-uuid])
+        formatters      @(subscribe [:result.inputs/table-formatters (map #(nth % 2) all-inputs)])
+        gv-uuid->units  @(subscribe [:worksheet/result-table-gv-uuid->units ws-uuid])
         module-entities (->> module-kws
                              (map #(deref (subscribe [:wizard/*module (name %)])))
                              (sort-by :module/results-order))]

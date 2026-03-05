@@ -1,8 +1,8 @@
 (ns migrations.2026-02-03-add-results-order-attr
-  (:require [schema-migrate.interface :as sm]
-            [datomic.api              :as d]
+  (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
-            [behave-cms.server        :as cms]))
+            [datomic.api              :as d]
+            [schema-migrate.interface :as sm]))
 
 ;; ===========================================================================================================
 ;; Overview

@@ -62,7 +62,7 @@
 
   "
   [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr form-state-path on-select translation-config translation-attrs modify?]
-    :or {modify? true}}]
+    :or   {modify? true}}]
   (r/with-let [entity-id-atom    (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"

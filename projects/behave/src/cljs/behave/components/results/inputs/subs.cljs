@@ -5,10 +5,10 @@
             [behave.wizard.subs     :refer [all-conditionals-pass?]]
             [clojure.walk           :refer [prewalk]]
             [datascript.core        :as d]
-            [string-utils.interface :as s]
             [datascript.impl.entity]
             [map-utils.interface    :refer [index-by]]
-            [re-frame.core          :refer [reg-sub subscribe]]))
+            [re-frame.core          :refer [reg-sub subscribe]]
+            [string-utils.interface :as s]))
 
 (defn- export-entity
   [entity]

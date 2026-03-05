@@ -1,11 +1,11 @@
 (ns behave-cms.submodules.views
   (:require [behave-cms.components.common            :refer [accordion btn-sm window]]
             [behave-cms.components.entity-form       :refer [entity-form]]
+            [behave-cms.components.search-table      :refer [search-tables]]
             [behave-cms.components.sidebar           :refer [sidebar sidebar-width]]
-            [behave-cms.help.views                   :refer [help-editor]]
             [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations      :refer [all-translations]]
-            [behave-cms.components.search-table      :refer [search-tables]]
+            [behave-cms.help.views                   :refer [help-editor]]
             [behave-cms.submodules.subs]
             [re-frame.core                           :as rf]
             [reagent.core                            :as r]))

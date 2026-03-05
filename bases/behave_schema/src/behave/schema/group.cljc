@@ -1,6 +1,6 @@
 (ns behave.schema.group
-  (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string?]]))
+  (:require [behave.schema.utils :refer [valid-key? uuid-string?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
