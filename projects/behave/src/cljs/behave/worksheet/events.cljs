@@ -946,5 +946,4 @@
  (fn [_ [_ ws-uuid file-name]]
    (let [payload [{:db/id          [:worksheet/uuid ws-uuid]
                    :worksheet/name file-name}]]
-     (prn "payload:" payload)
      {:transact payload})))

@@ -37,6 +37,7 @@
              cljsjs/vega-lite              {:mvn/version "5.14.1-0"}
              austinbirch/reactive-entity   {:mvn/version "0.2.0"}
              com.google.guava/guava        {:mvn/version "31.0.1-jre"}
+             day8.re-frame/async-flow-fx   {:mvn/version "0.3.0"}
 
              ;; Components
              sig/async-utils               {:local/root "../../components/async_utils"}
