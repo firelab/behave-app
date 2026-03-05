@@ -827,7 +827,7 @@
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid )
+      (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [min-v]
                               (let [min-float   (js/parseFloat min-v)
                                     value-float (js/parseFloat value)]
@@ -844,7 +844,7 @@
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid )
+      (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [[min-v max-v]]
                               (let [min-float   (js/parseFloat min-v)
                                     max-float   (js/parseFloat max-v)
@@ -863,7 +863,7 @@
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid )
+      (if (contains? (set all-output-uuids) gv-uuid)
         (update acc gv-uuid (fn [max-v]
                               (let [max-float   (js/parseFloat max-v)
                                     value-float (js/parseFloat value)]
@@ -1230,7 +1230,6 @@
  (fn [modules]
    (mapcat :module/search-tables modules)))
 
-
 (rf/reg-sub
  :worksheet/output-eid
  (fn [_ [_ ws-uuid gv-uuid]]
@@ -1276,14 +1275,14 @@
    (rf/subscribe [:vms/group-variable-heirarchy gv-uuid]))
  (fn [hierarchy-eids [_ ws-uuid _gv-uuid]]
    (let [[submodule & groups] (mapv #(d/pull @@vms-conn
-                                            '[:db/id
-                                              :group/name
-                                              :group/translation-key
-                                              :group/conditionals-operator
-                                              :submodule/name
-                                              :submodule/conditionals-operator]
-                                            (:db/id %))
-                                   hierarchy-eids)]
+                                             '[:db/id
+                                               :group/name
+                                               :group/translation-key
+                                               :group/conditionals-operator
+                                               :submodule/name
+                                               :submodule/conditionals-operator]
+                                             (:db/id %))
+                                    hierarchy-eids)]
      (and
       (true? @(rf/subscribe [:wizard/show-submodule?
                              ws-uuid
@@ -1301,12 +1300,12 @@
  :worksheet/all-input-group-entities
  (fn [_ [_ ws-uuid]]
    (let [input-eids @(rf/subscribe [:query
-                                   '[:find  [?g ...]
-                                     :in    $ ?ws-uuid
-                                     :where
-                                     [?w :worksheet/uuid ?ws-uuid]
-                                     [?w :worksheet/input-groups ?g]]
-                                   [ws-uuid]])]
+                                    '[:find  [?g ...]
+                                      :in    $ ?ws-uuid
+                                      :where
+                                      [?w :worksheet/uuid ?ws-uuid]
+                                      [?w :worksheet/input-groups ?g]]
+                                    [ws-uuid]])]
      (map #(d/entity @@s/conn %) input-eids))))
 
 (rf/reg-sub
