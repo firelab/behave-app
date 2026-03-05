@@ -69,7 +69,7 @@
                                        :legend    nil}
                                :y     {:field z-name
                                        :type  "nominal"
-                                       :title nil}}} ]
+                                       :title nil}}}]
       (cond-> {:$schema     "https://vega.github.io/schema/vega-lite/v2.json"
                :description "test"
                :data        {:values data}}
@@ -148,5 +148,4 @@
                                   :y    "output-1"
                                   :z    "input-2"
                                   :z2   "input-3"})
-      100 100]])
-  )
+      100 100]]))
