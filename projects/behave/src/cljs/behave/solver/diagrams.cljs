@@ -27,7 +27,8 @@
      (contain/getFireBackAtReport module)
      (contain/getFireHeadAtReport module)
      (contain/getFireBackAtAttack module)
-     (contain/getFireHeadAtAttack module)]))
+     (contain/getFireHeadAtAttack module)
+     (contain/getContainmentStatus module)]))
 
 (defmethod build-event-vector :fire-shape
   [{:keys [ws-uuid row-id diagram module]}]
@@ -44,6 +45,7 @@
      (surface/getWindSpeed module
                            (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))
+     (surface/getSlope module (enums/slope-units "Percent"))
      (surface/getElapsedTime module (enums/time-units "Hours"))]))
 
 (defmethod build-event-vector :wind-slope-spread-direction

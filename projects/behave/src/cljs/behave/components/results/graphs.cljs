@@ -6,7 +6,7 @@
   (let [graph-enabled? @(subscribe [:wizard/enable-graph-settings? ws-uuid])
         graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
     (when (and graph-enabled? graph-settings)
-      (let [*output-uuids (subscribe [:worksheet/output-uuids-filtered ws-uuid])
+      (let [*output-uuids (subscribe [:worksheet/graphed-output-uuids ws-uuid])
             graph-data    (->> cell-data
                                (group-by first)
                                (reduce (fn [acc [_row-id cell-data]]

@@ -1,0 +1,35 @@
+{:global
+ {:RelativeHumidityTool
+  {:calculate
+   {:type "void" :id "calculate" :parameters []}
+
+   :getSiteElevation
+   {:type "double" :id "getSiteElevation" :parameters [{:id "lengthUnits" :type "LengthUnits::LengthUnitsEnum"}]}
+
+   :getRelativeHumidity
+   {:type "double" :id "getRelativeHumidity" :parameters [{:id "fractionUnits" :type "FractionUnits::FractionUnitsEnum"}]}
+
+   :getDryBulbTemperature
+   {:type "double" :id "getDryBulbTemperature" :parameters [{:id "temperatureUnits" :type "TemperatureUnits::TemperatureUnitsEnum"}]}
+
+   :getWetBulbDepression
+   {:type "double" :id "getWetBulbDepression" :parameters [{:id "temperatureUnits" :type "TemperatureUnits::TemperatureUnitsEnum"}]}
+
+   :getDewPointTemperature
+   {:type "double" :id "getDewPointTemperature" :parameters [{:id "temperatureUnits" :type "TemperatureUnits::TemperatureUnitsEnum"}]}
+
+   :getWetBulbTemperature
+   {:type "double" :id "getWetBulbTemperature" :parameters [{:id "temperatureUnits" :type "TemperatureUnits::TemperatureUnitsEnum"}]}
+
+   :setDryBulbTemperature
+   {:type "void" :id "setDryBulbTemperature" :parameters [{:id "dryBulbTemperature" :type "double"} {:id "temperatureUnits" :type "TemperatureUnits::TemperatureUnitsEnum"}]}
+
+   :setSiteElevation
+   {:type "void" :id "setSiteElevation" :parameters
+    [{:id "siteElevation" :type "double"}
+     {:id "lengthUnits" :type "LengthUnits::LengthUnitsEnum"}]}
+
+   :setWetBulbTemperature
+   {:type "void" :id "setWetBulbTemperature" :parameters
+    [{:id "wetBulbTemperature" :type "double"}
+     {:id "temperatureUnits" :type "TemperatureUnits::TemperatureUnitsEnum"}]}}}}

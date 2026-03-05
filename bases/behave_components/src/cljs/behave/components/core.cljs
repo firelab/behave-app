@@ -1,17 +1,17 @@
 (ns behave.components.core
   (:require
-   [behave.components.accordion         :as accordion]
-   [behave.components.button            :as button]
-   [behave.components.card              :as card]
-   [behave.components.compute           :as compute]
-   [behave.components.icon.core :as icon]
-   [behave.components.inputs            :as inputs]
-   [behave.components.progress          :as progress]
-   [behave.components.matrix-table      :as matrix-table]
-   [behave.components.modal             :as modal]
-   [behave.components.note              :as note]
-   [behave.components.tab               :as tab]
-   [behave.components.table             :as table]))
+   [behave.components.accordion    :as accordion]
+   [behave.components.button       :as button]
+   [behave.components.card         :as card]
+   [behave.components.compute      :as compute]
+   [behave.components.icon.core    :as icon]
+   [behave.components.inputs       :as inputs]
+   [behave.components.progress     :as progress]
+   [behave.components.matrix-table :as matrix-table]
+   [behave.components.modal        :as modal]
+   [behave.components.note         :as note]
+   [behave.components.tab          :as tab]
+   [behave.components.table        :as table]))
 
 (def ^{:argslist
        '([config])
@@ -143,7 +143,6 @@
                        :on-select #(reset! selected-card %)}]"}
   card-group card/card-group)
 
-
 (def ^{:argslist
        '([icon-name])
 
@@ -232,8 +231,6 @@
                         :on-change #(println \"Changed!\")]"}
   number-input inputs/number-input)
 
-
-
 (def ^{:argslist
        '([config])
 
@@ -303,6 +300,26 @@
                                    :name      \"radio-two\"
                                    :on-change #(println \"Changed!\")}]"}
   radio-group inputs/radio-group)
+
+(def ^{:argslist
+       '([config])
+
+       :doc
+       "Toggle switch component which takes a hash-map of:
+       - `:label`       Optional label for the toggle group.
+       - `:left-label`  Label displayed to the left of the toggle.
+       - `:right-label` Label displayed to the right of the toggle.
+       - `:checked?`    Whether the toggle is in the on/checked state.
+       - `:disabled?`   Whether the toggle is disabled.
+       - `:on-change`   Function called with the change event when toggled.
+
+       Usage:
+
+          [toggle {:left-label  \"English\"
+                   :right-label \"Metric\"
+                   :checked?    true
+                   :on-change   #(println \"Toggled!\")}]"}
+  toggle inputs/toggle)
 
 (def ^{:argslist
        '([config])
@@ -480,7 +497,6 @@
          \"SH 2\" {\"SH 2-1\" [\"Column 5\" \"Column 6\"]
                    \"SH 2-2\" [\"Column 7\" \"Column 8\"]}}"}
   table table/table)
-
 
 (def ^{:argslist
        '([config])

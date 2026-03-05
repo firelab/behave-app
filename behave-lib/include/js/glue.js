@@ -1085,6 +1085,12 @@ SIGContainAdapter.prototype['getReportRate'] = SIGContainAdapter.prototype.getRe
   return _emscripten_bind_SIGContainAdapter_getReportRate_1(self, speedUnits);
 };;
 
+SIGContainAdapter.prototype['getAutoComputedResourceProductionRate'] = SIGContainAdapter.prototype.getAutoComputedResourceProductionRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speedUnits) {
+  var self = this.ptr;
+  if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1(self, speedUnits);
+};;
+
 SIGContainAdapter.prototype['getTactic'] = SIGContainAdapter.prototype.getTactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGContainAdapter_getTactic_0(self);
@@ -1150,6 +1156,12 @@ SIGContainAdapter.prototype['setAttackDistance'] = SIGContainAdapter.prototype.s
   _emscripten_bind_SIGContainAdapter_setAttackDistance_2(self, attackDistance, lengthUnits);
 };;
 
+SIGContainAdapter.prototype['setContainMode'] = SIGContainAdapter.prototype.setContainMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(containmode) {
+  var self = this.ptr;
+  if (containmode && typeof containmode === 'object') containmode = containmode.ptr;
+  _emscripten_bind_SIGContainAdapter_setContainMode_1(self, containmode);
+};;
+
 SIGContainAdapter.prototype['setFireStartTime'] = SIGContainAdapter.prototype.setFireStartTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fireStartTime) {
   var self = this.ptr;
   if (fireStartTime && typeof fireStartTime === 'object') fireStartTime = fireStartTime.ptr;
@@ -1198,6 +1210,20 @@ SIGContainAdapter.prototype['setReportSize'] = SIGContainAdapter.prototype.setRe
   if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   _emscripten_bind_SIGContainAdapter_setReportSize_2(self, reportSize, areaUnits);
+};;
+
+SIGContainAdapter.prototype['setResourceArrivalTime'] = SIGContainAdapter.prototype.setResourceArrivalTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrivalTime, timeUnits) {
+  var self = this.ptr;
+  if (arrivalTime && typeof arrivalTime === 'object') arrivalTime = arrivalTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2(self, arrivalTime, timeUnits);
+};;
+
+SIGContainAdapter.prototype['setResourceDuration'] = SIGContainAdapter.prototype.setResourceDuration = /** @suppress {undefinedVars, duplicate} @this{Object} */function(duration, timeUnits) {
+  var self = this.ptr;
+  if (duration && typeof duration === 'object') duration = duration.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceDuration_2(self, duration, timeUnits);
 };;
 
 SIGContainAdapter.prototype['setRetry'] = SIGContainAdapter.prototype.setRetry = /** @suppress {undefinedVars, duplicate} @this{Object} */function(retry) {
@@ -5662,6 +5688,166 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
   var self = this.ptr;
   _emscripten_bind_VaporPressureDeficitCalculator___destroy___0(self);
 };
+// RelativeHumidityTool
+/** @suppress {undefinedVars, duplicate} @this{Object} */function RelativeHumidityTool() {
+  this.ptr = _emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0();
+  getCache(RelativeHumidityTool)[this.ptr] = this;
+};;
+RelativeHumidityTool.prototype = Object.create(WrapperObject.prototype);
+RelativeHumidityTool.prototype.constructor = RelativeHumidityTool;
+RelativeHumidityTool.prototype.__class__ = RelativeHumidityTool;
+RelativeHumidityTool.__cache__ = {};
+Module['RelativeHumidityTool'] = RelativeHumidityTool;
+
+RelativeHumidityTool.prototype['calculate'] = RelativeHumidityTool.prototype.calculate = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool_calculate_0(self);
+};;
+
+RelativeHumidityTool.prototype['getDryBulbTemperature'] = RelativeHumidityTool.prototype.getDryBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['getSiteElevation'] = RelativeHumidityTool.prototype.getSiteElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getSiteElevation_1(self, lengthUnits);
+};;
+
+RelativeHumidityTool.prototype['getWetBulbTemperature'] = RelativeHumidityTool.prototype.getWetBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['getDewPointTemperature'] = RelativeHumidityTool.prototype.getDewPointTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['getRelativeHumidity'] = RelativeHumidityTool.prototype.getRelativeHumidity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fractionUnits) {
+  var self = this.ptr;
+  if (fractionUnits && typeof fractionUnits === 'object') fractionUnits = fractionUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1(self, fractionUnits);
+};;
+
+RelativeHumidityTool.prototype['getWetBulbDepression'] = RelativeHumidityTool.prototype.getWetBulbDepression = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['setDryBulbTemperature'] = RelativeHumidityTool.prototype.setDryBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(dryBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (dryBulbTemperature && typeof dryBulbTemperature === 'object') dryBulbTemperature = dryBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2(self, dryBulbTemperature, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['setSiteElevation'] = RelativeHumidityTool.prototype.setSiteElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(siteElevation, lengthUnits) {
+  var self = this.ptr;
+  if (siteElevation && typeof siteElevation === 'object') siteElevation = siteElevation.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setSiteElevation_2(self, siteElevation, lengthUnits);
+};;
+
+RelativeHumidityTool.prototype['setWetBulbTemperature'] = RelativeHumidityTool.prototype.setWetBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(wetBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (wetBulbTemperature && typeof wetBulbTemperature === 'object') wetBulbTemperature = wetBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2(self, wetBulbTemperature, temperatureUnits);
+};;
+
+  RelativeHumidityTool.prototype['__destroy__'] = RelativeHumidityTool.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool___destroy___0(self);
+};
+// SafeSeparationDistanceCalculator
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SafeSeparationDistanceCalculator() {
+  this.ptr = _emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0();
+  getCache(SafeSeparationDistanceCalculator)[this.ptr] = this;
+};;
+SafeSeparationDistanceCalculator.prototype = Object.create(WrapperObject.prototype);
+SafeSeparationDistanceCalculator.prototype.constructor = SafeSeparationDistanceCalculator;
+SafeSeparationDistanceCalculator.prototype.__class__ = SafeSeparationDistanceCalculator;
+SafeSeparationDistanceCalculator.__cache__ = {};
+Module['SafeSeparationDistanceCalculator'] = SafeSeparationDistanceCalculator;
+
+SafeSeparationDistanceCalculator.prototype['calculate'] = SafeSeparationDistanceCalculator.prototype.calculate = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SafeSeparationDistanceCalculator_calculate_0(self);
+};;
+
+SafeSeparationDistanceCalculator.prototype['getBurningCondition'] = SafeSeparationDistanceCalculator.prototype.getBurningCondition = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0(self);
+};;
+
+SafeSeparationDistanceCalculator.prototype['getSlopeClass'] = SafeSeparationDistanceCalculator.prototype.getSlopeClass = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SafeSeparationDistanceCalculator_getSlopeClass_0(self);
+};;
+
+SafeSeparationDistanceCalculator.prototype['getSpeedClass'] = SafeSeparationDistanceCalculator.prototype.getSpeedClass = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SafeSeparationDistanceCalculator_getSpeedClass_0(self);
+};;
+
+SafeSeparationDistanceCalculator.prototype['getSafeSeparationDistance'] = SafeSeparationDistanceCalculator.prototype.getSafeSeparationDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SafeSeparationDistanceCalculator_getSafeSeparationDistance_1(self, lengthUnits);
+};;
+
+SafeSeparationDistanceCalculator.prototype['getSafetyZoneSize'] = SafeSeparationDistanceCalculator.prototype.getSafetyZoneSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
+  var self = this.ptr;
+  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  return _emscripten_bind_SafeSeparationDistanceCalculator_getSafetyZoneSize_1(self, areaUnits);
+};;
+
+SafeSeparationDistanceCalculator.prototype['getVegetationHeight'] = SafeSeparationDistanceCalculator.prototype.getVegetationHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SafeSeparationDistanceCalculator_getVegetationHeight_1(self, lengthUnits);
+};;
+
+SafeSeparationDistanceCalculator.prototype['getSafetyCondition'] = SafeSeparationDistanceCalculator.prototype.getSafetyCondition = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SafeSeparationDistanceCalculator_getSafetyCondition_0(self);
+};;
+
+SafeSeparationDistanceCalculator.prototype['setBurningCondition'] = SafeSeparationDistanceCalculator.prototype.setBurningCondition = /** @suppress {undefinedVars, duplicate} @this{Object} */function(condition) {
+  var self = this.ptr;
+  if (condition && typeof condition === 'object') condition = condition.ptr;
+  _emscripten_bind_SafeSeparationDistanceCalculator_setBurningCondition_1(self, condition);
+};;
+
+SafeSeparationDistanceCalculator.prototype['setSlopeClass'] = SafeSeparationDistanceCalculator.prototype.setSlopeClass = /** @suppress {undefinedVars, duplicate} @this{Object} */function(slope) {
+  var self = this.ptr;
+  if (slope && typeof slope === 'object') slope = slope.ptr;
+  _emscripten_bind_SafeSeparationDistanceCalculator_setSlopeClass_1(self, slope);
+};;
+
+SafeSeparationDistanceCalculator.prototype['setSpeedClass'] = SafeSeparationDistanceCalculator.prototype.setSpeedClass = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speed) {
+  var self = this.ptr;
+  if (speed && typeof speed === 'object') speed = speed.ptr;
+  _emscripten_bind_SafeSeparationDistanceCalculator_setSpeedClass_1(self, speed);
+};;
+
+SafeSeparationDistanceCalculator.prototype['setVegetationHeight'] = SafeSeparationDistanceCalculator.prototype.setVegetationHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(height, lengthUnits) {
+  var self = this.ptr;
+  if (height && typeof height === 'object') height = height.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SafeSeparationDistanceCalculator_setVegetationHeight_2(self, height, lengthUnits);
+};;
+
+  SafeSeparationDistanceCalculator.prototype['__destroy__'] = SafeSeparationDistanceCalculator.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SafeSeparationDistanceCalculator___destroy___0(self);
+};
 (function() {
   function setupEnums() {
     
@@ -5909,6 +6095,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['BothFlanks'] = _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks();
 
     Module['NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank();
+
+    
+
+    // ContainMode
+
+    Module['Default'] = _emscripten_enum_ContainMode_Default();
+
+    Module['ComputeWithOptimalResource'] = _emscripten_enum_ContainMode_ComputeWithOptimalResource();
 
     
 
@@ -6487,6 +6681,46 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['SEVENTY_FIVE_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE();
 
     Module['CROSS_SLOPE_NINETY_DEGREES'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES();
+
+    
+
+    // BurningCondition_BurningConditionEnum
+
+    Module['Low'] = _emscripten_enum_BurningCondition_BurningConditionEnum_Low();
+
+    Module['Moderate'] = _emscripten_enum_BurningCondition_BurningConditionEnum_Moderate();
+
+    Module['Extreme'] = _emscripten_enum_BurningCondition_BurningConditionEnum_Extreme();
+
+    
+
+    // SlopeClass_SlopeClassEnum
+
+    Module['Flat'] = _emscripten_enum_SlopeClass_SlopeClassEnum_Flat();
+
+    Module['Moderate'] = _emscripten_enum_SlopeClass_SlopeClassEnum_Moderate();
+
+    Module['Steep'] = _emscripten_enum_SlopeClass_SlopeClassEnum_Steep();
+
+    
+
+    // SpeedClass_SpeedClassEnum
+
+    Module['Light'] = _emscripten_enum_SpeedClass_SpeedClassEnum_Light();
+
+    Module['Moderate'] = _emscripten_enum_SpeedClass_SpeedClassEnum_Moderate();
+
+    Module['High'] = _emscripten_enum_SpeedClass_SpeedClassEnum_High();
+
+    
+
+    // SafetyCondition_SafetyConditionEnum
+
+    Module['Low'] = _emscripten_enum_SafetyCondition_SafetyConditionEnum_Low();
+
+    Module['Moderate'] = _emscripten_enum_SafetyCondition_SafetyConditionEnum_Moderate();
+
+    Module['Extreme'] = _emscripten_enum_SafetyCondition_SafetyConditionEnum_Extreme();
 
   }
   if (runtimeInitialized) setupEnums();

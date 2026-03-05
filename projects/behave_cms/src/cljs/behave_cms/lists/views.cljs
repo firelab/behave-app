@@ -1,9 +1,11 @@
 (ns behave-cms.lists.views
-  (:require [clojure.set                             :refer [rename-keys]]
-            [re-frame.core                           :as rf]
+  (:require [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+            [behave-cms.components.translations      :refer [all-translations]]
             [behave-cms.events]
             [behave-cms.subs]
-            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]))
+            [clojure.set                             :refer [rename-keys]]
+            [re-frame.core                           :as rf]
+            [string-utils.interface                  :refer [->kebab]]))
 
 (defn- list-option-table [selected-state-path editor-state-path selected-list-path]
   (let [selected-list     (rf/subscribe [:state selected-list-path])
@@ -53,7 +55,12 @@
                             :type      :radio
                             :field-key :list-option/default
                             :options   [{:label "False" :value false}
-                                        {:label "True" :value true}]}]}]))
+                                        {:label "True" :value true}]}]
+      :translation-attrs  [{:label "Worksheet Translation" :attr :list-option/translation-key}
+                           {:label "Result Translation" :attr :list-option/result-translation-key}
+                           {:label "Export Translation" :attr :list-option/export-translation-key}
+                           {:label "English Translation" :attr :list-option/english-units-translation-key}
+                           {:label "Metric Translation" :attr :list-option/metric-units-translation-key}]}]))
 
 (defn- list-table [selected-state-path editor-state-path selected-list-option-state-path]
   (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])

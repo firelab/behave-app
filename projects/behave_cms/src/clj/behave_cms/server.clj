@@ -123,3 +123,7 @@
     (if (nil? errors)
       (start-server! (merge defaults (get-config :server) options))
       (println summary errors))))
+
+(comment
+  (-main nil)
+  )

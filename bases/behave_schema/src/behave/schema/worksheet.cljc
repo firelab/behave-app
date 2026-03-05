@@ -176,6 +176,11 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :input/units
+    :db/doc         "Deprecated use `:input/units-uuid`"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :input/units-uuid
     :db/doc         "Input's units."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -201,6 +206,11 @@
    ;; Outputs
    {:db/ident       :output/group-variable-uuid
     :db/doc         "Output's reference to Variable's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :output/units-uuid
+    :db/doc         "outputs's units uuid."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -239,7 +249,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :result-header/units
-    :db/doc         "Result header's units."
+    :db/doc         "Result header's units shortcode."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

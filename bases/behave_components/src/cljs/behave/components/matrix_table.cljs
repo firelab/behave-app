@@ -1,10 +1,13 @@
 (ns behave.components.matrix-table
   (:require [behave.stories.utils :refer [->params]]))
 
-(defn- table-header [title rows-label cols-label header-names]
+(defn- table-header [title rows-label cols-label header-names & [sub-title]]
   [:thead.table-header
    [:tr.table__title
     [:th {:col-span (inc (count header-names))} title]]
+   (when sub-title
+     [:tr.table__sub-title
+      [:th {:col-span (inc (count header-names))} sub-title]])
    (when (and rows-label cols-label)
      [:tr
       [:th.table-header__header {:col-span 1 :scope "row"} rows-label]
@@ -14,13 +17,13 @@
           [:th.table-header__header {:scope "col"} header-name])
         (conj [:th.table-header__header {:scope "col"}]))]])
 
-(defn matrix-table [{:keys [title column-headers row-headers data rows-label cols-label]}]
+(defn matrix-table [{:keys [title sub-title column-headers row-headers data rows-label cols-label]}]
   (let [column-headers      (->params column-headers)
         row-headers         (->params row-headers)
         data                (->params data)
         column-header-names (map :name column-headers)]
     [:table.table
-     [table-header title rows-label cols-label column-header-names]
+     [table-header title rows-label cols-label column-header-names sub-title]
      [:tbody.table__body
       (for [row-header row-headers
             :let       [i    (:key row-header)

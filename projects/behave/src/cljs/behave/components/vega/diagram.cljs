@@ -1,7 +1,8 @@
 (ns behave.components.vega.diagram
   (:require [cljsjs.vega-embed]
             [behave.components.vega.core :refer [vega-box]]
-            [goog.string                    :as gstring]))
+            [goog.string                    :as gstring]
+            [clojure.string :as str]))
 
 (defn- add-scatter-plot [schema {:keys [legend-id data color]}]
   (-> schema
@@ -24,11 +25,12 @@
                   phi         0
                   x-offset    0
                   stroke-dash [1 0]}}]
-  (let [a-name   (str "A_" legend-id)
-        b-name   (str "B_" legend-id)
-        phi-name (str "PHI_" legend-id)
-        cx-name  (str "CX_" legend-id)
-        cy-name  (str "CY_" legend-id)]
+  (let [legend-id-cleaned (str/replace legend-id " " "_")
+        a-name            (str "A_" legend-id-cleaned)
+        b-name            (str "B_" legend-id-cleaned)
+        phi-name          (str "PHI_" legend-id-cleaned)
+        cx-name           (str "CX_" legend-id-cleaned)
+        cy-name           (str "CY_" legend-id-cleaned)]
     (-> schema
         (update :layer
                 #(conj % {:mark      {:type       "line"
@@ -63,8 +65,9 @@
                           :or   {r       0
                                  theta   0
                                  dashed? false}}]
-  (let [r-name          (str "R_" legend-id)
-        theta-name      (str "THETA_" legend-id)
+  (let [legend-id-cleaned (str/replace legend-id " " "_")
+        r-name          (str "R_" legend-id-cleaned)
+        theta-name      (str "THETA_" legend-id-cleaned)
         stroke-width    5
         arrow-head-size (* stroke-width 200)]
     (-> schema

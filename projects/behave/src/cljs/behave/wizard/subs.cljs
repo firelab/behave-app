@@ -2,7 +2,7 @@
   (:require [behave.schema.core     :refer [rules]]
             [behave.lib.units       :refer [convert]]
             [behave.vms.store       :refer [vms-conn]]
-            [behave.translate       :refer [<t]]
+            [behave.translate       :refer [<t bp]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
@@ -321,6 +321,8 @@
  (fn [_db _query]
    multi-value-input-limit))
 
+
+
 ;;; Outside Range
 
 (reg-sub
@@ -347,6 +349,49 @@
      (outside-range-error-msg var-min var-max)
      (outside-range-error-msg (convert var-min from-units to-units 2)
                               (convert var-max from-units to-units 2)))))
+
+;; Multi Valued Input Not Allowed
+
+(reg-sub
+ :wizard/multi-valued-input-not-allowed-error-msg
+ (fn [_]
+   @(<t (bp "error_multi_valued_input_not_allowed"))))
+
+(reg-sub
+ :wizard/multi-valued-input-not-allowed?
+ (fn [[_ ws-uuid gv-uuid _value]] (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid]))
+
+ (fn [disable-multi-valued-input? [_ _ws-uuid _gv-uuid value]]
+   (if (and disable-multi-valued-input?
+            value
+            (or (str/includes? value ",") (str/includes? value " ")))
+     true
+     false)))
+
+;; All Errors
+
+(reg-sub
+ :wizard/input-error?
+ (fn [[_ ws-uuid gv-uuid native-unit-uuid unit-uuid var-min var-max value]]
+   [(rf/subscribe [:state :warn-multi-value-input-limit])
+    (rf/subscribe [:wizard/outside-range? native-unit-uuid unit-uuid var-min var-max value])
+    (rf/subscribe [:wizard/multi-valued-input-not-allowed? ws-uuid gv-uuid value])])
+ (fn [[warn-multi-value-input-limit? outside-range? invalid-multi-valued-input?]]
+   (or (true? warn-multi-value-input-limit?) outside-range? invalid-multi-valued-input?)))
+
+(reg-sub
+ :wizard/input-error-msgs
+ (fn [[_ ws-uuid gv-uuid native-unit-uuid unit-uuid var-min var-max value]]
+   [(rf/subscribe [:wizard/outside-range? native-unit-uuid unit-uuid var-min var-max value])
+    (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid unit-uuid var-min var-max])
+    (rf/subscribe [:wizard/multi-valued-input-not-allowed? ws-uuid gv-uuid value])
+    (rf/subscribe [:wizard/multi-valued-input-not-allowed-error-msg])])
+ (fn [[outside-range? outside-range-msg invalid-multi-valued-input? multi-valued-input-now-allowed-msg]]
+   (let [error-msgs (cond-> []
+                      outside-range?              (conj outside-range-msg)
+                      invalid-multi-valued-input? (conj multi-valued-input-now-allowed-msg))]
+     (when (seq error-msgs)
+       (str/join "\n" error-msgs)))))
 
 (defn- convert-values
   [from to v & [precision]]
@@ -415,7 +460,8 @@
    (let [notes (:worksheet/notes worksheet)]
      (cond->> notes
        submodule-uuid (filter (fn [{s-uuid :note/submodule}]
-                                (= s-uuid submodule-uuid)))
+                                (or (= s-uuid submodule-uuid)
+                                    (nil? s-uuid))))
        :always        (map (fn resolve-uuid [{id      :db/id
                                               name    :note/name
                                               content :note/content
@@ -572,12 +618,14 @@
     (for [action actions
           :let   [conditionals         (:action/conditionals action)
                   cond-operator        (:action/conditionals-operator action)
-                  target-value         (:action/target-value action)
+                  target-value         (when (= (:action/type action) :select)
+                                         (or (:action/target-value action) "true"))
                   conditionals-passed? (or (nil? conditionals)
                                            (all-conditionals-pass?
                                             worksheet cond-operator conditionals))]
           :when  (and target-value conditionals-passed?)]
-      (:action/target-value action)))))
+      (if (= (:action/type action) :select)
+        (or (:action/target-value action) "true"))))))
 
 (reg-sub
  :wizard/_disabled-actions
@@ -630,7 +678,7 @@
         (not (:group/research? group-entity))
         (not (:group/hidden? group-entity))
         (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
-            (seq (:group/children group-entity))))))
+            (boolean (seq (:group/children group-entity)))))))
 
 (reg-sub
  :wizard/show-submodule?
@@ -654,19 +702,34 @@
 
 (reg-sub
  :wizard/diagram-output-gv-uuids
- (fn [_ [_ gv-uuid]]
-   (d/q '[:find  [?gv-uuid ...]
-          :in    $ ?gv
-          :where
-          [?d :diagram/group-variable ?gv]
-          [?d :diagram/output-group-variables ?g]
-          [?g :bp/uuid ?gv-uuid]]
-        @@vms-conn [:bp/uuid gv-uuid])))
+ (fn [_]
+   (rf/subscribe [:vms/group-variable-order]))
+ (fn [gv-order [_ gv-uuid]]
+   (->> (d/q '[:find  [?gv-uuid ...]
+               :in    $ ?gv
+               :where
+               [?d :diagram/group-variable ?gv]
+               [?d :diagram/output-group-variables ?g]
+               [?g :bp/uuid ?gv-uuid]]
+             @@vms-conn [:bp/uuid gv-uuid])
+        (sort-by #(.indexOf gv-order %)))))
 
 (reg-sub
  :wizard/show-range-selector?
  (fn [{:keys [state]} [_ gv-uuid repeat-id]]
    (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))
+
+(reg-sub
+ :wizard/disable-multi-valued-input?
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:vms/entity-from-uuid gv-uuid])])
+ (fn [[worksheet group-variable-entity] _]
+   (let [conditionals (:group-variable/disable-multi-valued-input-conditionals group-variable-entity)
+         op           (:group-variable/disable-multi-valued-input-conditional-operator group-variable-entity)]
+     (if (seq conditionals)
+       (all-conditionals-pass? worksheet op conditionals)
+       false))))
 
 
 (defn index-by
@@ -837,7 +900,7 @@
  :wizard/output-directional-tables?
  (fn [[_ ws-uuid]] (subscribe [:worksheet/output-directions ws-uuid]))
  (fn [output-directions]
-   (> (count output-directions) 1)))
+   (pos? (count output-directions))))
 
 (defn- group-variable-discrete?
   [gv-uuid]
@@ -899,3 +962,38 @@
    (subscribe [:local-storage/get-in [:state :*workflow]]))
  (fn [workflow _]
    workflow))
+
+
+(reg-sub
+ :wizard/search-table-output-group-variables
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/modules ws-uuid]))
+
+ (fn [modules _]
+   (letfn [(get-search-table-filter-output-group-variables [module-eid]
+             (d/q '[:find [?gv ...]
+                    :in $ % ?module-eid
+                    :where
+                    [?module-eid :module/search-tables ?st]
+                    [?st :search-table/filters ?f]
+                    [?f :search-table-filter/group-variable ?gv]
+                    (io ?gv :output)]
+                  @@vms-conn
+                  rules
+                  module-eid))
+           (get-search-table-column-output-group-variables [module-eid]
+             (d/q '[:find [?gv ...]
+                    :in $ % ?module-eid
+                    :where
+                    [?module-eid :module/search-tables ?st]
+                    [?st :search-table/columns ?c]
+                    [?c :search-table-column/group-variable ?gv]
+                    (io ?gv :output)]
+                  @@vms-conn
+                  rules
+                  module-eid))]
+
+     (->> (mapcat #(get-search-table-filter-output-group-variables (:db/id %)) modules)
+          (concat (mapcat #(get-search-table-column-output-group-variables (:db/id %)) modules))
+          (map #(d/touch (d/entity @@vms-conn %)))))))

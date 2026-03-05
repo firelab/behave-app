@@ -54,7 +54,7 @@
                            subtool-uuid
                            :tool/outputs
                            variable-uuid
-                           :output/units-uuid]
+                           :output/units-uuid-uuid]
                           unit-uuid)}
      auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
 
@@ -65,11 +65,8 @@
 
 (rf/reg-event-db
  :tool/close-tool
- (rf/path db-tool)
  (fn [db _]
-   (-> db
-       (dissoc :selected-tool)
-       (dissoc :selected-subtool))))
+   (assoc-in db [:state :tool] nil)))
 
 (rf/reg-event-fx
  :tool/select-tool

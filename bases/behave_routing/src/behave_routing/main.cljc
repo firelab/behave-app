@@ -37,12 +37,12 @@
     "/module-selection"   :ws/module-selection
     "/workflow-selection" :ws/workflow-selection
     "/import"             :ws/import
-    ["/" :ws-uuid]        [[["/" [keyword :workflow]] [module-routes
+    ["/" :ws-uuid]        [["/print" :ws/print]
+                           ["/settings" :settings/all]
+                           [["/" [keyword :workflow]] [module-routes
                                                        result-routes
                                                        ["/review" :ws/review]
-                                                       [["/io/" [keyword :io]] :ws/wizard-standard]]]
-                           ["/print" :ws/print]
-                           ["/settings" :settings/all]]}])
+                                                       [["/io/" [keyword :io]] :ws/wizard-standard]]]]}])
 
 (def ^:private settings-routes
   ["settings"

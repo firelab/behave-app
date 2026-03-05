@@ -51,13 +51,20 @@
        conn ws-uuid group-uuid repeat-id))
 
 (defn ^:private q-input-unit [conn group-id group-variable-uuid]
-  (d/q '[:find  ?units .
-         :in    $ ?ig ?uuid
-         :where
-         [?ig :input-group/inputs ?i]
-         [?i :input/group-variable-uuid ?uuid]
-         [?i :input/units ?units]]
-       conn group-id group-variable-uuid))
+  (or (d/q '[:find  ?units .
+             :in    $ ?ig ?uuid
+             :where
+             [?ig :input-group/inputs ?i]
+             [?i :input/group-variable-uuid ?uuid]
+             [?i :input/units ?units]] ;; `:input/units` deprecated
+           conn group-id group-variable-uuid)
+      (d/q '[:find  ?units .
+             :in    $ ?ig ?uuid
+             :where
+             [?ig :input-group/inputs ?i]
+             [?i :input/group-variable-uuid ?uuid]
+             [?i :input/units-uuid ?units]]
+           conn group-id group-variable-uuid)))
 
 (defn ^:private add-input-group-tx [ws-uuid group-uuid repeat-id]
   {:db/id                   -1
@@ -172,13 +179,13 @@
 (rp/reg-event-fx
  :worksheet/update-input-units
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid units-uuid]]
    (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
          var-id   (q-input-variable ds group-id group-variable-uuid)
          payload  (cond-> []
                     var-id
-                    (conj {:db/id       var-id
-                           :input/units units})
+                    (conj {:db/id            var-id
+                           :input/units-uuid units-uuid})
 
                     (neg? group-id)
                     (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
@@ -187,8 +194,17 @@
                     (conj {:db/id                     -2
                            :input-group/_inputs       group-id
                            :input/group-variable-uuid group-variable-uuid
-                           :input/units               units}))]
+                           :input/units-uuid          units-uuid}))]
      {:transact payload})))
+
+(rp/reg-event-fx
+ :worksheet/insert-output-units
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid gv-uuid]] [:worksheet/output-eid ws-uuid gv-uuid]))]
+ (fn [{output-eid :worksheet/output-eid} [_ _ gv-uuid unit-uuid]]
+   (when output-eid
+     (let [payload [{:db/id             output-eid
+                     :output/units-uuid unit-uuid}]]
+       {:transact payload}))))
 
 (rp/reg-event-fx
  :worksheet/delete-repeat-input-group
@@ -680,29 +696,31 @@
                     fire-back-at-report
                     fire-head-at-report
                     fire-back-at-attack
-                    fire-head-at-attack]]
-   {:transact [{:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                :worksheet.diagram/title               title
-                :worksheet.diagram/group-variable-uuid group-variable-uuid
-                :worksheet.diagram/row-id              row-id
-                :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
-                                                              w (/ l length-to-width-ratio)]
-                                                          {:ellipse/legend-id       "FirePerimiterAtReport"
-                                                           :ellipse/semi-major-axis (/ l 2)
-                                                           :ellipse/semi-minor-axis (/ w 2)
-                                                           :ellipse/rotation        90
-                                                           :ellipse/color           "blue"})
-                                                        (let [l (- fire-head-at-attack fire-back-at-attack)
-                                                              w (/ l length-to-width-ratio)]
-                                                          {:ellipse/legend-id       "FirePerimiterAtAttack"
-                                                           :ellipse/semi-major-axis (/ l 2)
-                                                           :ellipse/semi-minor-axis (/ w 2)
-                                                           :ellipse/rotation        90
-                                                           :ellipse/color           "red"})]
-                :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "FireLineConstructed"
-                                                         :scatter-plot/color         "black"
-                                                         :scatter-plot/x-coordinates fire-perimeter-points-X
-                                                         :scatter-plot/y-coordinates fire-perimeter-points-Y}]}]}))
+                    fire-head-at-attack
+                    contain-status]]
+   {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                        :worksheet.diagram/title               title
+                        :worksheet.diagram/group-variable-uuid group-variable-uuid
+                        :worksheet.diagram/row-id              row-id
+                        :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "Fire Perimeter at Report"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "blue"})
+                                                                (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "Fire Perimeter at Attack"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "red"})]}
+                 (= contain-status 3)
+                 (assoc :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "Fireline Constructed"
+                                                                 :scatter-plot/color         "black"
+                                                                 :scatter-plot/x-coordinates fire-perimeter-points-X
+                                                                 :scatter-plot/y-coordinates fire-perimeter-points-Y}]))]}))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
@@ -717,8 +735,8 @@
                     direction-of-max-spread
                     wind-direction
                     _wind-speed
+                    slope-direction
                     _elapsed-time]]
-   (log "503:")
    (let [existing-eid    (d/q '[:find  ?d .
                                 :in    $ ?uuid ?gv-uuid ?row-id
                                 :where
@@ -747,7 +765,19 @@
                                                            ;; arrow points much further out of othe ellipse.
                                                            ;; Discuss if if we should use this or not.
                                                            :arrow/rotation  wind-direction
-                                                           :arrow/color     "blue"}]}]})))
+                                                           :arrow/color     "blue"
+                                                           :arrow/dashed? true}
+
+                                                          {:arrow/legend-id "Max Spread"
+                                                           :arrow/length    semi-major-axis
+                                                           :arrow/rotation  direction-of-max-spread
+                                                           :arrow/color     "black"}
+
+                                                          {:arrow/legend-id "Slope"
+                                                           :arrow/length    semi-major-axis
+                                                           :arrow/rotation  slope-direction
+                                                           :arrow/color     "red"
+                                                           :arrow/dashed?   true}]}]})))
 (rp/reg-event-fx
  :worksheet/add-wind-slope-spread-direction-diagram
  [(rp/inject-cofx :ds)]
@@ -837,6 +867,16 @@
    {:transact [[:db/retract input-eid :input/value]]}))
 
 (rf/reg-event-fx
+ :worksheet/remove-unused-inputs
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/input-eids-to-delete ws-uuid]))]
+ (fn [{input-eids :worksheet/input-eids-to-delete} _]
+   (let [payload (mapv
+                  (fn [input-eid]
+                    [:db.fn/retractEntity input-eid])
+                  input-eids)]
+     {:transact payload})))
+
+(rf/reg-event-fx
  :worksheet/proccess-conditonally-set-output-group-variables
 
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet  ws-uuid]))
@@ -883,3 +923,22 @@
                    [:dispatch [:wizard/upsert-input-variable
                                ws-uuid group-uuid 0 group-variable-uuid default-value]])]
      {:fx payload})))
+
+(rf/reg-event-fx
+ :worksheet/process-search-table-output-group-variables
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/search-table-output-group-variables ws-uuid]))]
+ (fn [{group-variables :wizard/search-table-output-group-variables}
+      [_ ws-uuid]]
+   (let [payload (for [group-variable group-variables]
+                   [:dispatch [:worksheet/upsert-output
+                               ws-uuid
+                               (:bp/uuid group-variable)
+                               true]])]
+     {:fx payload})))
+
+(rf/reg-event-fx
+ :worksheet/update-worksheet-name-from-import
+ (fn [_ [_ ws-uuid file-name]]
+   (let [payload [{:db/id          [:worksheet/uuid ws-uuid]
+                   :worksheet/name file-name}]]
+     {:transact payload})))

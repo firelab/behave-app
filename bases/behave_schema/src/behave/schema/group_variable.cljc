@@ -18,6 +18,7 @@
 (s/def :group-variable/order           zero-pos?)
 (s/def :group-variable/translation-key valid-key?)
 (s/def :group-variable/research?       boolean?)
+(s/def :group-variable/hide-graph?     boolean?)
 (s/def :group-variable/direction       valid-direction?)
 
 
@@ -26,13 +27,14 @@
                                             :bp/nid
                                             :group-variable/order
                                             :group-variable/translation-key
-                                            :group-variable/help-key
+                                            :group-variable/help-key]
+                                      :opt [:group-variable/research?
+                                            :group-variable/hide-graph?
+                                            :group-variable/direction
                                             :group-variable/cpp-class
                                             :group-variable/cpp-namespace
-                                            :group-variable/cpp-function]
-                                      :opt [:group-variable/cpp-parameter
-                                            :group-variable/research?
-                                            :group-variable/direction]))
+                                            :group-variable/cpp-function
+                                            :group-variable/cpp-parameter]))
 
 ;;; Schema
 
@@ -112,12 +114,46 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :group-variable/hide-result-conditionals
+    :db/doc         "Conditions to also be met for hiding group variable from results"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :group-variable/hide-result-conditional-operator
+    :db/doc         "Conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/hide-range-selector-conditionals
+    :db/doc         "Deprecated use `:group-variable/disable-multi-valued-input-conditionals`"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :group-variable/hide-range-selector-conditional-operator
+    :db/doc         "Deprecated use `:group-variable/disable-multi-valued-input-conditional-operator`"
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/disable-multi-valued-input-conditionals
+    :db/doc         "Conditions to also be met for hiding range selector from results"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :group-variable/disable-multi-valued-input-conditional-operator
+    :db/doc         "Conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :group-variable/hide-csv?
     :db/doc         "Whether a Group Variable is excluded from the csv export"
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
-   ])
+   {:db/ident       :group-variable/hide-graph?
+    :db/doc         "Whether a Group Variable is excluded from being graphed."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}])
 
 ;;; Tests
 
