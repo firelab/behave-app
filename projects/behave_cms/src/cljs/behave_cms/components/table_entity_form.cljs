@@ -1,9 +1,9 @@
 (ns behave-cms.components.table-entity-form
   (:require
-   [behave-cms.components.common       :refer [simple-table]]
-   [behave-cms.components.entity-form  :refer [entity-form]]
-   [re-frame.core                      :as rf]
-   [reagent.core                       :as r]))
+   [behave-cms.components.common      :refer [simple-table]]
+   [behave-cms.components.entity-form :refer [entity-form]]
+   [re-frame.core                     :as rf]
+   [reagent.core                      :as r]))
 
 (defn on-select
   "On select function to be passed into table-entity-form. Returns a function that expects an entity. Function will also update the `selected-state-path` as well as clearing the state of any related paths (`other-state-paths-to-clear`)"
@@ -57,24 +57,24 @@
          (map :field-key entity-form-fields))
        (if order-attr (sort-by order-attr entities) entities)
        (cond-> {:add-entity-fn (when modify?
-                                #(do (when (nil? @entity-id-atom) (swap! show-entity-form? not))
-                                     (rf/dispatch [:state/set-state :editors {}])
-                                     (reset! entity-id-atom nil)
-                                     (when on-select (on-select %))))
+                                 #(do (when (nil? @entity-id-atom) (swap! show-entity-form? not))
+                                      (rf/dispatch [:state/set-state :editors {}])
+                                      (reset! entity-id-atom nil)
+                                      (when on-select (on-select %))))
                 :on-delete     (when modify?
-                                #(when (js/confirm (str "Are you sure you want to delete this "
-                                                        (name entity)))
-                                   (rf/dispatch-sync [:api/delete-entity (:db/id %)])))
+                                 #(when (js/confirm (str "Are you sure you want to delete this "
+                                                         (name entity)))
+                                    (rf/dispatch-sync [:api/delete-entity (:db/id %)])))
                 :on-select     (when modify?
-                                #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
-                                   (do (reset! entity-id-atom nil)
-                                       (reset! show-entity-form? false)
-                                       (rf/dispatch [:state/set-state :editors {}])
-                                       (when on-select (on-select %)))
-                                   (do
-                                     (reset! show-entity-form? true)
-                                     (reset! entity-id-atom (:db/id %))
-                                     (when on-select (on-select %)))))}
+                                 #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
+                                    (do (reset! entity-id-atom nil)
+                                        (reset! show-entity-form? false)
+                                        (rf/dispatch [:state/set-state :editors {}])
+                                        (when on-select (on-select %)))
+                                    (do
+                                      (reset! show-entity-form? true)
+                                      (reset! entity-id-atom (:db/id %))
+                                      (when on-select (on-select %)))))}
          title      (assoc :caption title)
          order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
                             :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]

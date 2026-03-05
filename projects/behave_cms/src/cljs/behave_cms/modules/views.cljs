@@ -1,10 +1,10 @@
 (ns behave-cms.modules.views
   (:require
-   [re-frame.core                      :as rf]
-   [behave-cms.components.common       :refer [accordion window]]
-   [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
-   [behave-cms.components.translations :refer [app-translations]]
-   [behave-cms.help.views              :refer [help-editor]]
+   [re-frame.core                           :as rf]
+   [behave-cms.components.common            :refer [accordion window]]
+   [behave-cms.components.sidebar           :refer [sidebar sidebar-width ->sidebar-links]]
+   [behave-cms.components.translations      :refer [app-translations]]
+   [behave-cms.help.views                   :refer [help-editor]]
    [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]))
 
 ;;; Modules
