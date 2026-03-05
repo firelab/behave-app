@@ -10,4 +10,5 @@
  :remove-consecutive-blank-lines?       true
  :align-map-columns?                    true
  :align-form-columns?                   true
+ :sort-ns-references?                   true
  :remove-multiple-non-indenting-spaces? false}
