@@ -1,9 +1,9 @@
 (ns behave-cms.help.markdown
-  (:require [clojure.string             :as str]
-            [clojure.set                :refer [rename-keys]]
-            [clojure.walk               :refer [postwalk]]
-            [hickory.core               :refer [parse-fragment as-hiccup]]
-            [behave-cms.markdown.core   :refer [md->html]]))
+  (:require [behave-cms.markdown.core :refer [md->html]]
+            [clojure.set              :refer [rename-keys]]
+            [clojure.string           :as str]
+            [clojure.walk             :refer [postwalk]]
+            [hickory.core             :refer [parse-fragment as-hiccup]]))
 
 ;;; Markdown Rendering
 

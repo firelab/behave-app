@@ -1,11 +1,11 @@
 (ns behave-cms.sync
-  (:require [datom-compressor.interface :as c]
-            [datomic-store.main         :as s]
+  (:require [behave-cms.views           :refer [data-response]]
+            [behave.schema.core         :refer [all-schemas]]
             [data-utils.interface       :refer [parse-int]]
-            [transport.interface        :refer [clj-> mime->type]]
-            [behave-cms.views           :refer [data-response]]
-            [datomic.api :as d]
-            [behave.schema.core         :refer [all-schemas]])
+            [datom-compressor.interface :as c]
+            [datomic-store.main         :as s]
+            [datomic.api                :as d]
+            [transport.interface        :refer [clj-> mime->type]])
   (:import  [java.io ByteArrayInputStream]))
 
 (defn- attribute->value-type [attr]

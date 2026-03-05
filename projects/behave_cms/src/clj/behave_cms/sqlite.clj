@@ -1,6 +1,6 @@
 (ns behave-cms.sqlite
-  (:require [clojure.string       :as str]
-            [clojure.java.io      :as io]
+  (:require [clojure.java.io      :as io]
+            [clojure.string       :as str]
             [next.jdbc            :as jdbc]
             [next.jdbc.result-set :as rs]))
 

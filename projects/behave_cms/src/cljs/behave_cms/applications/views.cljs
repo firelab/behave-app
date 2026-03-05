@@ -1,9 +1,9 @@
 (ns behave-cms.applications.views
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.common      :refer [window]]
-            [behave-cms.components.sidebar     :refer [sidebar sidebar-width]]
+  (:require [behave-cms.applications.subs]
+            [behave-cms.components.common            :refer [window]]
+            [behave-cms.components.sidebar           :refer [sidebar sidebar-width]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
-            [behave-cms.applications.subs]))
+            [re-frame.core                           :as rf]))
 
 (defn list-applications-page [_]
   [:<>

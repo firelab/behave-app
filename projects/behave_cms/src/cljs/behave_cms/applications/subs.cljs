@@ -1,10 +1,10 @@
 (ns behave-cms.applications.subs
-  (:require [bidi.bidi :refer [path-for]]
-            [behave-cms.store   :refer [conn]]
-            [datascript.core    :as d]
-            [re-frame.core :as rf]
-            [string-utils.interface :refer [->kebab]]
-            [behave-cms.routes :refer [app-routes]]))
+  (:require [behave-cms.routes      :refer [app-routes]]
+            [behave-cms.store       :refer [conn]]
+            [bidi.bidi              :refer [path-for]]
+            [datascript.core        :as d]
+            [re-frame.core          :as rf]
+            [string-utils.interface :refer [->kebab]]))
 
 (rf/reg-sub
  :applications

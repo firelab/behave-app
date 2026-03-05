@@ -1,10 +1,10 @@
 (ns behave-cms.groups.subs
-  (:require [clojure.string :as str]
-            [bidi.bidi :refer [path-for]]
-            [datascript.core :as d]
-            [behave-cms.store :refer [conn]]
-            [re-frame.core     :refer [reg-sub subscribe]]
-            [behave-cms.routes :refer [app-routes]]))
+  (:require [behave-cms.routes :refer [app-routes]]
+            [behave-cms.store  :refer [conn]]
+            [bidi.bidi         :refer [path-for]]
+            [clojure.string    :as str]
+            [datascript.core   :as d]
+            [re-frame.core     :refer [reg-sub subscribe]]))
 
 ;;; Conditionals
 

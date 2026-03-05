@@ -1,7 +1,7 @@
 (ns behave-cms.submodules.subs
-  (:require [bidi.bidi         :refer [path-for]]
-            [re-frame.core     :refer [reg-sub subscribe]]
-            [behave-cms.routes :refer [app-routes]]))
+  (:require [behave-cms.routes :refer [app-routes]]
+            [bidi.bidi         :refer [path-for]]
+            [re-frame.core     :refer [reg-sub subscribe]]))
 
 (reg-sub
  :submodules

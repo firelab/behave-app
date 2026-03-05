@@ -1,11 +1,11 @@
 (ns behave-cms.utils
-  (:require [cljs.reader        :as edn]
-            [clojure.string     :as str]
-            [clojure.set        :as sets]
-            [applied-science.js-interop :as j]
-            [clojure.core.async :refer [alts! go <! timeout go-loop chan put!]]
+  (:require [applied-science.js-interop :as j]
             [cljs.core.async.interop :refer-macros [<p!]]
-            [reagent.ratom      :refer [RAtom Reaction]])
+            [cljs.reader                :as edn]
+            [clojure.core.async         :refer [alts! go <! timeout go-loop chan put!]]
+            [clojure.set                :as sets]
+            [clojure.string             :as str]
+            [reagent.ratom              :refer [RAtom Reaction]])
   (:import  [goog.async Debouncer]))
 
 ;; JS Utils

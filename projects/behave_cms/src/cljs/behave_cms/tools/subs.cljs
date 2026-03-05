@@ -1,5 +1,5 @@
 (ns behave-cms.tools.subs
-  (:require [re-frame.core     :refer [reg-sub subscribe]]))
+  (:require [re-frame.core :refer [reg-sub subscribe]]))
 
 (reg-sub
  :tool/subtools

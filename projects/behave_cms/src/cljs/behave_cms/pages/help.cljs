@@ -1,13 +1,13 @@
 (ns behave-cms.pages.help
-  (:require [clojure.string             :as str]
+  (:require [applied-science.js-interop :as j]
+            [behave-cms.markdown.core   :refer [md->html]]
+            [behave-cms.utils           :as u]
             [clojure.set                :as set]
+            [clojure.string             :as str]
             [clojure.walk               :refer [postwalk]]
-            [applied-science.js-interop :as j]
-            [re-frame.core              :as rf]
             [herb.core                  :refer [<class]]
             [hickory.core               :refer [parse-fragment as-hiccup]]
-            [behave-cms.markdown.core   :refer [md->html]]
-            [behave-cms.utils           :as u]))
+            [re-frame.core              :as rf]))
 
 (defn get-files [data-tx]
   (if-let [items (.-items data-tx)]

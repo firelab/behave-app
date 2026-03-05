@@ -1,7 +1,7 @@
 (ns behave-cms.authentication.events
-  (:require [bidi.bidi         :refer [path-for]]
-            [re-frame.core     :as rf]
-            [behave-cms.routes :refer [api-routes]]))
+  (:require [behave-cms.routes :refer [api-routes]]
+            [bidi.bidi         :refer [path-for]]
+            [re-frame.core     :as rf]))
 
 ;;; Login
 

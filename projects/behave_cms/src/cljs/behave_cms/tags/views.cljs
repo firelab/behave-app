@@ -28,7 +28,7 @@
                             :type      :color
                             :disabled? (not (:tag-set/color? @selected-tag-set))
                             :field-key :tag/color}]
-      :translation-attrs [{:label "Worksheet Translation" :attr :tag/translation-key}]}]))
+      :translation-attrs  [{:label "Worksheet Translation" :attr :tag/translation-key}]}]))
 
 (defn- tag-sets-table [selected-state-path editor-state-path other-state-paths-to-clear]
   (let [entities (rf/subscribe [:pull-with-attr :tag-set/name])]

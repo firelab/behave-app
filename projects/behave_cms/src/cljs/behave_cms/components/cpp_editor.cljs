@@ -1,7 +1,7 @@
 (ns behave-cms.components.cpp-editor
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
-            [behave-cms.utils :as u]))
+  (:require [behave-cms.utils :as u]
+            [re-frame.core    :as rf]
+            [reagent.core     :as r]))
 
 ;;; Helpers
 

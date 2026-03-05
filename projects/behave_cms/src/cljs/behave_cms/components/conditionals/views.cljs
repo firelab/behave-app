@@ -273,84 +273,84 @@
 
   [parent-eid this-eid cond-attr cond-op-attr]
   (let [conditionals @(rf/subscribe [:conditionals/all-conditionals this-eid cond-attr])]
-   (when (seq conditionals)
-     (let [entity (rf/subscribe [:entity this-eid])]
-       [:div.conditionals-graph
-        [:div.edge]
-        [:div.conditionals-graph__operator
-         [dropdown
-          {:selected  (->str (get @entity cond-op-attr))
-           :on-select #(rf/dispatch [:api/update-entity
-                                     {:db/id this-eid cond-op-attr (keyword (u/input-value %))}])
-           :options   [{:value "and" :label "AND"}
-                       {:value "or" :label "OR"}]}]]
-        [:div.edge]
-        [:div.conditionals-graph__nodes
-         (doall
-          (map
-           (fn [{gv-uuid          :conditional/group-variable-uuid
-                 conditional-type :conditional/type
-                 op               :conditional/operator
-                 values           :conditional/values
-                 conditional-eid  :db/id
-                 :as              conditional-entity}]
-             (let [sub-conditionals (:conditional/sub-conditionals @(rf/subscribe [:entity conditional-eid]))
-                   gv-id            @(rf/subscribe [:bp/lookup gv-uuid])
-                   [module-id]      @(rf/subscribe [:group-variable/module-submodule-group gv-id])
-                   module-name      @(rf/subscribe [:entity-attr module-id :module/name])
-                   v-name           (if (= conditional-type :module)
-                                      "Module"
-                                      @(rf/subscribe [:gv-uuid->variable-name gv-uuid]))]
-               [:div.conditionals-graph__node
-                (when (seq sub-conditionals)
-                  [:div.conditionals-graph__operator
-                   [:div.edge]
-                   [dropdown
-                    {:selected  "and"
-                     :disabled? true
-                     :options   [{:value "and" :label "AND"}]}]
-                   [:div.edge]])
-                [:div {:class ["conditionals-graph__node__group"
-                               (when (seq sub-conditionals)
-                                 "conditionals-graph__node__group--with-sub-conditionals")]}
-                 [:div.conditionals-graph__node__group__conditional
-                  (when (= conditional-type :group-variable)
-                    [:div.conditionals-graph__node__group__conditional__module-name module-name])
-                  [:div.conditionals-graph__node__group__conditional__var-name "\"" v-name "\""]
-                  [:div.conditionals-graph__node__group__conditional__op op]
-                  [:div.conditionals-graph__node__group__conditional__values (str values)]
-                  [:div.conditionals-graph__node__group__conditional__manage
-                   [btn-sm :outline-secondary "Edit"   #(do
-                                                          (clear-editor)
-                                                          (clear-show-sub-conditional-editor)
-                                                          (update-draft cond-attr conditional-entity))]
-                   [btn-sm :outline-danger    "Delete" #(when
-                                                            (js/confirm
-                                                             (str "Are you sure you want to delete the conditional "
-                                                                  (:variable/name %)
-                                                                  "?"))
-                                                          (rf/dispatch [:api/delete-entity conditional-entity]))]
-                   [btn-sm :outline-secondary "Add Sub Conditional"
-                    #(do
-                       (clear-editor)
-                       (if @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
-                         (rf/dispatch [:state/update
-                                       [:show-sub-conditional-editor conditional-eid]
-                                       (fn [state] (not state))])
-                         (rf/dispatch [:state/set-state
-                                       :show-sub-conditional-editor
-                                       {conditional-eid true}])))]]]
-                 (when @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
-                   [:div.conditionals-graph__node__group__add-sub-conditionals-editor
-                    [add-sub-conditionals
-                     parent-eid
-                     :conditional/sub-conditionals
-                     conditional-eid]])
+    (when (seq conditionals)
+      (let [entity (rf/subscribe [:entity this-eid])]
+        [:div.conditionals-graph
+         [:div.edge]
+         [:div.conditionals-graph__operator
+          [dropdown
+           {:selected  (->str (get @entity cond-op-attr))
+            :on-select #(rf/dispatch [:api/update-entity
+                                      {:db/id this-eid cond-op-attr (keyword (u/input-value %))}])
+            :options   [{:value "and" :label "AND"}
+                        {:value "or" :label "OR"}]}]]
+         [:div.edge]
+         [:div.conditionals-graph__nodes
+          (doall
+           (map
+            (fn [{gv-uuid          :conditional/group-variable-uuid
+                  conditional-type :conditional/type
+                  op               :conditional/operator
+                  values           :conditional/values
+                  conditional-eid  :db/id
+                  :as              conditional-entity}]
+              (let [sub-conditionals (:conditional/sub-conditionals @(rf/subscribe [:entity conditional-eid]))
+                    gv-id            @(rf/subscribe [:bp/lookup gv-uuid])
+                    [module-id]      @(rf/subscribe [:group-variable/module-submodule-group gv-id])
+                    module-name      @(rf/subscribe [:entity-attr module-id :module/name])
+                    v-name           (if (= conditional-type :module)
+                                       "Module"
+                                       @(rf/subscribe [:gv-uuid->variable-name gv-uuid]))]
+                [:div.conditionals-graph__node
                  (when (seq sub-conditionals)
-                   [:div.conditionals-graph__node__group__sub-conditionals
-                    [conditionals-graph
-                     parent-eid
-                     conditional-eid
-                     cond-attr
-                     :conditional/sub-conditional-operator]])]]))
-           (sort-by :variable/name conditionals)))]]))))
+                   [:div.conditionals-graph__operator
+                    [:div.edge]
+                    [dropdown
+                     {:selected  "and"
+                      :disabled? true
+                      :options   [{:value "and" :label "AND"}]}]
+                    [:div.edge]])
+                 [:div {:class ["conditionals-graph__node__group"
+                                (when (seq sub-conditionals)
+                                  "conditionals-graph__node__group--with-sub-conditionals")]}
+                  [:div.conditionals-graph__node__group__conditional
+                   (when (= conditional-type :group-variable)
+                     [:div.conditionals-graph__node__group__conditional__module-name module-name])
+                   [:div.conditionals-graph__node__group__conditional__var-name "\"" v-name "\""]
+                   [:div.conditionals-graph__node__group__conditional__op op]
+                   [:div.conditionals-graph__node__group__conditional__values (str values)]
+                   [:div.conditionals-graph__node__group__conditional__manage
+                    [btn-sm :outline-secondary "Edit"   #(do
+                                                           (clear-editor)
+                                                           (clear-show-sub-conditional-editor)
+                                                           (update-draft cond-attr conditional-entity))]
+                    [btn-sm :outline-danger    "Delete" #(when
+                                                          (js/confirm
+                                                           (str "Are you sure you want to delete the conditional "
+                                                                (:variable/name %)
+                                                                "?"))
+                                                           (rf/dispatch [:api/delete-entity conditional-entity]))]
+                    [btn-sm :outline-secondary "Add Sub Conditional"
+                     #(do
+                        (clear-editor)
+                        (if @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
+                          (rf/dispatch [:state/update
+                                        [:show-sub-conditional-editor conditional-eid]
+                                        (fn [state] (not state))])
+                          (rf/dispatch [:state/set-state
+                                        :show-sub-conditional-editor
+                                        {conditional-eid true}])))]]]
+                  (when @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
+                    [:div.conditionals-graph__node__group__add-sub-conditionals-editor
+                     [add-sub-conditionals
+                      parent-eid
+                      :conditional/sub-conditionals
+                      conditional-eid]])
+                  (when (seq sub-conditionals)
+                    [:div.conditionals-graph__node__group__sub-conditionals
+                     [conditionals-graph
+                      parent-eid
+                      conditional-eid
+                      cond-attr
+                      :conditional/sub-conditional-operator]])]]))
+            (sort-by :variable/name conditionals)))]]))))

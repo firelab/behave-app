@@ -1,13 +1,13 @@
 (ns behave-cms.server
-  (:require [clojure.core.server :refer [start-server]]
+  (:require [behave-cms.handler  :refer [create-handler-stack]]
+            [behave-cms.store    :as store]
+            [clojure.core.server :refer [start-server]]
             [clojure.java.io     :as io]
             [clojure.string      :as str]
             [clojure.tools.cli   :refer [parse-opts]]
-            [ring.adapter.jetty  :refer [run-jetty]]
-            [logging.interface   :refer [log-str start-logging!]]
             [config.interface    :refer [load-config get-config]]
-            [behave-cms.store    :as store]
-            [behave-cms.handler  :refer [create-handler-stack]])
+            [logging.interface   :refer [log-str start-logging!]]
+            [ring.adapter.jetty  :refer [run-jetty]])
   (:gen-class))
 
 (defonce server           (atom nil))
@@ -125,5 +125,4 @@
       (println summary errors))))
 
 (comment
-  (-main nil)
-  )
+  (-main nil))
