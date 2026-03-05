@@ -1,7 +1,7 @@
 (ns behave.components.input-group
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [goog.string                          :as gstring]
+            [goog.string                     :as gstring]
             [behave.translate                :refer [<t bp]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
@@ -18,7 +18,6 @@
 
 (defn- highlight-help-section [help-key]
   (rf/dispatch [:help/highlight-section help-key]))
-
 
 ;;; Components
 
@@ -203,7 +202,6 @@
                  :search                      (= workflow :standard)
                  :options                     (doall (map ->option options))}
 
-
           (= workflow :standard)
           (merge {:search                        true
                   :prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:search:prompt1")) @*variable-name)
@@ -257,8 +255,8 @@
                     :on-change     #(reset! value-atom (input-value %))
                     :on-blur       #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                     :on-key-press  (fn [event]
-                                    (when (contains? not-acceptable-char-codes (.-charCode event))
-                                      (.preventDefault event)))
+                                     (when (contains? not-acceptable-char-codes (.-charCode event))
+                                       (.preventDefault event)))
                     :required?     true}]]))
 
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
