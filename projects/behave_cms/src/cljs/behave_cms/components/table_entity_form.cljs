@@ -103,7 +103,9 @@
                       :parent-field parent-field
                       :parent-id    parent-id
                       :fields       entity-form-fields
-                      :on-update    #(do (reset! entity-id-atom nil) %)
+                      :on-update    #(do (reset! entity-id-atom nil)
+                                         (swap! show-entity-form? not)
+                                         %)
                       :on-create    #(do
                                        (reset! entity-id-atom nil)
                                        (swap! show-entity-form? not)
