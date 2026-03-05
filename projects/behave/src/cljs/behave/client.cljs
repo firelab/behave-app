@@ -52,7 +52,6 @@
   (when sentry
     (rf/dispatch [:system/add-script sentry])))
 
-
 (defn- before-unload-fn [e]
   (when-not (str/includes? (.-pathname (.-location js/window)) "print")
     (.preventDefault e)
@@ -146,7 +145,6 @@
           [:span
            {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
            "Disclaimer"]]]])]))
-
 
 (def ^:private route-params-atom (atom nil))
 
