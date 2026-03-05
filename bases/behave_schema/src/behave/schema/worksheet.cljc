@@ -1,5 +1,5 @@
 (ns behave.schema.worksheet
-  (:require [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha  :as s]
             [behave.schema.utils :refer [many-ref? single-ref? uuid-string?]]))
 
 ;;; Spec

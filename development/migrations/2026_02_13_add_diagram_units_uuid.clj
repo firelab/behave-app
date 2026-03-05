@@ -1,8 +1,8 @@
 (ns migrations.2026-02-13-add-diagram-units-uuid
   (:require [schema-migrate.interface :as sm]
-            [datomic.api :as d]
-            [behave-cms.store :refer [default-conn]]
-            [behave-cms.server :as cms]))
+            [datomic.api              :as d]
+            [behave-cms.store         :refer [default-conn]]
+            [behave-cms.server        :as cms]))
 
 ;; ===========================================================================================================
 ;; Overview
@@ -31,8 +31,8 @@
          :where
          [?e :unit/short-code ?sc]
          [?e :bp/uuid ?uuid]]
-        (d/db conn)
-        short-code))
+       (d/db conn)
+       short-code))
 
 ;; ===========================================================================================================
 ;; Payload
@@ -50,7 +50,7 @@
          :in $
          :where
          [?e :diagram/type ?type]]
-        (d/db conn)))
+       (d/db conn)))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
