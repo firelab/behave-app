@@ -57,10 +57,10 @@
          [:dispatch [:settings/set :units nil]]
          [:dispatch [:settings/load-units-from-local-storage]]]}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :settings/close-settings-selector
- (fn [db _]
-   (assoc-in db [:state :sidebar :*tools-or-settings] nil)))
+ (fn [_ _]
+   {:fx [[:dispatch [:sidebar/clear-tools-or-settings]]]}))
 
 (rf/reg-event-db
  :settings/set-current-tab

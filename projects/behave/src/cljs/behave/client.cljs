@@ -1,24 +1,24 @@
 (ns ^:figwheel-hooks behave.client
-  (:require [clojure.string            :as str]
-            [reagent.dom               :refer [render]]
-            [re-frame.core             :as rf]
-            [behave.components.core    :as c]
-            [behave.components.sidebar :refer [sidebar]]
-            [behave.components.toolbar :refer [toolbar]]
-            [behave.components.modal   :refer [modal]]
-            [behave.help.views         :refer [help-area]]
-            [behave.settings.views     :as settings]
-            [behave.store              :refer [load-store!]]
-            [behave.tools              :as tools]
-            [behave.translate          :refer [<t bp]]
-            [behave.vms.store          :refer [load-vms!]]
-            [behave.wizard.views       :as wizard]
-            [behave.print.views        :refer [print-page]]
-            [behave.demo.views         :refer [demo-output-diagram-page]]
-            [behave.worksheet.views    :refer [home-page
-                                               import-worksheet-page
-                                               module-selection-page
-                                               workflow-selection-page]]
+  (:require [clojure.string                  :as str]
+            [reagent.dom                     :refer [render]]
+            [re-frame.core                   :as rf]
+            [behave.components.core          :as c]
+            [behave.components.sidebar.views :refer [sidebar]]
+            [behave.components.toolbar       :refer [toolbar]]
+            [behave.components.modal         :refer [modal]]
+            [behave.help.views               :refer [help-area]]
+            [behave.settings.views           :as settings]
+            [behave.store                    :refer [load-store!]]
+            [behave.tools                    :as tools]
+            [behave.translate                :refer [<t bp]]
+            [behave.vms.store                :refer [load-vms!]]
+            [behave.wizard.views             :as wizard]
+            [behave.print.views              :refer [print-page]]
+            [behave.demo.views               :refer [demo-output-diagram-page]]
+            [behave.worksheet.views          :refer [home-page
+                                                     import-worksheet-page
+                                                     module-selection-page
+                                                     workflow-selection-page]]
             [behave.events]
             [behave.subs]
             [day8.re-frame.http-fx]))
@@ -51,7 +51,6 @@
     (rf/dispatch [:system/add-script issue-collector]))
   (when sentry
     (rf/dispatch [:system/add-script sentry])))
-
 
 (defn- before-unload-fn [e]
   (when-not (str/includes? (.-pathname (.-location js/window)) "print")
@@ -146,7 +145,6 @@
           [:span
            {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
            "Disclaimer"]]]])]))
-
 
 (def ^:private route-params-atom (atom nil))
 
