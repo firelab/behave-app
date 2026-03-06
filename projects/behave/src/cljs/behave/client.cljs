@@ -52,7 +52,6 @@
   (when sentry
     (rf/dispatch [:system/add-script sentry])))
 
-
 (defn- before-unload-fn [e]
   (when-not (str/includes? (.-pathname (.-location js/window)) "print")
     (.preventDefault e)
@@ -147,7 +146,6 @@
            {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
            "Disclaimer"]]]])]))
 
-
 (def ^:private route-params-atom (atom nil))
 
 (defn- ^:export init
@@ -155,8 +153,8 @@
   [params]
   (let [params (js->clj params :keywordize-keys true)]
     (reset! route-params-atom params)
-    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:initialize])
+    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
     (load-vms! (:vms-version params))
