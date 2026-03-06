@@ -61,7 +61,9 @@
                                                      fmt-fn)}])))
                                    multi-var?
                                    (into [{:input (indent-name level @(<t (:group/translation-key current-group)))}]
-                                         (let [repeat-ids @(subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
+                                         (let [repeat-ids (-> (subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])
+                                                              (deref)
+                                                              (sort))]
                                            (mapcat (fn [repeat-id]
                                                      (into [{:input (indent-name (inc level) (str @(<t (:group/translation-key current-group)) " " (inc repeat-id)))}]
                                                            (flatten
