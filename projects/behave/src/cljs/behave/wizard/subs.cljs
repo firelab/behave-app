@@ -222,7 +222,6 @@
                                (update :variable/kind keyword))) (:group/group-variables subgroup))))
          (:group/children group))))
 
-
 ;; Lists
 
 (reg-sub
@@ -321,8 +320,6 @@
  (fn [_db _query]
    multi-value-input-limit))
 
-
-
 ;;; Outside Range
 
 (reg-sub
@@ -333,10 +330,10 @@
  (fn [[from-units to-units] [_ _ _ var-min var-max value]]
    (not
     (if (or (nil? to-units) (= from-units to-units))
-        (values-in-range? var-min var-max value)
-        (values-in-range? (convert var-min from-units to-units 2)
-                          (convert var-max from-units to-units 2)
-                          value)))))
+      (values-in-range? var-min var-max value)
+      (values-in-range? (convert var-min from-units to-units 2)
+                        (convert var-max from-units to-units 2)
+                        value)))))
 
 (reg-sub
  :wizard/outside-range-error-msg
@@ -367,6 +364,18 @@
             (or (str/includes? value ",") (str/includes? value " ")))
      true
      false)))
+
+;; Character Limit exceeded
+
+(reg-sub
+ :wizard/character-limit-exceeded-msg
+ (fn [_]
+   @(<t (bp "max_character_limit_20"))))
+
+(reg-sub
+ :wizard/character-limit-exceeded?
+ (fn [_ [_ value]]
+   (> (count value) 20)))
 
 ;; All Errors
 
@@ -474,7 +483,6 @@
  (fn [{:keys [state]} [_ note-id]]
    (true? (get-in state [:worksheet :notes note-id :edit?]))))
 
-
 (reg-sub
  :wizard/show-notes?
  (fn [{:keys [state]} _]
@@ -484,7 +492,6 @@
  :wizard/show-add-note-form?
  (fn [{:keys [state]} _]
    (true? (get-in state [:worksheet :show-add-note-form?]))))
-
 
 (reg-sub
  :wizard/results-tab-selected
@@ -731,7 +738,6 @@
        (all-conditionals-pass? worksheet op conditionals)
        false))))
 
-
 (defn index-by
   "Indexes collection by key or fn."
   [k-or-fn coll]
@@ -875,18 +881,17 @@
          output-submodules (filter (fn [{io :submodule/io}] (= io :output)) submodules)
          input-submodules  (filter (fn [{io :submodule/io}] (= io :input)) submodules)]
      (if (= workflow :guided)
-      (into []
-            (concat
-             (map (partial build-guided-submodule-path routes ws-uuid) output-submodules)
-             (map (partial build-guided-submodule-path routes ws-uuid) input-submodules)
-             [(path-for routes :ws/review :ws-uuid ws-uuid :workflow :guided)
-              (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings :workflow :guided)
-              (path-for routes :ws/results :ws-uuid ws-uuid :workflow :guided)]))
-      [(path-for routes :ws/wizard-standard :ws-uuid ws-uuid :workflow :standard :io :output)
-       (path-for routes :ws/wizard-standard :ws-uuid ws-uuid :workflow :standard :io :input)
-       (path-for routes :ws/results-settings :ws-uuid ws-uuid :workflow :standard :results-page :settings)
-       (path-for routes :ws/results :ws-uuid ws-uuid :workflow :standard)]
-      ))))
+       (into []
+             (concat
+              (map (partial build-guided-submodule-path routes ws-uuid) output-submodules)
+              (map (partial build-guided-submodule-path routes ws-uuid) input-submodules)
+              [(path-for routes :ws/review :ws-uuid ws-uuid :workflow :guided)
+               (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings :workflow :guided)
+               (path-for routes :ws/results :ws-uuid ws-uuid :workflow :guided)]))
+       [(path-for routes :ws/wizard-standard :ws-uuid ws-uuid :workflow :standard :io :output)
+        (path-for routes :ws/wizard-standard :ws-uuid ws-uuid :workflow :standard :io :input)
+        (path-for routes :ws/results-settings :ws-uuid ws-uuid :workflow :standard :results-page :settings)
+        (path-for routes :ws/results :ws-uuid ws-uuid :workflow :standard)]))))
 
 (reg-sub
  :wizard/working-area-expanded?
@@ -948,7 +953,6 @@
      (first saved-enabled?-setting)
      (pos? (count multi-valued-inputs)))))
 
-
 (reg-sub
  :wizard/get-cached-new-worksheet-or-import
  (fn [_]
@@ -962,7 +966,6 @@
    (subscribe [:local-storage/get-in [:state :*workflow]]))
  (fn [workflow _]
    workflow))
-
 
 (reg-sub
  :wizard/search-table-output-group-variables

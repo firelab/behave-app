@@ -235,9 +235,12 @@
                                group-uuid
                                repeat-id
                                repeat-group?]
-  (let [value          (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
-        on-focus-click (partial highlight-help-section help-key)
-        value-atom     (r/atom @value)]
+  (let [value                     (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+        on-focus-click            (partial highlight-help-section help-key)
+        value-atom                (r/atom @value)
+        not-acceptable-char-codes (set (map #(.charCodeAt % 0) ","))
+        *error?                   (rf/subscribe [:wizard/character-limit-exceeded? @value])
+        *error-msg                (rf/subscribe [:wizard/character-limit-exceeded-msg])]
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
@@ -247,8 +250,13 @@
                                      "Values:")
                     :placeholder   (when repeat-group? "Value")
                     :default-value @value
+                    :error?        @*error?
+                    :error-msg     @*error-msg
                     :on-change     #(reset! value-atom (input-value %))
                     :on-blur       #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
+                    :on-key-press  (fn [event]
+                                     (when (contains? not-acceptable-char-codes (.-charCode event))
+                                       (.preventDefault event)))
                     :required?     true}]]))
 
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
