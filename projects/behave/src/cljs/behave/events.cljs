@@ -1,14 +1,15 @@
 (ns behave.events
-  (:require [browser-utils.core :refer [add-script
-                                        script-exist?
-                                        scroll-top!
-                                        set-local-storage!
-                                        clear-local-storage!
-                                        assoc-in-local-storage!
-                                        create-local-storage!]]
+  (:require [browser-utils.core            :refer [add-script
+                                                   script-exist?
+                                                   scroll-top!
+                                                   set-local-storage!
+                                                   clear-local-storage!
+                                                   assoc-in-local-storage!
+                                                   create-local-storage!]]
             [vimsical.re-frame.cofx.inject :as inject]
-            [ajax.core :as ajax]
-            [re-frame.core :as rf]
+            [ajax.core                     :as ajax]
+            [re-frame.core                 :as rf]
+            [behave.components.sidebar.events]
             [behave.help.events]
             [behave.tool.events]))
 
@@ -73,7 +74,6 @@
      (update db path #(apply f % args))
 
      :else db)))
-
 
 ;;; Datascript
 
