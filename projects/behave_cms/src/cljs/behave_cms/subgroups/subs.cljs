@@ -1,11 +1,11 @@
 (ns behave-cms.subgroups.subs
-  (:require [clojure.string     :as str]
-            [bidi.bidi          :refer [path-for]]
-            [datascript.core    :as d]
+  (:require [behave-cms.queries :refer [rules]]
+            [behave-cms.routes  :refer [app-routes]]
             [behave-cms.store   :refer [conn]]
-            [behave-cms.queries :refer [rules]]
-            [re-frame.core      :refer [reg-sub subscribe]]
-            [behave-cms.routes  :refer [app-routes]]))
+            [bidi.bidi          :refer [path-for]]
+            [clojure.string     :as str]
+            [datascript.core    :as d]
+            [re-frame.core      :refer [reg-sub subscribe]]))
 
 ;;; Applications, Modules, Submodules
 
@@ -45,30 +45,30 @@
 
 (reg-sub
  :group/discrete-variable-options
-  (fn [[_ gv-uuid]]
-    (subscribe [:query
-                   '[:find ?l .
-                     :in $ ?gv-uuid
-                     :where
-                     [?gv :bp/uuid ?gv-uuid]
-                     [?v  :variable/group-variables ?gv]
-                     [?v  :variable/kind :discrete]
-                     [?v  :variable/list ?l]]
-                   [gv-uuid]]))
-  (fn [list-eid]
-    @(subscribe [:pull-children :list/options list-eid])))
+ (fn [[_ gv-uuid]]
+   (subscribe [:query
+               '[:find ?l .
+                 :in $ ?gv-uuid
+                 :where
+                 [?gv :bp/uuid ?gv-uuid]
+                 [?v  :variable/group-variables ?gv]
+                 [?v  :variable/kind :discrete]
+                 [?v  :variable/list ?l]]
+               [gv-uuid]]))
+ (fn [list-eid]
+   @(subscribe [:pull-children :list/options list-eid])))
 
 (reg-sub
  :submodule/is-output?
-  (fn [[_ submodule-id]]
-    (subscribe [:query
-                   '[:find ?io .
-                     :in $ ?sm
-                     :where
-                     [?sm :submodule/io ?io]]
-                   [submodule-id]]))
-  (fn [io]
-    (= io :output)))
+ (fn [[_ submodule-id]]
+   (subscribe [:query
+               '[:find ?io .
+                 :in $ ?sm
+                 :where
+                 [?sm :submodule/io ?io]]
+               [submodule-id]]))
+ (fn [io]
+   (= io :output)))
 
 ;;; Subgroups
 

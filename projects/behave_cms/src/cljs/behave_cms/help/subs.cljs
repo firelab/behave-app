@@ -1,15 +1,15 @@
 (ns behave-cms.help.subs
-  (:require [clojure.string             :as str]
+  (:require [applied-science.js-interop :as j]
+            [behave-cms.utils           :as u]
             [clojure.set                :refer [rename-keys]]
+            [clojure.string             :as str]
             [clojure.walk               :refer [postwalk]]
-            [applied-science.js-interop :as j]
-            [reagent.core               :as r]
-            [re-frame.core              :as rf]
-            [re-posh.core               :as rp]
+            [data-utils.interface       :refer [parse-int]]
             [herb.core                  :refer [<class]]
             [markdown2hiccup.interface  :refer [md->hiccup]]
-            [data-utils.interface       :refer [parse-int]]
-            [behave-cms.utils           :as u]))
+            [re-frame.core              :as rf]
+            [re-posh.core               :as rp]
+            [reagent.core               :as r]))
 
 ;;; Database
 
@@ -20,7 +20,7 @@
     :query     '[:find  ?h .
                  :in    $ ?l ?help-key
                  :where [?h :help-page/key ?help-key]
-                        [?l :language/help-page ?h]]
+                 [?l :language/help-page ?h]]
     :variables [language help-key]}))
 
 (rp/reg-sub
@@ -30,8 +30,8 @@
     :query     '[:find  ?content .
                  :in    $ ?l ?help-key
                  :where [?h :help-page/key ?help-key]
-                        [?l :language/help-page ?h]
-                        [?h :help-page/content ?content]]
+                 [?l :language/help-page ?h]
+                 [?h :help-page/content ?content]]
     :variables [language help-key]}))
 
 (rf/reg-sub

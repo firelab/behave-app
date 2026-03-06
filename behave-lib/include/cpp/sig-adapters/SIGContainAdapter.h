@@ -33,6 +33,11 @@
 #include "ContainAdapter.h"
 #include "SIGCollections.h"
 
+enum class ContainMode {
+    Default,
+    ComputeWithOptimalResource
+};
+
 class SIGContainAdapter : public ContainAdapter
 {
 public:
@@ -66,6 +71,19 @@ public:
   double getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const;
   double getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const;
   int    getTactic( void ) const;
+  double getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum speedUnits);
+  void   doContainRun();
+  void   doContainRunWithOptimalResource();
+  void   setContainMode(ContainMode containMode);
+  void   setResourceArrivalTime(double arrivalTime, TimeUnits::TimeUnitsEnum timeUnits);
+  void   setResourceDuration(double duration, TimeUnits::TimeUnitsEnum timeUnits);
+  void   setAutoComputedResourceProductionRate(double resourceProductionRate, SpeedUnits::SpeedUnitsEnum speedUnits);
+
+protected:
+  double autoComputedResourceProductionRate_;
+  ContainMode containMode_ = ContainMode::Default;
+  double  resourceArrivalTime_; //min
+  double  resourceDuration_; //min
 };
 
 #endif //CONTAINADAPTER_H

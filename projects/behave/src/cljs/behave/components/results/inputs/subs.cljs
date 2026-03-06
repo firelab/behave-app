@@ -1,14 +1,14 @@
 (ns behave.components.results.inputs.subs
-  (:require [behave.schema.core  :refer [rules]]
-            [behave.translate    :refer [<t]]
-            [behave.vms.store    :refer [vms-conn]]
-            [behave.wizard.subs  :refer [all-conditionals-pass?]]
-            [clojure.walk        :refer [prewalk]]
-            [datascript.core     :as d]
-            [string-utils.interface :as s]
+  (:require [behave.schema.core     :refer [rules]]
+            [behave.translate       :refer [<t]]
+            [behave.vms.store       :refer [vms-conn]]
+            [behave.wizard.subs     :refer [all-conditionals-pass?]]
+            [clojure.walk           :refer [prewalk]]
+            [datascript.core        :as d]
             [datascript.impl.entity]
-            [map-utils.interface :refer [index-by]]
-            [re-frame.core       :refer [reg-sub subscribe]]))
+            [map-utils.interface    :refer [index-by]]
+            [re-frame.core          :refer [reg-sub subscribe]]
+            [string-utils.interface :as s]))
 
 (defn- export-entity
   [entity]

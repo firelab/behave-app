@@ -1,12 +1,12 @@
 (ns behave-cms.components.common
-  (:require [clojure.string         :as str]
-            [herb.core              :refer [<class]]
-            [reagent.core           :as r]
-            [re-frame.core          :as rf]
-            [string-utils.interface :refer [->str ->kebab]]
-            [behave-cms.styles      :as $]
+  (:require [behave-cms.styles      :as $]
             [behave-cms.utils       :as u]
-            [nano-id.core           :refer [nano-id]]))
+            [clojure.string         :as str]
+            [herb.core              :refer [<class]]
+            [nano-id.core           :refer [nano-id]]
+            [re-frame.core          :as rf]
+            [reagent.core           :as r]
+            [string-utils.interface :refer [->str ->kebab]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI Styles
@@ -283,9 +283,9 @@
              :primary
              "Add Entry"
              add-entity-fn]])]
-   [:div.table-wrapper {:style {:height           "100%"
-                                :overflow-y       "auto"
-                                :scroll-snap-type "y mandatory"
+   [:div.table-wrapper {:style {:height             "100%"
+                                :overflow-y         "auto"
+                                :scroll-snap-type   "y mandatory"
                                 :scroll-padding-top "41px"}}
     [:table.table.table-hover
      {:style {:border-collapse "collapse"

@@ -12,6 +12,7 @@
 (s/def :subtool-variable/order              zero-pos?)
 (s/def :subtool-variable/translation-key    valid-key?)
 (s/def :subtool-variable/io                 valid-io?)
+(s/def :subtool-variable/dynamic-units?     boolean?)
 
 (s/def :behave/subtool-variable (s/keys :req [:bp/uuid
                                               :subtool-variable/io
@@ -34,6 +35,11 @@
    {:db/ident       :subtool-variable/order
     :db/doc         "subtool variable's order."
     :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool-variable/dynamic-units?
+    :db/doc         "Whether a subtool variable allow units change dropdown"
+    :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool-variable/cpp-namespace-uuid

@@ -1,38 +1,35 @@
 (ns behave.wizard.views
-  (:require [behave.components.core               :as c]
-            [behave.components.input-group        :refer [input-group]]
-            [behave.components.review-input-group :as review]
-            [behave.components.navigation         :refer [wizard-navigation]]
-            [behave.components.output-group       :refer [output-group]]
-            [behave.components.results.diagrams   :refer [result-diagrams]]
-            [behave.components.results.matrices   :refer [result-matrices]]
-            [behave.components.results.graphs     :refer [result-graphs]]
+  (:require [behave-routing.main                    :refer [routes current-route-order]]
+            [behave.components.core                 :as c]
+            [behave.components.input-group          :refer [input-group]]
+            [behave.components.navigation           :refer [wizard-navigation]]
+            [behave.components.output-group         :refer [output-group]]
+            [behave.components.results.diagrams     :refer [result-diagrams]]
+            [behave.components.results.graphs       :refer [result-graphs]]
+            [behave.components.results.inputs.subs]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table      :refer [result-table-download-link
-                                                          directional-result-tables
-                                                          pivot-tables
-                                                          search-tables]]
-            [behave.tool.views                    :refer [tool tool-selector]]
-            [behave-routing.main                  :refer [routes current-route-order]]
-            [behave.translate                     :refer [<t bp]]
+            [behave.components.results.matrices     :refer [result-matrices]]
+            [behave.components.results.table        :refer [result-table-download-link
+                                                            pivot-tables
+                                                            search-tables]]
+            [behave.components.review-input-group   :as review]
+            [behave.tool.views                      :refer [tool tool-selector]]
+            [behave.translate                       :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
-            [behave.components.results.inputs.subs]
-            [bidi.bidi                            :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [dom-utils.interface                  :refer [input-int-value
-                                                          input-float-value
-                                                          input-value]]
-            [goog.string                          :as gstring]
+            [bidi.bidi                              :refer [path-for]]
+            [clojure.string                         :as str]
+            [dom-utils.interface                    :refer [input-int-value
+                                                            input-float-value
+                                                            input-value]]
+            [goog.string                            :as gstring]
             [goog.string.format]
-            [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
-            [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]
-            [string-utils.core :as s]
-            [clojure.string :as str]
-            [behave.schema.submodule :as submodule]
-            [re-frame.core :as rf]))
+            [re-frame.core                          :refer [dispatch dispatch-sync subscribe]]
+            [reagent.core                           :as r]
+            [string-utils.core                      :as s]
+            [string-utils.interface                 :refer [->kebab]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
@@ -72,7 +69,6 @@
                  :on-click  on-click
                  :tabs      [{:label @(<t (bp "outputs")) :tab :output :selected? (= io :output)}
                              {:label @(<t (bp "inputs")) :tab :input :selected? (= io :input)}]}]])
-
 
 (defn- show-or-close-notes-button [show-notes?]
   (if show-notes?
@@ -276,13 +272,11 @@
 
 ;; Review page
 
-(defn run-description [ws-uuid]
+(defn- run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
         description (:worksheet/run-description @*worksheet)
         value-atom  (r/atom (or description ""))]
     [:div.wizard-review__run-desciption
-     [:div.wizard-review__run-description__header
-      @(<t "behaveplus:run_description")]
      [:div.wizard-review-group__inputs
       [:div.wizard-review__run-description__input
        [c/text-input {:label       @(<t (bp "run_description"))
@@ -333,7 +327,6 @@
             [:div.wizard-header__banner__title @(<t (bp "worksheet_review"))]
             (show-or-close-notes-button @*show-notes?)]]
           [:div.wizard-review
-           [run-description ws-uuid]
            (when @*show-notes?
              (wizard-notes @*notes))
            (for [module modules
@@ -368,12 +361,7 @@
                       :variant       "highlight"
                       :icon-name     "arrow2"
                       :icon-position "right"
-                      :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                          (js/setTimeout
-                                           (fn []
-                                             (dispatch-sync [:wizard/solve params])
-                                             (dispatch-sync [:wizard/after-solve params]))
-                                           300))}]]]]])]))
+                      :on-click      #(dispatch [:wizard/run-solve params])}]]]]])]))
 
 ;; Wizard Results Settings Page
 
@@ -407,7 +395,7 @@
         *default-max-values            (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
         *default-min-values            (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
         units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
-        maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
+        maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val [[gv-uuid _min-val max-val enabled?]]
                                                                               [gv-uuid max-val enabled?])
                                                                             gv-uuid+min+max-entries-sorted)
                                                        :on-change      #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)
@@ -662,49 +650,49 @@
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
-  (let [*worksheet           (subscribe [:worksheet ws-uuid])
-        *ws-date             (subscribe [:wizard/worksheet-date ws-uuid])
-        *notes               (subscribe [:wizard/notes ws-uuid])
-        *tab-selected        (subscribe [:wizard/results-tab-selected])
-        *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
-        show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
-        tabs                 (cond-> []
+  (let [*worksheet          (subscribe [:worksheet ws-uuid])
+        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
+        *notes              (subscribe [:wizard/notes ws-uuid])
+        *tab-selected       (subscribe [:wizard/results-tab-selected])
+        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])
+        repeat-groups?      @(subscribe [:worksheet/repeat-groups? ws-uuid])
+        tabs                (cond-> []
 
-                               (seq @*notes)
-                               (conj {:label     (-> @(<t (bp "notes"))
+                              (seq @*notes)
+                              (conj {:label     (-> @(<t (bp "notes"))
+                                                    s/capitalize-words)
+                                     :tab       :notes
+                                     :icon-name :notes
+                                     :selected? (= @*tab-selected :notes)})
+
+                              :always
+                              (into [{:label     (-> @(<t (bp "inputs"))
                                                      s/capitalize-words)
-                                      :tab       :notes
-                                      :icon-name :notes
-                                      :selected? (= @*tab-selected :notes)})
+                                      :tab       :inputs
+                                      :icon-name :tables
+                                      :selected? (= @*tab-selected :inputs)}
 
-                               :always
-                               (into [{:label     (-> @(<t (bp "inputs"))
-                                                      s/capitalize-words)
-                                       :tab       :inputs
-                                       :icon-name :tables
-                                       :selected? (= @*tab-selected :inputs)}
-
-                                      {:label     (-> @(<t (bp "output_tables"))
-                                                      s/capitalize-words)
-                                       :tab       :outputs
-                                       :icon-name :tables
-                                       :selected? (= @*tab-selected :outputs)}])
-
-                               @(subscribe [:wizard/enable-graph-settings? ws-uuid])
-                               (conj {:label     (-> @(<t (bp "output_graphs"))
+                                     {:label     (-> @(<t (bp "output_tables"))
                                                      s/capitalize-words)
-                                      :tab       :graph
-                                      :icon-name :graphs
-                                      :selected? (= @*tab-selected :graph)})
+                                      :tab       :outputs
+                                      :icon-name :tables
+                                      :selected? (= @*tab-selected :outputs)}])
 
-                               (seq (:worksheet/diagrams @*worksheet))
-                               (conj {:label     (-> @(<t (bp "output_diagrams"))
-                                                     s/capitalize-words)
-                                      :tab       :diagram
-                                      :icon-name :graphs
-                                      :selected? (= @*tab-selected :diagram)} ))]
+                              @(subscribe [:wizard/enable-graph-settings? ws-uuid])
+                              (conj {:label     (-> @(<t (bp "output_graphs"))
+                                                    s/capitalize-words)
+                                     :tab       :graph
+                                     :icon-name :graphs
+                                     :selected? (= @*tab-selected :graph)})
+
+                              (seq (:worksheet/diagrams @*worksheet))
+                              (conj {:label     (-> @(<t (bp "output_diagrams"))
+                                                    s/capitalize-words)
+                                     :tab       :diagram
+                                     :icon-name :graphs
+                                     :selected? (= @*tab-selected :diagram)}))]
     (when (not @*tab-selected)
       (dispatch-sync [:wizard/results-select-tab (first tabs)]))
     [:<>
@@ -730,6 +718,7 @@
           [:div.wizard-header__results-toolbar__date
            [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
            [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
+         [run-description ws-uuid]
          [:div.wizard-header__results-tabs
           [c/tab-group {:variant  "highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
@@ -745,11 +734,10 @@
            [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
-            (search-tables ws-uuid)
+            (when (not repeat-groups?)
+              (search-tables ws-uuid))
             [pivot-tables ws-uuid]
-            (if @*directional-tables?
-              [directional-result-tables ws-uuid]
-              [result-matrices ws-uuid])
+            [result-matrices ws-uuid]
             [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
             ;; [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])
@@ -844,7 +832,7 @@
                              {:value submodule-name
                               :label (str module-name " - " submodule-name)})]
               [c/dropdown
-               {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
+               {:on-change #(dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
                 :options   (map ->option all-submodules)}])]]
           [:div.wizard-page__body
            (doall
@@ -891,12 +879,7 @@
                         :variant       "highlight"
                         :icon-name     "arrow2"
                         :icon-position "right"
-                        :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                            (js/setTimeout
-                                             (fn []
-                                               (dispatch-sync [:wizard/solve params])
-                                               (dispatch-sync [:wizard/after-solve params]))
-                                             300))}]
+                        :on-click      #(dispatch [:wizard/run-solve params])}]
              [c/button {:label         @(<t (bp "next"))
                         :variant       "highlight"
                         :icon-name     "arrow2"

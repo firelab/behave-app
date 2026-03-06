@@ -121,3 +121,32 @@
           :where (io ?gv ?io)
           [(= ?io :output) ?is-output]]
         @@conn all-rules group-variable-id)))
+
+(reg-sub
+ :group-variable/conditionals
+ (fn [[_ gv-id conditionals-attr]]
+   [(subscribe [:query
+                '[:find ?c ?name
+                  :in  $ ?s ?conditional-attr
+                  :where
+                  [?s ?conditional-attr ?c]
+                  [?c :conditional/type :group-variable]
+                  [?c :conditional/group-variable-uuid ?gv-uuid]
+                  [?gv :bp/uuid ?gv-uuid]
+                  [?v :variable/group-variables ?gv]
+                  [?v :variable/name ?name]]
+                [gv-id conditionals-attr]])
+    (subscribe [:query
+                '[:find ?c
+                  :in $ ?g ?conditional-attr
+                  :where
+                  [?g ?conditionals-attr ?c]
+                  [?c :conditional/type :module]]
+                [gv-id conditionals-attr]])])
+ (fn [[group-variable-conditionals module-conditionals]]
+   (concat (mapv (fn [[id name]]
+                   (-> @(subscribe [:entity id])
+                       (assoc :variable/name name))) group-variable-conditionals)
+           (mapv (fn [[id]]
+                   (-> @(subscribe [:entity id])
+                       (assoc :variable/name "Modules selected"))) module-conditionals))))

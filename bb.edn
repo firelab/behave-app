@@ -28,13 +28,18 @@
                 (clojure "-X:dev:import-help")
                 (fs/copy-tree "bases/behave-docs/XHTML_Output/Resources/Images/"
                               "projects/behave/resources/public/help/images"
-                              {:replace-existing true}))
+                              {:replace-existing true})
+                (shell "find projects/behave/resources/public/help/images -type f ( -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.png\" ) -exec sh -c 'for file do convert \"$file\" \"${file%.*}.webp\" && echo \"Converted $file to ${file%.*}.webp\"; done' sh {} +")
+                (shell "find projects/behave/resources/public/help/images -type f ( -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.png\" ) -exec rm {} +"))
 
   ;;; Datomic
   -today      (str (java.time.LocalDate/now))
 
   dump        {:depends [-today]
                :task    (shell (format "pg_dump -U datomic datomic -Fc --file=datomic-backup-%s.dump" -today))}
+
+  dump-sql    {:depends [-today]
+               :task    (shell (format "pg_dump -U datomic datomic --file=datomic-backup-%s.sql" -today))}
 
   restore     (let [db-dump (:file (cli/parse-opts *command-line-args*))]
                  (shell "psql -U datomic -d datomic -c 'DROP TABLE IF EXISTS datomic_kvs'")

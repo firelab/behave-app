@@ -1,18 +1,18 @@
 (ns behave-cms.subgroups.views
-  (:require [clojure.set   :refer [difference]]
-            [clojure.string :as str]
-            [re-frame.core :as rf]
-            [string-utils.interface :refer [->kebab]]
-            [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
-            [behave-cms.components.conditionals    :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.help.views                 :refer [help-editor]]
-            [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations    :refer [all-translations]]
-            [behave-cms.components.variable-search :refer [variable-search]]
-            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
-            [behave-cms.utils :as u]
+  (:require [behave-cms.components.common             :refer [accordion checkbox simple-table window]]
+            [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.sidebar            :refer [sidebar sidebar-width]]
+            [behave-cms.components.table-entity-form  :refer [table-entity-form table-entity-form-on-select]]
+            [behave-cms.components.translations       :refer [all-translations]]
+            [behave-cms.components.variable-search    :refer [variable-search]]
+            [behave-cms.events]
+            [behave-cms.help.views                    :refer [help-editor]]
             [behave-cms.subs]
-            [behave-cms.events]))
+            [behave-cms.utils                         :as u]
+            [clojure.set                              :refer [difference]]
+            [clojure.string                           :as str]
+            [re-frame.core                            :as rf]
+            [string-utils.interface                   :refer [->kebab]]))
 
 ;;; Private Views
 (defn- subgroups-table [group-id]
@@ -24,7 +24,7 @@
       {:entity             :group
        :form-state-path    editor-state-path
        :entities           (sort-by :group/order @groups)
-       :on-select          (on-select selected-state-path)
+       :on-select          (table-entity-form-on-select selected-state-path)
        :parent-id          group-id
        :parent-field       :group/_children
        :table-header-attrs [:group/name]
@@ -137,7 +137,7 @@
        [accordion
         "Conditionals"
         [:div.col-9
-         [conditionals-graph id id (concat @var-conditionals @module-conditionals) :group/conditionals :group/conditionals-operator]]
+         [conditionals-graph id id :group/conditionals :group/conditionals-operator]]
         [:div.col-3
          [manage-conditionals id :group/conditionals]]]
        [:hr]

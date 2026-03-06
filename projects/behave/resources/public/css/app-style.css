@@ -720,7 +720,15 @@ body {
 .wizard-review__run-description__input {
   display: flex;
   flex-direction: row;
-  padding: 25px 30px;
+  padding: 0px 30px;
+}
+
+.wizard-review__run-description__input .input-text {
+  width: 400px;
+}
+
+.wizard-review__run-description__input .input-text__label {
+  width: 50%;
 }
 
 .wizard-review-repeat-group__message,
@@ -896,7 +904,7 @@ body {
   margin-top: 30px;
   margin-bottom: 33px;
   padding: 5px 18px;
-  font-size: var(--font-size-18);
+  font-size: var(--font-size-16);
   color: white;
   background-color: var(--darkblue-3);
 }
@@ -908,14 +916,12 @@ body {
 .wizard-note__module {
   margin-bottom: 20px;
   padding: 5px 18px;
-  font-size: var(--font-size-18);
   color: white;
   background-color: var(--darkblue-2);
 }
 
 .wizard-note__name {
   padding: 5px 18px;
-  font-size: var(--font-size-18);
   font-weight: var(--font-weight-bold);
   color: var(--medblue-3);
   background-color: none;
@@ -934,7 +940,6 @@ body {
   padding: 18px 0px 18px 0px;
   border-top: solid 1px var(--gray-4);
   border-bottom: dashed 1px var(--gray-4);
-  font-size: var(--font-size-16);
   color: var(--black);
 }
 
@@ -951,7 +956,6 @@ body {
 
 .wizard-note .note > textarea {
   height: 100px;
-  font-size: var(--font-size-16);
 }
 
 /* - End Wizard - */
@@ -1235,17 +1239,22 @@ body {
   display: flex;
   flex-direction: row;
 }
+
 .tool-output .input-text__label,
 .tool-input .input-radio-group__label,
-.tool-input > .input-dropdown > .input-dropdown__label,
+.tool-input__input > .input-dropdown > .input-dropdown__label,
 .tool-input .input-number__label {
   min-width: 250px;
   padding: 0px;
 }
+
 .tool-input .input-dropdown__select-wrapper {
   margin-top: 0px;
 }
 
+.tool-input .input-number__label,
+.tool-input .input-text__label,
+.tool-input .input-dropdown__label,
 .tool-input .input-radio-group__label {
   padding: 0px 10px 0px 0px;
   font-size: var(--font-size-14);
@@ -1297,6 +1306,14 @@ body {
   background-color: var(--white);
 }
 
+.tool__units-system-selector {
+  padding-left: 5px;
+}
+
+.tool__units-system-selector .input-toggle__label {
+  width: 235px;
+}
+
 /* -- End Tool -- */
 
 
@@ -1311,6 +1328,10 @@ body {
   width: 40px;
 }
 
+.settings__general-units__units-system-selection {
+  padding: 10px;
+}
+
 .settings__body {
   overflow-x: scroll;
   overflow-y: scroll;
@@ -1322,6 +1343,11 @@ body {
 
 
 /* -- Print View -- */
+
+.print {
+  font-size: var(--font-size-14);
+  overflow-y: scroll;
+}
 
 .print__ws-name {
   font-weight: var(--font-weight-bold)
@@ -1345,9 +1371,6 @@ body {
   flex-direciton: column
 }
 
-.print {
-  overflow-y: scroll;
-}
 .print__inputs-table .table-header__header,
 .print__inputs-table .table-cell {
   text-align: left;
@@ -1429,6 +1452,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: row;
+  text-align: left;
 }
 
 .wizard-results__pivot-tables .table {

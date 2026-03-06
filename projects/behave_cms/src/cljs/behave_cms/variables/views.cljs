@@ -1,8 +1,8 @@
 (ns behave-cms.variables.views
-  (:require [re-frame.core                     :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
+  (:require [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.events]
-            [behave-cms.subs]))
+            [behave-cms.subs]
+            [re-frame.core                           :as rf]))
 
 ;; Variables
 (defn list-variables-page
@@ -27,7 +27,7 @@
          :form-state-path    editor-state-path
          :entity             :variable
          :entities           (sort-by :variable/name @entities)
-         :on-select          (on-select selected-state-path)
+         :on-select          (table-entity-form-on-select selected-state-path)
          :table-header-attrs [:variable/name
                               :variable/domain-uuid
                               :variable/bp6-label
@@ -118,8 +118,6 @@
                               {:label     "BP6 Code"
                                :disabled? true
                                :field-key :variable/bp6-code}
-
-
 
                               {:label     "Map Units Convertible?"
                                :field-key :variable/map-units-convertible?

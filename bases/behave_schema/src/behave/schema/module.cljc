@@ -1,6 +1,6 @@
 (ns behave.schema.module
-  (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
+  (:require [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
@@ -75,8 +75,7 @@
     :db/doc         "Module's search tables"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
-    :db/isComponent true}
-   ])
+    :db/isComponent true}])
 
 ;;; Testing
 
@@ -85,5 +84,4 @@
                             :module/name            "Contain"
                             :module/order           1
                             :module/translation-key "behaveplus:contain"
-                            :module/help-key        "behaveplus:contain:help"})
-  )
+                            :module/help-key        "behaveplus:contain:help"}))

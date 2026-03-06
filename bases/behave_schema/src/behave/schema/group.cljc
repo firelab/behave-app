@@ -1,6 +1,6 @@
 (ns behave.schema.group
-  (:require [clojure.spec.alpha :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string?]]))
+  (:require [behave.schema.utils :refer [valid-key? uuid-string?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
@@ -19,7 +19,6 @@
                                                       :int int?)))
 (s/def :group/conditionals-operator  #{:and :or})
 (s/def :group/hidden?                boolean?)
-
 
 (s/def :behave/group (s/keys :req [:bp/uuid
                                    :bp/nid
@@ -125,5 +124,4 @@
                            :group/name            "Inner Group"
                            :group/order           1
                            :group/translation-key "behaveplus:fire:inner-group"
-                           :group/help-key        "behaveplus:fire:inner-group:help"})
-  )
+                           :group/help-key        "behaveplus:fire:inner-group:help"}))
