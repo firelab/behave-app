@@ -1,15 +1,15 @@
 (ns behave-cms.help.events
-  (:require [clojure.string             :as str]
+  (:require [applied-science.js-interop :as j]
+            [behave-cms.markdown.core   :refer [md->html]]
+            [behave-cms.utils           :as u]
             [clojure.set                :refer [rename-keys]]
+            [clojure.string             :as str]
             [clojure.walk               :refer [postwalk]]
-            [applied-science.js-interop :as j]
-            [reagent.core               :as r]
-            [re-frame.core              :as rf :refer [path]]
+            [data-utils.interface       :refer [parse-int]]
             [herb.core                  :refer [<class]]
             [hickory.core               :refer [parse-fragment as-hiccup]]
-            [behave-cms.markdown.core   :refer [md->html]]
-            [data-utils.interface       :refer [parse-int]]
-            [behave-cms.utils           :as u]))
+            [re-frame.core              :as rf :refer [path]]
+            [reagent.core               :as r]))
 
 ;;; Editor
 

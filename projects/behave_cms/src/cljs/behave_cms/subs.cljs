@@ -1,26 +1,26 @@
 (ns behave-cms.subs
-  (:require [clojure.string    :as str]
-            [bidi.bidi         :refer (match-route)]
-            [re-frame.core     :as rf]
-            [austinbirch.reactive-entity :as re]
-            [re-posh.core      :as rp]
-            [datascript.core   :as d]
-            [behave-cms.components.conditionals.subs]
-            [behave-cms.routes :refer [app-routes]]
-            [behave-cms.store  :as s]
+  (:require [austinbirch.reactive-entity :as re]
             [behave-cms.applications.subs]
+            [behave-cms.components.conditionals.subs]
             [behave-cms.domains.subs]
             [behave-cms.group-variables.subs]
             [behave-cms.groups.subs]
             [behave-cms.languages.subs]
             [behave-cms.lists.subs]
             [behave-cms.modules.subs]
+            [behave-cms.routes           :refer [app-routes]]
+            [behave-cms.store            :as s]
             [behave-cms.subgroups.subs]
             [behave-cms.submodules.subs]
             [behave-cms.subtools.subs]
             [behave-cms.tools.subs]
             [behave-cms.units.subs]
-            [behave-cms.variables.subs]))
+            [behave-cms.variables.subs]
+            [bidi.bidi                   :refer (match-route)]
+            [clojure.string              :as str]
+            [datascript.core             :as d]
+            [re-frame.core               :as rf]
+            [re-posh.core                :as rp]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions
 (def <sub (comp deref rf/subscribe))

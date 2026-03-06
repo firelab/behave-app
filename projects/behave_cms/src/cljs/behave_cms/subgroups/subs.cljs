@@ -1,11 +1,11 @@
 (ns behave-cms.subgroups.subs
-  (:require [clojure.string     :as str]
-            [bidi.bidi          :refer [path-for]]
-            [datascript.core    :as d]
+  (:require [behave-cms.queries :refer [rules]]
+            [behave-cms.routes  :refer [app-routes]]
             [behave-cms.store   :refer [conn]]
-            [behave-cms.queries :refer [rules]]
-            [re-frame.core      :refer [reg-sub subscribe]]
-            [behave-cms.routes  :refer [app-routes]]))
+            [bidi.bidi          :refer [path-for]]
+            [clojure.string     :as str]
+            [datascript.core    :as d]
+            [re-frame.core      :refer [reg-sub subscribe]]))
 
 ;;; Applications, Modules, Submodules
 

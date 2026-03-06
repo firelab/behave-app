@@ -1,8 +1,8 @@
 (ns behave-cms.domains.views
-  (:require [re-frame.core                           :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+  (:require [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.events]
-            [behave-cms.subs]))
+            [behave-cms.subs]
+            [re-frame.core                           :as rf]))
 
 (defn- domains-table [selected-state-path editor-state-path selected-domain-set-path]
   (let [selected-entity     (rf/subscribe [:state selected-state-path])

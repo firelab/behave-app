@@ -8,7 +8,6 @@
             [behave-cms.help.views                    :refer [help-editor]]
             [re-frame.core                            :as rf]
             [string-utils.interface                   :refer [->str]]))
-
 (defn- groups-results-order-table [submodule-id]
   (let [groups (rf/subscribe [:groups submodule-id])]
     [:div.col-12

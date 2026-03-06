@@ -1,9 +1,9 @@
 (ns behave-cms.components.sidebar
   (:require
+   [behave-cms.routes :refer [app-routes]]
    [bidi.bidi         :refer [path-for]]
    [herb.core         :refer [<class]]
-   [re-frame.core     :as rf]
-   [behave-cms.routes :refer [app-routes]]))
+   [re-frame.core     :as rf]))
 
 ;;; Styles
 

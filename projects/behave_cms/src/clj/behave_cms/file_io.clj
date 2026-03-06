@@ -1,12 +1,12 @@
 (ns behave-cms.file-io
   (:import java.util.UUID)
-  (:require [me.raynes.fs       :as fs]
-            [clojure.set        :as set]
-            [clojure.string     :as str]
-            [clojure.java.io    :as io]
-            [logging.interface :refer [log-str]]
+  (:require [behave-cms.views     :refer [data-response]]
+            [clojure.java.io      :as io]
+            [clojure.set          :as set]
+            [clojure.string       :as str]
             [file-utils.interface :refer [resource-file]]
-            [behave-cms.views   :refer [data-response]]))
+            [logging.interface    :refer [log-str]]
+            [me.raynes.fs         :as fs]))
 
 ;;; Constants
 

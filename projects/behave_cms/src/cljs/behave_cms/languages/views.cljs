@@ -1,6 +1,6 @@
 (ns behave-cms.languages.views
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]))
+  (:require [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [re-frame.core                           :as rf]))
 
 (defn list-languages-page
   "Page for managing languages"

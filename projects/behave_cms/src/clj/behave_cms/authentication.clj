@@ -1,10 +1,10 @@
 (ns behave-cms.authentication
-  (:require [datomic-store.main    :as s]
-            [behave-cms.utils.mail :refer [get-site-url email? send-mail]]
-            [behave-cms.views      :refer [data-response]])
-  (:import [org.mindrot.jbcrypt BCrypt]
+  (:require [behave-cms.utils.mail :refer [get-site-url email? send-mail]]
+            [behave-cms.views      :refer [data-response]]
+            [datomic-store.main    :as s])
+  (:import [java.net URLEncoder]
            [java.util Random]
-           [java.net URLEncoder]))
+           [org.mindrot.jbcrypt BCrypt]))
 
 ;;; Password hashing
 

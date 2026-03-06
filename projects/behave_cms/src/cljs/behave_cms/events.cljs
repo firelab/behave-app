@@ -1,28 +1,28 @@
 (ns behave-cms.events
-  (:require [clojure.core.async :refer [go <!]]
-            [ajax.core          :refer [ajax-request]]
-            [ajax.edn           :refer [edn-request-format edn-response-format]]
-            [bidi.bidi          :refer [path-for]]
-            [datascript.core    :refer [squuid]]
-            [nano-id.core       :refer [nano-id]]
-            [re-frame.core      :refer [dispatch
-                                        path
-                                        reg-event-db
-                                        reg-event-fx
-                                        reg-fx]]
+  (:require [ajax.core            :refer [ajax-request]]
+            [ajax.edn             :refer [edn-request-format edn-response-format]]
             [behave-cms.applications.events]
             [behave-cms.authentication.events]
             [behave-cms.groups.events]
             [behave-cms.languages.events]
             [behave-cms.lists.events]
             [behave-cms.modules.events]
-            [behave-cms.submodules.events]
+            [behave-cms.routes    :refer [app-routes singular]]
             [behave-cms.subgroups.events]
-            [behave-cms.variables.events]
-            [behave-cms.routes  :refer [app-routes singular]]
+            [behave-cms.submodules.events]
             [behave-cms.subtools.events]
-            [behave-cms.utils   :as u]
-            [data-utils.interface :refer [remove-nth]]))
+            [behave-cms.utils     :as u]
+            [behave-cms.variables.events]
+            [bidi.bidi            :refer [path-for]]
+            [clojure.core.async   :refer [go <!]]
+            [data-utils.interface :refer [remove-nth]]
+            [datascript.core      :refer [squuid]]
+            [nano-id.core         :refer [nano-id]]
+            [re-frame.core        :refer [dispatch
+                                          path
+                                          reg-event-db
+                                          reg-event-fx
+                                          reg-fx]]))
 
 ;;; Initialization
 

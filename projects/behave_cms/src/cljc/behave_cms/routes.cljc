@@ -1,5 +1,5 @@
 (ns behave-cms.routes
-  (:require [bidi.bidi :as bidi]
+  (:require [bidi.bidi    :as bidi]
             [clojure.walk :as walk]))
 
 (def admin-routes  #{:users :invite-user})

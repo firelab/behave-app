@@ -1,14 +1,14 @@
 (ns behave-cms.components.entity-form
-  (:require [clojure.string :as str]
-            [clojure.set    :as set]
-            [reagent.core      :as r]
-            [re-frame.core     :as rf]
-            [string-utils.interface :refer [->kebab ->str]]
-            [behave-cms.components.translations :refer [all-translations]]
-            [behave.schema.core :refer [all-schemas]]
-            [behave-cms.components.common :refer [dropdown btn-sm]]
+  (:require [behave-cms.components.common                  :refer [dropdown btn-sm]]
             [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
-            [behave-cms.utils  :as u]))
+            [behave-cms.components.translations            :refer [all-translations]]
+            [behave-cms.utils                              :as u]
+            [behave.schema.core                            :refer [all-schemas]]
+            [clojure.set                                   :as set]
+            [clojure.string                                :as str]
+            [re-frame.core                                 :as rf]
+            [reagent.core                                  :as r]
+            [string-utils.interface                        :refer [->kebab ->str]]))
 
 ;;; Constants
 (def ^:private db-attrs                  (map :db/ident all-schemas))
