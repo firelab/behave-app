@@ -57,23 +57,35 @@
 (defn- head-meta-css
   "Specifies head tag elements."
   []
-  [:head
-   [:title (if (:app-version (get-app-version))
-            (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))
-            (get-config :site :title))]
-   [:meta {:name    "description"
-           :content (get-config :site :description)}]
-   [:meta {:name "apple-mobile-web-app-title" :content (get-config :site :title)}]
-   [:meta {:name "robots" :content "index, follow"}]
-   [:meta {:charset "utf-8"}]
-   [:meta {:name    "viewport"
-           :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
-   [:link {:rel "icon" :type "image/png" :href "/images/favicon-96x96.png" :sizes "96x96"}]
-   [:link {:rel "icon" :type "image/svg+xml" :href "/images/favicon.svg"}]
-   [:link {:rel "shortcut icon" :type "image/png" :href "/images/favicon.ico"}]
-   [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png" :sizes "180x180"}]
-   [:link {:rel "manifest" :href "/manifest.json"}]
-   (include-css "/css/roboto-font.css" "/css/component-style.css" "/css/app-style.css")])
+  (let [app-js (find-app-js)]
+    [:head
+     [:title (if (:app-version (get-app-version))
+               (format "%s (%s)" (get-config :site :title) (:app-version (get-app-version)))
+               (get-config :site :title))]
+     [:meta {:name    "description"
+             :content (get-config :site :description)}]
+     [:meta {:name "apple-mobile-web-app-title" :content (get-config :site :title)}]
+     [:meta {:name "robots" :content "index, follow"}]
+     [:meta {:charset "utf-8"}]
+     [:meta {:name    "viewport"
+             :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
+     [:link {:rel "icon" :type "image/png" :href "/images/favicon-96x96.png" :sizes "96x96"}]
+     [:link {:rel "icon" :type "image/svg+xml" :href "/images/favicon.svg"}]
+     [:link {:rel "shortcut icon" :type "image/png" :href "/images/favicon.ico"}]
+     [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png" :sizes "180x180"}]
+     [:link {:rel "manifest" :href "/manifest.json"}]
+     ;; Preload critical resources (Step 2)
+     [:link {:rel "preload" :href app-js :as "script"}]
+     [:link {:rel "preload" :href (str "/layout.msgpack?v=" (:vms-version (get-vms-version))) :as "fetch" :crossorigin "anonymous"}]
+     [:link {:rel "preload" :href "/js/behave-min.wasm" :as "fetch" :crossorigin "anonymous"}]
+     [:link {:rel "preload" :href "/js/absurder_sql_bg.wasm" :as "fetch" :crossorigin "anonymous"}]
+     ;; Inline critical CSS for skeleton screen (Step 1)
+     ;; Mirrors the real app DOM: .page > .page__top + .page__main + .page__footer
+     [:style
+      (str "@keyframes skeleton-pulse{0%{opacity:1}50%{opacity:.5}100%{opacity:1}}"
+           ".sk-pulse{animation:skeleton-pulse 1.5s ease-in-out infinite}"
+           ".sk-bar{background:#e0e0e0;border-radius:4px}")]
+     (include-css "/css/roboto-font.css" "/css/component-style.css" "/css/app-style.css")]))
 
 (defn- cljs-init
   "A JavaScript script that calls the `init` function in `client.cljs`.
@@ -185,8 +197,46 @@
                   (head-meta-css)
                   [:body
                    (when (not (:ws-uuid route-params)) (announcement-banner))
-                   [:div#app]
+                   ;; Skeleton screen (Step 1) — replaced by React on mount
+                   ;; Mirrors real DOM: .app-shell > .page > page__top + page__main + page__footer
+                   [:div#app
+                    [:div.app-shell
+                     [:div.page
+                      ;; Top bar (table layout matches real app)
+                      [:table.page__top
+                       [:tr
+                        [:td.page__top__logo
+                         [:div.behave-identity
+                          [:div [:img {:src "/images/logo.svg" :alt ""}]]]]
+                        [:td.page__top__toolbar-container
+                         [:div.toolbar
+                          [:div.toolbar__tools
+                           [:div.sk-bar {:style "width:60px;height:32px;display:inline-block;margin-right:8px"}]
+                           [:div.sk-bar {:style "width:60px;height:32px;display:inline-block;margin-right:8px"}]
+                           [:div.sk-bar {:style "width:60px;height:32px;display:inline-block"}]]
+                          [:div.progress
+                           [:div.progress__header-bar]]]]]]
+                      ;; Main content area
+                      [:div.page__main
+                       [:div.sidebar-container
+                        [:div.sidebar-container__modules
+                         [:div.sidebar-group
+                          [:div.sidebar-group__header "Modules"]
+                          [:div.sk-bar {:style "height:40px;margin:4px 8px"}]
+                          [:div.sk-bar {:style "height:40px;margin:4px 8px"}]
+                          [:div.sk-bar {:style "height:40px;margin:4px 8px"}]
+                          [:div.sk-bar {:style "height:40px;margin:4px 8px"}]]]]
+                       [:div.working-area
+                        [:div {:style "display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:16px"}
+                         [:span.sk-pulse "Loading..."]]]]
+                      ;; Footer
+                      [:div.page__footer
+                       [:div.page__footer__disclaimer
+                        [:span]]]]]]
                    (include-js "/js/behave-min.js")
                    (cljs-init init-params figwheel?)
-                   (include-js "/js/behave-min.js" "js/sqlite.js" "/js/katex.min.js" "/js/bodymovin.js")
+                   ;; Defer non-critical libraries (Step 3)
+                   (include-js "/js/behave-min.js" "js/sqlite.js")
+                   [:script {:src (first (add-v-query ["/js/katex.min.js"])) :defer true}]
+                   [:script {:src (first (add-v-query ["/js/bodymovin.js"])) :defer true}]
                    (when figwheel? (include-js (find-app-js)))])})))

@@ -32,9 +32,10 @@
   "Directory to contain the JAR's contents before it is packaged."
   (str build-folder "/classes"))
 
-(def basis
-  "Basis map, which contains the root and project deps.edn maps plus some additional required keys."
-  (b/create-basis {:project "deps.edn"}))
+(defn- create-basis
+  "Creates a basis map, optionally with aliases."
+  ([] (b/create-basis {:project "deps.edn"}))
+  ([aliases] (b/create-basis {:project "deps.edn" :aliases aliases})))
 
 ;;==============================
 ;; Utilities
@@ -99,7 +100,7 @@
 
 (defn build-jar
   "Create a JAR suitable for deployment and use as a library."
-  [{:keys [lib-name src-dirs resource-dirs]
+  [{:keys [lib-name src-dirs resource-dirs aliases]
     :or   {src-dirs      ["src"]
            resource-dirs ["resources"]}
     :as   params}]
@@ -116,7 +117,8 @@
                 :resource-dirs ::resource-dirs)
 
   (let [version       (get-calendar-commit-version)
-        jar-file-name (get-jar-file-name lib-name version)]
+        jar-file-name (get-jar-file-name lib-name version)
+        basis         (if aliases (create-basis aliases) (create-basis))]
 
     ;; Delete the jar-content folder
     (b/delete {:path jar-content})
@@ -141,7 +143,7 @@
 
 (defn build-uberjar
   "Create an UberJAR suitable for deployment and use as an application."
-  [{:keys [app-name main-ns src-dirs resource-dirs bindings compile-opts java-opts manifest]
+  [{:keys [app-name main-ns src-dirs resource-dirs bindings compile-opts java-opts manifest aliases]
     :or   {src-dirs      ["src"]
            resource-dirs ["resources"]
            bindings      {}
@@ -167,7 +169,8 @@
                 :manifest      ::manifest)
 
   (let [version           (get-calendar-commit-version)
-        uberjar-file-name (get-uberjar-file-name app-name version)]
+        uberjar-file-name (get-uberjar-file-name app-name version)
+        basis             (if aliases (create-basis aliases) (create-basis))]
 
     ;; Delete the jar-content folder
     (b/delete {:path jar-content})
@@ -177,12 +180,13 @@
                  :target-dir jar-content})
 
     ;; Compile Clojure source code to classes in the jar-content folder
-    (b/compile-clj {:src-dirs     src-dirs
-                    :class-dir    jar-content
-                    :basis        basis
-                    :bindings     bindings
-                    :compile-opts compile-opts
-                    :java-opts    java-opts})
+    (b/compile-clj (cond-> {:src-dirs     src-dirs
+                            :class-dir    jar-content
+                            :basis        basis
+                            :bindings     bindings
+                            :compile-opts compile-opts
+                            :java-opts    java-opts}
+                     main-ns (assoc :ns-compile [main-ns])))
 
     ;; Package jar-content into an UberJAR file
     (b/uber {:class-dir jar-content

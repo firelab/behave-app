@@ -123,27 +123,33 @@
 
 ;;; SQLite Sync (load initial state from AbsurderSQL/IndexedDB)
 
+(defn load-store-minimal!
+  "Set up an in-memory DataScript conn without SQLite backing.
+   Used on initial load when no worksheet is active."
+  []
+  (let [schema (->ds-schema all-schemas)]
+    (setup-conn! (d/create-conn schema))
+    (rf/dispatch-sync [:state/set :sync-loaded? true])))
+
 (defn load-store-local!
   "Initialize a local DataScript connection backed by SQLite.
-   When `ws-uuid` is provided, attempts to restore an existing DB named
-   `worksheet-<ws-uuid>.db`. Otherwise creates a fresh DB with a random name."
-  ([] (load-store-local! nil))
-  ([ws-uuid]
-   (let [schema  (->ds-schema all-schemas)
-         db-name (str "worksheet-" (or ws-uuid (random-uuid)) ".db")]
-     (-> (sql/init!)
-         (p/then (fn [_] (init-sql-conn! schema db-name)))
-         (p/then (fn [{ds-conn :conn :keys [wrapper sql-conn]}]
-                   (swap! sql-state assoc
-                          :sql-conn sql-conn
-                          :wrapper  wrapper
-                          :db-name  db-name)
-                   (setup-conn! ds-conn)
-                   (rf/dispatch-sync [:state/set :sync-loaded? true])))
-         (p/catch (fn [e]
-                    (js/console.error "Failed to initialize local store:" e)
-                    (setup-conn! (d/create-conn schema))
-                    (rf/dispatch-sync [:state/set :sync-loaded? true])))))))
+   Attempts to restore an existing DB named `worksheet-<ws-uuid>.db`."
+  [ws-uuid]
+  (let [schema  (->ds-schema all-schemas)
+        db-name (str "worksheet-" ws-uuid ".db")]
+    (-> (sql/init!)
+        (p/then (fn [_] (init-sql-conn! schema db-name)))
+        (p/then (fn [{ds-conn :conn :keys [wrapper sql-conn]}]
+                  (swap! sql-state assoc
+                         :sql-conn sql-conn
+                         :wrapper  wrapper
+                         :db-name  db-name)
+                  (setup-conn! ds-conn)
+                  (rf/dispatch-sync [:state/set :sync-loaded? true])))
+        (p/catch (fn [e]
+                   (js/console.error "Failed to initialize local store:" e)
+                   (setup-conn! (d/create-conn schema))
+                   (rf/dispatch-sync [:state/set :sync-loaded? true]))))))
 
 ;;; Save Worksheet (export .bp7)
 
@@ -199,7 +205,8 @@
     (reset-conn-state!)
     (reset-sql-state!)
     (reset! worksheet-from-file? true)
-    (-> (read-file-bytes file)
+    (-> (sql/init!)
+        (p/then (fn [_] (read-file-bytes file)))
         (p/then (fn [db-bytes]
                   (import-sqlite-bytes! db-bytes db-name)))
         (p/then (fn [{ds-conn :conn :keys [wrapper sql-conn]}]
@@ -225,7 +232,8 @@
     (reset-conn-state!)
     (reset-sql-state!)
     (reset! worksheet-from-file? false)
-    (-> (init-sql-conn! schema db-name)
+    (-> (sql/init!)
+        (p/then (fn [_] (init-sql-conn! schema db-name)))
         (p/then (fn [{ds-conn :conn :keys [wrapper sql-conn]}]
                   (swap! sql-state assoc
                          :sql-conn sql-conn

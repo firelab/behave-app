@@ -1,7 +1,8 @@
 (ns behave.test-build
   (:require [clojure.java.io    :as io]
             [clojure.string     :as str]
-            [clj-commons.digest :as digest]))
+            [clj-commons.digest :as digest]
+            [behave.views       :as views]))
 
 (defn- inline-onload-js []
   (slurp (io/resource "onload.js")))
@@ -45,39 +46,13 @@
 ;;; Browser SPA build
 
 (defn- browser-index-html
-  "Build an index.html for the standalone SPA that mirrors the production
-   page from behave.views/render-page:
-   behave-min.js -> behave-min.wasm -> app.js -> behave.client.init()"
+  "Generates index.html by calling views/render-page, then replacing the
+   production app.js path (/cljs/app-<hash>.js) with the :browser build
+   path (/js/app.js) so shadow-cljs devtools connect properly."
   []
-  (str/join
-   "\n"
-   ["<!DOCTYPE html>"
-    "<html>"
-    "<head>"
-    "  <title>BehavePlus</title>"
-    "  <meta charset=\"utf-8\">"
-    "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">"
-    "  <link rel=\"icon\" type=\"image/png\" href=\"/images/favicon-96x96.png\" sizes=\"96x96\">"
-    "  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/images/favicon.svg\">"
-    "  <link rel=\"shortcut icon\" type=\"image/png\" href=\"/images/favicon.ico\">"
-    "  <link rel=\"apple-touch-icon\" href=\"/images/apple-touch-icon.png\" type=\"image/png\" sizes=\"180x180\">"
-    "  <link rel=\"manifest\" href=\"/manifest.json\">"
-    "  <link rel=\"stylesheet\" href=\"/css/roboto-font.css\">"
-    "  <link rel=\"stylesheet\" href=\"/css/component-style.css\">"
-    "  <link rel=\"stylesheet\" href=\"/css/app-style.css\">"
-    "</head>"
-    "<body>"
-    "  <div id=\"app\"></div>"
-    "  <script src=\"/js/behave-min.js\"></script>"
-    "  <script src=\"/js/katex.min.js\"></script>"
-    "  <script src=\"/js/bodymovin.js\"></script>"
-    "  <script type=\"text/javascript\">"
-    "    window.onWASMModuleLoadedPath = \"/js/app.js\";"
-    "    window.onAppLoaded = function () { behave.client.init({standalone: true}); };"
-    (inline-onload-js)
-    "  </script>"
-    "</body>"
-    "</html>"]))
+  (let [handler (views/render-page {:route-params {:standalone true}})
+        html    (:body (handler {}))]
+    (str/replace html #"/cljs/app-[a-f0-9]+\.js" "/js/app.js")))
 
 (defn browser-flush-hook
   "Shadow-cljs :flush hook for the :browser build — copies behave-min

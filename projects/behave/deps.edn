@@ -3,79 +3,61 @@
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo"}}
 
- :deps      {;; CLJS
-             org.clojure/clojurescript   {:mvn/version "1.12.134"}
-
-             ;; Clojure
-             clj-http/clj-http             {:mvn/version "3.10.1"}
-             org.clojure/clojure           {:mvn/version "1.11.1"}
-             org.clj-commons/digest        {:mvn/version "1.4.100"}
-             ring/ring                     {:mvn/version "1.10.0"}
-             ring/ring-defaults            {:mvn/version "0.3.3"}
-             me.raynes/fs                  {:mvn/version "1.4.6"}
-             sig-gis/triangulum            {:git/url "https://github.com/sig-gis/triangulum"
-                                            :sha     "3d41dab63e1bc8ebe046f64db44ae3df986f5bdf"}
-
-             ;; Common
-             cljs-ajax/cljs-ajax                     {:mvn/version "0.8.4"}
-             datascript/datascript                   {:mvn/version "1.5.3"}
-             io.github.tonsky/datascript-storage-sql {:mvn/version "1.0.0"}
-             nano-id/nano-id                         {:mvn/version "1.1.0"}
-             org.clojure/data.xml                    {:mvn/version "0.2.0-alpha7"}
-             org.xerial/sqlite-jdbc                  {:mvn/version "3.43.0.0"}
-
-             com.google.guava/guava        {:mvn/version "31.0.1-jre"}
-             day8.re-frame/async-flow-fx   {:mvn/version "0.3.0"}
+ :deps      {;; Clojure
+             clj-http/clj-http      {:mvn/version "3.10.1"}
+             org.clojure/clojure    {:mvn/version "1.12.0"}
+             org.clj-commons/digest {:mvn/version "1.4.100"}
+             ring/ring              {:mvn/version "1.10.0"}
+             ring/ring-defaults     {:mvn/version "0.3.3"}
+             me.raynes/fs           {:mvn/version "1.4.6"}
 
              ;; Components
-             sig/async-utils               {:local/root "../../components/async_utils"}
-             sig/config                    {:local/root "../../components/config"}
-             sig/csv-parser                {:local/root "../../components/csv_parser"}
-             sig/file-utils                {:local/root "../../components/file_utils"}
-             sig/data-utils                {:local/root "../../components/data_utils"}
-             sig/date-utils                {:local/root "../../components/date_utils"}
-             sig/datom-utils               {:local/root "../../components/datom_utils" :exclusions [datascript/datascript io.replikativ/datahike]}
-             sig/dom-utils                 {:local/root "../../components/dom_utils"}
-             sig/ds-schema-utils           {:local/root "../../components/ds_schema_utils"}
-             sig/jcef                      {:local/root "../../components/jcef"}
-             sig/map-utils                 {:local/root "../../components/map_utils"}
-             sig/number-utils              {:local/root "../../components/number_utils"}
-             sig/logging                   {:local/root "../../components/logging"}
-             sig/markdown2hiccup           {:local/root "../../components/markdown2hiccup"}
-             sig/server                    {:local/root "../../components/server"}
-             sig/string-utils              {:local/root "../../components/string_utils"}
-             sig/transport                 {:local/root "../../components/transport"}
-             sig/datom-compressor          {:local/root "../../components/datom_compressor"}
+             sig/config             {:local/root "../../components/config"}
+             sig/file-utils         {:local/root "../../components/file_utils"}
+             sig/date-utils         {:local/root "../../components/date_utils"}
+             sig/logging            {:local/root "../../components/logging"}
+             sig/server             {:local/root "../../components/server"}
+             sig/string-utils       {:local/root "../../components/string_utils"}
+             sig/transport          {:local/root "../../components/transport"}
 
              ;; Bases
-             sig/behave-routing            {:local/root "../../bases/behave_routing"}
-             sig/behave-schema             {:local/root "../../bases/behave_schema"}
-             sig/datom_store               {:local/root "../../bases/datom_store" :exclusions [datascript/datascript]}}
+             sig/behave-routing     {:local/root "../../bases/behave_routing"}}
 
  :aliases   {:figwheel-lib     {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.13"}}}
              :figwheel         {:extra-paths ["test/cljs"]
                                 :extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.2.13"}
                                               com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
                                 :main-opts   ["-m" "figwheel.main" "-b" "compile-dev" "-r"]}
-             :compile-cljs     {:main-opts ["-m" "behave.compile-cljs" "compile-prod.cljs.edn"]}
+             :compile-cljs     {:extra-deps {org.clojure/clojurescript {:mvn/version "1.12.134"}}
+                                :main-opts  ["-m" "behave.compile-cljs" "compile-prod.cljs.edn"]}
              :production       {:jvm-opts ["-XX:MaxRAMPercentage=90" "-XX:+PrintFlagsFinal"]}
-             :standalone       {:main-opts ["-m" "behave.core"]
-                                :jvm-opts  ["--add-exports=java.base/java.lang=ALL-UNNAMED"
-                                            "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
-                                            "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
-                                            "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
-                                            "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
-                                            "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
+             :standalone       {:extra-deps {sig/jcef    {:local/root "../../components/jcef"}
+                                             nrepl/nrepl {:mvn/version "1.5.2"}}
+                                :main-opts  ["-m" "behave.core"]
+                                :jvm-opts   ["--add-exports=java.base/java.lang=ALL-UNNAMED"
+                                             "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
+                                             "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
+                                             "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
+                                             "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
+                                             "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
              :server           {:main-opts ["-m" "behave.server"]}
              :build            {:deps       {io.github.seancorfield/build-clj
                                              {:git/tag   "v0.8.5"
                                               :git/sha   "de693d0"
                                               :deps/root "slim"}}
                                 :ns-default build}
-             :build-uberjar    {:extra-deps  {org.clojure/tools.deps {:mvn/version "0.24.1523"}
-                                              slipset/deps-deploy    {:mvn/version "0.2.2"}}
-                                :exec-fn     packaging/build-uberjar
-                                :exec-args   {:app-name behave7 :main-ns behave.core}}
+             :build-uberjar    {:extra-deps {org.clojure/tools.deps        {:mvn/version "0.24.1523"}
+                                             io.github.clojure/tools.build {:git/tag "v0.10.12" :git/sha "97c5562"}
+                                             slipset/deps-deploy           {:mvn/version "0.2.2"}
+                                             sig/jcef                      {:local/root "../../components/jcef"}
+                                             nrepl/nrepl                   {:mvn/version "1.5.2"}}
+                                :exec-fn    packaging/build-uberjar
+                                :exec-args  {:app-name behave7 :main-ns behave.core :aliases [:standalone]}}
+             :build-server-uberjar {:extra-deps {org.clojure/tools.deps        {:mvn/version "0.24.1523"}
+                                                 io.github.clojure/tools.build {:git/tag "v0.10.12" :git/sha "97c5562"}
+                                                 slipset/deps-deploy           {:mvn/version "0.2.2"}}
+                                    :exec-fn    packaging/build-uberjar
+                                    :exec-args  {:app-name behave7-server :main-ns behave.server :aliases [:server]}}
              :check-reflection {:main-opts ["-e" "(do,(set!,*warn-on-reflection*,true),nil)"
                                             "-e" "(require,'behave.server)"]}
              :check-deps       {:extra-deps {olical/depot {:mvn/version "2.3.0"}}
@@ -94,6 +76,8 @@
                                               binaryage/devtools            {:mvn/version "1.0.7"}
 
                                               ;; ClojureScript
+                                              cljs-ajax/cljs-ajax           {:mvn/version "0.8.4"}
+                                              day8.re-frame/async-flow-fx   {:mvn/version "0.3.0"}
                                               org.clojure/core.async        {:mvn/version "1.2.603"}
                                               funcool/promesa               {:mvn/version "9.0.518"}
                                               re-frame/re-frame             {:mvn/version "1.3.0-rc3" :exclusions [reagent/reagent]}
@@ -101,6 +85,33 @@
                                               day8.re-frame/test            {:mvn/version "0.1.5"}
                                               re-frame-utils/re-frame-utils {:mvn/version "0.1.0"}
 
+                                              ;; Common
+                                              datascript/datascript                   {:mvn/version "1.5.3"}
+                                              io.github.tonsky/datascript-storage-sql {:mvn/version "1.0.0"}
+                                              nano-id/nano-id                         {:mvn/version "1.1.0"}
+                                              org.clojure/data.xml                    {:mvn/version "0.2.0-alpha7"}
+                                              org.xerial/sqlite-jdbc                  {:mvn/version "3.43.0.0"}
+
+                                              ;; Components
+                                              sig/async-utils      {:local/root "../../components/async_utils"}
+                                              sig/config           {:local/root "../../components/config"}
+                                              sig/csv-parser       {:local/root "../../components/csv_parser"}
+                                              sig/file-utils       {:local/root "../../components/file_utils"}
+                                              sig/data-utils       {:local/root "../../components/data_utils"}
+                                              sig/date-utils       {:local/root "../../components/date_utils"}
+                                              sig/datom-utils      {:local/root "../../components/datom_utils" :exclusions [datascript/datascript io.replikativ/datahike]}
+                                              sig/ds-schema-utils  {:local/root "../../components/ds_schema_utils"}
+                                              sig/map-utils        {:local/root "../../components/map_utils"}
+                                              sig/number-utils     {:local/root "../../components/number_utils"}
+                                              sig/logging          {:local/root "../../components/logging"}
+                                              sig/markdown2hiccup  {:local/root "../../components/markdown2hiccup"}
+                                              sig/server           {:local/root "../../components/server"}
+                                              sig/string-utils     {:local/root "../../components/string_utils"}
+                                              sig/transport        {:local/root "../../components/transport"}
+                                              sig/datom-compressor {:local/root "../../components/datom_compressor"}
+
+                                              ;; CLJS Components
+                                              sig/dom-utils                 {:local/root "../../components/dom_utils"}
                                               sig/posh                      {:local/root "../../components/posh"}
                                               sig/re-posh                   {:local/root "../../components/re_posh"}
                                               sig/absurder-sql              {:local/root "../../components/absurder_sql"}
@@ -115,7 +126,11 @@
                                               cljsjs/vega-embed             {:mvn/version "6.22.2-0"}
                                               cljsjs/vega-lite              {:mvn/version "5.14.1-0"}
                                               austinbirch/reactive-entity   {:mvn/version "0.2.0"}
-                                              com.google.guava/guava        {:mvn/version "31.0.1-jre"}}}
+                                              com.google.guava/guava        {:mvn/version "31.0.1-jre"}
+
+                                              ;; Bases
+                                              sig/behave-routing            {:local/root "../../bases/behave_routing"}
+                                              sig/behave-schema             {:local/root "../../bases/behave_schema"}}}
              :funnel           {:replace-deps {lambdaisland/funnel {:mvn/version "1.6.93"}}
                                 :main-opts    ["-m" "lambdaisland.funnel"]}
              :kaocha           {:main-opts  ["-m" "kaocha.runner"]

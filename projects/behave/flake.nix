@@ -19,7 +19,7 @@
           buildInputs = with pkgs; [
             babashka
             clojure
-            openjdk17
+            corretto21
           ] ++ [ conveyor ];
 
           shellHook = ''
@@ -51,7 +51,7 @@
           nativeBuildInputs = with pkgs; [
             babashka
             clojure
-            openjdk17
+            corretto21
           ] ++ [ conveyor ];
 
           buildPhase = ''

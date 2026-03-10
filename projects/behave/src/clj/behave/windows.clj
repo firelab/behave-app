@@ -6,7 +6,8 @@
 (defn register-window!
   "Registers a window in the registry."
   [window-id window-state]
-  (swap! *windows assoc window-id window-state))
+  (swap! *windows assoc window-id window-state)
+  (.openDevTools (get-in window-state [:app :browser])))
 
 (defn deregister-window!
   "Deregisters a window. If no windows remain, disposes CefApp and exits."
@@ -24,7 +25,7 @@
 
 (comment
 
-  (map #(get-in % [:app :browser]) (vals @*windows))
+    (map #(.openDevTools (get-in % [:app :browser])) (vals @*windows))
 
 
   )

@@ -1,7 +1,6 @@
 (ns behave.server
   (:gen-class)
-  (:require [behave.store         :as store]
-            [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
+  (:require [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
             [clojure.java.browse  :refer [browse-url]]
             [clojure.java.io      :as io]
             [config.interface     :refer [get-config load-config]]
@@ -12,13 +11,6 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
   (load-config (io/resource "config.edn")))
-
-(defn init-db!
-  "Initialize DB using configuration."
-  [database-config]
-  (log-str [:DB-CONFIG database-config])
-  (io/make-parents (get-in database-config [:store :path]))
-  (store/connect! database-config))
 
 ;;; Logging
 
@@ -43,7 +35,6 @@
         org-name  (get-config :site :org-name)
         app-name  (get-config :site :app-name)]
     (start-logging! (get-config :logging))
-    (init-db! (get-config :database :config))
     (log-str (format "Starting %s %s server at http://localhost:%s" org-name app-name http-port))
     (server/start-server! {:handler (server-handler-stack {:reload? (= mode "dev") :figwheel? false})
                            :port    http-port})

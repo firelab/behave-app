@@ -5,15 +5,16 @@
            [javax.imageio ImageIO])
   (:require [clojure.java.io      :as io]
             [clojure.string       :as str]
-            [behave.handlers      :refer [create-cef-handler-stack]]
-            [behave.server        :refer [init-config! init-db!]]
+            [behave.handlers      :refer [create-cef-handler-stack register-close-fn!]]
+            [behave.server        :refer [init-config!]]
             [behave.windows       :as windows]
             [file-utils.interface :refer [os-type app-data-dir]]
             [config.interface     :refer [get-config]]
             [jcef.interface       :refer [init-cef-app! open-window!
                                           custom-request-handler show-loader!
                                           show-dev-tools!]]
-            [logging.interface    :as l :refer [log-str]]))
+            [logging.interface    :as l :refer [log-str]]
+            #_[nrepl.server         :refer [start-server stop-server]]))
 
 ;;; Logging
 
@@ -40,10 +41,6 @@
 
 ;; See: https://docs.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
 (defn- on-before-launch [^JFrame jframe title]
-  (UIManager/setLookAndFeel
-   (UIManager/getSystemLookAndFeelClassName))
-  (SwingUtilities/updateComponentTreeUI jframe)
-
   (condp = (os-type)
 
     ;; See: https://docs.oracle.com/javase/8/docs/technotes/guides/swing/1.4/w2k_props.html
@@ -127,6 +124,7 @@
 (defn -main
   "CEF client start method."
   [& _args]
+  (UIManager/setLookAndFeel (UIManager/getSystemLookAndFeelClassName))
   (init-config!)
   (let [loader     (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
         mode       (get-config :server :mode)
@@ -135,19 +133,13 @@
                                              (get-config :site :app-name))]
                        (assoc (get-config :logging) :log-dir (str (io/file dir "logs"))))
                      (get-config :logging))
-        db-config  (if (= "prod" mode)
-                     (let [dir (app-data-dir (get-config :site :org-name)
-                                             (get-config :site :app-name))]
-                       (assoc-in (get-config :database :config)
-                                 [:store :path]
-                                 (str (io/file dir "db"))))
-                     (get-config :database :config))
         cef-app    (init-cef-app!
                     {:cache-path (str (io/file (app-data-dir (get-config :site :org-name)
                                                              (get-config :site :app-name))
                                                ".cache"))})]
     (start-logging! log-config)
-    (init-db! db-config)
+    (register-close-fn! windows/deregister-window!)
+    #_(start-server :port 5055)
     (reset! *cef-app cef-app)
     (SwingUtilities/invokeLater #(let [res (open-app-window! loader)]
                                    (.openDevTools (:browser res))

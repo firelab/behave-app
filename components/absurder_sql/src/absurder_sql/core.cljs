@@ -61,11 +61,14 @@
 ;;; Public API
 
 (defn init!
-  "Initializes in-browser SQLite via ES module dynamic import."
+  "Initializes in-browser SQLite via ES module dynamic import.
+   Safe to call multiple times; returns immediately if already initialized."
   []
-  (-> (.load sqlite #js {:module_or_path "/js/absurder_sql_bg.wasm"})
-      (p/then (fn [_]
-                (reset! initialized? true)))))
+  (if @initialized?
+    (p/resolved true)
+    (-> (.load sqlite #js {:module_or_path "/js/absurder_sql_bg.wasm"})
+        (p/then (fn [_]
+                  (reset! initialized? true))))))
 
 (defn connected?
   "Returns whether the in-browser SQLite is initialized."

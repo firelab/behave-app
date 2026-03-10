@@ -1,16 +1,10 @@
 (ns behave.handlers
   (:require [behave-routing.main               :refer [routes]]
             [behave.download-vms               :refer [export-from-vms export-images-from-vms]]
-            [behave.init                       :refer [init-handler]]
-            [behave.open                       :refer [open-handler]]
-            [behave.save                       :refer [save-handler]]
-            [behave.sync                       :refer [sync-handler]]
             [behave.views                      :refer [render-page render-tests-page]]
-            [behave.windows                    :as windows]
             [bidi.bidi                         :refer [match-route]]
             [clojure.core.async                :refer [<! alts! chan go-loop put! timeout]]
             [clojure.edn                       :as edn]
-            [clojure.stacktrace                :as st]
             [clojure.string                    :as str]
             [config.interface                  :refer [get-config]]
             [logging.interface                 :as l :refer [log-str]]
@@ -26,6 +20,15 @@
 ;;; Constants
 
 (def ^:private KILL-TIMEOUT-MS 5000) ;; 5 seconds
+
+;;; Close window indirection (avoids transitive JCEF dependency)
+
+(defonce ^:private *close-window-fn (atom nil))
+
+(defn register-close-fn!
+  "Registers a function to handle window close requests. Called by desktop entry point."
+  [f]
+  (reset! *close-window-fn f))
 
 ;;; State
 
@@ -80,7 +83,7 @@
       (cond
         (nil? cancel)
         (if window-id
-          (do (windows/deregister-window! window-id)
+          (do (when-let [f @*close-window-fn] (f window-id))
               {:status 200 :body "OK"})
           (do (reset! close-time (now-in-ms))
               (put! @kill-channel true)
@@ -98,11 +101,7 @@
 (defn- routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
                        (bad-uri? uri)                         (not-found "404 Not Found")
-                       (str/starts-with? uri "/api/init")     #'init-handler
                        (str/starts-with? uri "/api/vms-sync") #'vms-sync-handler
-                       (str/starts-with? uri "/api/sync")     #'sync-handler
-                       (str/starts-with? uri "/api/save")     #'save-handler
-                       (str/starts-with? uri "/api/open")     #'open-handler
                        (str/starts-with? uri "/api/test")     #'render-tests-page
                        (str/starts-with? uri "/api/close")    #'close-handler
                        (match-route routes uri)              (render-page (match-route routes uri))
@@ -117,8 +116,8 @@
                         (str/split #"&"))
             params  (reduce (fn [params keyval]
                               (let [[k v] (str/split keyval #"=")]
-                               (assoc params (keyword k) (edn/read-string v))))
-                           params keyvals)]
+                                (assoc params (keyword k) (edn/read-string v))))
+                            params keyvals)]
         (handler (assoc req :params params))))))
 
 (defn- wrap-params [handler]

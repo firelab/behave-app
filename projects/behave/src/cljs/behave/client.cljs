@@ -9,7 +9,7 @@
             [behave.components.modal   :refer [modal]]
             [behave.help.views         :refer [help-area]]
             [behave.settings.views     :as settings]
-            [behave.store              :refer [load-store-local!]]
+            [behave.store              :refer [load-store-local! load-store-minimal!]]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t bp]]
             [behave.vms.store          :refer [load-vms!]]
@@ -139,7 +139,10 @@
                                [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-1"))]
                                [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-2"))]
                                [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-3"))]]}])
-          (if (and @vms-loaded? @sync-loaded?)
+          (if (or (#{:home :ws/home :settings/all :settings/page
+                     :tools/all :tools/page :demo/diagram}
+                   (:handler @route))
+                  (and @vms-loaded? @sync-loaded?))
             [page params]
             [:h3 "Loading..."])]
          [help-area params]]
@@ -165,7 +168,9 @@
                       (:ws-uuid (:route-params
                                  (bidi/match-route routes
                                    (.-pathname (.-location js/window))))))]
-      (load-store-local! ws-uuid))
+      (if ws-uuid
+        (load-store-local! ws-uuid)
+        (load-store-minimal!)))
     (load-scripts! params)
     (add-before-unload-event! params)
     (when (:jar-local? params)
