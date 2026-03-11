@@ -1,17 +1,17 @@
 (ns behave-cms.pages.applications
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
-            [behave-cms.components.common :refer [simple-table]]
-            [behave-cms.components.sidebar :refer [sidebar sidebar-width]]
-            [behave-cms.components.entity-form :refer [entity-form]]))
+  (:require [behave-cms.components.common      :refer [simple-table]]
+            [behave-cms.components.entity-form :refer [entity-form]]
+            [behave-cms.components.sidebar     :refer [sidebar sidebar-width]]
+            [re-frame.core                     :as rf]
+            [reagent.core                      :as r]))
 
 (def columns [:application_name :version])
 
 (defn applications-table []
   (let [applications (rf/subscribe [:entities :applications])
-        on-select #(rf/dispatch [:state/set-state :application (:uuid %)])
-        on-delete #(when (js/confirm (str "Are you sure you want to delete the application " (:application_name %) "?"))
-                     (rf/dispatch [:api/delete-entity :applications %]))]
+        on-select    #(rf/dispatch [:state/set-state :application (:uuid %)])
+        on-delete    #(when (js/confirm (str "Are you sure you want to delete the application " (:application_name %) "?"))
+                        (rf/dispatch [:api/delete-entity :applications %]))]
     [simple-table
      columns
      (->> @applications

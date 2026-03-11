@@ -1,28 +1,47 @@
 (ns behave-cms.submodules.subs
-  (:require [bidi.bidi         :refer [path-for]]
-            [re-frame.core     :refer [reg-sub subscribe]]
-            [behave-cms.routes :refer [app-routes]]))
+  (:require [behave-cms.routes :refer [app-routes]]
+            [bidi.bidi         :refer [path-for]]
+            [re-frame.core     :refer [reg-sub subscribe]]))
 
 (reg-sub
-  :submodules
-  (fn [[_ module-id]]
-    (subscribe [:pull-children :module/submodules module-id]))
-  identity)
+ :submodules
+ (fn [[_ module-id]]
+   (subscribe [:pull-children :module/submodules module-id]))
+ identity)
 
 (reg-sub
-  :sidebar/submodules
-  (fn [[_ module-id]]
-    (subscribe [:submodules module-id]))
+ :sidebar/submodules
+ (fn [[_ module-id]]
+   (subscribe [:submodules module-id]))
 
-  (fn [submodules _]
-    (->> submodules
-         (map (fn [{nid    :bp/nid
-                    s-name :submodule/name
-                    io     :submodule/io}]
-                {:label (str s-name " (" (name io) ")")
-                 :link  (path-for app-routes :get-submodule :nid nid)}))
-         (sort-by :label))))
+ (fn [submodules _]
+   (->> submodules
+        (map (fn [{nid    :bp/nid
+                   s-name :submodule/name
+                   io     :submodule/io}]
+               {:label (str s-name " (" (name io) ")")
+                :link  (path-for app-routes :get-submodule :nid nid)}))
+        (sort-by :label))))
 
+(reg-sub
+ :pivot-table/columns
+ (fn [[_ pivot-table-id]]
+   (subscribe [:query
+               '[:find ?c ?name
+                 :in  $ ?p
+                 :where
+                 [?p :pivot-table/columns ?c]
+                 [?c :pivot-column/group-variable-uuid ?gv-uuid]
+                 [?gv :bp/uuid ?gv-uuid]
+                 [?v :variable/group-variables ?gv]
+                 [?v :variable/name ?name]]
+               [pivot-table-id]]))
+ (fn [results]
+   (->> results
+        (mapv (fn [[eid v-name]]
+                (-> @(subscribe [:entity eid])
+                    (assoc :variable/name v-name))))
+        (sort-by :pivot-column/order))))
 
 (reg-sub
  :pivot-table/fields
@@ -63,7 +82,6 @@
    (mapv (fn [[id name]]
            (-> @(subscribe [:entity id])
                (assoc :variable/name name))) results)))
-
 
 (reg-sub
  :search-table/columns

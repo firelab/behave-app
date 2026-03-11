@@ -1,27 +1,27 @@
 (ns ^:figwheel-hooks behave.client
-  (:require [bidi.bidi                 :as bidi]
-            [clojure.string            :as str]
-            [reagent.dom               :refer [render]]
-            [re-frame.core             :as rf]
-            [behave.components.core    :as c]
-            [behave.components.sidebar :refer [sidebar]]
-            [behave.components.toolbar :refer [toolbar]]
-            [behave.components.modal   :refer [modal]]
-            [behave.help.views         :refer [help-area]]
-            [behave.settings.views     :as settings]
-            [behave.store              :refer [load-store-local! load-store-minimal!]]
-            [behave.tools              :as tools]
-            [behave.translate          :refer [<t bp]]
-            [behave.vms.store          :refer [load-vms!]]
-            [behave.wizard.views       :as wizard]
-            [behave.print.views        :refer [print-page]]
-            [behave.demo.views         :refer [demo-output-diagram-page]]
-            [behave.worksheet.views    :refer [home-page
-                                               import-worksheet-page
-                                               module-selection-page
-                                               workflow-selection-page]]
-            [behave-routing.main       :refer [routes]]
-            [behave.telemetry          :as telemetry]
+  (:require [bidi.bidi                       :as bidi]
+            [clojure.string                  :as str]
+            [reagent.dom                     :refer [render]]
+            [re-frame.core                   :as rf]
+            [behave.components.core          :as c]
+            [behave.components.sidebar.views :refer [sidebar]]
+            [behave.components.toolbar       :refer [toolbar]]
+            [behave.components.modal         :refer [modal]]
+            [behave.help.views               :refer [help-area]]
+            [behave.settings.views           :as settings]
+            [behave.store                    :refer [load-store-local! load-store-minimal!]]
+            [behave.tools                    :as tools]
+            [behave.translate                :refer [<t bp]]
+            [behave.vms.store                :refer [load-vms!]]
+            [behave.wizard.views             :as wizard]
+            [behave.print.views              :refer [print-page]]
+            [behave.demo.views               :refer [demo-output-diagram-page]]
+            [behave.telemetry                :as telemetry]
+            [behave.worksheet.views          :refer [home-page
+                                                     import-worksheet-page
+                                                     module-selection-page
+                                                     workflow-selection-page]]
+            [behave-routing.main             :refer [routes]]
             [behave.events]
             [behave.subs]
             [day8.re-frame.http-fx]))
@@ -159,8 +159,8 @@
   [params]
   (let [params (js->clj params :keywordize-keys true)]
     (reset! route-params-atom params)
-    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:initialize])
+    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
     (load-vms! (:vms-version params))

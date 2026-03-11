@@ -1,10 +1,10 @@
 (ns behave.components.results.matrices
-  (:require [behave.components.core :as c]
-            [behave.translate :refer [<t bp]]
+  (:require [behave.components.core  :as c]
+            [behave.translate        :refer [<t bp]]
             [behave.units-conversion :refer [to-map-units]]
-            [clojure.string :as str]
-            [goog.string :as gstring]
-            [re-frame.core :refer [subscribe]]))
+            [clojure.string          :as str]
+            [goog.string             :as gstring]
+            [re-frame.core           :refer [subscribe]]))
 
 ;;==============================================================================
 ;; Helpers
@@ -194,7 +194,7 @@
                                                                   :key  output-gv-uuid}))))
                                              []
                                              output-entities)
-        row-headers                  (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
+        row-headers                  (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) (sort multi-var-values))
         final-data                   (reduce (fn insert-map-units-values [acc [[row col] value]]
                                                (let [fmt-fn  (get formatters col identity)
                                                      shaded? (contains? rows-to-shade-set col)]
@@ -240,8 +240,10 @@
                                                                            :table-setting-filters table-setting-filters
                                                                            :submatrix-gv-uuid     submatrix-gv-uuid
                                                                            :submatrix-value       submatrix-value})
-        row-headers                                 (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
-        column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)]
+        row-headers                                 (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) (sort row-values))
+        column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) (sort col-values))
+        row-headers-sorted                          (sort-by :name row-headers)
+        column-headers-sorted                       (sort-by :name column-headers)]
     [:div.print__construct-result-matrices
      (for [{output-gv-uuid :bp/uuid output-units :units} output-entities]
        ^{:key output-gv-uuid}
@@ -274,8 +276,8 @@
                                     :sub-title      sub-title
                                     :rows-label     (header-label row-name row-units)
                                     :cols-label     (header-label col-name col-units)
-                                    :row-headers    row-headers
-                                    :column-headers column-headers
+                                    :row-headers    row-headers-sorted
+                                    :column-headers column-headers-sorted
                                     :data           data}))])
               [:div.print__result-table
                {:key output-gv-uuid}
@@ -283,8 +285,8 @@
                                 :sub-title      sub-title
                                 :rows-label     (header-label row-name row-units)
                                 :cols-label     (header-label col-name col-units)
-                                :row-headers    row-headers
-                                :column-headers column-headers
+                                :row-headers    row-headers-sorted
+                                :column-headers column-headers-sorted
                                 :data           matrix-data-formatted})]]))))]))
 
 (defmethod construct-result-matrices 3

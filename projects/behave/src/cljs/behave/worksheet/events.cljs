@@ -1,65 +1,65 @@
 (ns behave.worksheet.events
-  (:require [re-frame.core    :as rf]
-            [re-posh.core     :as rp]
-            [absurder-sql.datascript.core :as d]
-            [behave.components.toolbar :refer [step-priority]]
-            [behave.importer           :refer [import-worksheet]]
-            [behave.logger             :refer [log]]
-            [behave.solver.core        :refer [solve-worksheet]]
+  (:require [re-frame.core                 :as rf]
+            [re-posh.core                  :as rp]
+            [absurder-sql.datascript.core  :as d]
+            [behave.components.toolbar     :refer [step-priority]]
+            [behave.importer               :refer [import-worksheet]]
+            [behave.logger                 :refer [log]]
+            [behave.solver.core            :refer [solve-worksheet]]
             [vimsical.re-frame.cofx.inject :as inject]
-            [number-utils.core :refer [to-precision]]
-            [behave.wizard.subs :refer [all-conditionals-pass?]]
-            [clojure.string :as str]))
+            [number-utils.core             :refer [to-precision]]
+            [behave.wizard.subs            :refer [all-conditionals-pass?]]
+            [clojure.string                :as str]))
 
 ;;; Helpers
 
 (defn ^:private q-worksheet [conn ws-uuid]
-  (d/q '[:find  ?ws .
-         :in    $ ?ws-uuid
+  (d/q '[:find ?ws .
+         :in $ ?ws-uuid
          :where
          [?ws :worksheet/uuid ?ws-uuid]]
        conn ws-uuid))
 
 (defn ^:private q-input-group [conn ws-uuid group-uuid repeat-id]
-  (d/q '[:find  ?ig .
-         :in    $ ?ws-uuid ?group-uuid ?repeat-id
+  (d/q '[:find ?ig .
+         :in $ ?ws-uuid ?group-uuid ?repeat-id
          :where
          [?ws :worksheet/uuid ?ws-uuid]
          [?ws :worksheet/input-groups ?ig]
          [?ig :input-group/group-uuid ?group-uuid]
-         [?ig :input-group/repeat-id  ?repeat-id]]
+         [?ig :input-group/repeat-id ?repeat-id]]
        conn ws-uuid group-uuid repeat-id))
 
 (defn ^:private q-input-variable [conn group-id group-variable-uuid]
-  (d/q '[:find  ?i .
-         :in    $ ?ig ?uuid
+  (d/q '[:find ?i .
+         :in $ ?ig ?uuid
          :where
          [?ig :input-group/inputs ?i]
          [?i :input/group-variable-uuid ?uuid]]
        conn group-id group-variable-uuid))
 
 (defn ^:private q-input-value [conn ws-uuid group-uuid repeat-id]
-  (d/q '[:find  ?value .
-         :in    $ ?ws-uuid ?group-uuid ?repeat-id
+  (d/q '[:find ?value .
+         :in $ ?ws-uuid ?group-uuid ?repeat-id
          :where
          [?ws :worksheet/uuid ?ws-uuid]
          [?ws :worksheet/input-groups ?ig]
          [?ig :input-group/group-uuid ?group-uuid]
-         [?ig :input-group/repeat-id  ?repeat-id]
+         [?ig :input-group/repeat-id ?repeat-id]
          [?ig :input-group/inputs ?i]
          [?i :input/value ?value]]
        conn ws-uuid group-uuid repeat-id))
 
 (defn ^:private q-input-unit [conn group-id group-variable-uuid]
-  (or (d/q '[:find  ?units .
-             :in    $ ?ig ?uuid
+  (or (d/q '[:find ?units .
+             :in $ ?ig ?uuid
              :where
              [?ig :input-group/inputs ?i]
              [?i :input/group-variable-uuid ?uuid]
              [?i :input/units ?units]] ;; `:input/units` deprecated
            conn group-id group-variable-uuid)
-      (d/q '[:find  ?units .
-             :in    $ ?ig ?uuid
+      (d/q '[:find ?units .
+             :in $ ?ig ?uuid
              :where
              [?ig :input-group/inputs ?i]
              [?i :input/group-variable-uuid ?uuid]
@@ -217,7 +217,7 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]
    (let [input-ids (d/q '[:find [?g ...]
-                          :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                          :in $ ?ws-uuid ?group-uuid ?repeat-id
                           :where
                           [?w :worksheet/uuid ?ws-uuid]
                           [?w :worksheet/input-groups ?g]
@@ -256,10 +256,10 @@
  :worksheet/delete-existing-result-table
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid]]
-   (when-let [existing-eid (d/q '[:find  ?t .
-                                  :in    $ ?ws-uuid
+   (when-let [existing-eid (d/q '[:find ?t .
+                                  :in $ ?ws-uuid
                                   :where
-                                  [?ws :worksheet/uuid     ?ws-uuid]
+                                  [?ws :worksheet/uuid ?ws-uuid]
                                   [?ws :worksheet/result-table ?t]]
                                 ds ws-uuid)]
      {:transact [[:db.fn/retractEntity existing-eid]]})))
@@ -268,8 +268,8 @@
  :worksheet/add-result-table
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid]]
-   (when-let [ws (first (d/q '[:find  [?e ...]
-                               :in    $ ?uuid
+   (when-let [ws (first (d/q '[:find [?e ...]
+                               :in $ ?uuid
                                :where [?e :worksheet/uuid ?uuid]] ds ws-uuid))]
      {:transact [{:worksheet/_result-table ws}]})))
 
@@ -277,8 +277,8 @@
  :worksheet/add-result-table-header
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid repeat-id units]]
-   (when-let [table (first (d/q '[:find  [?table]
-                                  :in    $ ?uuid
+   (when-let [table (first (d/q '[:find [?table]
+                                  :in $ ?uuid
                                   :where [?w :worksheet/uuid ?uuid]
                                   [?w :worksheet/result-table ?table]] ds ws-uuid))]
      ;; header with gv-uuid and repeat-id does not already exist
@@ -301,8 +301,8 @@
  :worksheet/add-result-table-row
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid row-id]]
-   (when-let [table (first (d/q '[:find  [?table]
-                                  :in    $ ?uuid
+   (when-let [table (first (d/q '[:find [?table]
+                                  :in $ ?uuid
                                   :where [?w :worksheet/uuid ?uuid]
                                   [?w :worksheet/result-table ?table]]
                                 ds ws-uuid))]
@@ -313,20 +313,20 @@
  :worksheet/add-result-table-cell
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid row-id group-variable-uuid repeat-id value]]
-   (when-let [table (d/q '[:find  ?table .
-                           :in    $ ?uuid
+   (when-let [table (d/q '[:find ?table .
+                           :in $ ?uuid
                            :where
                            [?w :worksheet/uuid ?uuid]
                            [?w :worksheet/result-table ?table]]
                          ds ws-uuid)]
-     (when-let [row (d/q '[:find  ?r .
-                           :in    $ ?table ?row-id
+     (when-let [row (d/q '[:find ?r .
+                           :in $ ?table ?row-id
                            :where
                            [?table :result-table/rows ?r]
                            [?r :result-row/id ?row-id]]
                          ds table row-id)]
-       (when-let [header (d/q '[:find  ?h .
-                                :in    $ ?table ?group-var-uuid ?repeat-id
+       (when-let [header (d/q '[:find ?h .
+                                :in $ ?table ?group-var-uuid ?repeat-id
                                 :where
                                 [?t :result-table/headers ?h]
                                 [?h :result-header/group-variable-uuid ?group-var-uuid]
@@ -389,8 +389,8 @@
  :worksheet/remove-y-axis-limit
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
-   (when-let [eid (d/q '[:find  ?y .
-                         :in    $ ?uuid ?gv-uuid
+   (when-let [eid (d/q '[:find ?y .
+                         :in $ ?uuid ?gv-uuid
                          :where
                          [?w :worksheet/uuid ?uuid]
                          [?w :worksheet/graph-settings ?g]
@@ -426,7 +426,7 @@
                            [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
                            [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
                            ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
-                           (cond-> {:db/id                   graph-setting-id}
+                           (cond-> {:db/id graph-setting-id}
 
                              ;; sets default x-axis selection if available
                              (first multi-value-input-uuids)
@@ -459,7 +459,7 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-var-uuid attr value]]
    (when-let [y (first (d/q '[:find [?y]
-                              :in    $ ?ws-uuid ?group-var-uuid
+                              :in $ ?ws-uuid ?group-var-uuid
                               :where
                               [?w :worksheet/uuid ?ws-uuid]
                               [?w :worksheet/graph-settings ?g]
@@ -501,7 +501,7 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid attr value]]
    (when-let [eid (d/q '[:find ?y .
-                         :in    $ ?ws-uuid
+                         :in $ ?ws-uuid
                          :where
                          [?w :worksheet/uuid ?ws-uuid]
                          [?w :worksheet/graph-settings ?g]
@@ -515,7 +515,7 @@
  [(rp/inject-cofx :ds)]
  (fn [{ds :ds} [_ ws-uuid group-var-uuid attr value]]
    (when-let [table-filter-id (d/q '[:find ?f .
-                                     :in    $ ?ws-uuid ?group-var-uuid
+                                     :in $ ?ws-uuid ?group-var-uuid
                                      :where
                                      [?w :worksheet/uuid ?ws-uuid]
                                      [?w :worksheet/table-settings ?t]
@@ -570,8 +570,8 @@
  :worksheet/remove-table-filter
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
-   (when-let [eid (d/q '[:find  ?f .
-                         :in    $ ?uuid ?gv-uuid
+   (when-let [eid (d/q '[:find ?f .
+                         :in $ ?uuid ?gv-uuid
                          :where
                          [?w :worksheet/uuid ?uuid]
                          [?w :worksheet/table-settings ?t]
@@ -584,8 +584,8 @@
  :worksheet/toggle-enable-filter
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
-   (when-let [eid (d/q '[:find  ?f .
-                         :in    $ ?uuid ?gv-uuid
+   (when-let [eid (d/q '[:find ?f .
+                         :in $ ?uuid ?gv-uuid
                          :where
                          [?w :worksheet/uuid ?uuid]
                          [?w :worksheet/table-settings ?t]
@@ -601,7 +601,7 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid attr value]]
    (when-let [g (first (d/q '[:find [?g]
-                              :in    $ ?uuid
+                              :in $ ?uuid
                               :where
                               [?w :worksheet/uuid ?uuid]
                               [?w :worksheet/graph-settings ?g]]
@@ -621,18 +621,18 @@
                     submodule-io
                     {:keys [title body] :as _payload}]]
    (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
-     {:transact [(cond-> {:db/id            -1
+     {:transact [(cond-> {:db/id -1
                           :worksheet/_notes ws-id
-                          :note/name        (if (empty? title)
-                                              (str submodule-name " " submodule-io)
-                                              title)
-                          :note/content     body}
+                          :note/name (if (empty? title)
+                                       (str submodule-name " " submodule-io)
+                                       title)
+                          :note/content body}
                    submodule-uuid (assoc :note/submodule submodule-uuid))]})))
 
 (rp/reg-event-fx
  :worksheet/update-note
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_  note-id {:keys [title body] :as _payload}]]
+ (fn [{:keys [ds]} [_ note-id {:keys [title body] :as _payload}]]
    (when-let [note (d/entity ds note-id)]
      {:transact [{:db/id        (:db/id note)
                   :note/name    title
@@ -679,10 +679,10 @@
  :worksheet/delete-existing-diagrams
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid]]
-   (let [existing-eids (d/q '[:find  [?d ...]
-                              :in    $ ?ws-uuid
+   (let [existing-eids (d/q '[:find [?d ...]
+                              :in $ ?ws-uuid
                               :where
-                              [?ws :worksheet/uuid     ?ws-uuid]
+                              [?ws :worksheet/uuid ?ws-uuid]
                               [?ws :worksheet/diagrams ?d]]
                             ds ws-uuid)
          payload       (mapv (fn [id] [:db.fn/retractEntity id]) existing-eids)]
@@ -703,30 +703,32 @@
                     fire-head-at-report
                     fire-back-at-attack
                     fire-head-at-attack
-                    contain-status]]
-   {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                        :worksheet.diagram/title               title
+                    contain-status
+                    units-uuid]]
+   {:transact [(cond-> {:worksheet/_diagrams [:worksheet/uuid ws-uuid]
+                        :worksheet.diagram/title title
                         :worksheet.diagram/group-variable-uuid group-variable-uuid
-                        :worksheet.diagram/row-id              row-id
-                        :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
-                                                                      w (/ l length-to-width-ratio)]
-                                                                  {:ellipse/legend-id       "Fire Perimeter at Report"
-                                                                   :ellipse/semi-major-axis (/ l 2)
-                                                                   :ellipse/semi-minor-axis (/ w 2)
-                                                                   :ellipse/rotation        90
-                                                                   :ellipse/color           "blue"})
-                                                                (let [l (- fire-head-at-attack fire-back-at-attack)
-                                                                      w (/ l length-to-width-ratio)]
-                                                                  {:ellipse/legend-id       "Fire Perimeter at Attack"
-                                                                   :ellipse/semi-major-axis (/ l 2)
-                                                                   :ellipse/semi-minor-axis (/ w 2)
-                                                                   :ellipse/rotation        90
-                                                                   :ellipse/color           "red"})]}
+                        :worksheet.diagram/row-id row-id
+                        :worksheet.diagram/units-uuid units-uuid
+                        :worksheet.diagram/ellipses [(let [l (- fire-head-at-report fire-back-at-report)
+                                                           w (/ l length-to-width-ratio)]
+                                                       {:ellipse/legend-id "Fire Perimeter at Report"
+                                                        :ellipse/semi-major-axis (/ l 2)
+                                                        :ellipse/semi-minor-axis (/ w 2)
+                                                        :ellipse/rotation 90
+                                                        :ellipse/color "blue"})
+                                                     (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                           w (/ l length-to-width-ratio)]
+                                                       {:ellipse/legend-id "Fire Perimeter at Attack"
+                                                        :ellipse/semi-major-axis (/ l 2)
+                                                        :ellipse/semi-minor-axis (/ w 2)
+                                                        :ellipse/rotation 90
+                                                        :ellipse/color "red"})]}
                  (= contain-status 3)
-                 (assoc :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "Fireline Constructed"
-                                                                 :scatter-plot/color         "black"
-                                                                 :scatter-plot/x-coordinates fire-perimeter-points-X
-                                                                 :scatter-plot/y-coordinates fire-perimeter-points-Y}]))]}))
+                 (assoc :worksheet.diagram/scatter-plots [{:scatter-plot/legend-id     "Fireline Constructed"
+                                                           :scatter-plot/color         "black"
+                                                           :scatter-plot/x-coordinates fire-perimeter-points-X
+                                                           :scatter-plot/y-coordinates fire-perimeter-points-Y}]))]}))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
@@ -742,14 +744,15 @@
                     wind-direction
                     _wind-speed
                     slope-direction
-                    _elapsed-time]]
-   (let [existing-eid    (d/q '[:find  ?d .
-                                :in    $ ?uuid ?gv-uuid ?row-id
+                    _elapsed-time
+                    units-uuid]]
+   (let [existing-eid    (d/q '[:find ?d .
+                                :in $ ?uuid ?gv-uuid ?row-id
                                 :where
-                                [?ws :worksheet/uuid               ?uuid]
-                                [?ws :worksheet/diagrams           ?d]
-                                [?d  :worksheet.diagram/group-variable-uuid ?gv-uuid]
-                                [?d  :worksheet.diagram/row-id              ?row-id]]
+                                [?ws :worksheet/uuid ?uuid]
+                                [?ws :worksheet/diagrams ?d]
+                                [?d :worksheet.diagram/group-variable-uuid ?gv-uuid]
+                                [?d :worksheet.diagram/row-id ?row-id]]
                               ds ws-uuid group-variable-uuid row-id)
          semi-major-axis (max elliptical-A elliptical-B)
          semi-minor-axis (min elliptical-A elliptical-B)]
@@ -758,6 +761,7 @@
                   :worksheet.diagram/title               title
                   :worksheet.diagram/group-variable-uuid group-variable-uuid
                   :worksheet.diagram/row-id              row-id
+                  :worksheet.diagram/units-uuid          units-uuid
                   :worksheet.diagram/ellipses            [{:ellipse/legend-id       "SurfaceFire"
                                                            :ellipse/semi-major-axis semi-major-axis
                                                            :ellipse/semi-minor-axis semi-minor-axis
@@ -772,7 +776,7 @@
                                                            ;; Discuss if if we should use this or not.
                                                            :arrow/rotation  wind-direction
                                                            :arrow/color     "blue"
-                                                           :arrow/dashed? true}
+                                                           :arrow/dashed?   true}
 
                                                           {:arrow/legend-id "Max Spread"
                                                            :arrow/length    semi-major-axis
@@ -802,52 +806,54 @@
                     backing-dir
                     backing-spread-rate
                     wind-dir
-                    wind-speed]]
-   (let [existing-eid (d/q '[:find  ?d .
-                             :in    $ ?uuid ?gv-uuid ?row-id
+                    wind-speed
+                    units-uuid]]
+   (let [existing-eid (d/q '[:find ?d .
+                             :in $ ?uuid ?gv-uuid ?row-id
                              :where
-                             [?ws :worksheet/uuid               ?uuid]
-                             [?ws :worksheet/diagrams           ?d]
-                             [?d  :worksheet.diagram/group-variable-uuid ?gv-uuid]
-                             [?d  :worksheet.diagram/row-id              ?row-id]]
+                             [?ws :worksheet/uuid ?uuid]
+                             [?ws :worksheet/diagrams ?d]
+                             [?d :worksheet.diagram/group-variable-uuid ?gv-uuid]
+                             [?d :worksheet.diagram/row-id ?row-id]]
                            ds ws-uuid group-variable-uuid row-id)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
                   :worksheet.diagram/title               title
                   :worksheet.diagram/group-variable-uuid group-variable-uuid
                   :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id       "MaxSpread"
-                                                                   :arrow/length   max-spread-rate
+                  :worksheet.diagram/units-uuid          units-uuid
+                  :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "MaxSpread"
+                                                                   :arrow/length max-spread-rate
                                                                    :arrow/rotation max-spread-dir
-                                                                   :arrow/color    "red"}
+                                                                   :arrow/color "red"}
 
-                                                                  {:arrow/legend-id       "Flanking1"
-                                                                   :arrow/length   flanking-spread-rate
+                                                                  {:arrow/legend-id "Flanking1"
+                                                                   :arrow/length flanking-spread-rate
                                                                    :arrow/rotation flanking-dir
-                                                                   :arrow/color    "#81c3cb"}
+                                                                   :arrow/color "#81c3cb"}
 
-                                                                  {:arrow/legend-id       "Flanking2"
-                                                                   :arrow/length   flanking-spread-rate
+                                                                  {:arrow/legend-id "Flanking2"
+                                                                   :arrow/length flanking-spread-rate
                                                                    :arrow/rotation (mod (+ flanking-dir 180) 360)
-                                                                   :arrow/color    "#347da0"}
+                                                                   :arrow/color "#347da0"}
 
-                                                                  {:arrow/legend-id       "Backing"
-                                                                   :arrow/length   backing-spread-rate
+                                                                  {:arrow/legend-id "Backing"
+                                                                   :arrow/length backing-spread-rate
                                                                    :arrow/rotation backing-dir
-                                                                   :arrow/color    "orange"}
+                                                                   :arrow/color "orange"}
 
                                                                   (let [l (min max-spread-rate wind-speed)]
-                                                                    {:arrow/legend-id       "Wind"
-                                                                     ;;NOTE for visual purposes
-                                                                     ;;make wind 10% larger than
-                                                                     ;;max spread rate.
+                                                                    {:arrow/legend-id "Wind"
+                                                                     ;; NOTE for visual purposes
+                                                                     ;; make wind 10% larger than
+                                                                     ;; max spread rate.
                                                                      ;; :arrow/length   wind-speed
-                                                                     :arrow/length   (if (> wind-speed max-spread-rate)
-                                                                                       (* l 1.1)
-                                                                                       l)
+                                                                     :arrow/length (if (> wind-speed max-spread-rate)
+                                                                                     (* l 1.1)
+                                                                                     l)
                                                                      :arrow/rotation wind-dir
-                                                                     :arrow/color    "blue"
-                                                                     :arrow/dashed?  true})]
+                                                                     :arrow/color "blue"
+                                                                     :arrow/dashed? true})]
 
                                                            has-direction-of-interest?
                                                            (conj {:arrow/legend-id "Interest"
@@ -859,10 +865,10 @@
  :worksheet/delete-existing-result-table
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid]]
-   (when-let [existing-eid (d/q '[:find  ?t .
-                                  :in    $ ?ws-uuid
+   (when-let [existing-eid (d/q '[:find ?t .
+                                  :in $ ?ws-uuid
                                   :where
-                                  [?ws :worksheet/uuid     ?ws-uuid]
+                                  [?ws :worksheet/uuid ?ws-uuid]
                                   [?ws :worksheet/result-table ?t]]
                                 ds ws-uuid)]
      {:transact [[:db.fn/retractEntity existing-eid]]})))
@@ -885,7 +891,7 @@
 (rf/reg-event-fx
  :worksheet/proccess-conditonally-set-output-group-variables
 
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet  ws-uuid]))
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-group-variables ws-uuid :output]))]
 
  (fn [{worksheet       :worksheet
@@ -906,7 +912,7 @@
 (rf/reg-event-fx
  :worksheet/select-single-select-output
 
- [(rf/inject-cofx ::inject/sub (fn [[_ _ group-eid]] [:vms/entity-from-eid  group-eid]))]
+ [(rf/inject-cofx ::inject/sub (fn [[_ _ group-eid]] [:vms/entity-from-eid group-eid]))]
 
  (fn [{group :vms/entity-from-eid} [_ ws-uuid _group-id target-group-variable-uuid]]
    (let [siblings (remove #(= (:bp/uuid %) target-group-variable-uuid)

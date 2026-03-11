@@ -1,33 +1,33 @@
 (ns behave-cms.handler
-  (:require [clojure.edn        :as edn]
-            [clojure.data.json  :as json]
-            [clojure.string     :as str]
-            [clojure.stacktrace :as st]
-            [bidi.bidi          :refer [match-route]]
-            [cognitect.transit  :as transit]
+  (:require [behave-cms.file-io                 :refer [file-handler]]
+            [behave-cms.remote-api              :refer [api-handler clj-handler]]
+            [behave-cms.routes                  :refer [app-routes api-routes public-routes]]
+            [behave-cms.sync                    :refer [sync-handler]]
+            [behave-cms.views                   :refer [data-response render-page]]
+            [bidi.bidi                          :refer [match-route]]
+            [clojure.data.json                  :as json]
+            [clojure.edn                        :as edn]
+            [clojure.stacktrace                 :as st]
+            [clojure.string                     :as str]
+            [cognitect.transit                  :as transit]
+            [config.interface                   :refer [get-config]]
+            [logging.interface                  :refer [log-str]]
             [ring.middleware.absolute-redirects :refer [wrap-absolute-redirects]]
             [ring.middleware.content-type       :refer [wrap-content-type]]
             [ring.middleware.default-charset    :refer [wrap-default-charset]]
             [ring.middleware.gzip               :refer [wrap-gzip]]
             [ring.middleware.keyword-params     :refer [wrap-keyword-params]]
+            [ring.middleware.multipart-params   :refer [wrap-multipart-params]]
             [ring.middleware.nested-params      :refer [wrap-nested-params]]
             [ring.middleware.not-modified       :refer [wrap-not-modified]]
-            [ring.middleware.multipart-params   :refer [wrap-multipart-params]]
             [ring.middleware.params             :refer [wrap-params]]
-            [ring.middleware.resource           :refer [wrap-resource]]
             [ring.middleware.reload             :refer [wrap-reload]]
+            [ring.middleware.resource           :refer [wrap-resource]]
             [ring.middleware.session            :refer [wrap-session]]
             [ring.middleware.ssl                :refer [wrap-ssl-redirect]]
             [ring.middleware.x-headers          :refer [wrap-frame-options wrap-content-type-options wrap-xss-protection]]
             [ring.util.codec                    :refer [url-decode url-encode]]
-            [ring.util.response                 :refer [redirect]]
-            [config.interface                   :refer [get-config]]
-            [logging.interface                  :refer [log-str]]
-            [behave-cms.file-io                 :refer [file-handler]]
-            [behave-cms.remote-api              :refer [api-handler clj-handler]]
-            [behave-cms.routes                  :refer [app-routes api-routes public-routes]]
-            [behave-cms.sync                    :refer [sync-handler]]
-            [behave-cms.views                   :refer [data-response render-page]]))
+            [ring.util.response                 :refer [redirect]]))
 
 (defn- string-to-bytes [s] (.getBytes s))
 
@@ -79,14 +79,14 @@
 (defn wrap-request-logging [handler]
   (fn [request]
     (let [{:keys [uri request-method params]} request
-          param-str (pr-str (dissoc params :auth-token :password :re-password))]
+          param-str                           (pr-str (dissoc params :auth-token :password :re-password))]
       (log-str "Request(" (name request-method) "): \"" uri "\" " param-str)
       (handler request))))
 
 (defn wrap-response-logging [handler]
   (fn [request]
     (let [{:keys [status headers body] :as response} (handler request)
-          content-type (headers "Content-Type")]
+          content-type                               (headers "Content-Type")]
       (log-str "Response(" status "): "
                (cond
                  (str/includes? content-type "text/html")
@@ -115,9 +115,9 @@
 (defn wrap-edn-params [handler]
   (fn [{:keys [content-type request-method query-string body params] :as request}]
     (if (= content-type "application/edn")
-      (let [get-params (when (and (= request-method :get)
-                                  (not (str/blank? query-string)))
-                         (parse-query-string query-string))
+      (let [get-params  (when (and (= request-method :get)
+                                   (not (str/blank? query-string)))
+                          (parse-query-string query-string))
             post-params (when (and (= request-method :post)
                                    (not (nil? body)))
                           (edn/read-string (slurp body)))]
@@ -127,9 +127,9 @@
 (defn wrap-transit-params [handler]
   (fn [{:keys [content-type request-method query-string body params] :as request}]
     (if (= content-type "application/transit+json")
-      (let [get-params (when (and (= request-method :get)
-                                  (not (str/blank? query-string)))
-                         (parse-query-string query-string))
+      (let [get-params  (when (and (= request-method :get)
+                                   (not (str/blank? query-string)))
+                          (parse-query-string query-string))
             post-params (when (and (= request-method :post)
                                    (not (nil? body)))
                           (transit/read (transit/reader body :json)))]
@@ -146,7 +146,7 @@
       (handler request)
       (catch Exception e
         (let [{:keys [data cause]} (Throwable->map e)
-              status (:status data)]
+              status               (:status data)]
           (log-str "Error: " cause)
           (log-str (st/print-stack-trace e))
           (data-response cause {:status (or status 500)}))))))

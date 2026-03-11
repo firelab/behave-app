@@ -1,22 +1,22 @@
 (ns behave-cms.help.views
-  (:require [clojure.string             :as str]
-            [clojure.set                :refer [rename-keys]]
-            [clojure.walk               :refer [postwalk]]
-            [reagent.core               :as r]
-            [re-frame.core              :as rf]
-            [herb.core                  :refer [<class]]
-            [hickory.core               :refer [parse-fragment as-hiccup]]
-            [behave-cms.help.markdown   :refer [md->hiccup]]
-            [data-utils.interface       :refer [parse-int]]
-            [behave-cms.help.events]
+  (:require [behave-cms.help.events]
+            [behave-cms.help.markdown :refer [md->hiccup]]
             [behave-cms.help.subs]
-            [behave-cms.utils           :as u]))
+            [behave-cms.utils         :as u]
+            [clojure.set              :refer [rename-keys]]
+            [clojure.string           :as str]
+            [clojure.walk             :refer [postwalk]]
+            [data-utils.interface     :refer [parse-int]]
+            [herb.core                :refer [<class]]
+            [hickory.core             :refer [parse-fragment as-hiccup]]
+            [re-frame.core            :as rf]
+            [reagent.core             :as r]))
 
 ;;; Styling
 
 (defn $textarea []
-   {:font-family "var(--bs-font-monospace)"
-    :width "100%"})
+  {:font-family "var(--bs-font-monospace)"
+   :width       "100%"})
 
 (defn $markdown-editor []
   ^{:combinators {[:> :img] {:max-width "100%"
@@ -161,11 +161,8 @@
 
 (comment
 
-
   (def help-key "behaveplus:contain:help")
   (def language (rf/subscribe [:help-editor/state help-key :language]))
   language
   (rf/subscribe [:help/page help-key @language])
-  (rf/subscribe [:help-editor/state help-key])
-
-  )
+  (rf/subscribe [:help-editor/state help-key]))

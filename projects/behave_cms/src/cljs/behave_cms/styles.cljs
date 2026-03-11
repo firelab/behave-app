@@ -87,10 +87,10 @@
                         :font-family      "inherit"
                         :height           "1.75rem"
                         :padding          ".25rem .5rem"}
-        flex-style     {:width            "100%"}
-        multi-style    {:height           "inherit"
-                        :padding          ".3rem .5rem"
-                        :resize           "vertical"}
+        flex-style     {:width "100%"}
+        multi-style    {:height  "inherit"
+                        :padding ".3rem .5rem"
+                        :resize  "vertical"}
         disabled-style {:background-color "rgb(236, 236, 236)"
                         :color            "black"}]
     (with-meta
@@ -130,8 +130,8 @@
                                             :large "0.5rem 1.75rem 0.4rem"
                                             "0.5rem 0.75rem 0.4rem")
                         :text-transform   "uppercase"}
-        disabled-style {:opacity          "0.5"
-                        :pointer-events   "none"}]
+        disabled-style {:opacity        "0.5"
+                        :pointer-events "none"}]
     (with-meta
       base-style
       {:pseudo {:disabled disabled-style
@@ -173,14 +173,14 @@
            {}
            (for [[size position] (partition 2 modifiers)]
              (case position
-               :t {:margin-top    size}
+               :t {:margin-top size}
                :b {:margin-bottom size}
-               :l {:margin-left   size}
-               :r {:margin-right  size}
+               :l {:margin-left size}
+               :r {:margin-right size}
                :v {:margin-top    size
                    :margin-bottom size}
-               :h {:margin-left   size
-                   :margin-right  size}
+               :h {:margin-left  size
+                   :margin-right size}
                {})))))
 
 (defn padding
@@ -192,14 +192,14 @@
            {}
            (for [[size position] (partition 2 modifiers)]
              (case position
-               :t {:padding-top    size}
+               :t {:padding-top size}
                :b {:padding-bottom size}
-               :l {:padding-left   size}
-               :r {:padding-right  size}
+               :l {:padding-left size}
+               :r {:padding-right size}
                :v {:padding-top    size
                    :padding-bottom size}
-               :h {:padding-left   size
-                   :padding-right  size}
+               :h {:padding-left  size
+                   :padding-right size}
                {})))))
 
 (defn border
@@ -211,14 +211,14 @@
            {}
            (for [[style position] (partition 2 modifiers)]
              (case position
-               :t {:border-top    style}
+               :t {:border-top style}
                :b {:border-bottom style}
-               :l {:border-left   style}
-               :r {:border-right  style}
+               :l {:border-left style}
+               :r {:border-right style}
                :v {:border-top    style
                    :border-bottom style}
-               :h {:border-left   style
-                   :border-right  style}
+               :h {:border-left  style
+                   :border-right style}
                {})))))
 
 (defn align
@@ -254,11 +254,11 @@
       :flex-right   {:display         "flex"
                      :justify-content "flex-end"}
 
-      :flex-top     {:display         "flex"
-                     :align-items     "flex-start"}
+      :flex-top     {:display     "flex"
+                     :align-items "flex-start"}
 
-      :flex-bottom  {:display         "flex"
-                     :align-items     "flex-end"}
+      :flex-bottom  {:display     "flex"
+                     :align-items "flex-end"}
       {})))
 
 (defn flex-row

@@ -1,34 +1,34 @@
 (ns ^:figwheel-hooks behave-cms.client
-  (:require [bidi.bidi                          :refer [match-route]]
-            [reagent.core                       :as r]
-            [reagent.dom                        :refer [render]]
-            [re-frame.core                      :as rf]
-            [behave-cms.store                   :as s]
-            [behave-cms.config                  :refer [update-config]]
-            [behave-cms.events]
-            [behave-cms.subs]
-            [behave-cms.routes                  :refer [app-routes]]
-            [behave-cms.components.menu         :refer [menu]]
-            [behave-cms.pages.dashboard         :as dashboard]
-            [behave-cms.applications.views      :refer [list-applications-page]]
+  (:require [behave-cms.applications.views      :refer [list-applications-page]]
             [behave-cms.authentication.views    :refer [invite-user-page
                                                         login-page
                                                         reset-password-page
                                                         verify-email-page]]
+            [behave-cms.components.menu         :refer [menu]]
+            [behave-cms.config                  :refer [update-config]]
             [behave-cms.domains.views           :refer [domains-page]]
-            [behave-cms.groups.views            :refer [list-groups-page]]
+            [behave-cms.events]
             [behave-cms.group-variables.views   :refer [group-variable-page]]
+            [behave-cms.groups.views            :refer [list-groups-page]]
             [behave-cms.languages.views         :refer [list-languages-page]]
             [behave-cms.lists.views             :refer [list-lists-page]]
             [behave-cms.modules.views           :refer [list-modules-page]]
+            [behave-cms.pages.dashboard         :as dashboard]
+            [behave-cms.routes                  :refer [app-routes]]
+            [behave-cms.store                   :as s]
+            [behave-cms.subgroups.views         :refer [list-subgroups-page]]
+            [behave-cms.submodules.views        :refer [submodules-page]]
+            [behave-cms.subs]
+            [behave-cms.subtool-variables.views :refer [subtool-variable-page]]
+            [behave-cms.subtools.views          :refer [subtools-page]]
             [behave-cms.tags.views              :refer [tags-page]]
             [behave-cms.tools.views             :refer [tools-page]]
             [behave-cms.units.views             :refer [units-page]]
-            [behave-cms.subtools.views          :refer [subtools-page]]
-            [behave-cms.subtool-variables.views :refer [subtool-variable-page]]
-            [behave-cms.subgroups.views         :refer [list-subgroups-page]]
-            [behave-cms.submodules.views        :refer [submodules-page]]
-            [behave-cms.variables.views         :refer [list-variables-page]]))
+            [behave-cms.variables.views         :refer [list-variables-page]]
+            [bidi.bidi                          :refer [match-route]]
+            [re-frame.core                      :as rf]
+            [reagent.core                       :as r]
+            [reagent.dom                        :refer [render]]))
 
 (declare render-page!)
 
@@ -37,14 +37,14 @@
 (defonce *current-path   (atom nil))
 
 (def menu-pages
-  [{:page "Applications"         :path "/applications"}
-   {:page "Variables"            :path "/variables"}
-   {:page "Variable  Domains"    :path "/domains"}
-   {:page "Lists"                :path "/lists"}
-   {:page "Tags"                 :path "/tags"}
-   {:page "Units"                :path "/units"}
-   {:page "Languages"            :path "/languages"}
-   {:page "Invite User"          :path "/invite-user"}])
+  [{:page "Applications" :path "/applications"}
+   {:page "Variables" :path "/variables"}
+   {:page "Variable  Domains" :path "/domains"}
+   {:page "Lists" :path "/lists"}
+   {:page "Tags" :path "/tags"}
+   {:page "Units" :path "/units"}
+   {:page "Languages" :path "/languages"}
+   {:page "Invite User" :path "/invite-user"}])
 
 (def app-pages {:applications         list-applications-page
                 :dashboard            dashboard/root-component

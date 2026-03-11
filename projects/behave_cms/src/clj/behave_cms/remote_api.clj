@@ -1,19 +1,19 @@
 (ns behave-cms.remote-api
-  (:require [clojure.data.json :as json]
-            [clojure.repl      :refer [demunge]]
-            [clojure.string    :as str]
-            [bidi.bidi         :refer [match-route]]
-            [config.interface  :refer [get-config]]
-            [behave-cms.authentication  :refer [invite-user!
-                                                login!
-                                                logout!
-                                                set-email!
-                                                reset-password!
-                                                reset-key!
-                                                verify-email!]]
-            [behave-cms.routes          :refer [api-routes]]
-            [behave-cms.views           :refer [data-response]]
-            [behave-cms.export          :refer [sync-images]]))
+  (:require [behave-cms.authentication :refer [invite-user!
+                                               login!
+                                               logout!
+                                               set-email!
+                                               reset-password!
+                                               reset-key!
+                                               verify-email!]]
+            [behave-cms.export         :refer [sync-images]]
+            [behave-cms.routes         :refer [api-routes]]
+            [behave-cms.views          :refer [data-response]]
+            [bidi.bidi                 :refer [match-route]]
+            [clojure.data.json         :as json]
+            [clojure.repl              :refer [demunge]]
+            [clojure.string            :as str]
+            [config.interface          :refer [get-config]]))
 
 (defn log-str [& args]
   (when (= "dev" (get-config :server :mode))
@@ -22,13 +22,13 @@
 (def name->fn {"sync-images" sync-images})
 
 (def api-handlers {; Authorization
-                   :api/login                  login!
-                   :api/logout                 logout!
-                   :api/invite-user            invite-user!
-                   :api/reset-password         reset-password!
-                   :api/set-email              set-email!
-                   :api/reset-key              reset-key!
-                   :api/verify-email           verify-email!})
+                   :api/login          login!
+                   :api/logout         logout!
+                   :api/invite-user    invite-user!
+                   :api/reset-password reset-password!
+                   :api/set-email      set-email!
+                   :api/reset-key      reset-key!
+                   :api/verify-email   verify-email!})
 
 (defn- fn->sym [f]
   (-> (str f)

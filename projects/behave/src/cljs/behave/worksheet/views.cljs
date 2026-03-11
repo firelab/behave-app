@@ -76,7 +76,7 @@
       [:div.workflow-select__content
        [c/card-group {:on-select #(do
                                     (rf/dispatch [:local-storage/update-in [:state :worksheet :*modules] (:module %)])
-                                    (rf/dispatch [:state/set [:sidebar :*modules] (set (:module %))])
+                                    (rf/dispatch [:sidebar/set-modules (set (:module %))])
                                     (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
 
                       :flex-direction "row"
@@ -118,8 +118,7 @@
                                           :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                                           :icons     [{:icon-name "contain"}]
                                           :selected? (= @*modules [:contain])
-                                          :module    [:contain]}
-                                       ]}]]
+                                          :module    [:contain]}]}]]
       [wizard-navigation {:next-label     @(<t (bp "next"))
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)

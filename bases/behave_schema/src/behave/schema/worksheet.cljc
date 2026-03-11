@@ -1,5 +1,5 @@
 (ns behave.schema.worksheet
-  (:require [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha  :as s]
             [behave.schema.utils :refer [many-ref? single-ref? uuid-string?]]))
 
 ;;; Spec
@@ -400,6 +400,11 @@
    ;; Diagrams
    {:db/ident       :worksheet.diagram/group-variable-uuid
     :db/doc         "Diagram's reference to it's output group variable's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/units-uuid
+    :db/doc         "Diagram's units UUID"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

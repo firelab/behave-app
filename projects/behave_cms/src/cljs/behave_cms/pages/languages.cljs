@@ -1,9 +1,9 @@
 (ns behave-cms.pages.languages
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.common :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]))
+  (:require [behave-cms.components.common      :refer [simple-table]]
+            [behave-cms.components.entity-form :refer [entity-form]]
+            [re-frame.core                     :as rf]))
 
-(def columns [:shortcode :language ])
+(def columns [:shortcode :language])
 
 (defn languages-table []
   (let [languages (rf/subscribe [:entities :languages])

@@ -320,8 +320,6 @@
  (fn [_db _query]
    multi-value-input-limit))
 
-
-
 ;;; Outside Range
 
 (reg-sub
@@ -366,6 +364,18 @@
             (or (str/includes? value ",") (str/includes? value " ")))
      true
      false)))
+
+;; Character Limit exceeded
+
+(reg-sub
+ :wizard/character-limit-exceeded-msg
+ (fn [_]
+   @(<t (bp "max_character_limit_20"))))
+
+(reg-sub
+ :wizard/character-limit-exceeded?
+ (fn [_ [_ value]]
+   (> (count value) 20)))
 
 ;; All Errors
 

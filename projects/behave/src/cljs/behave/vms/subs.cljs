@@ -1,17 +1,16 @@
 (ns behave.vms.subs
-  (:require [behave.schema.core :refer [rules]]
-            [behave.vms.store   :refer [entity-from-eid
-                                        entity-from-nid
-                                        entity-from-uuid
-                                        pull
-                                        pull-many
-                                        q
-                                        vms-conn]]
-            [behave.translate            :refer [<t]]
-            [map-utils.interface         :refer [index-by]]
+  (:require [behave.schema.core           :refer [rules]]
+            [behave.vms.store             :refer [entity-from-eid
+                                                  entity-from-nid
+                                                  entity-from-uuid
+                                                  pull
+                                                  pull-many
+                                                  q
+                                                  vms-conn]]
+            [behave.translate             :refer [<t]]
+            [map-utils.interface          :refer [index-by]]
             [absurder-sql.datascript.core :as d]
-            [re-frame.core      :refer [reg-sub subscribe]]
-            [re-frame.core :as rf]))
+            [re-frame.core                :refer [reg-sub subscribe]]))
 
 (reg-sub
  :vms/query
@@ -261,8 +260,7 @@
            @(<t (:list-option/translation-key option)))
        value))))
 
-
-(defn- get-group-variable-hierarchy
+(defn- get-group-hierarchy
   "Returns a sequence of datomic entities from submodule down to group.
 
   Uses datomic rules from behave.schema.rules for cleaner queries:
@@ -275,23 +273,22 @@
 
   Arguments:
     db - Datomic database value
-    gv-uuid - UUID of the group-variable
+    group-uuid - UUID of the group
 
   Returns:
-    Sequence of entities (just :db/id) from submodule to immediate group,
-    or nil if group-variable not found"
-  [db gv-uuid]
+    Sequence of entities (i.e. [{:db/id 1} {:db/id 2}]) from submodule to immediate group,
+    or nil if group not found"
+  [db group-uuid]
   ;; Use rules to find the immediate group and submodule
   (when-let [[submodule-eid immediate-group-eid]
              (d/q '[:find [?submodule ?group]
-                    :in $ % ?gv-uuid
+                    :in $ % ?group-uuid
                     :where
-                    (lookup ?gv-uuid ?gv)
-                    (group-variable ?group ?gv ?v)
+                    (lookup ?group-uuid ?group)
                     (submodule-root ?submodule ?group)]
                   db
                   rules
-                  gv-uuid)]
+                  group-uuid)]
 
     ;; Use the subgroup rule to find all ancestor groups
     ;; The subgroup rule: (subgroup ?parent ?child) means ?child is a subgroup of ?parent
@@ -332,5 +329,5 @@
 (reg-sub
  :vms/group-variable-heirarchy
  (fn [_ [_ gv-uuid]]
-   (get-group-variable-hierarchy @@vms-conn gv-uuid)))
+   (get-group-hierarchy @@vms-conn gv-uuid)))
 

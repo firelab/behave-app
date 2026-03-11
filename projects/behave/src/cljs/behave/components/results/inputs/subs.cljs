@@ -1,14 +1,14 @@
 (ns behave.components.results.inputs.subs
-  (:require [behave.schema.core  :refer [rules]]
-            [behave.translate    :refer [<t]]
-            [behave.vms.store    :refer [vms-conn]]
-            [behave.wizard.subs  :refer [all-conditionals-pass?]]
-            [clojure.walk        :refer [prewalk]]
-            [absurder-sql.datascript.core :as d]
-            [string-utils.interface :as s]
+  (:require [behave.schema.core                  :refer [rules]]
+            [behave.translate                    :refer [<t]]
+            [behave.vms.store                    :refer [vms-conn]]
+            [behave.wizard.subs                  :refer [all-conditionals-pass?]]
+            [clojure.walk                        :refer [prewalk]]
+            [absurder-sql.datascript.core        :as d]
             [absurder-sql.datascript.impl.entity :as de]
-            [map-utils.interface :refer [index-by]]
-            [re-frame.core       :refer [reg-sub subscribe]]))
+            [map-utils.interface                 :refer [index-by]]
+            [re-frame.core                       :refer [reg-sub subscribe]]
+            [string-utils.interface              :as s]))
 
 (defn- export-entity
   [entity]
@@ -74,7 +74,7 @@
                                                    conditionals)
                            (has-conditionally-set-group-variables? s-uuid)))))
         (filter-group-variables worksheet)
-        (sort-by :submodule/order))))
+        (sort-by :submodule/results-order))))
 
 (defn- create-formatter [variable]
   (let [v-kind (:variable/kind variable)]

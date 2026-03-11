@@ -1,42 +1,45 @@
 (ns behave-cms.groups.views
-  (:require [re-frame.core :as rf]
-            [string-utils.interface :refer [->str]]
-            [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
-            [behave-cms.components.conditionals.views    :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.entity-form     :refer [entity-form]]
-            [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations    :refer [all-translations]]
-            [behave-cms.help.views                 :refer [help-editor]]
-            [behave-cms.groups.subs]))
-
-(defn- group-form [submodule-id group-id num-groups]
-  [entity-form {:entity        :group
-                :parent-field  :submodule/_groups
-                :parent-id     submodule-id
-                :id            group-id
-                :fields        [{:label     "Name"
-                                 :required? true
-                                 :field-key :group/name}]
-                :on-create     #(assoc % :group/order num-groups)}])
-
-(defn- manage-group [{submodule-id :db/id}]
-  (let [groups (rf/subscribe [:groups submodule-id])
-        *group (rf/subscribe [:state :group])]
-    [:div.col-6
-     [:h3 (str (if @*group "Update" "Add") " Group")
-      [group-form submodule-id @*group (count @groups)]]]))
-
-(defn- groups-table [{submodule-id :db/id}]
+  (:require [behave-cms.components.common             :refer [accordion checkbox window]]
+            [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.sidebar            :refer [sidebar sidebar-width]]
+            [behave-cms.components.table-entity-form  :refer [table-entity-form table-entity-form-on-select]]
+            [behave-cms.components.translations       :refer [all-translations]]
+            [behave-cms.groups.subs]
+            [behave-cms.help.views                    :refer [help-editor]]
+            [re-frame.core                            :as rf]
+            [string-utils.interface                   :refer [->str]]))
+(defn- groups-results-order-table [submodule-id]
   (let [groups (rf/subscribe [:groups submodule-id])]
-    [:div.col-6
-     [simple-table
-      [:group/name]
-      (sort-by :group/order @groups)
-      {:on-select   #(rf/dispatch [:state/set-state :group (:db/id %)])
-       :on-delete   #(when (js/confirm (str "Are you sure you want to delete the group " (:group/name %) "?"))
-                       (rf/dispatch [:api/delete-entity %]))
-       :on-increase #(rf/dispatch [:api/reorder % @groups :group/order :inc])
-       :on-decrease #(rf/dispatch [:api/reorder % @groups :group/order :dec])}]]))
+    [:div.col-12
+     [table-entity-form
+      {:entity             :group
+       :modify?            false
+       :entities           (sort-by :group/order @groups)
+       :parent-id          submodule-id
+       :parent-field       :submodule/_groups
+       :table-header-attrs [:group/name]
+       :order-attr         :group/order
+       :entity-form-fields [{:label     "Name"
+                             :required? true
+                             :field-key :group/name}]}]]))
+
+(defn- groups-table [submodule-id]
+  (let [selected-state-path [:selected :group]
+        editor-state-path   [:editors :group]
+        groups              (rf/subscribe [:groups submodule-id])]
+    [:div.col-12
+     [table-entity-form
+      {:entity             :group
+       :form-state-path    editor-state-path
+       :entities           (sort-by :group/results-order @groups)
+       :on-select          (table-entity-form-on-select selected-state-path)
+       :parent-id          submodule-id
+       :parent-field       :submodule/_groups
+       :table-header-attrs [:group/name]
+       :order-attr         :group/order
+       :entity-form-fields [{:label     "Name"
+                             :required? true
+                             :field-key :group/name}]}]]))
 
 ;;; Settings
 
@@ -78,9 +81,12 @@
 
        [accordion
         "Groups"
-        [groups-table @submodule]
-        [manage-group @submodule]]
-
+        [groups-table (:db/id @submodule)]]
+       [:hr]
+       ^{:key "group-results-order"}
+       [accordion
+        "Groups Results Order"
+        [groups-results-order-table (:db/id @submodule)]]
        [:hr]
        ^{:key "conditionals"}
        [accordion
