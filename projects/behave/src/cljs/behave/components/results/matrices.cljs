@@ -194,7 +194,7 @@
                                                                   :key  output-gv-uuid}))))
                                              []
                                              output-entities)
-        row-headers                  (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) (sort multi-var-values))
+        row-headers                  (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
         final-data                   (reduce (fn insert-map-units-values [acc [[row col] value]]
                                                (let [fmt-fn  (get formatters col identity)
                                                      shaded? (contains? rows-to-shade-set col)]
@@ -240,8 +240,8 @@
                                                                            :table-setting-filters table-setting-filters
                                                                            :submatrix-gv-uuid     submatrix-gv-uuid
                                                                            :submatrix-value       submatrix-value})
-        row-headers                                 (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) (sort row-values))
-        column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) (sort col-values))
+        row-headers                                 (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
+        column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)
         row-headers-sorted                          (sort-by :name row-headers)
         column-headers-sorted                       (sort-by :name column-headers)]
     [:div.print__construct-result-matrices
