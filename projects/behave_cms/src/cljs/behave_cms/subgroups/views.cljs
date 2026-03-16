@@ -36,7 +36,7 @@
 (defn- variables-table [group-id]
   (let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
-     [:variable/name]
+     [:variable/name :group-variable/direction :group-variable/conditionally-set?]
      (sort-by :group-variable/order @group-variables)
      {:on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
@@ -122,7 +122,7 @@
         [:h2 (:group/name @group)]]
        ^{:key "variables"}
        [accordion
-        "Variables"
+        "Group Variables"
         [:div.col-6
          [variables-table id]]
         [:div.col-6

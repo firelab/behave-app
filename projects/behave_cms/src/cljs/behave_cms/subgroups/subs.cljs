@@ -5,6 +5,7 @@
             [bidi.bidi          :refer [path-for]]
             [clojure.string     :as str]
             [datascript.core    :as d]
+            [goog.string        :as gstring]
             [re-frame.core      :refer [reg-sub subscribe]]))
 
 ;;; Applications, Modules, Submodules
@@ -171,9 +172,12 @@
  (fn [variables]
    (->> variables
         (map (fn [variable]
-               (let [nid  (:bp/nid variable)
-                     name (get-in variable [:variable/_group-variables 0 :variable/name])]
-                 {:label name
+               (let [nid       (:bp/nid variable)
+                     direction (:group-variable/direction variable)
+                     v-name    (get-in variable [:variable/_group-variables 0 :variable/name])]
+                 {:label (if direction
+                           (gstring/format "%s (%s)" v-name (name direction))
+                           v-name)
                   :link  (path-for app-routes :get-group-variable :nid nid)})))
         (sort-by :label))))
 

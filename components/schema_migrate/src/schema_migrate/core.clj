@@ -1,11 +1,11 @@
 (ns schema-migrate.core
   (:require
-   [clojure.walk       :as walk]
-   [clojure.string     :as s]
-   [datascript.core    :refer [squuid]]
-   [datomic.api        :as d]
-   [datomic-store.main :as ds]
    [clojure.spec.alpha :as spec]
+   [clojure.string     :as s]
+   [clojure.walk       :as walk]
+   [datascript.core    :refer [squuid]]
+   [datomic-store.main :as ds]
+   [datomic.api        :as d]
    [nano-id.core       :refer [nano-id]]))
 
 (def
@@ -378,7 +378,7 @@
 
 (defn ->variable
   [_conn {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?
-                 dimension-uuid native-unit-uuid metric-unit-uuid english-unit-uuid] :as params}]
+                 dimension-uuid native-unit-uuid metric-unit-uuid english-unit-uuid]                                :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
@@ -406,7 +406,7 @@
   "Payload for a new Group Variable."
   [conn {:keys
          [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key conditionally-set? actions
-          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator] :as params}]
+          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator direction-variables] :as params}]
   (let [payload (if (spec/valid? :behave/group-variable params)
                   params
                   (cond-> {}
@@ -422,6 +422,7 @@
                     cpp-class                                       (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
                     cpp-function                                    (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
                     cpp-parameter                                   (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
+                    (seq direction-variables)                       (assoc :group-variable/direction-variables direction-variables)
                     translation-key                                 (assoc :group-variable/translation-key translation-key)
                     translation-key                                 (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
                     translation-key                                 (assoc :group-variable/help-key (str translation-key ":help"))

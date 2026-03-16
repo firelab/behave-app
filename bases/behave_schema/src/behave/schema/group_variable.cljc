@@ -1,6 +1,6 @@
 (ns behave.schema.group-variable
-  (:require [clojure.spec.alpha :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
+  (:require [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Validation Fns
 
@@ -8,20 +8,19 @@
 
 ;;; Spec
 
-(s/def :bp/uuid                        uuid-string?)
-(s/def :bp/nid                         string?)
-(s/def :group-variable/cpp-class       string?)
-(s/def :group-variable/cpp-function    string?)
-(s/def :group-variable/cpp-namespace   string?)
-(s/def :group-variable/cpp-parameter   string?)
-(s/def :group-variable/help-key        valid-key?)
-(s/def :group-variable/order           zero-pos?)
-(s/def :group-variable/translation-key valid-key?)
-(s/def :group-variable/research?       boolean?)
-(s/def :group-variable/hide-graph?     boolean?)
-(s/def :group-variable/direction       valid-direction?)
-
-
+(s/def :bp/uuid                            uuid-string?)
+(s/def :bp/nid                             string?)
+(s/def :group-variable/cpp-class           string?)
+(s/def :group-variable/cpp-function        string?)
+(s/def :group-variable/cpp-namespace       string?)
+(s/def :group-variable/cpp-parameter       string?)
+(s/def :group-variable/help-key            valid-key?)
+(s/def :group-variable/order               zero-pos?)
+(s/def :group-variable/translation-key     valid-key?)
+(s/def :group-variable/research?           boolean?)
+(s/def :group-variable/hide-graph?         boolean?)
+(s/def :group-variable/direction           valid-direction?)
+(s/def :group-variable/direction-variables (s/coll-of int?))
 
 (s/def :behave/group-variable (s/keys :req [:bp/uuid
                                             :bp/nid
@@ -29,6 +28,7 @@
                                             :group-variable/translation-key
                                             :group-variable/help-key]
                                       :opt [:group-variable/research?
+                                            :group-variable/direction-variables
                                             :group-variable/hide-graph?
                                             :group-variable/direction
                                             :group-variable/cpp-class
@@ -87,6 +87,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
+
+   {:db/ident       :group-variable/direction-variables
+    :db/doc         "Group variable's reference to group variables that have directionality."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
 
    {:db/ident       :group-variable/direction
     :db/doc         "Group variable's direction."
@@ -164,5 +169,4 @@
                                      :group-variable/help-key        "behave:contain:fire:group:var:help"
                                      :group-variable/cpp-class       "BehaveContain"
                                      :group-variable/cpp-namespace   "global"
-                                     :group-variable/cpp-function    "setFireSize"})
-  )
+                                     :group-variable/cpp-function    "setFireSize"}))
