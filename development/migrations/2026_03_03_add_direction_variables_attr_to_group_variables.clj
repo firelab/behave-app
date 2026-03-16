@@ -1,7 +1,9 @@
 (ns migrations.2026-03-03-link-direction-variables
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
+            [datascript.core          :refer [squuid]]
             [datomic.api              :as d]
+            [nano-id.core             :refer [nano-id]]
             [schema-migrate.interface :as sm]))
 
 ;; ===========================================================================================================
@@ -276,6 +278,32 @@
                                        update-translation-key-payload))))
 
 ;; ===========================================================================================================
+;; Fix Variables, missing bp/uuid and bp/nid
+;; ===========================================================================================================
+
+(def fix-variable-missing-bp-uuid-payload
+  [{:db/id                   (sm/name->eid conn :variable/name "Rate of Spread")
+    :bp/uuid                 (str (squuid))
+    :bp/nid                  (nano-id)
+    :variable/kind           :continuous
+    :variable/domain-uuid    (:bp/uuid (d/entity (d/db conn) (sm/name->eid conn :domain/name "Surface Rate of Spread")))
+    :variable/dimension-uuid (:bp/uuid (d/entity (d/db conn) (sm/name->eid conn :dimension/name "Length")))}
+
+   {:db/id                   (sm/name->eid conn :variable/name "Flame Length")
+    :bp/uuid                 (str (squuid))
+    :bp/nid                  (nano-id)
+    :variable/kind           :continuous
+    :variable/domain-uuid    (:bp/uuid (d/entity (d/db conn) (sm/name->eid conn :domain/name "Flame Length & Scorch Ht")))
+    :variable/dimension-uuid (:bp/uuid (d/entity (d/db conn) (sm/name->eid conn :dimension/name "Length")))}
+
+   {:db/id                   (sm/name->eid conn :variable/name "Fireline Intensity")
+    :bp/uuid                 (str (squuid))
+    :bp/nid                  (nano-id)
+    :variable/kind           :continuous
+    :variable/domain-uuid    (:bp/uuid (d/entity (d/db conn) (sm/name->eid conn :domain/name "Fireline Intensity")))
+    :variable/dimension-uuid (:bp/uuid (d/entity (d/db conn) (sm/name->eid conn :dimension/name "Fireline Intensity")))}])
+
+;; ===========================================================================================================
 ;; Payload
 ;; ===========================================================================================================
 
@@ -286,6 +314,7 @@
 #_{:clj-kondo/ignore [(:missing-docstring)]}
 (def first-payload
   (concat
+   fix-variable-missing-bp-uuid-payload
    links-to-add-payload
    update-translation-key-payload
    add-missing-result-translation
