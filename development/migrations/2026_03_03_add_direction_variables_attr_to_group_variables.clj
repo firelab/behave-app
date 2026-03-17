@@ -10,11 +10,12 @@
 ;; Overview
 ;; ===========================================================================================================
 
-;; 1. create new group variables for the heading direciton of scorch height, tree crown length
-;; scorched, and crown volume scorched
-;; 2. Repurpose exisitng scorch height, tree crown length scorched, and crown volume scorched to be
-;; like the ones for surface > rate of spread (i.e. this group variable does not compute anything
-;; but is used as parent group variable that links to the 3 directional versions)
+;; 1. Link Directional Versions of Group Variable to it's Parent
+;; 2. Rename Translation keys
+;; 3. Add new Group Variables
+;; 4. Clean up Variables
+;; 5. Add translations for the group variables with translation keys renamed from step 1.
+;; 6. Fix Variables, missing bp/uuid and bp/nid
 
 ;; ===========================================================================================================
 ;; Initialize
@@ -55,7 +56,7 @@
              :group-variable/direction-variables (mapv #(gv-eid->translation-key (second %)) pairs)})))
 
 ;; ===========================================================================================================
-;; 3. Link Directional Versions of Group Variable to it's Parent
+;; 1. Link Directional Versions of Group Variable to it's Parent
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [(:missing-docstring)]}
@@ -81,8 +82,10 @@
                                          (sm/t-key->eid conn "behaveplus:surface:output:size:surface___fire_size:flanking-spread-distance")]}])
 
 ;; ===========================================================================================================
-;; 1. Rename Translation keys
+;; 2. Rename Translation keys
 ;; ===========================================================================================================
+
+;; These group variables should have their keys updated for the heading direction.
 
 #_{:clj-kondo/ignore [(:missing-docstring)]}
 (def t-keys-to-process ["behaveplus:mortality:output:tree_mortality:tree_mortality:probability_of_mortality"
@@ -115,7 +118,7 @@
   (map t-key->new-t-key-payload t-keys-to-process))
 
 ;; ===========================================================================================================
-;; 2. Add new Group Variables
+;; 3. Add new Group Variables
 ;; ===========================================================================================================
 
 ;; Add new group variables that mimic the Surface > Fire Behavior (output) > Surface Fire > Rate of Spread
@@ -206,8 +209,10 @@
                          :hide-result?        true})])
 
 ;; ===========================================================================================================
-;; Clean up Variables
+;; 4. Clean up Variables
 ;; ===========================================================================================================
+
+;; These variables should no longer be in the system.
 
 (def variables-to-clean
   [["Heading Rate of Spread" "Rate of Spread" "behaveplus:surface:output:fire_behavior:surface_fire:heading_rate_of_spread"]
@@ -239,12 +244,6 @@
              [:db/add (sm/name->eid conn :variable/name new-var-name) :variable/group-variables (sm/t-key->eid conn t-key)]])
           variables-to-clean))
 
-#_(d/q '[:find ?e
-         :in $
-         :where [?v :variable/name "Bole Char Height Flanking"
-                 ?v :variable/group-variables ?e]]
-       (d/db conn))
-
 (def add-missing-result-translation
   [{:db/id                                 (sm/t-key->eid conn "behaveplus:surface:output:fire_behavior:surface_fire:flame_length")
     :group-variable/result-translation-key "behaveplus:surface:result:fire_behavior:surface_fire:flame_length"}
@@ -254,7 +253,7 @@
     :group-variable/result-translation-key "behaveplus:surface:result:fire_behavior:surface_fire:heading_fireline_intensity"}])
 
 ;; ===========================================================================================================
-;; Add translations for the group variables with translation keys renamed from step 1.
+;; 5. Add translations for the group variables with translation keys renamed from step 1.
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [(:missing-docstring)]}
@@ -278,8 +277,11 @@
                                        update-translation-key-payload))))
 
 ;; ===========================================================================================================
-;; Fix Variables, missing bp/uuid and bp/nid
+;; 6. Fix Variables, missing bp/uuid and bp/nid
 ;; ===========================================================================================================
+
+;; These prevously created variables are missing some of the necessary attributes we need. It was not necessary before because the actual variables that were used
+;; were (i.e. Heading Rate of Spread, Backing Rate of Spread, etc) which had this info. Now that we are deleting those variables, we need to add these backin. All directional group variables will point to the same variable now
 
 (def fix-variable-missing-bp-uuid-payload
   [{:db/id                   (sm/name->eid conn :variable/name "Rate of Spread")
