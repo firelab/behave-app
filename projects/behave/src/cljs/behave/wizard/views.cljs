@@ -26,6 +26,7 @@
                                                             input-value]]
             [goog.string                            :as gstring]
             [goog.string.format]
+            [re-frame.core                          :as rf]
             [re-frame.core                          :refer [dispatch dispatch-sync subscribe]]
             [reagent.core                           :as r]
             [string-utils.core                      :as s]
@@ -392,8 +393,8 @@
         *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
         gv-uuid+min+max-entries-sorted (->> @*gv-uuid+min+max-entries
                                             (sort-by #(.indexOf @*gv-order (first %))))
-        *default-max-values            (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
-        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
+        *default-max-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
+        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :min])
         units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
         maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val [[gv-uuid _min-val max-val enabled?]]
                                                                               [gv-uuid max-val enabled?])
@@ -417,7 +418,10 @@
         names                          (map (fn get-variable-name [[gv-uuid _min _max]]
                                               (gstring/format "%s (%s)"
                                                               @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
-                                                              (get units-lookup gv-uuid)))
+                                                              (get units-lookup
+                                                                   (if-let [direcitonal-children (seq @(subscribe [:vms/directional-children gv-uuid]))]
+                                                                     (:bp/uuid (first direcitonal-children))
+                                                                     gv-uuid))))
                                             gv-uuid+min+max-entries-sorted)
         enabled-check-boxes            (when (= rf-event-id :worksheet/update-table-filter-attr)
                                          (map (fn [[gv-uuid _min _max enabled?]]

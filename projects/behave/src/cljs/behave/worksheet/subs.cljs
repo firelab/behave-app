@@ -4,6 +4,8 @@
             [behave.store                :as s]
             [behave.translate            :refer [<t]]
             [behave.vms.store            :as vms :refer [vms-conn]]
+            [behave.vms.subs             :refer [direction-variables
+                                                 directional-parent-entity]]
             [behave.wizard.subs          :refer [all-conditionals-pass?]]
             [clojure.set                 :as set]
             [clojure.string              :as str]
@@ -538,6 +540,23 @@
         (map first))))
 
 (rf/reg-sub
+ :worksheet/directional-parent-output-uuids
+ (fn [_ [_ ws-uuid]]
+   (d/q '[:find  [?uuid ...]
+          :in    $ $ws % ?ws-uuid
+          :where
+          [$ws ?w :worksheet/uuid ?ws-uuid]
+          [$ws ?w :worksheet/outputs ?o]
+          [$ws ?o :output/group-variable-uuid ?uuid]
+          [$ws ?o :output/enabled? true]
+          (lookup ?uuid ?gv)
+          [?gv :group-variable/direction-variables ?dgv]]
+        @@vms-conn
+        @@s/conn
+        rules
+        ws-uuid)))
+
+(rf/reg-sub
  :worksheet/graphed-output-uuids
  (fn [[_ ws-uuid]]
    (rf/subscribe [:worksheet ws-uuid]))
@@ -605,9 +624,7 @@
 
 (rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
- (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/graphed-output-uuids ws-uuid]))
- (fn [graph-output-uuids [_ ws-uuid]]
+ (fn [_ [_ ws-uuid graph-output-uuids]]
    {:type      :query
     :query     '[:find ?group-var-uuid ?min ?max
                  :in   $ ?ws-uuid [?group-var-uuid ...]
@@ -624,21 +641,26 @@
 
 (rf/reg-sub
  :worksheet/graph-settings-y-axis-limits-filtered
- (fn [[_ ws-uuid]] (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid]))
- (fn [table-settings-filters _]
-   (remove
-    (fn [[group-var-uuid]]
-      (let [kind (d/q '[:find ?kind .
-                        :in  $ ?group-var-uuid
-                        :where
-                        [?gv :bp/uuid ?group-var-uuid]
-                        [?v :variable/group-variables ?gv]
-                        [?v :variable/kind ?kind]]
-                      @@vms-conn
-                      group-var-uuid)]
-        (or (= kind :discrete)
-            (= kind :text))))
-    table-settings-filters)))
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/graphed-output-uuids ws-uuid])
+    (rf/subscribe [:worksheet/directional-parent-output-uuids ws-uuid])])
+ (fn [[graph-output-uuids directional-parent-outputs-uuids] [_ ws-uuid]]
+   (let [all-outputs-uuids-to-process (concat graph-output-uuids directional-parent-outputs-uuids)
+         graph-settings-y-axis-limits @(rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid  all-outputs-uuids-to-process])]
+     (remove
+      (fn [[group-var-uuid]]
+        (let [kind (d/q '[:find ?kind .
+                          :in  $ ?group-var-uuid
+                          :where
+                          [?gv :bp/uuid ?group-var-uuid]
+                          [?v :variable/group-variables ?gv]
+                          [?v :variable/kind ?kind]]
+                        @@vms-conn
+                        group-var-uuid)]
+          (or (= kind :discrete)
+              (= kind :text)
+              (directional-parent-entity group-var-uuid))))
+      graph-settings-y-axis-limits))))
 
 (rp/reg-sub
  :worksheet/graph-settings-x-axis-limits
@@ -654,6 +676,37 @@
                  [?y :x-axis-limit/min ?min]
                  [?y :x-axis-limit/max ?max]]
     :variables [ws-uuid]}))
+
+(rf/reg-sub
+ :worksheet/directional-output-gv-uuids
+ (fn [_ [_ ws-uuid]]
+   (let [parent-gv->directional-gvs
+         (group-by first
+                   (d/q '[:find  ?parent-var-uuid ?uuid ?min ?max ?enabled
+                          :in    $ $ws % ?ws-uuid
+                          :where
+                          [$ws ?w :worksheet/uuid ?ws-uuid]
+                          [$ws ?w :worksheet/outputs ?o]
+                          [$ws ?o :output/group-variable-uuid ?uuid]
+                          [$ws ?o :output/enabled? true]
+                          (lookup ?uuid ?gv)
+
+                          [$ ?v :group-variable/direction-variables ?gv]
+                          [$ ?v :bp/uuid ?parent-var-uuid]
+
+                          [$ws ?w :worksheet/table-settings ?ts]
+                          [$ws ?ts :table-settings/filters ?tf]
+                          [$ws ?tf :table-filter/group-variable-uuid ?uuid]
+                          [$ws ?tf :table-filter/min ?min]
+                          [$ws ?tf :table-filter/max ?max]
+                          [$ws ?tf :table-filter/enabled? ?enabled]]
+                        @@vms-conn @@s/conn rules ws-uuid))]
+     (doall (map (fn [[parent-gv directional-gvs]]
+                   (let [mins     (map #(nth % 2) directional-gvs)
+                         maxs     (map #(nth % 3) directional-gvs)
+                         enabled? (map #(nth % 4) directional-gvs)]
+                     [parent-gv (apply min mins) (apply max maxs) (every? true? enabled?)]))
+                 parent-gv->directional-gvs)))))
 
 (rp/reg-sub
  :worksheet/table-settings-filters
@@ -676,8 +729,9 @@
 
 (rf/reg-sub
  :worksheet/table-settings-filters-filtered
- (fn [[_ ws-uuid]] (rf/subscribe [:worksheet/table-settings-filters ws-uuid]))
- (fn [table-settings-filters _]
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/table-settings-filters ws-uuid])])
+ (fn [[table-settings-filters] _]
    (remove
     (fn [[group-var-uuid]]
       (let [kind (d/q '[:find ?kind .
@@ -689,7 +743,8 @@
                       @@vms-conn
                       group-var-uuid)]
         (or (= kind :discrete)
-            (= kind :text))))
+            (= kind :text)
+            (directional-parent-entity group-var-uuid))))
     table-settings-filters)))
 
 ;; Results Table formatters
@@ -775,25 +830,25 @@
 (rp/reg-sub
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
-   {:type  :query
-    :query '[:find ?row ?col-uuid ?repeat-id ?value
-             :in $ ?ws-uuid
-             :where
-             [?w :worksheet/uuid ?ws-uuid]
-             [?w :worksheet/result-table ?rt]
-             [?rt :result-table/rows ?r]
+   {:type     :query
+    :query    '[:find ?row ?col-uuid ?repeat-id ?value
+                :in $ ?ws-uuid
+                :where
+                [?w :worksheet/uuid ?ws-uuid]
+                [?w :worksheet/result-table ?rt]
+                [?rt :result-table/rows ?r]
 
-             ;;get row
-             [?r :result-row/id ?row]
+                ;;get row
+                [?r :result-row/id ?row]
 
-             ;;get-header
-             [?r :result-row/cells ?c]
-             [?c :result-cell/header ?h]
-             [?h :result-header/group-variable-uuid ?col-uuid]
-             [?h :result-header/repeat-id ?repeat-id]
+                ;;get-header
+                [?r :result-row/cells ?c]
+                [?c :result-cell/header ?h]
+                [?h :result-header/group-variable-uuid ?col-uuid]
+                [?h :result-header/repeat-id ?repeat-id]
 
-             ;;get value
-             [?c :result-cell/value ?value]]
+                ;;get value
+                [?c :result-cell/value ?value]]
     :variables
     [ws-uuid]}))
 
@@ -820,21 +875,37 @@
     data)))
 
 (rf/reg-sub
- :worksheet/output-uuid->result-min-values
+ :worksheet/output-uuid->result-min-or-max-values
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
     (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
- (fn [[result-table-cell-data all-output-uuids] _]
-   (reduce
-    (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid)
-        (update acc gv-uuid (fn [min-v]
-                              (let [min-float   (js/parseFloat min-v)
-                                    value-float (js/parseFloat value)]
-                                (min (or min-float ##Inf) value-float))))
-        acc))
-    {}
-    result-table-cell-data)))
+ (fn [[result-table-cell-data all-output-uuids] [_ _ws-uuid min-or-max]]
+   (let [results (reduce
+                  (fn [acc [_row-id gv-uuid _repeat-id value]]
+                    (let [update-fn (case min-or-max
+                                      :min (fn [min-v]
+                                             (let [min-float   (js/parseFloat min-v)
+                                                   value-float (js/parseFloat value)]
+                                               (min (or min-float ##Inf) value-float)))
+                                      :max (fn [max-v]
+                                             (let [max-float   (js/parseFloat max-v)
+                                                   value-float (js/parseFloat value)]
+                                               (max (or max-float ##-Inf) value-float))))]
+                      (if (contains? (set all-output-uuids) gv-uuid)
+                        (update acc gv-uuid update-fn)
+                        acc)))
+                  {}
+                  result-table-cell-data)
+         op      (case min-or-max
+                   :min min
+                   :max max)]
+     (into {} (reduce (fn [acc [gv-uuid _max-val]]
+                        (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
+                          (let [directional-children-uuids (map :bp/uuid (direction-variables directional-parent-uuid))]
+                            (assoc acc directional-parent-uuid (apply op (remove nil? (map #(get results %) directional-children-uuids)))))
+                          acc))
+                      results
+                      results)))))
 
 (rf/reg-sub
  :worksheet/output-min+max-values
@@ -845,29 +916,22 @@
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
       (if (contains? (set all-output-uuids) gv-uuid)
-        (update acc gv-uuid (fn [[min-v max-v]]
-                              (let [min-float   (js/parseFloat min-v)
-                                    max-float   (js/parseFloat max-v)
-                                    value-float (js/parseFloat value)]
-                                [(min (or min-float ##Inf) value-float)
-                                 (max (or max-float ##-Inf) value-float)])))
-        acc))
-    {}
-    result-table-cell-data)))
-
-(rf/reg-sub
- :worksheet/output-uuid->result-max-values
- (fn [[_ ws-uuid]]
-   [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-    (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
- (fn [[result-table-cell-data all-output-uuids] _]
-   (reduce
-    (fn [acc [_row-id gv-uuid _repeat-id value]]
-      (if (contains? (set all-output-uuids) gv-uuid)
-        (update acc gv-uuid (fn [max-v]
-                              (let [max-float   (js/parseFloat max-v)
-                                    value-float (js/parseFloat value)]
-                                (max (or max-float ##-Inf) value-float))))
+        (let [parent-directional-gv (:bp/uuid (first (:group-variable/_direction-variables (d/pull @@vms-conn '[{:group-variable/_direction-variables
+                                                                                                                 [:bp/uuid]}]
+                                                                                                   [:bp/uuid gv-uuid]))))]
+          (cond-> (update acc gv-uuid (fn [[min-v max-v]]
+                                        (let [min-float   (js/parseFloat min-v)
+                                              max-float   (js/parseFloat max-v)
+                                              value-float (js/parseFloat value)]
+                                          [(min (or min-float ##Inf) value-float)
+                                           (max (or max-float ##-Inf) value-float)])))
+            parent-directional-gv
+            (update parent-directional-gv (fn [[min-v max-v]]
+                                            (let [min-float   (js/parseFloat min-v)
+                                                  max-float   (js/parseFloat max-v)
+                                                  value-float (js/parseFloat value)]
+                                              [(min (or min-float ##Inf) value-float)
+                                               (max (or max-float ##-Inf) value-float)])))))
         acc))
     {}
     result-table-cell-data)))
@@ -1060,50 +1124,50 @@
 (rp/reg-sub
  :worksheet/input-gv-uuid+value+units
  (fn [_ [_ ws-uuid row-id]]
-   {:type  :query
-    :query '[:find  ?gv-uuid ?value ?units
-             :in $ ?ws-uuid ?row-id
-             :where
-             [?ws :worksheet/uuid ?ws-uuid]
-             [?ws :worksheet/input-groups ?ig]
-             [?ws :worksheet/result-table ?t]
-             [?t  :result-table/rows ?rr]
-             [?rr :result-row/id ?row-id]
-             [?rr :result-row/cells ?c]
+   {:type      :query
+    :query     '[:find  ?gv-uuid ?value ?units
+                 :in $ ?ws-uuid ?row-id
+                 :where
+                 [?ws :worksheet/uuid ?ws-uuid]
+                 [?ws :worksheet/input-groups ?ig]
+                 [?ws :worksheet/result-table ?t]
+                 [?t  :result-table/rows ?rr]
+                 [?rr :result-row/id ?row-id]
+                 [?rr :result-row/cells ?c]
 
-             ;; Filter only input variables
-             [?ig :input-group/inputs ?i]
-             [?i  :input/group-variable-uuid ?gv-uuid]
+                 ;; Filter only input variables
+                 [?ig :input-group/inputs ?i]
+                 [?i  :input/group-variable-uuid ?gv-uuid]
 
-             ;; Get  gv-uuid, value and units
-             [?rh :result-header/group-variable-uuid ?gv-uuid]
-             [?rh :result-header/units ?units]
-             [?c  :result-cell/header ?rh]
-             [?c  :result-cell/value ?value]]
+                 ;; Get  gv-uuid, value and units
+                 [?rh :result-header/group-variable-uuid ?gv-uuid]
+                 [?rh :result-header/units ?units]
+                 [?c  :result-cell/header ?rh]
+                 [?c  :result-cell/value ?value]]
     :variables [ws-uuid row-id]}))
 
 (rp/reg-sub
  :worksheet/output-gv-uuid+value+units
  (fn [_ [_ ws-uuid row-id]]
-   {:type  :query
-    :query '[:find  ?gv-uuid ?value ?units
-             :in $ ?ws-uuid ?row-id
-             :where
-             [?ws :worksheet/uuid ?ws-uuid]
-             [?ws :worksheet/outputs ?o]
-             [?ws :worksheet/result-table ?t]
-             [?t  :result-table/rows ?rr]
-             [?rr :result-row/id ?row-id]
-             [?rr :result-row/cells ?c]
+   {:type      :query
+    :query     '[:find  ?gv-uuid ?value ?units
+                 :in $ ?ws-uuid ?row-id
+                 :where
+                 [?ws :worksheet/uuid ?ws-uuid]
+                 [?ws :worksheet/outputs ?o]
+                 [?ws :worksheet/result-table ?t]
+                 [?t  :result-table/rows ?rr]
+                 [?rr :result-row/id ?row-id]
+                 [?rr :result-row/cells ?c]
 
-             ;; Filter only output variables
-             [?o  :output/group-variable-uuid  ?gv-uuid]
+                 ;; Filter only output variables
+                 [?o  :output/group-variable-uuid  ?gv-uuid]
 
-             ;; Get  gv-uuid, value and units
-             [?rh :result-header/group-variable-uuid ?gv-uuid]
-             [?rh :result-header/units ?units]
-             [?c  :result-cell/header ?rh]
-             [?c  :result-cell/value ?value]]
+                 ;; Get  gv-uuid, value and units
+                 [?rh :result-header/group-variable-uuid ?gv-uuid]
+                 [?rh :result-header/units ?units]
+                 [?c  :result-cell/header ?rh]
+                 [?c  :result-cell/value ?value]]
     :variables [ws-uuid row-id]}))
 
 (rf/reg-sub
