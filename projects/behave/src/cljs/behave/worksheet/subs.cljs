@@ -561,7 +561,7 @@
  (fn [[_ ws-uuid]]
    (rf/subscribe [:worksheet ws-uuid]))
  (fn [worksheet [_ ws-uuid]]
-   (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
+   (->> (d/q '[:find  ?uuid ?hide-result ?graph-result ?order
                :in    $ $ws % ?ws-uuid
                :where
                [$ws ?w :worksheet/uuid ?ws-uuid]
@@ -570,11 +570,13 @@
                [$ws ?o :output/enabled? true]
                (lookup ?uuid ?gv)
                [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]
-               [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]]
+               [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]
+               [$ ?gv :group-variable/order ?order]]
              @@vms-conn
              @@s/conn
              rules
              ws-uuid)
+        (sort-by last)
         (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
         (map first)
         (map (fn [gv-uuid] @(rf/subscribe [:vms/entity-from-uuid gv-uuid])))
@@ -676,37 +678,6 @@
                  [?y :x-axis-limit/min ?min]
                  [?y :x-axis-limit/max ?max]]
     :variables [ws-uuid]}))
-
-(rf/reg-sub
- :worksheet/directional-output-gv-uuids
- (fn [_ [_ ws-uuid]]
-   (let [parent-gv->directional-gvs
-         (group-by first
-                   (d/q '[:find  ?parent-var-uuid ?uuid ?min ?max ?enabled
-                          :in    $ $ws % ?ws-uuid
-                          :where
-                          [$ws ?w :worksheet/uuid ?ws-uuid]
-                          [$ws ?w :worksheet/outputs ?o]
-                          [$ws ?o :output/group-variable-uuid ?uuid]
-                          [$ws ?o :output/enabled? true]
-                          (lookup ?uuid ?gv)
-
-                          [$ ?v :group-variable/direction-variables ?gv]
-                          [$ ?v :bp/uuid ?parent-var-uuid]
-
-                          [$ws ?w :worksheet/table-settings ?ts]
-                          [$ws ?ts :table-settings/filters ?tf]
-                          [$ws ?tf :table-filter/group-variable-uuid ?uuid]
-                          [$ws ?tf :table-filter/min ?min]
-                          [$ws ?tf :table-filter/max ?max]
-                          [$ws ?tf :table-filter/enabled? ?enabled]]
-                        @@vms-conn @@s/conn rules ws-uuid))]
-     (doall (map (fn [[parent-gv directional-gvs]]
-                   (let [mins     (map #(nth % 2) directional-gvs)
-                         maxs     (map #(nth % 3) directional-gvs)
-                         enabled? (map #(nth % 4) directional-gvs)]
-                     [parent-gv (apply min mins) (apply max maxs) (every? true? enabled?)]))
-                 parent-gv->directional-gvs)))))
 
 (rp/reg-sub
  :worksheet/table-settings-filters
