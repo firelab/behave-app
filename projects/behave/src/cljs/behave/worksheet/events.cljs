@@ -1,15 +1,15 @@
 (ns behave.worksheet.events
-  (:require [re-frame.core                 :as rf]
-            [re-posh.core                  :as rp]
-            [datascript.core               :as d]
-            [behave.components.toolbar     :refer [step-priority]]
+  (:require [behave.components.toolbar     :refer [step-priority]]
             [behave.importer               :refer [import-worksheet]]
             [behave.logger                 :refer [log]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [number-utils.core             :refer [to-precision]]
             [behave.wizard.subs            :refer [all-conditionals-pass?]]
-            [clojure.string                :as str]))
+            [clojure.string                :as str]
+            [datascript.core               :as d]
+            [number-utils.core             :refer [to-precision]]
+            [re-frame.core                 :as rf]
+            [re-posh.core                  :as rp]
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers
 
@@ -92,7 +92,7 @@
 (rp/reg-event-fx
  :worksheet/new
  (fn [_ [_ {:keys [uuid name modules version]}]]
-   (let [tx (cond-> {:worksheet/uuid (or uuid (str (d/squuid)))
+   (let [tx (cond-> {:worksheet/uuid    (or uuid (str (d/squuid)))
                      :worksheet/modules modules
                      :worksheet/created (.now js/Date)}
               version
@@ -591,8 +591,12 @@
 
 (rp/reg-event-fx
  :worksheet/update-graph-settings-attr
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid attr value]]
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid attr]] [:worksheet/graph-settings-axis-group-variable-uuid ws-uuid attr]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid _ value]] [:worksheet/graph-settings-axis-attr-set ws-uuid value]))]
+ (fn [{ds               :ds
+       original-gv-uuid :worksheet/graph-settings-axis-group-variable-uuid
+       attr-to-swap     :worksheet/graph-settings-axis-attr} [_ ws-uuid attr value]]
    (when-let [g (first (d/q '[:find [?g]
                               :in $ ?uuid
                               :where
@@ -600,7 +604,10 @@
                               [?w :worksheet/graph-settings ?g]]
                             ds
                             ws-uuid))]
-     {:transact [(assoc {:db/id g} attr value)]})))
+     (if attr-to-swap
+       {:transact [(assoc {:db/id g} attr value)
+                   (assoc {:db/id g} attr-to-swap original-gv-uuid)]}
+       {:transact [(assoc {:db/id g} attr value)]}))))
 
 ;;Notes
 
@@ -614,12 +621,12 @@
                     submodule-io
                     {:keys [title body] :as _payload}]]
    (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
-     {:transact [(cond-> {:db/id -1
+     {:transact [(cond-> {:db/id            -1
                           :worksheet/_notes ws-id
-                          :note/name (if (empty? title)
-                                       (str submodule-name " " submodule-io)
-                                       title)
-                          :note/content body}
+                          :note/name        (if (empty? title)
+                                              (str submodule-name " " submodule-io)
+                                              title)
+                          :note/content     body}
                    submodule-uuid (assoc :note/submodule submodule-uuid))]})))
 
 (rp/reg-event-fx
@@ -698,25 +705,25 @@
                     fire-head-at-attack
                     contain-status
                     units-uuid]]
-   {:transact [(cond-> {:worksheet/_diagrams [:worksheet/uuid ws-uuid]
-                        :worksheet.diagram/title title
+   {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                        :worksheet.diagram/title               title
                         :worksheet.diagram/group-variable-uuid group-variable-uuid
-                        :worksheet.diagram/row-id row-id
-                        :worksheet.diagram/units-uuid units-uuid
-                        :worksheet.diagram/ellipses [(let [l (- fire-head-at-report fire-back-at-report)
-                                                           w (/ l length-to-width-ratio)]
-                                                       {:ellipse/legend-id "Fire Perimeter at Report"
-                                                        :ellipse/semi-major-axis (/ l 2)
-                                                        :ellipse/semi-minor-axis (/ w 2)
-                                                        :ellipse/rotation 90
-                                                        :ellipse/color "blue"})
-                                                     (let [l (- fire-head-at-attack fire-back-at-attack)
-                                                           w (/ l length-to-width-ratio)]
-                                                       {:ellipse/legend-id "Fire Perimeter at Attack"
-                                                        :ellipse/semi-major-axis (/ l 2)
-                                                        :ellipse/semi-minor-axis (/ w 2)
-                                                        :ellipse/rotation 90
-                                                        :ellipse/color "red"})]}
+                        :worksheet.diagram/row-id              row-id
+                        :worksheet.diagram/units-uuid          units-uuid
+                        :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "Fire Perimeter at Report"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "blue"})
+                                                                (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "Fire Perimeter at Attack"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "red"})]}
                  (= contain-status 3)
                  (assoc :worksheet.diagram/scatter-plots [{:scatter-plot/legend-id     "Fireline Constructed"
                                                            :scatter-plot/color         "black"
@@ -816,24 +823,24 @@
                   :worksheet.diagram/row-id              row-id
                   :worksheet.diagram/units-uuid          units-uuid
                   :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "MaxSpread"
-                                                                   :arrow/length max-spread-rate
-                                                                   :arrow/rotation max-spread-dir
-                                                                   :arrow/color "red"}
+                                                                   :arrow/length    max-spread-rate
+                                                                   :arrow/rotation  max-spread-dir
+                                                                   :arrow/color     "red"}
 
                                                                   {:arrow/legend-id "Flanking1"
-                                                                   :arrow/length flanking-spread-rate
-                                                                   :arrow/rotation flanking-dir
-                                                                   :arrow/color "#81c3cb"}
+                                                                   :arrow/length    flanking-spread-rate
+                                                                   :arrow/rotation  flanking-dir
+                                                                   :arrow/color     "#81c3cb"}
 
                                                                   {:arrow/legend-id "Flanking2"
-                                                                   :arrow/length flanking-spread-rate
-                                                                   :arrow/rotation (mod (+ flanking-dir 180) 360)
-                                                                   :arrow/color "#347da0"}
+                                                                   :arrow/length    flanking-spread-rate
+                                                                   :arrow/rotation  (mod (+ flanking-dir 180) 360)
+                                                                   :arrow/color     "#347da0"}
 
                                                                   {:arrow/legend-id "Backing"
-                                                                   :arrow/length backing-spread-rate
-                                                                   :arrow/rotation backing-dir
-                                                                   :arrow/color "orange"}
+                                                                   :arrow/length    backing-spread-rate
+                                                                   :arrow/rotation  backing-dir
+                                                                   :arrow/color     "orange"}
 
                                                                   (let [l (min max-spread-rate wind-speed)]
                                                                     {:arrow/legend-id "Wind"
@@ -841,12 +848,12 @@
                                                                      ;; make wind 10% larger than
                                                                      ;; max spread rate.
                                                                      ;; :arrow/length   wind-speed
-                                                                     :arrow/length (if (> wind-speed max-spread-rate)
-                                                                                     (* l 1.1)
-                                                                                     l)
-                                                                     :arrow/rotation wind-dir
-                                                                     :arrow/color "blue"
-                                                                     :arrow/dashed? true})]
+                                                                     :arrow/length    (if (> wind-speed max-spread-rate)
+                                                                                        (* l 1.1)
+                                                                                        l)
+                                                                     :arrow/rotation  wind-dir
+                                                                     :arrow/color     "blue"
+                                                                     :arrow/dashed?   true})]
 
                                                            has-direction-of-interest?
                                                            (conj {:arrow/legend-id "Interest"
