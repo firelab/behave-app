@@ -1,11 +1,11 @@
 (ns schema-migrate.core
   (:require
-   [clojure.walk       :as walk]
-   [clojure.string     :as s]
-   [datascript.core    :refer [squuid]]
-   [datomic.api        :as d]
-   [datomic-store.main :as ds]
    [clojure.spec.alpha :as spec]
+   [clojure.string     :as s]
+   [clojure.walk       :as walk]
+   [datascript.core    :refer [squuid]]
+   [datomic-store.main :as ds]
+   [datomic.api        :as d]
    [nano-id.core       :refer [nano-id]]))
 
 (def
@@ -185,6 +185,11 @@
   [conn t]
   (:db/id (t-key->entity conn t)))
 
+(defn t-key->bp-uuid
+  "Get the db/id using translation-key"
+  [conn t]
+  (:bp/uuid (t-key->entity conn t)))
+
 (defn t-key-action-name->eid
   "Given a translation-key of a group-variable an action's name return the action's entity id"
   [conn gv-t-key action-name]
@@ -344,7 +349,7 @@
 
 (defn ->conditional
   "Payload for a Conditional."
-  [_conn {:keys [ttype operator values group-variable-uuid] :as params}]
+  [conn {:keys [ttype operator values group-variable-uuid sub-conditional-operator sub-conditionals] :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
@@ -354,14 +359,16 @@
                   group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
                   ttype                    (assoc :conditional/type ttype)
                   operator                 (assoc :conditional/operator operator)
-                  values                   (assoc :conditional/values values))]
+                  values                   (assoc :conditional/values values)
+                  sub-conditional-operator (assoc :conditional/sub-conditional-operator sub-conditional-operator)
+                  (seq sub-conditionals)   (assoc :conditional/sub-conditionals (map #(->conditional conn %) sub-conditionals)))]
     (if (spec/valid? :behave/conditional payload)
       payload
       (spec/explain :behave/conditional payload))))
 
 (defn ->action
   "Payload for an Action."
-  [conn {:keys [nname ttype target-value conditionals] :as params}]
+  [conn {:keys [nname ttype target-value conditionals conditionals-operator] :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
@@ -371,6 +378,7 @@
                   nname                    (assoc :action/name nname)
                   ttype                    (assoc :action/type ttype)
                   target-value             (assoc :action/target-value target-value)
+                  conditionals-operator (assoc :action/conditionals-operator conditionals-operator)
                   conditionals             (assoc :action/conditionals (map #(->conditional conn %) conditionals)))]
     (if (spec/valid? :behave/action payload)
       payload
@@ -378,7 +386,7 @@
 
 (defn ->variable
   [_conn {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?
-                 dimension-uuid native-unit-uuid metric-unit-uuid english-unit-uuid] :as params}]
+                 dimension-uuid native-unit-uuid metric-unit-uuid english-unit-uuid]                                :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
@@ -406,7 +414,7 @@
   "Payload for a new Group Variable."
   [conn {:keys
          [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key conditionally-set? actions
-          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator] :as params}]
+          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator]     :as params}]
   (let [payload (if (spec/valid? :behave/group-variable params)
                   params
                   (cond-> {}
