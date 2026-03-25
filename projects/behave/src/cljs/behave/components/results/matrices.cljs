@@ -27,9 +27,10 @@
     {:units        (:map-units-settings/units entity)
      :rep-fraction (:map-units-settings/map-rep-fraction entity)}))
 
-(defn- format-matrix-cell [value formatter shaded?]
+(defn- format-matrix-cell [value formatter shaded? in-range?]
   [:div {:class (cond-> ["result-matrix-cell-value"]
-                  shaded? (conj "table-cell__shaded"))}
+                  shaded?   (conj "table-cell__shaded")
+                  in-range? (conj "table-cell__in-range"))}
    (if (neg? value)
      "-"
      (formatter value))])
@@ -88,7 +89,7 @@
    (fn [acc [row col] value]
      (let [shaded? (contains? shade-set [row col])]
        (assoc acc [(row-fmt-fn row) (col-fmt-fn col)]
-              (format-matrix-cell value output-fmt-fn shaded?))))
+              (format-matrix-cell value output-fmt-fn shaded? (not shaded?)))))
    {}
    matrix-data-raw))
 
@@ -99,7 +100,7 @@
      (let [shaded?         (contains? shade-set [row col])
            converted-value (convert-to-map-units value output-units map-units map-rep-frac)]
        (assoc acc [(row-fmt-fn row) (col-fmt-fn col)]
-              (format-matrix-cell converted-value output-fmt-fn shaded?))))
+              (format-matrix-cell converted-value output-fmt-fn shaded? (not shaded?)))))
    {}
    matrix-data-raw))
 
@@ -174,10 +175,11 @@
                                                 #{}
                                                 matrix-data-raw)
         matrix-data-formatted        (reduce-kv (fn [acc [row col-uuid] v]
-                                                  (let [fmt-fn  (get formatters col-uuid identity)
-                                                        shaded? (contains? rows-to-shade-set row)]
+                                                  (let [fmt-fn    (get formatters col-uuid identity)
+                                                        shaded?   (contains? rows-to-shade-set row)
+                                                        in-range? (not shaded?)]
                                                     (assoc acc [(input-fmt-fn row) col-uuid]
-                                                           (format-matrix-cell v fmt-fn shaded?))))
+                                                           (format-matrix-cell v fmt-fn shaded? in-range?))))
                                                 {}
                                                 matrix-data-raw)
         {:keys [units rep-fraction]} (fetch-map-units-settings ws-uuid)
@@ -197,14 +199,15 @@
         row-headers                  (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
         final-data                   (reduce (fn insert-map-units-values [acc [[row col] value]]
                                                (let [fmt-fn  (get formatters col identity)
-                                                     shaded? (contains? rows-to-shade-set col)]
+                                                     shaded? (contains? rows-to-shade-set row)]
                                                  (cond-> acc
                                                    (process-map-units? col)
                                                    (assoc [(input-fmt-fn row) (map-units-column-key col)]
                                                           (format-matrix-cell
                                                            (convert-to-map-units value (get units-lookup col) units rep-fraction)
                                                            fmt-fn
-                                                           shaded?)))))
+                                                           shaded?
+                                                           (not shaded?))))))
                                              matrix-data-formatted
                                              matrix-data-raw)]
     [:div.print__result-table
