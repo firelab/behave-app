@@ -593,7 +593,7 @@
  :worksheet/update-graph-settings-attr
  [(rp/inject-cofx :ds)
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid attr]] [:worksheet/graph-settings-axis-group-variable-uuid ws-uuid attr]))
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid _ value]] [:worksheet/graph-settings-axis-attr-set ws-uuid value]))]
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid _ value]] [:worksheet/graph-settings-axis-attr ws-uuid value]))]
  (fn [{ds               :ds
        original-gv-uuid :worksheet/graph-settings-axis-group-variable-uuid
        attr-to-swap     :worksheet/graph-settings-axis-attr} [_ ws-uuid attr value]]
