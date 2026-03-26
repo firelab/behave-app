@@ -1,4 +1,4 @@
-(ns migrations.2025-07-25-spot-torching-trees-action
+(ns ^{:migrate/ignore? true} migrations.2025-07-25-spot-torching-trees-action
   (:require
    [schema-migrate.interface :as sm]
    [datomic.api              :as d]
