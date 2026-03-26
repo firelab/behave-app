@@ -314,7 +314,7 @@
                     [:div.edge]
                     [dropdown
                      {:selected  "and"
-                      :disabled? false
+                      :disabled? true
                       :options   [{:value "and" :label "AND"}]}]
                     [:div.edge]])
                  [:div {:class ["conditionals-graph__node__group"
