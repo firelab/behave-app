@@ -1,4 +1,4 @@
-(ns migrations.2024-07-16-torching-trees-conditionals)
+(ns ^{:migrate/ignore? true} migrations.2024-07-16-torching-trees-conditionals)
 
 ;; Removes the following Submodules if only Spot Outputs are selected
 ;; in Surface + Crown 

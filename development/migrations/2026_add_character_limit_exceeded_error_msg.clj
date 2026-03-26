@@ -1,4 +1,4 @@
-(ns migrations.2026-add-character-limit-exceeded-error-msg
+(ns ^{:migrate/ignore? true} migrations.2026-add-character-limit-exceeded-error-msg
   (:require [schema-migrate.interface :as sm]
             [datomic.api              :as d]
             [behave-cms.store         :refer [default-conn]]

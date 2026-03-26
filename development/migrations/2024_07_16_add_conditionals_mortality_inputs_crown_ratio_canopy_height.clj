@@ -1,4 +1,4 @@
-(ns migrations.2024-07-16-add-conditionals-mortality-inputs-crown-ratio-canopy-height
+(ns ^{:migrate/ignore? true} migrations.2024-07-16-add-conditionals-mortality-inputs-crown-ratio-canopy-height
   (:require
    [schema-migrate.interface :as sm]
    [datomic.api :as d]

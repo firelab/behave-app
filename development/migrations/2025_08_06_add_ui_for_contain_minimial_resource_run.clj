@@ -1,4 +1,4 @@
-(ns migrations.2025-08-06-add-ui-for-contain-minimial-resource-run
+(ns ^{:migrate/ignore? true} migrations.2025-08-06-add-ui-for-contain-minimial-resource-run
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [datascript.core    :refer [squuid]]

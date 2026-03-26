@@ -1,4 +1,4 @@
-(ns migrations.2024-11-25-add-tags-to-surface-fuel-model-list-options
+(ns ^{:migrate/ignore? true} migrations.2024-11-25-add-tags-to-surface-fuel-model-list-options
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

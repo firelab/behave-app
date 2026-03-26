@@ -1,5 +1,6 @@
 (ns schema-migrate.interface
-  (:require [schema-migrate.core :as c]))
+  (:require [schema-migrate.core   :as c]
+            [schema-migrate.runner :as r]))
 
 (def ^{:arglists '([conn attr nname])
        :doc      "Get the :bp/uuid using the name for the specified name attribute"}
@@ -137,3 +138,9 @@
 (def ^{:arglists '([s])
        :doc      "add behaveplus: to `s`"}
   bp c/bp)
+
+(def ^{:arglists '([conn dir])
+       :doc      "Run all pending migrations found in `dir`. Skips namespaces
+                  with `^{:migrate/ignore? true}` metadata and migrations
+                  already recorded via `:bp/migration-id`. Halts on failure."}
+  run-pending-migrations! r/run-pending-migrations!)

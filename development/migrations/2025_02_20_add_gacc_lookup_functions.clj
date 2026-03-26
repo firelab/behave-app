@@ -1,4 +1,4 @@
-(ns migrations.2025-02-20-add-gacc-lookup-functions
+(ns ^{:migrate/ignore? true} migrations.2025-02-20-add-gacc-lookup-functions
   (:require [behave-cms.store :refer [default-conn]]
             [behave-cms.server :as cms]
             [cms-import :refer [add-export-file-to-conn]]))

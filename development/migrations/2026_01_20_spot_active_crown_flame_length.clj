@@ -1,4 +1,4 @@
-(ns migrations.2026-01-20-spot-active-crown-flame-length
+(ns ^{:migrate/ignore? true} migrations.2026-01-20-spot-active-crown-flame-length
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

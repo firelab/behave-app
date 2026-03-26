@@ -1,4 +1,4 @@
-(ns migrations.2025-10-01-update-ssd-colors
+(ns ^{:migrate/ignore? true} migrations.2025-10-01-update-ssd-colors
   (:require [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
             [behave-cms.server :as cms]))

@@ -1,4 +1,4 @@
-(ns migrations.2024-11-05-fix-min-max
+(ns ^{:migrate/ignore? true} migrations.2024-11-05-fix-min-max
   (:require [schema-migrate.interface :as sm]
             [clojure.string :as str]
             [datomic.api :as d]

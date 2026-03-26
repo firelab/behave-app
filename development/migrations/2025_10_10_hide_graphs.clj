@@ -1,4 +1,4 @@
-(ns migrations.2025-10-10-hide-graphs
+(ns ^{:migrate/ignore? true} migrations.2025-10-10-hide-graphs
   (:require [schema-migrate.interface :refer [bp] :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

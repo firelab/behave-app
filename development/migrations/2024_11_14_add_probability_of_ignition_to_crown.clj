@@ -1,4 +1,4 @@
-(ns migrations.2024-11-14-add-probability-of-ignition-to-crown
+(ns ^{:migrate/ignore? true} migrations.2024-11-14-add-probability-of-ignition-to-crown
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

@@ -1,4 +1,4 @@
-(ns migrations.2025-02-20-add-gacc-tags-to-mortality-tree-species
+(ns ^{:migrate/ignore? true} migrations.2025-02-20-add-gacc-tags-to-mortality-tree-species
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

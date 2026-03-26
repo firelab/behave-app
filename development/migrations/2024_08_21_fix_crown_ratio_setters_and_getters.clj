@@ -1,4 +1,4 @@
-(ns migrations.2024-08-21-fix-crown-ratio-setters-and-getters
+(ns ^{:migrate/ignore? true} migrations.2024-08-21-fix-crown-ratio-setters-and-getters
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

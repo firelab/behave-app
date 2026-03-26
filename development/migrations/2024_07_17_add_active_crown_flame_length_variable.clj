@@ -1,4 +1,4 @@
-(ns migrations.2024-07-17-add-active-crown-flame-length-variable)
+(ns ^{:migrate/ignore? true} migrations.2024-07-17-add-active-crown-flame-length-variable)
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (do

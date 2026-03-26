@@ -1,4 +1,4 @@
-(ns migrations.2025-09-23-refactor-disabled-multi-valued-input-attr
+(ns ^{:migrate/ignore? true} migrations.2025-09-23-refactor-disabled-multi-valued-input-attr
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave.schema.core :refer [rules]]

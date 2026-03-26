@@ -1,4 +1,4 @@
-(ns migrations.2025-06-23-disable-surface-wind-directions-in-csv
+(ns ^{:migrate/ignore? true} migrations.2025-06-23-disable-surface-wind-directions-in-csv
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

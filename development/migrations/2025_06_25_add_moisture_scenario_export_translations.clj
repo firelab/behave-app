@@ -1,4 +1,4 @@
-(ns migrations.2025-06-25-add-moisture-scenario-export-translations
+(ns ^{:migrate/ignore? true} migrations.2025-06-25-add-moisture-scenario-export-translations
   (:require [clojure.string :as str]
             [schema-migrate.interface :as sm]
             [datomic.api :as d]

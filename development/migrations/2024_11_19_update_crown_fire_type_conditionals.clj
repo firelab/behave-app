@@ -1,4 +1,4 @@
-(ns migrations.2024-11-19-update-crown-fire-type-conditionals
+(ns ^{:migrate/ignore? true} migrations.2024-11-19-update-crown-fire-type-conditionals
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

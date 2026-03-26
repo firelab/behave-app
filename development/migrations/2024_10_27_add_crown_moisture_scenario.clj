@@ -1,4 +1,4 @@
-(ns migrations.2024-10-27-add-crown-moisture-scenario
+(ns ^{:migrate/ignore? true} migrations.2024-10-27-add-crown-moisture-scenario
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

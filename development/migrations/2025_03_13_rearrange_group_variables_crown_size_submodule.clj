@@ -1,4 +1,4 @@
-(ns migrations.2025-03-13-rearrange-group-variables-crown-size-submodule
+(ns ^{:migrate/ignore? true} migrations.2025-03-13-rearrange-group-variables-crown-size-submodule
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

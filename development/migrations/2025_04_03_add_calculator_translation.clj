@@ -1,4 +1,4 @@
-(ns migrations.2025-04-03-add-calculator-translation
+(ns ^{:migrate/ignore? true} migrations.2025-04-03-add-calculator-translation
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

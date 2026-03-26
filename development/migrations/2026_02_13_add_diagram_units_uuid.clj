@@ -1,4 +1,4 @@
-(ns migrations.2026-02-13-add-diagram-units-uuid
+(ns ^{:migrate/ignore? true} migrations.2026-02-13-add-diagram-units-uuid
   (:require [schema-migrate.interface :as sm]
             [datomic.api              :as d]
             [behave-cms.store         :refer [default-conn]]

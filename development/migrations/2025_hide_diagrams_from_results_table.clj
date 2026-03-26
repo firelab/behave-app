@@ -1,4 +1,4 @@
-(ns migrations.2025-hide-diagrams-from-results-table
+(ns ^{:migrate/ignore? true} migrations.2025-hide-diagrams-from-results-table
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

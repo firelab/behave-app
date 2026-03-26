@@ -1,4 +1,4 @@
-(ns migrations.2025-06-23-adjust-wind-speed-inputs
+(ns ^{:migrate/ignore? true} migrations.2025-06-23-adjust-wind-speed-inputs
   (:require [schema-migrate.interface :as sm]
             [string-utils.interface :refer [->snake]]
             [datomic.api :as d]

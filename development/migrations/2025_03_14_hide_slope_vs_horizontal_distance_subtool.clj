@@ -1,4 +1,4 @@
-(ns migrations.2025-03-14-hide-slope-vs-horizontal-distance-subtool
+(ns ^{:migrate/ignore? true} migrations.2025-03-14-hide-slope-vs-horizontal-distance-subtool
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

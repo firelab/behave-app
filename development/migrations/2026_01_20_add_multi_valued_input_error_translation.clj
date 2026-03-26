@@ -1,4 +1,4 @@
-(ns migrations.2026-01-20-add-multi-valued-input-error-translation
+(ns ^{:migrate/ignore? true} migrations.2026-01-20-add-multi-valued-input-error-translation
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

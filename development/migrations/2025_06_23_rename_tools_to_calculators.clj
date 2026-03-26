@@ -1,4 +1,4 @@
-(ns migrations.2025-06-23-rename-tools-to-calculators
+(ns ^{:migrate/ignore? true} migrations.2025-06-23-rename-tools-to-calculators
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

@@ -1,4 +1,4 @@
-(ns migrations.2025-08-03-add-relative-humidity-tool
+(ns ^{:migrate/ignore? true} migrations.2025-08-03-add-relative-humidity-tool
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

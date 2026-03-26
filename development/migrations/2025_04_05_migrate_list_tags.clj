@@ -1,4 +1,4 @@
-(ns migrations.2025-04-05-migrate-list-tags
+(ns ^{:migrate/ignore? true} migrations.2025-04-05-migrate-list-tags
   (:require [schema-migrate.interface :as sm]
             [string-utils.interface :refer [->str ->kebab]]
             [datomic.api :as d]

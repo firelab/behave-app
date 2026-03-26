@@ -1,4 +1,4 @@
-(ns migrations.2024-07-18-mortality-wind-speed)
+(ns ^{:migrate/ignore? true} migrations.2024-07-18-mortality-wind-speed)
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (do
