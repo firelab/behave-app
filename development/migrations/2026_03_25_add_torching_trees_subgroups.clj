@@ -86,12 +86,6 @@
 (def torching-tree-height-gv-eid
   (sm/t-key->eid conn "behaveplus:crown:input:spotting:torching_trees:torching_tree_height:torching_tree_height"))
 
-;; Translation key prefix
-#_{:clj-kondo/ignore [:missing-docstring]}
-(def base )
-#_{:clj-kondo/ignore [:missing-docstring]}
-(def result-base "behaveplus:crown:result:spotting:torching_trees")
-
 ;; ===========================================================================================================
 ;; Payload
 ;; ===========================================================================================================
@@ -103,12 +97,18 @@
     {:db/id                        -1
      :group/_children              torching-trees-eid
      :group/name                   "Downwind Canopy Fuel"
+     :group/translation-key        "behaveplus:crown:input:spotting:torching_trees:downwind_canopy_fuel"
+     :group/result-translation-key "behaveplus:crown:result:spotting:torching_trees:downwind_canopy_fuel"
+     :group/help-key               "behaveplus:crown:input:spotting:torching_trees:downwind_canopy_fuel:help"
      :group/order                  0})
 
    (sm/postwalk-insert
     {:db/id                        -2
      :group/_children              torching-trees-eid
      :group/name                   "Torching Trees"
+     :group/translation-key        "behaveplus:crown:input:spotting:torching_trees:torching_trees"
+     :group/result-translation-key "behaveplus:crown:result:spotting:torching_trees:torching_trees"
+     :group/help-key               "behaveplus:crown:input:spotting:torching_trees:torching_trees:help"
      :group/order                  1})
 
    ;; 2. Move existing groups as children of Downwind Canopy Fuel and update keys
