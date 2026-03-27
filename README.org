@@ -268,6 +268,72 @@ Then visit [[http://localhost:8000/browse][localhost:8000/browse]]
 bb restore --file <datomic-2024-##-##.dump>
 #+end_src
 
+* Development
+
+** Polylith CLI
+
+The Polylith CLI is available via the =:poly= alias. Run it with:
+
+#+begin_src sh
+clojure -M:poly <command>
+#+end_src
+
+Common commands:
+
+#+begin_src sh
+# Show workspace overview
+clojure -M:poly info
+
+# Show which bricks have changed since last stable point
+clojure -M:poly diff
+
+# Check for dependency issues and circular references
+clojure -M:poly check
+
+# List all libraries and their versions
+clojure -M:poly libs
+
+# Show dependencies between bricks
+clojure -M:poly deps
+#+end_src
+
+See the [[https://cljdoc.org/d/polylith/clj-poly/CURRENT/doc/commands][Polylith documentation]] for the full list of commands.
+
+** Testing
+
+*** Run all tests
+
+#+begin_src sh
+bb test
+#+end_src
+
+This runs =cognitect.test-runner= with the =:dev:test= aliases, which includes
+test paths for all components and bases.
+
+*** Run tests for a single component
+
+#+begin_src sh
+bb test-component schema_migrate
+#+end_src
+
+*** Run tests directly with Clojure CLI
+
+#+begin_src sh
+# All tests
+clojure -M:dev:test -m cognitect.test-runner
+
+# Specific test directory
+clojure -M:dev:test -m cognitect.test-runner -d components/schema_migrate/test
+#+end_src
+
+** Migrations
+
+Migrations live in =development/migrations/=. See the [[file:development/migrations/README.org][Migrations README]] for
+details on how to create and run migrations.
+
+Migrations are automatically applied at startup. Old migrations are marked with
+=^{:migrate/ignore? true}= on their namespace and are skipped by the runner.
+
 * Behave-Lib
 
 The "behave-lib" directory includes the build process for generating a WASM file using c++ code from
