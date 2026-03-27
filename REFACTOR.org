@@ -1,0 +1,268 @@
+#+TITLE: Namespace Refactor: Add =firelab.= Top-Level Prefix
+#+AUTHOR: SIG
+#+OPTIONS: toc:2
+
+* Motivation
+
+=clj -M:poly info= warns about "Non top namespace" for every brick because
+Polylith can't determine namespace ownership without a shared top-level
+namespace. Prefixing all namespaces with =firelab.= gives the workspace a
+proper top namespace and resolves all Warning 205s.
+
+Example: =config.interface= becomes =firelab.config.interface=
+
+* Scope
+
+| Category                         | Count  |
+|----------------------------------+--------|
+| Source files (.clj/.cljc/.cljs)  | ~1,750 |
+| Unique namespace prefixes        |   ~245 |
+| =:require= cross-references     |    ~35 |
+| =deps.edn= files                |    ~41 |
+| CLJS config files                |      3 |
+| =gen-class= instances           |      5 |
+| =requiring-resolve= instances   |      3 |
+
+* Steps
+
+** 1. Update =workspace.edn=
+
+Set =:top-namespace "firelab"=.
+
+** 2. Restructure Source Directories
+
+For each component, base, and project, create a =firelab/= parent directory
+under =src/= and =test/= and move the existing namespace directories into it.
+
+*Before*: =components/config/src/config/interface.clj=
+*After*: =components/config/src/firelab/config/interface.clj=
+
+#+begin_src sh
+# Components
+for dir in components/*/src; do
+  mkdir -p "$dir/firelab"
+  for ns in $dir/*/; do
+    [ "$(basename $ns)" = "firelab" ] && continue
+    mv "$ns" "$dir/firelab/"
+  done
+done
+
+for dir in components/*/test; do
+  [ -d "$dir" ] || continue
+  mkdir -p "$dir/firelab"
+  for ns in $dir/*/; do
+    [ "$(basename $ns)" = "firelab" ] && continue
+    mv "$ns" "$dir/firelab/"
+  done
+done
+
+# Bases
+for dir in bases/*/src bases/*/test; do
+  [ -d "$dir" ] || continue
+  mkdir -p "$dir/firelab"
+  for ns in $dir/*/; do
+    [ "$(basename $ns)" = "firelab" ] && continue
+    mv "$ns" "$dir/firelab/"
+  done
+done
+
+# Projects (CLJ and CLJS)
+for dir in projects/*/src/clj projects/*/src/cljs projects/*/test/cljs; do
+  [ -d "$dir" ] || continue
+  mkdir -p "$dir/firelab"
+  for ns in $dir/*/; do
+    [ "$(basename $ns)" = "firelab" ] && continue
+    mv "$ns" "$dir/firelab/"
+  done
+done
+
+# Development
+mkdir -p development/firelab
+for f in development/*.clj development/*.cljs; do
+  [ -f "$f" ] && mv "$f" development/firelab/
+done
+#+end_src
+
+** 3. Update All Namespace Declarations
+
+Prefix every =(ns ...)= form with =firelab.=.
+
+#+begin_src sh
+# Standard ns forms
+find components bases projects development \
+  \( -name '*.clj' -o -name '*.cljc' -o -name '*.cljs' \) | \
+  xargs sed -i '' 's/(ns \([a-z]\)/(ns firelab.\1/g'
+
+# Metadata-annotated ns forms (e.g., ^{:migrate/ignore? true})
+find components bases projects development \
+  \( -name '*.clj' -o -name '*.cljc' -o -name '*.cljs' \) | \
+  xargs sed -i '' \
+  's/(ns \^{:migrate\/ignore? true} \([a-z]\)/(ns ^{:migrate\/ignore? true} firelab.\1/g'
+#+end_src
+
+** 4. Update =:require= References
+
+Only internal namespaces should be prefixed. External library namespaces
+(=clojure.string=, =datomic.api=, =re-frame.core=, etc.) must NOT be changed.
+
+Build a list of all internal namespace prefixes:
+
+#+begin_src sh
+INTERNAL_PREFIXES=(
+  # Components
+  async-utils browser-utils config csv-parser cucumber
+  data-utils datascript-browser date-utils datom-compressor
+  datom-utils dita dom-utils ds-schema-utils file-utils
+  jcef logging map-utils markdown2hiccup number-utils
+  schema-migrate server storage string-utils transport
+  absurder-sql
+
+  # Bases
+  behave-schema behave-routing behave-components behave-docs
+  datomic-store datahike-store datom-store
+
+  # Projects
+  behave behave-cms
+
+  # Sub-namespaces (dotted)
+  behave.client behave.components behave.schema behave.stories
+  behave.wizard behave.worksheet behave.help behave.print
+  behave.store behave.server behave.subs behave.events
+  behave.db behave.views behave.utils
+
+  # Development
+  cms-import user migrations
+)
+
+for prefix in "${INTERNAL_PREFIXES[@]}"; do
+  escaped=$(echo "$prefix" | sed 's/\./\\./g')
+  find components bases projects development \
+    \( -name '*.clj' -o -name '*.cljc' -o -name '*.cljs' \) | \
+    xargs sed -i '' "s/\[${escaped}\./[firelab.${escaped}./g"
+  # Also handle quoted symbols (e.g., 'some.ns/fn)
+  find components bases projects development \
+    \( -name '*.clj' -o -name '*.cljc' -o -name '*.cljs' \) | \
+    xargs sed -i '' "s/'${escaped}\./'firelab.${escaped}./g"
+done
+#+end_src
+
+** 5. Update Config Files
+
+*** =shadow-cljs.edn=
+
+Update all =:entries=, =:init-fn=, =:main=, and =:modules= namespace references.
+
+#+begin_src sh
+# bases/behave_components/shadow-cljs.edn
+sed -i '' 's/behave\.\(stories\|components\)/firelab.behave.\1/g' \
+  bases/behave_components/shadow-cljs.edn
+
+# components/absurder_sql/shadow-cljs.edn (if it exists)
+find . -name 'shadow-cljs.edn' -exec \
+  sed -i '' 's/absurder-sql\./firelab.absurder-sql./g' {} \;
+#+end_src
+
+*** CLJS Build Configs (=.cljs.edn= files)
+
+#+begin_src sh
+find projects -name '*.cljs.edn' -exec \
+  sed -i '' 's/"behave\./"firelab.behave./g; s/"behave-cms\./"firelab.behave-cms./g' {} \;
+#+end_src
+
+*** =bb.edn= Files
+
+#+begin_src sh
+find . -name 'bb.edn' -exec \
+  sed -i '' 's/behave-cms\.server/firelab.behave-cms.server/g' {} \;
+#+end_src
+
+** 6. Verify
+
+#+begin_src sh
+# 1. No old namespace references should remain in source files
+grep -rn '(ns [a-z]' components/ bases/ --include='*.clj*' | \
+  grep -v firelab | grep -v '^Binary'
+
+# 2. Polylith should show no Warning 205
+clj -M:poly info
+
+# 3. Polylith check should pass
+clj -M:poly check
+
+# 4. Tests should pass
+clj -M:poly test
+
+# 5. CLJS compilation should succeed
+# (run shadow-cljs watch or compile for relevant builds)
+#+end_src
+
+* Internal Namespace Prefixes Reference
+
+These are all the first-segment namespace prefixes that are internal to this
+project and should be prefixed with =firelab.=:
+
+** Components
+
+| Directory            | Namespace prefix        |
+|----------------------+-------------------------|
+| =async_utils=        | =async-utils=           |
+| =browser_utils=      | =browser-utils=         |
+| =config=             | =config=                |
+| =csv_parser=         | =csv-parser=            |
+| =cucumber=           | =cucumber=              |
+| =data_utils=         | =data-utils=            |
+| =datascript_browser= | =datascript-browser=    |
+| =date_utils=         | =date-utils=            |
+| =datom_compressor=   | =datom-compressor=      |
+| =datom_utils=        | =datom-utils=           |
+| =dita=               | =dita=                  |
+| =dom_utils=          | =dom-utils=             |
+| =ds_schema_utils=    | =ds-schema-utils=       |
+| =file_utils=         | =file-utils=            |
+| =jcef=               | =jcef=                  |
+| =logging=            | =logging=               |
+| =map_utils=          | =map-utils=             |
+| =markdown2hiccup=    | =markdown2hiccup=       |
+| =number_utils=       | =number-utils=          |
+| =schema_migrate=     | =schema-migrate=        |
+| =server=             | =server=                |
+| =storage=            | =storage=               |
+| =string_utils=       | =string-utils=          |
+| =transport=          | =transport=             |
+| =absurder_sql=       | =absurder-sql=          |
+
+** Bases
+
+| Directory             | Namespace prefix      |
+|-----------------------+-----------------------|
+| =behave_components=   | =behave-components=   |
+| =behave_routing=      | =behave-routing=      |
+| =behave_schema=       | =behave-schema=       |
+| =behave-docs=         | =behave-docs=         |
+| =datahike_store=      | =datahike-store=      |
+| =datom_store=         | =datom-store=         |
+| =datomic_store=       | =datomic-store=       |
+
+** Projects
+
+| Directory      | Namespace prefixes                          |
+|----------------+---------------------------------------------|
+| =behave=       | =behave.*=                                  |
+| =behave_cms=   | =behave-cms.*=                              |
+
+** Development
+
+| Namespace prefix | Notes                         |
+|------------------+-------------------------------|
+| =user=           | REPL entry points             |
+| =cms-import=     | CMS import utilities          |
+| =migrations=     | Migration scripts             |
+
+* Risks
+
+1. *shadow-cljs.edn entries*: 70+ namespaces listed — any typo breaks builds
+2. *File system reorganization*: Moving all files into =firelab/= subdirs
+3. *CLJS build entry points*: Must be updated precisely
+4. *Dynamic namespace loading*: 3 instances of =requiring-resolve= use strings
+5. *gen-class*: 5 instances generate Java class names from namespaces
+6. *Git history*: File moves may affect =git blame= (use =git log --follow=)
