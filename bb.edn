@@ -23,6 +23,12 @@
                    (println (format "Done! \n\n Please add \"projects/%s/src\" to the :paths section of your deps.edn file." project)))
 
 
+  ;;; Test
+  test        (shell "clojure" "-M:dev:test" "-m" "cognitect.test-runner")
+  test-component (let [component (first *command-line-args*)]
+                   (shell "clojure" "-M:dev:test" "-m" "cognitect.test-runner"
+                          "-d" (format "components/%s/test" component)))
+
   ;;; Commands
   import-help (do
                 (clojure "-X:dev:import-help")

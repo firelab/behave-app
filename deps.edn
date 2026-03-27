@@ -112,27 +112,39 @@
               "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
               "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
 
-  :test {:extra-paths [;; Components
+  :test {:extra-deps  {io.github.cognitect-labs/test-runner
+                       {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+         :extra-paths [;; Components
+                       "components/async_utils/test"
                        "components/browser_utils/test"
                        "components/csv_parser/test"
                        "components/config/test"
+                       "components/cucumber/test"
                        "components/data_utils/test"
                        "components/date_utils/test"
                        "components/datom_compressor/test"
                        "components/datom_utils/test"
+                       "components/dita/test"
                        "components/dom_utils/test"
                        "components/ds_schema_utils/test"
+                       "components/file_utils/test"
+                       "components/jcef/test"
+                       "components/logging/test"
                        "components/markdown2hiccup/test"
                        "components/map_utils/test"
                        "components/number_utils/test"
+                       "components/schema_migrate/test"
                        "components/server/test"
+                       "components/storage/test"
                        "components/string_utils/test"
                        "components/transport/test"
 
                        ;; Bases
                        "bases/behave_routing/test"
                        "bases/behave_schema/test"
-                       "bases/datom_store/test"]}
+                       "bases/datahike_store/test"
+                       "bases/datom_store/test"
+                       "bases/datomic_store/test"]}
 
   :behave/app
   {:extra-paths
