@@ -1455,6 +1455,10 @@ body {
   text-align: left;
 }
 
+.result-matrix__map-units-table {
+  margin-top: 5px;
+}
+
 .wizard-results__pivot-tables .table {
   margin-bottom: 20px;
 }

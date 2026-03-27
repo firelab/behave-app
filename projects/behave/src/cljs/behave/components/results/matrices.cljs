@@ -223,10 +223,11 @@
                              :column-headers regular-column-headers
                              :data           matrix-data-formatted}))
      (when (seq map-units-column-headers)
-       (c/matrix-table (merge common-matrix-props
-                              {:title          (gstring/format @(<t (bp "s_map_units_(s)")) title units)
-                               :column-headers map-units-column-headers
-                               :data           map-units-data})))]))
+       [:div.result-matrix__map-units-table
+        (c/matrix-table (merge common-matrix-props
+                               {:title          (gstring/format @(<t (bp "s_map_units_(s)")) title units)
+                                :column-headers map-units-column-headers
+                                :data           map-units-data}))])]))
 
 (defmethod construct-result-matrices 2
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters
