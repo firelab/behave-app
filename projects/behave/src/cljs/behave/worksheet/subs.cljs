@@ -1284,14 +1284,15 @@
 (rf/reg-sub
  :worksheet/repeat-groups?
  (fn [_ [_ ws-uuid]]
-   (some pos? (d/q '[:find [?rid ...]
-                     :in  $ ?ws-uuid
-                     :where
-                     [?w :worksheet/uuid ?ws-uuid]
-                     [?w :worksheet/input-groups ?g]
-                     [?g :input-group/group-uuid ?g-uuid]
-                     [?g :input-group/repeat-id ?rid]]
-                   @@s/conn ws-uuid))))
+   (some true? (d/q '[:find [?repeat ...]
+                      :in  $ $vms ?ws-uuid
+                      :where
+                      [$ ?w :worksheet/uuid ?ws-uuid]
+                      [$ ?w :worksheet/input-groups ?g]
+                      [$ ?g :input-group/group-uuid ?g-uuid]
+                      [$vms ?group :bp/uuid ?g-uuid]
+                      [$vms ?group :group/repeat? ?repeat]]
+                    @@s/conn @@vms-conn ws-uuid))))
 
 (rf/reg-sub
  :worksheet/should-keep-input?
