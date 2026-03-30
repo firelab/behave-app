@@ -9,7 +9,9 @@
 ;; ===========================================================================================================
 
 ;; Hide the Wind Adjustment Factor (WAF) input group when only "Max Spotting Distance
-;; from Wind-Driven Surface Fire" is selected (remove it from sub-conditional)
+;; from Wind-Driven Surface Fire" is selected (remove it from sub-conditional).
+;; Also add "Midflame Wind Speed" as a new sub-conditional so that WAF shows
+;; when that output is enabled.
 
 ;; ===========================================================================================================
 ;; Initialize
@@ -26,8 +28,7 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def wind-driven-uuid
-  (:bp/uuid (sm/t-key->entity conn
-              "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire")))
+  (sm/t-key->uuid conn "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire"))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def waf-cond-eid
@@ -46,14 +47,27 @@
        first
        :db/id))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def midflame-uuid
+  (sm/t-key->uuid conn "behaveplus:surface:output:wind-and-fuel:wind:midflame-eye-level-wind-speed"))
+
 ;; ===========================================================================================================
 ;; Payload
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
-  [[:db/retract waf-cond-eid
-    :conditional/sub-conditionals wind-driven-sub-cond-eid]])
+  [;; Remove wind_driven_surface_fire from sub-conditionals
+   [:db/retract waf-cond-eid
+    :conditional/sub-conditionals wind-driven-sub-cond-eid]
+   ;; Add midflame wind speed as a new sub-conditional
+   {:db/id                          waf-cond-eid
+    :conditional/sub-conditionals
+    [(sm/postwalk-insert
+      {:conditional/group-variable-uuid midflame-uuid
+       :conditional/type                :group-variable
+       :conditional/operator            :equal
+       :conditional/values              "true"})]}])
 
 ;; ===========================================================================================================
 ;; Transact Payload
