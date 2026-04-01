@@ -11,7 +11,7 @@
 ;;; Helpers
 
 (defn- clear-editor []
-  (rf/dispatch [:state/set-state :editors {}]))
+  (rf/dispatch [:state/update [:editors :conditional] (fn [] nil)]))
 
 (defn- clear-show-sub-conditional-editor []
   (rf/dispatch [:state/set-state :show-sub-conditional-editor {}]))
@@ -138,8 +138,11 @@
                      (set-field (conj cond-path :conditional/values) nil)
                      (set-field (conj cond-path :conditional/group-variable-uuid)
                                 (u/input-value %)))
-       :options   (map (fn [{value :bp/uuid label :variable/name}]
-                         {:value value :label label}) @variables)}]
+       :options   (map (fn [{value :bp/uuid label :variable/name direction :group-variable/direction}]
+                         {:value value
+                          :label (if direction
+                                   (str label " (" (name direction) ")")
+                                   label)}) @variables)}]
 
      [dropdown
       {:label     "Operator:"
@@ -298,9 +301,13 @@
                     gv-id            @(rf/subscribe [:bp/lookup gv-uuid])
                     [module-id]      @(rf/subscribe [:group-variable/module-submodule-group gv-id])
                     module-name      @(rf/subscribe [:entity-attr module-id :module/name])
+                    direction        @(rf/subscribe [:entity-attr gv-id :group-variable/direction])
                     v-name           (if (= conditional-type :module)
                                        "Module"
-                                       @(rf/subscribe [:gv-uuid->variable-name gv-uuid]))]
+                                       (let [n @(rf/subscribe [:gv-uuid->variable-name gv-uuid])]
+                                         (if direction
+                                           (str n " (" (name direction) ")")
+                                           n)))]
                 [:div.conditionals-graph__node
                  (when (seq sub-conditionals)
                    [:div.conditionals-graph__operator
@@ -351,6 +358,6 @@
                      [conditionals-graph
                       parent-eid
                       conditional-eid
-                      cond-attr
+                      :conditional/sub-conditionals
                       :conditional/sub-conditional-operator]])]]))
             (sort-by :variable/name conditionals)))]]))))
