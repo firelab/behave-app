@@ -1,18 +1,20 @@
 (ns behave-cms.group-variables.views
-  (:require [re-frame.core                                 :as rf]
+  (:require [behave-cms.components.actions                 :refer [actions-table manage-action]]
             [behave-cms.components.common                  :refer [accordion
                                                                    checkbox
                                                                    dropdown
                                                                    simple-table
                                                                    window]]
-            [behave-cms.components.actions                 :refer [actions-table manage-action]]
-            [behave-cms.components.conditionals.views            :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.conditionals.views      :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.cpp-editor              :refer [cpp-editor-form]]
+            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
             [behave-cms.components.sidebar                 :refer [sidebar sidebar-width]]
             [behave-cms.components.translations            :refer [all-translations]]
             [behave-cms.help.views                         :refer [help-editor]]
+            [behave-cms.routes                             :refer [app-routes]]
             [behave-cms.utils                              :as u]
-            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]))
+            [bidi.bidi                                     :refer [path-for]]
+            [re-frame.core                                 :as rf]))
 
 ;;; Constants
 
@@ -94,12 +96,28 @@
 
 ;;; Public Views
 
+(defn- direction-variables-table [gv-id direction-variables]
+  [:div.col-6
+   [simple-table
+    [:variable/name :group-variable/direction]
+    (map (fn [dv]
+           {:db/id                    (:db/id dv)
+            :bp/nid                   (:bp/nid dv)
+            :variable/name            (get-in dv [:variable/_group-variables 0 :variable/name])
+            :group-variable/direction (:group-variable/direction dv)})
+         direction-variables)
+    {:on-select #(rf/dispatch [:navigate (path-for app-routes :get-group-variable :nid (:bp/nid %))])
+     :on-delete #(when (js/confirm "Are you sure you want to remove this direction variable?")
+                   (rf/dispatch [:api/retract-entity-attr-value
+                                 gv-id :group-variable/direction-variables (:db/id %)]))}]])
+
 (defn group-variable-page
   "Renders the group-variable page. Takes in a group-variable UUID."
   [{nid :nid}]
-  (let [group-variable      (rf/subscribe [:entity [:bp/nid nid] '[* {:variable/_group-variables [*]
-                                                                      :group/_group-variables    [*]
-                                                                      :group-variable/actions    [*]}]])
+  (let [group-variable      (rf/subscribe [:entity [:bp/nid nid] '[* {:variable/_group-variables          [*]
+                                                                      :group/_group-variables             [*]
+                                                                      :group-variable/actions             [*]
+                                                                      :group-variable/direction-variables [* {:variable/_group-variables [*]}]}]])
         gv-id               (:db/id @group-variable)
         is-output?          (rf/subscribe [:group-variable/output? gv-id])
         actions             (:group-variable/actions @group-variable)
@@ -107,6 +125,7 @@
         group               (:group/_group-variables @group-variable)
         variable            (get-in @group-variable [:variable/_group-variables 0])
         group-variables     (rf/subscribe [:sidebar/variables (:db/id group)])
+        direction-variables (:group-variable/direction-variables @group-variable)
         link-id             (rf/subscribe [:state :link])
         destination-link-id (-> (rf/subscribe [:entity @link-id])
                                 deref
@@ -160,6 +179,20 @@
             :submodule-filter-fn (let [is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
                                        opposite-io (fn [{io :submodule/io}] (= io (if is-output? :input :output)))]
                                    opposite-io)}]]]]
+
+       [:hr]
+       [accordion
+        "Direction Variables"
+        [:div.col-12
+         [:div.row
+          [direction-variables-table gv-id direction-variables]
+          [group-variable-selector
+           {:app-id     @(rf/subscribe [:group-variable/_app-module-id gv-id])
+            :state-path [:editors :direction-variable-lookup]
+            :title      "Direction Variable"
+            :on-submit  #(rf/dispatch [:api/update-entity
+                                       {:db/id                              gv-id
+                                        :group-variable/direction-variables %}])}]]]]
 
        [:hr]
        [accordion

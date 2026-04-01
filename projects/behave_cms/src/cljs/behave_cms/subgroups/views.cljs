@@ -36,7 +36,7 @@
 (defn- variables-table [group-id]
   (let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
-     [:variable/name]
+     [:variable/name :group-variable/direction :group-variable/conditionally-set?]
      (sort-by :group-variable/order @group-variables)
      {:on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
@@ -93,14 +93,12 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [nid]}]
-  (let [group               (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
-        id                  (:db/id @group)
-        parent-group        (rf/subscribe [:subgroup/parent id])
-        parent-submodule    (:submodule/_groups @group)
-        group-variables     (rf/subscribe [:sidebar/variables id])
-        subgroups           (rf/subscribe [:sidebar/subgroups id])
-        var-conditionals    (rf/subscribe [:group/variable-conditionals id])
-        module-conditionals (rf/subscribe [:group/module-conditionals id])]
+  (let [group            (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
+        id               (:db/id @group)
+        parent-group     (rf/subscribe [:subgroup/parent id])
+        parent-submodule (:submodule/_groups @group)
+        group-variables  (rf/subscribe [:sidebar/variables id])
+        subgroups        (rf/subscribe [:sidebar/subgroups id])]
     [:div
      {:id (str id)}
      [sidebar
@@ -122,7 +120,7 @@
         [:h2 (:group/name @group)]]
        ^{:key "variables"}
        [accordion
-        "Variables"
+        "Group Variables"
         [:div.col-6
          [variables-table id]]
         [:div.col-6
