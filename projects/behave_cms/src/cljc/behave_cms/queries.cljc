@@ -1,7 +1,4 @@
-(ns behave-cms.queries
-  (:require [clojure.string :as str]
-            #?(:cljs [datascript.core :as d]
-               :clj  [datahike.api :as d])))
+(ns behave-cms.queries)
 
 (def rules
   '[[(module ?a ?m) [?e :application/modules ?m]]
