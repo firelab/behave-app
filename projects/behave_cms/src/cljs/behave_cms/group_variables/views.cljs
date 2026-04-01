@@ -1,18 +1,18 @@
 (ns behave-cms.group-variables.views
-  (:require [re-frame.core                                 :as rf]
-            [behave-cms.components.common                  :refer [accordion
+  (:require [behave-cms.components.common                  :refer [accordion
                                                                    checkbox
                                                                    dropdown
                                                                    simple-table
                                                                    window]]
-            [behave-cms.components.actions                 :refer [actions-table manage-action]]
-            [behave-cms.components.conditionals.views            :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.conditionals.views      :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.cpp-editor              :refer [cpp-editor-form]]
+            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
             [behave-cms.components.sidebar                 :refer [sidebar sidebar-width]]
+            [behave-cms.components.table-entity-form       :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations            :refer [all-translations]]
             [behave-cms.help.views                         :refer [help-editor]]
             [behave-cms.utils                              :as u]
-            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]))
+            [re-frame.core                                 :as rf]))
 
 ;;; Constants
 
@@ -103,7 +103,7 @@
         gv-id               (:db/id @group-variable)
         is-output?          (rf/subscribe [:group-variable/output? gv-id])
         actions             (:group-variable/actions @group-variable)
-        action-id           (rf/subscribe [:state :action])
+        action-id           (rf/subscribe [:editors :action])
         group               (:group/_group-variables @group-variable)
         variable            (get-in @group-variable [:variable/_group-variables 0])
         group-variables     (rf/subscribe [:sidebar/variables (:db/id group)])
@@ -166,11 +166,30 @@
         "Actions"
         [:div.row
          [:div.col-12
-          [actions-table actions]]]
-        [:div.row
-         [:div.col-12
-          [manage-action [:bp/nid nid] @action-id @is-output?]]]]
+          [table-entity-form
+           {:entity             :action
+            :form-state-path    [:editors :action]
+            :entities           (sort-by :action/name actions)
+            :on-select          (table-entity-form-on-select [:editors :action])
+            :parent-id          gv-id
+            :parent-field       :group-variable/_actions
+            :table-header-attrs [:action/name]
+            :form-below?        true
+            :entity-form-fields [{:label     "Name"
+                                  :required? true
+                                  :field-key :action/name}
 
+                                 {:label     "Action Type"
+                                  :required? true
+                                  :type      :radio
+                                  :field-key :action/type
+                                  :options   [{:label "Select" :value :select}
+                                              {:label "Disable" :value :disable}]}
+
+                                 {:label        "Conditionals"
+                                  :type         :conditionals
+                                  :field-key    :action/conditionals
+                                  :cond-op-attr :action/conditionals-operator}]}]]]]
        [:hr]
        [accordion
         "Hide from Results Conditionals"

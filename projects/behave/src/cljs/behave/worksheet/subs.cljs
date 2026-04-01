@@ -604,6 +604,30 @@
     :variables [ws-uuid attr]}))
 
 (rp/reg-sub
+ :worksheet/graph-settings-axis-group-variable-uuid
+ (fn [_ [_ ws-uuid attr]]
+   {:type      :query
+    :query     '[:find  ?gv-uuid .
+                 :in    $ ?ws-uuid ?attr
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/graph-settings ?gs]
+                 [?gs ?attr ?gv-uuid]]
+    :variables [ws-uuid attr]}))
+
+(rp/reg-sub
+ :worksheet/graph-settings-axis-attr
+ (fn [_ [_ ws-uuid gv-uuid]]
+   {:type      :query
+    :query     '[:find  ?attr .
+                 :in    $ ?ws-uuid ?gv-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/graph-settings ?gs]
+                 [?gs ?attr ?gv-uuid]]
+    :variables [ws-uuid gv-uuid]}))
+
+(rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
  (fn [[_ ws-uuid]]
    (rf/subscribe [:worksheet/graphed-output-uuids ws-uuid]))
@@ -703,9 +727,11 @@
             *cached-decimals   (rf/subscribe [:settings/cached-decimal domain-uuid])
             significant-digits (or @*cached-decimals (:domain/decimals domain))]
         (fn continuous-fmt [value]
-          (cond->> value
-            :always                             (parse-float)
-            (and significant-digits is-output?) (gstring/format (str "%." significant-digits "f")))))
+          (let [float-value (parse-float value)]
+            (cond
+              (and (= significant-digits "0") (< 0 float-value 1)) "< 1"
+              (and significant-digits is-output?)                  (gstring/format (str "%." significant-digits "f") float-value)
+              :else                                                float-value))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
@@ -775,25 +801,25 @@
 (rp/reg-sub
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
-   {:type  :query
-    :query '[:find ?row ?col-uuid ?repeat-id ?value
-             :in $ ?ws-uuid
-             :where
-             [?w :worksheet/uuid ?ws-uuid]
-             [?w :worksheet/result-table ?rt]
-             [?rt :result-table/rows ?r]
+   {:type     :query
+    :query    '[:find ?row ?col-uuid ?repeat-id ?value
+                :in $ ?ws-uuid
+                :where
+                [?w :worksheet/uuid ?ws-uuid]
+                [?w :worksheet/result-table ?rt]
+                [?rt :result-table/rows ?r]
 
              ;;get row
-             [?r :result-row/id ?row]
+                [?r :result-row/id ?row]
 
              ;;get-header
-             [?r :result-row/cells ?c]
-             [?c :result-cell/header ?h]
-             [?h :result-header/group-variable-uuid ?col-uuid]
-             [?h :result-header/repeat-id ?repeat-id]
+                [?r :result-row/cells ?c]
+                [?c :result-cell/header ?h]
+                [?h :result-header/group-variable-uuid ?col-uuid]
+                [?h :result-header/repeat-id ?repeat-id]
 
              ;;get value
-             [?c :result-cell/value ?value]]
+                [?c :result-cell/value ?value]]
     :variables
     [ws-uuid]}))
 
@@ -1060,50 +1086,50 @@
 (rp/reg-sub
  :worksheet/input-gv-uuid+value+units
  (fn [_ [_ ws-uuid row-id]]
-   {:type  :query
-    :query '[:find  ?gv-uuid ?value ?units
-             :in $ ?ws-uuid ?row-id
-             :where
-             [?ws :worksheet/uuid ?ws-uuid]
-             [?ws :worksheet/input-groups ?ig]
-             [?ws :worksheet/result-table ?t]
-             [?t  :result-table/rows ?rr]
-             [?rr :result-row/id ?row-id]
-             [?rr :result-row/cells ?c]
+   {:type      :query
+    :query     '[:find  ?gv-uuid ?value ?units
+                 :in $ ?ws-uuid ?row-id
+                 :where
+                 [?ws :worksheet/uuid ?ws-uuid]
+                 [?ws :worksheet/input-groups ?ig]
+                 [?ws :worksheet/result-table ?t]
+                 [?t  :result-table/rows ?rr]
+                 [?rr :result-row/id ?row-id]
+                 [?rr :result-row/cells ?c]
 
              ;; Filter only input variables
-             [?ig :input-group/inputs ?i]
-             [?i  :input/group-variable-uuid ?gv-uuid]
+                 [?ig :input-group/inputs ?i]
+                 [?i  :input/group-variable-uuid ?gv-uuid]
 
              ;; Get  gv-uuid, value and units
-             [?rh :result-header/group-variable-uuid ?gv-uuid]
-             [?rh :result-header/units ?units]
-             [?c  :result-cell/header ?rh]
-             [?c  :result-cell/value ?value]]
+                 [?rh :result-header/group-variable-uuid ?gv-uuid]
+                 [?rh :result-header/units ?units]
+                 [?c  :result-cell/header ?rh]
+                 [?c  :result-cell/value ?value]]
     :variables [ws-uuid row-id]}))
 
 (rp/reg-sub
  :worksheet/output-gv-uuid+value+units
  (fn [_ [_ ws-uuid row-id]]
-   {:type  :query
-    :query '[:find  ?gv-uuid ?value ?units
-             :in $ ?ws-uuid ?row-id
-             :where
-             [?ws :worksheet/uuid ?ws-uuid]
-             [?ws :worksheet/outputs ?o]
-             [?ws :worksheet/result-table ?t]
-             [?t  :result-table/rows ?rr]
-             [?rr :result-row/id ?row-id]
-             [?rr :result-row/cells ?c]
+   {:type      :query
+    :query     '[:find  ?gv-uuid ?value ?units
+                 :in $ ?ws-uuid ?row-id
+                 :where
+                 [?ws :worksheet/uuid ?ws-uuid]
+                 [?ws :worksheet/outputs ?o]
+                 [?ws :worksheet/result-table ?t]
+                 [?t  :result-table/rows ?rr]
+                 [?rr :result-row/id ?row-id]
+                 [?rr :result-row/cells ?c]
 
              ;; Filter only output variables
-             [?o  :output/group-variable-uuid  ?gv-uuid]
+                 [?o  :output/group-variable-uuid  ?gv-uuid]
 
              ;; Get  gv-uuid, value and units
-             [?rh :result-header/group-variable-uuid ?gv-uuid]
-             [?rh :result-header/units ?units]
-             [?c  :result-cell/header ?rh]
-             [?c  :result-cell/value ?value]]
+                 [?rh :result-header/group-variable-uuid ?gv-uuid]
+                 [?rh :result-header/units ?units]
+                 [?c  :result-cell/header ?rh]
+                 [?c  :result-cell/value ?value]]
     :variables [ws-uuid row-id]}))
 
 (rf/reg-sub

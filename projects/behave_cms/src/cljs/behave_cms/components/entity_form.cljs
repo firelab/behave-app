@@ -1,5 +1,6 @@
 (ns behave-cms.components.entity-form
   (:require [behave-cms.components.common                  :refer [dropdown btn-sm]]
+            [behave-cms.components.conditionals.views      :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
             [behave-cms.components.translations            :refer [all-translations]]
             [behave-cms.utils                              :as u]
@@ -370,6 +371,18 @@
   (when (not-empty @state)
     [:div.my-3
      [all-translations @state]]))
+
+(defmethod field-input :conditionals
+  [{:keys [label field-key cond-op-attr original]}]
+  (let [entity-id (:db/id original)]
+    (when entity-id
+      [:div.mb-3
+       (when label [:label.form-label label])
+       [:div.row
+        [:div.col-9
+         [conditionals-graph entity-id entity-id field-key cond-op-attr]]
+        [:div.col-3
+         [manage-conditionals entity-id field-key]]]])))
 
 ;;; Public Fns
 

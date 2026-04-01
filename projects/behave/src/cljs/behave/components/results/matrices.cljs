@@ -27,9 +27,10 @@
     {:units        (:map-units-settings/units entity)
      :rep-fraction (:map-units-settings/map-rep-fraction entity)}))
 
-(defn- format-matrix-cell [value formatter shaded?]
+(defn- format-matrix-cell [value formatter shaded? in-range?]
   [:div {:class (cond-> ["result-matrix-cell-value"]
-                  shaded? (conj "table-cell__shaded"))}
+                  shaded?   (conj "table-cell__shaded")
+                  in-range? (conj "table-cell__in-range"))}
    (if (neg? value)
      "-"
      (formatter value))])
@@ -88,7 +89,7 @@
    (fn [acc [row col] value]
      (let [shaded? (contains? shade-set [row col])]
        (assoc acc [(row-fmt-fn row) (col-fmt-fn col)]
-              (format-matrix-cell value output-fmt-fn shaded?))))
+              (format-matrix-cell value output-fmt-fn shaded? (not shaded?)))))
    {}
    matrix-data-raw))
 
@@ -99,7 +100,7 @@
      (let [shaded?         (contains? shade-set [row col])
            converted-value (convert-to-map-units value output-units map-units map-rep-frac)]
        (assoc acc [(row-fmt-fn row) (col-fmt-fn col)]
-              (format-matrix-cell converted-value output-fmt-fn shaded?))))
+              (format-matrix-cell converted-value output-fmt-fn shaded? (not shaded?)))))
    {}
    matrix-data-raw))
 
@@ -207,9 +208,10 @@
                                                                   (format-matrix-cell
                                                                    (convert-to-map-units v (get units-lookup col-uuid) units rep-fraction)
                                                                    fmt-fn
-                                                                   shaded?))]
+                                                                   shaded?
+                                                                   (not shaded?)))]
                                                       [(assoc reg [(input-fmt-fn row) col-uuid]
-                                                              (format-matrix-cell v fmt-fn shaded?))
+                                                              (format-matrix-cell v fmt-fn shaded? (not shaded?)))
                                                        mu])))
                                                 [{} {}]
                                                 matrix-data-raw)
