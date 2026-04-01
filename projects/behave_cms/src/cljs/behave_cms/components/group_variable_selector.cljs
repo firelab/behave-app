@@ -85,7 +85,7 @@
                                    (map (->option :group/name)))
                    :on-select #(do (set-field (p :group) (u/input-int-value %))
                                    (clear-field (p :group-variable)))}]
-        [dropdown {:label     "Variable:"
+        [dropdown {:label     "Group Variable:"
                    :selected  @(get-field (p :group-variable))
                    :options   (map (->option :variable/name) @variables)
                    :on-select #(set-field (p :group-variable) (u/input-int-value %))}]
