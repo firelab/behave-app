@@ -1,15 +1,16 @@
 (ns behave-cms.components.group-variable-selector
-  (:require [clojure.set                  :refer [rename-keys]]
-            [behave-cms.components.common :refer [dropdown]]
-            [reagent.core                 :as r]
+  (:require [behave-cms.components.common :refer [dropdown]]
+            [behave-cms.utils             :as u]
+            [goog.string                  :as gstring]
             [re-frame.core                :as rf]
-            [behave-cms.utils             :as u]))
+            [reagent.core                 :as r]))
 
 (defn- ->option [name-key]
   (fn [m]
-    (-> m
-        (select-keys [:db/id name-key])
-        (rename-keys {:db/id :value name-key :label}))))
+    {:value (:db/id m)
+     :label (if-let [direction (:group-variable/direction m)]
+              (gstring/format "%s (%s)" (name-key m) (name direction))
+              (name-key m))}))
 
 (defn group-variable-selector
   "Displays a Group Variable selector.
