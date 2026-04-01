@@ -93,14 +93,12 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [nid]}]
-  (let [group               (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
-        id                  (:db/id @group)
-        parent-group        (rf/subscribe [:subgroup/parent id])
-        parent-submodule    (:submodule/_groups @group)
-        group-variables     (rf/subscribe [:sidebar/variables id])
-        subgroups           (rf/subscribe [:sidebar/subgroups id])
-        var-conditionals    (rf/subscribe [:group/variable-conditionals id])
-        module-conditionals (rf/subscribe [:group/module-conditionals id])]
+  (let [group            (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
+        id               (:db/id @group)
+        parent-group     (rf/subscribe [:subgroup/parent id])
+        parent-submodule (:submodule/_groups @group)
+        group-variables  (rf/subscribe [:sidebar/variables id])
+        subgroups        (rf/subscribe [:sidebar/subgroups id])]
     [:div
      {:id (str id)}
      [sidebar
