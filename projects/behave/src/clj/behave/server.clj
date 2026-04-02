@@ -1,10 +1,10 @@
 (ns behave.server
   (:gen-class)
-  (:require [behave.store         :as store]
-            [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
+  (:require [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
+            [behave.store         :as store]
             [clojure.java.browse  :refer [browse-url]]
             [clojure.java.io      :as io]
-            [config.interface     :refer [get-config load-config]]
+            [config.interface     :refer [get-config load-config merge-config!]]
             [file-utils.interface :refer [os-path]]
             [logging.interface    :as l :refer [log-str]]
             [server.interface     :as server]))
@@ -12,6 +12,16 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
   (load-config (io/resource "config.edn")))
+
+(defn enrich-config!
+  "Computes runtime values and merges them into loaded config."
+  []
+  (let [cef?       (some? (System/getProperty "app.dir"))
+        mode       (or (get-config :server :mode)
+                       (if cef? "prod" "dev"))
+        jar-local? (and (= mode "prod") (not cef?))]
+    (merge-config! {:server {:mode mode}
+                    :client {:jar-local? jar-local?}})))
 
 (defn init-db!
   "Initialize DB using configuration."
@@ -38,6 +48,7 @@
   "Starts the Behave7 Application server."
   []
   (init-config!)
+  (enrich-config!)
   (let [mode      (get-config :server :mode)
         http-port (or (get-config :server :http-port) 8080)
         org-name  (get-config :site :org-name)

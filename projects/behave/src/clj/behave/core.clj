@@ -1,12 +1,12 @@
 (ns behave.core
   (:gen-class)
-  (:import [javax.swing JFrame SwingUtilities UIManager]
-           [javax.imageio ImageIO])
-  (:require [clojure.java.io      :as io]
-            [behave.handlers      :refer [create-cef-handler-stack]]
-            [behave.server        :refer [init-config! init-db!]]
-            [file-utils.interface :refer [os-type app-data-dir]]
+  (:import [javax.imageio ImageIO]
+           [javax.swing JFrame SwingUtilities UIManager])
+  (:require [behave.handlers      :refer [create-cef-handler-stack]]
+            [behave.server        :as server]
+            [clojure.java.io      :as io]
             [config.interface     :refer [get-config]]
+            [file-utils.interface :refer [os-type app-data-dir]]
             [jcef.core            :refer [show-dev-tools!]]
             [jcef.interface       :refer [create-cef-app! custom-request-handler show-loader!]]
             [logging.interface    :as l :refer [log-str]]))
@@ -60,10 +60,18 @@
 
 (defonce ^:private the-app (atom nil))
 
-(defn -main
-  "CEF client start method."
-  [& _args]
-  (init-config!)
+;;; Runtime Detection
+
+(defn- conveyor?
+  "True when running inside a Conveyor-packaged app (app.dir is set)."
+  []
+  (some? (System/getProperty "app.dir")))
+
+;;; Entry Points
+
+(defn- start-cef!
+  "Start the app in JCEF desktop mode."
+  []
   (let [loader          (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
         mode            (get-config :server :mode)
         http-port       (or (get-config :server :http-port) 8080)
@@ -86,23 +94,35 @@
                           :ring-handler (create-cef-handler-stack)})]
 
     (start-logging! log-config)
-    (init-db! db-config)
+    (server/init-db! db-config)
 
     (create-cef-app!
-     {:title           (get-config :site :title)
-      :url             (str "http://localhost:" http-port)
-      :cache-path      cache-path
-      :fullscreen?     true
-      :on-shown        (fn [app & _]
-                         (reset! the-app app)
-                         (.dispose (:frame loader)))
-      :request-handler request-handler
+     {:title                                                (get-config :site :title)
+      :url                                                  (str "http://localhost:" http-port)
+      :cache-path                                           cache-path
+      :fullscreen?                                          true
+      :on-shown                                             (fn [app & _]
+                                                              (reset! the-app app)
+                                                              (.dispose (:frame loader)))
+      :request-handler                                      request-handler
       :on-before-launch
       (fn [{:keys [frame]}]
         (on-before-launch frame (get-config :site :title)))})))
 
+(defn -main
+  "Unified entry point. Detects runtime environment and starts
+   in CEF desktop mode or HTTP server mode."
+  [& _args]
+  (if (conveyor?)
+    (do
+      (server/init-config!)
+      (server/enrich-config!)
+      (start-cef!))
+    (server/start-server!)))
+
 (comment
   (-main)
+  (start-cef!)
   ;; Dev Tools
   @the-app
   (require '[jcef.core :as jc])
