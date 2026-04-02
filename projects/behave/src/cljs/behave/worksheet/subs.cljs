@@ -727,9 +727,11 @@
             *cached-decimals   (rf/subscribe [:settings/cached-decimal domain-uuid])
             significant-digits (or @*cached-decimals (:domain/decimals domain))]
         (fn continuous-fmt [value]
-          (cond->> value
-            :always                             (parse-float)
-            (and significant-digits is-output?) (gstring/format (str "%." significant-digits "f")))))
+          (let [float-value (parse-float value)]
+            (cond
+              (and (= significant-digits "0") (< 0 float-value 1)) "< 1"
+              (and significant-digits is-output?)                  (gstring/format (str "%." significant-digits "f") float-value)
+              :else                                                float-value))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
@@ -1284,14 +1286,15 @@
 (rf/reg-sub
  :worksheet/repeat-groups?
  (fn [_ [_ ws-uuid]]
-   (some pos? (d/q '[:find [?rid ...]
-                     :in  $ ?ws-uuid
-                     :where
-                     [?w :worksheet/uuid ?ws-uuid]
-                     [?w :worksheet/input-groups ?g]
-                     [?g :input-group/group-uuid ?g-uuid]
-                     [?g :input-group/repeat-id ?rid]]
-                   @@s/conn ws-uuid))))
+   (some true? (d/q '[:find [?repeat ...]
+                      :in  $ $vms ?ws-uuid
+                      :where
+                      [$ ?w :worksheet/uuid ?ws-uuid]
+                      [$ ?w :worksheet/input-groups ?g]
+                      [$ ?g :input-group/group-uuid ?g-uuid]
+                      [$vms ?group :bp/uuid ?g-uuid]
+                      [$vms ?group :group/repeat? ?repeat]]
+                    @@s/conn @@vms-conn ws-uuid))))
 
 (rf/reg-sub
  :worksheet/should-keep-input?
