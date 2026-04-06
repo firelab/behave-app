@@ -1,0 +1,29 @@
+name: clj-kondo linter
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  clj-lint:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Get changed Clojure files
+      id: changed-files
+      run: |
+        FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(clj|cljs|cljc)$' | tr '\n' ' ')
+        echo "files=$FILES" >> $GITHUB_OUTPUT
+        echo "has_files=$([ -n "$FILES" ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
+    - uses: DeLaGuardo/clojure-lint-action@master
+      if: steps.changed-files.outputs.has_files == 'true'
+      with:
+        clj-kondo-args: --lint ${{ steps.changed-files.outputs.files }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
