@@ -7,18 +7,19 @@
         graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
     (when (and graph-enabled? graph-settings)
       (let [*output-uuids (subscribe [:worksheet/graphed-output-uuids ws-uuid])
+            y-axis-limits @(subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid])
             graph-data    (->> cell-data
                                (group-by first)
                                (reduce (fn [acc [_row-id cell-data]]
                                          (conj acc
                                                (->> (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
-                                                          (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
-                                                                           (get col-uuid identity))]
-                                                            (assoc acc
-                                                                   @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
-                                                                   (fmt-fn value))))
-                                                        {}
-                                                        cell-data)
+                                                              (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
+                                                                               (get col-uuid identity))]
+                                                                (assoc acc
+                                                                       @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
+                                                                       (fmt-fn value))))
+                                                            {}
+                                                            cell-data)
                                                     (remove (fn [[_ value]] (= value -1)))
                                                     (into {}))))
                                        []))
@@ -29,11 +30,9 @@
          [:div.wizard-graph__header "Graphs"]
          (for [output-uuid @*output-uuids
                :when       (not @(subscribe [:wizard/discrete-group-variable? output-uuid]))
-               :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
-                                              (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
-                                              (first))
-                            y-min (:y-axis-limit/min y-axis-limit)
-                            y-max (:y-axis-limit/max y-axis-limit)]]
+               :let        [[_ y-min y-max] (->> y-axis-limits
+                                                 (filter #(= output-uuid (first %)))
+                                                 (first))]]
            [:div.wizard-results__graph
             [:div.wizard-graph__output-header
              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])]

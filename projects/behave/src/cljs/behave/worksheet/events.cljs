@@ -4,6 +4,7 @@
             [behave.logger                 :refer [log]]
             [behave.solver.core            :refer [solve-worksheet]]
             [behave.wizard.subs            :refer [all-conditionals-pass?]]
+            [clojure.math                  :as math]
             [clojure.string                :as str]
             [datascript.core               :as d]
             [number-utils.core             :refer [to-precision]]
@@ -71,6 +72,23 @@
    :worksheet/_input-groups [:worksheet/uuid ws-uuid]
    :input-group/group-uuid  group-uuid
    :input-group/repeat-id   repeat-id})
+
+(defn ^:private nice-step-size
+  "Computes a nice axis step size for a given y-max, targeting ~8 tick intervals.
+   Mirrors the D3/Vega-Lite tick interval algorithm."
+  [y-max]
+  (if (zero? y-max)
+    1
+    (let [n-ticks    8
+          raw-step   (/ y-max n-ticks)
+          magnitude  (Math/pow 10 (Math/floor (/ (Math/log raw-step) (Math/log 10))))
+          normalized (/ raw-step magnitude)]
+      (* magnitude
+         (cond
+           (< normalized 1.5) 1
+           (< normalized 3)   2
+           (< normalized 7)   5
+           :else              10)))))
 
 ;;; Events
 
@@ -414,26 +432,24 @@
    (when (pos? (count multi-value-input-uuids))
      (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
            gv-uuids         (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %])) multi-value-input-uuids)]
-       (cond-> {:transact [; First clear any existing graph settings.
-                           [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
-                           [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
-                           [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
-                           ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
-                           (cond-> {:db/id graph-setting-id}
+       {:transact [; First clear any existing graph settings.
+                   [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
+                   [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
+                   [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
+                   ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
+                   (cond-> {:db/id graph-setting-id}
 
-                             ;; sets default x-axis selection if available
-                             (first multi-value-input-uuids)
-                             (assoc :graph-settings/x-axis-group-variable-uuid (first gv-uuids))
+                     ;; sets default x-axis selection if available
+                     (first multi-value-input-uuids)
+                     (assoc :graph-settings/x-axis-group-variable-uuid (first gv-uuids))
 
-                             ;; sets default z-axis selection if available
-                             (second multi-value-input-uuids)
-                             (assoc :graph-settings/z-axis-group-variable-uuid (second gv-uuids))
+                     ;; sets default z-axis selection if available
+                     (second multi-value-input-uuids)
+                     (assoc :graph-settings/z-axis-group-variable-uuid (second gv-uuids))
 
-                             ;; sets default z2-axis selection if available
-                             (nth multi-value-input-uuids 2 nil)
-                             (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]}
-         (first gv-uuids)
-         (assoc :fx [[:dispatch [:worksheet/upsert-x-axis-limit ws-uuid (first gv-uuids)]]]))))))
+                     ;; sets default z2-axis selection if available
+                     (nth multi-value-input-uuids 2 nil)
+                     (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]}))))
 
 (rp/reg-event-fx
  :worksheet/toggle-graph-settings
@@ -464,30 +480,88 @@
      {:transact [(assoc {:db/id y} attr value)]})))
 
 (rp/reg-event-fx
+ :worksheet/update-all-axis-limits-from-results
+ (fn [_ [_ ws-uuid]]
+   {:fx [[:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]
+         [:dispatch [:worksheet/update-all-x-axis-limits-from-results ws-uuid]]]}))
+
+(rp/reg-event-fx
  :worksheet/update-all-y-axis-limits-from-results
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-min-values ws-uuid]))
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-min-values ws-uuid]))
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-max-values ws-uuid]))]
- (fn [{output-uuid->result-min-values :worksheet/output-uuid->result-min-values
+ (fn [{ds                             :ds
+       output-uuid->result-min-values :worksheet/output-uuid->result-min-values
        output-uuid->result-max-values :worksheet/output-uuid->result-max-values}
       [_ ws-uuid]]
-   (let [gv-uuids (keys output-uuid->result-min-values)]
-     {:fx (reduce (fn [acc gv-uuid]
-                    (let [max-val (get output-uuid->result-max-values gv-uuid)]
-                      (-> acc
-                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
-                                            ws-uuid
-                                            gv-uuid
-                                            :y-axis-limit/min
-                                            0]])
-                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
-                                            ws-uuid
-                                            gv-uuid
-                                            :y-axis-limit/max
-                                            (if (< max-val 1)
-                                              (to-precision max-val 1)
-                                              (.ceil js/Math max-val))]]))))
-                  []
-                  gv-uuids)})))
+   (let [gv-uuids        (keys output-uuid->result-min-values)
+         graph-settings  (d/q '[:find ?g .
+                                :in $ ?ws-uuid
+                                :where
+                                [?w :worksheet/uuid ?ws-uuid]
+                                [?w :worksheet/graph-settings ?g]]
+                              ds ws-uuid)
+         existing-y-eids (d/q '[:find [?y ...]
+                                :in $ ?ws-uuid
+                                :where
+                                [?w :worksheet/uuid ?ws-uuid]
+                                [?w :worksheet/graph-settings ?g]
+                                [?g :graph-settings/y-axis-limits ?y]]
+                              ds ws-uuid)
+         retract-txs     (mapv (fn [eid] [:db.fn/retractEntity eid]) existing-y-eids)
+         new-y-limits    (mapv (fn [gv-uuid]
+                                 (let [max-val   (get output-uuid->result-max-values gv-uuid)
+                                       y-max-raw (if (< max-val 1)
+                                                   (to-precision max-val 1)
+                                                   (math/round max-val))
+                                       step      (nice-step-size y-max-raw)
+                                       y-max     (+ y-max-raw step)]
+                                   {:y-axis-limit/group-variable-uuid gv-uuid
+                                    :y-axis-limit/min                 0
+                                    :y-axis-limit/max                 y-max}))
+                               gv-uuids)]
+     {:transact (conj retract-txs
+                      {:db/id                        graph-settings
+                       :graph-settings/y-axis-limits new-y-limits})})))
+
+(rp/reg-event-fx
+ :worksheet/update-all-x-axis-limits-from-results
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/multi-value-input-uuid+value ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/multi-value-input-uuids ws-uuid]))]
+ (fn [{ds                           :ds
+       multi-value-input-uuid+value :worksheet/multi-value-input-uuid+value
+       multi-value-input-uuids      :worksheet/multi-value-input-uuids}
+      [_ ws-uuid]]
+   (let [graph-settings  (d/q '[:find ?g .
+                                :in $ ?ws-uuid
+                                :where
+                                [?w :worksheet/uuid ?ws-uuid]
+                                [?w :worksheet/graph-settings ?g]]
+                              ds ws-uuid)
+         existing-x-eids (d/q '[:find [?x ...]
+                                :in $ ?ws-uuid
+                                :where
+                                [?w :worksheet/uuid ?ws-uuid]
+                                [?w :worksheet/graph-settings ?g]
+                                [?g :graph-settings/x-axis-limits ?x]]
+                              ds ws-uuid)
+         retract-txs     (mapv (fn [eid] [:db.fn/retractEntity eid]) existing-x-eids)
+         x-gv-uuid       (first (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %]))
+                                         multi-value-input-uuids))
+         x-values-str    (second (first (filter #(= x-gv-uuid (first %)) multi-value-input-uuid+value)))
+         x-max-raw       (when x-values-str (apply max (map js/parseFloat (str/split x-values-str ","))))
+         x-max           (when x-max-raw
+                           (let [rounded (if (< x-max-raw 1)
+                                           (to-precision x-max-raw 1)
+                                           (math/round x-max-raw))]
+                             (+ rounded (nice-step-size rounded))))]
+     (when x-gv-uuid
+       {:transact (conj retract-txs
+                        {:db/id                        graph-settings
+                         :graph-settings/x-axis-limits {:x-axis-limit/group-variable-uuid x-gv-uuid
+                                                        :x-axis-limit/min                 0
+                                                        :x-axis-limit/max                 x-max}})}))))
 
 (rp/reg-event-fx
  :worksheet/update-x-axis-limit-attr
