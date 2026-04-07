@@ -1,5 +1,6 @@
 (ns behave.vms.subs
   (:require [behave.schema.core  :refer [rules]]
+            [behave.translate    :refer [<t]]
             [behave.vms.store    :refer [entity-from-eid
                                          entity-from-nid
                                          entity-from-uuid
@@ -7,11 +8,10 @@
                                          pull-many
                                          q
                                          vms-conn]]
-            [behave.translate    :refer [<t]]
-            [map-utils.interface :refer [index-by]]
             [datascript.core     :as d]
-            [re-frame.core       :refer [reg-sub subscribe]]
-            [re-frame.core       :as rf]))
+            [map-utils.interface :refer [index-by]]
+            [re-frame.core       :as rf]
+            [re-frame.core       :refer [reg-sub subscribe]]))
 
 (reg-sub
  :vms/query
@@ -293,13 +293,13 @@
 
     ;; Use the subgroup rule to find all ancestor groups
     ;; The subgroup rule: (subgroup ?parent ?child) means ?child is a subgroup of ?parent
-    (let [ancestor-eids (d/q '[:find [?ancestor ...]
-                               :in $ % ?child
-                               :where
-                               (subgroup ?ancestor ?child)]
-                             db
-                             rules
-                             immediate-group-eid)
+    (let [ancestor-eids       (d/q '[:find [?ancestor ...]
+                                     :in $ % ?child
+                                     :where
+                                     (subgroup ?ancestor ?child)]
+                                   db
+                                   rules
+                                   immediate-group-eid)
 
           ;; Pull all groups with their parent references to sort them
           all-groups          (cons immediate-group-eid ancestor-eids)
@@ -307,22 +307,22 @@
                                    all-groups)
 
           ;; Build a map of child -> parent for quick lookup
-          parent-map (into {} (map (fn [g]
-                                     [(:db/id g)
-                                      (when-let [parent (:group/_children g)]
-                                        (:db/id parent))])
-                                   groups-with-parents))
+          parent-map          (into {} (map (fn [g]
+                                              [(:db/id g)
+                                               (when-let [parent (:group/_children g)]
+                                                 (:db/id parent))])
+                                            groups-with-parents))
 
           ;; Sort groups from root to leaf by following parent chain
-          sort-groups (fn [group-eid]
-                        (loop [current group-eid
-                               path    []]
-                          (if-let [parent (get parent-map current)]
-                            (recur parent (conj path current))
-                            (reverse (conj path current)))))
+          sort-groups         (fn [group-eid]
+                                (loop [current group-eid
+                                       path    []]
+                                  (if-let [parent (get parent-map current)]
+                                    (recur parent (conj path current))
+                                    (reverse (conj path current)))))
 
-          sorted-group-eids (sort-groups immediate-group-eid)
-          submodule         {:db/id submodule-eid}]
+          sorted-group-eids   (sort-groups immediate-group-eid)
+          submodule           {:db/id submodule-eid}]
 
       ;; Return: [submodule parent-groups... immediate-group]
       (cons submodule (map #(hash-map :db/id %) sorted-group-eids)))))
@@ -331,4 +331,22 @@
  :vms/group-variable-heirarchy
  (fn [_ [_ gv-uuid]]
    (get-group-hierarchy @@vms-conn gv-uuid)))
+
+(defn direction-variables [gv-uuid]
+  (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
+    (seq (:group-variable/direction-variables entity))))
+
+(reg-sub
+ :vms/directional-children
+ (fn [_ [_ gv-uuid]]
+   (direction-variables gv-uuid)))
+
+(defn directional-parent-entity [gv-uuid]
+  (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
+    (first (:group-variable/_direction-variables entity))))
+
+(reg-sub
+ :vms/directional-parent
+ (fn [_ [_ gv-uuid]]
+   (directional-parent-entity gv-uuid)))
 

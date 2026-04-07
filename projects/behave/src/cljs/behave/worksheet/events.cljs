@@ -1,15 +1,16 @@
 (ns behave.worksheet.events
-  (:require [re-frame.core                 :as rf]
-            [re-posh.core                  :as rp]
-            [datascript.core               :as d]
-            [behave.components.toolbar     :refer [step-priority]]
+  (:require [behave.components.toolbar     :refer [step-priority]]
             [behave.importer               :refer [import-worksheet]]
             [behave.logger                 :refer [log]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [number-utils.core             :refer [to-precision]]
+            [behave.vms.subs               :refer [directional-parent-entity]]
             [behave.wizard.subs            :refer [all-conditionals-pass?]]
-            [clojure.string                :as str]))
+            [clojure.string                :as str]
+            [datascript.core               :as d]
+            [number-utils.core             :refer [to-precision]]
+            [re-frame.core                 :as rf]
+            [re-posh.core                  :as rp]
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers
 
@@ -92,7 +93,7 @@
 (rp/reg-event-fx
  :worksheet/new
  (fn [_ [_ {:keys [uuid name modules version]}]]
-   (let [tx (cond-> {:worksheet/uuid (or uuid (str (d/squuid)))
+   (let [tx (cond-> {:worksheet/uuid    (or uuid (str (d/squuid)))
                      :worksheet/modules modules
                      :worksheet/created (.now js/Date)}
               version
@@ -447,47 +448,55 @@
                                              (not enabled?))}]
       :fx       [[:dispatch [:worksheet/set-default-graph-settings ws-uuid]]]})))
 
-(rp/reg-event-fx
- :worksheet/update-y-axis-limit-attr
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-var-uuid attr value]]
-   (when-let [y (first (d/q '[:find [?y]
-                              :in $ ?ws-uuid ?group-var-uuid
-                              :where
-                              [?w :worksheet/uuid ?ws-uuid]
-                              [?w :worksheet/graph-settings ?g]
-                              [?g :graph-settings/y-axis-limits ?y]
-                              [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]]
-                            ds
-                            ws-uuid
-                            group-var-uuid))]
-     {:transact [(assoc {:db/id y} attr value)]})))
+(defn get-graph-axis-limit-eid [db ws-uuid gv-uuid]
+  (d/q '[:find ?y .
+         :in $ ?ws-uuid ?group-var-uuid
+         :where
+         [?w :worksheet/uuid ?ws-uuid]
+         [?w :worksheet/graph-settings ?g]
+         [?g :graph-settings/y-axis-limits ?y]
+         [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]]
+       db
+       ws-uuid
+       gv-uuid))
 
 (rp/reg-event-fx
+ :worksheet/update-y-axis-limit-attr
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ _ group-var-uuid]] [:vms/directional-children group-var-uuid]))]
+ (fn [{ds                   :ds
+       directional-children :vms/directional-children} [_ ws-uuid group-var-uuid attr value]]
+   (when-let [graph-axis-limit-id (get-graph-axis-limit-eid ds ws-uuid group-var-uuid)]
+     (let [children-payload (map (fn [child]
+                                   (let [child-graph-axis-limit-id
+                                         (get-graph-axis-limit-eid ds ws-uuid (:bp/uuid child))]
+                                     (assoc {:db/id child-graph-axis-limit-id} attr value)))
+                                 directional-children)]
+       {:transact (cond-> [(assoc {:db/id graph-axis-limit-id} attr value)]
+                    (seq children-payload) (concat children-payload))}))))
+(rp/reg-event-fx
  :worksheet/update-all-y-axis-limits-from-results
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-min-values ws-uuid]))
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-max-values ws-uuid]))]
- (fn [{output-uuid->result-min-values :worksheet/output-uuid->result-min-values
-       output-uuid->result-max-values :worksheet/output-uuid->result-max-values}
-      [_ ws-uuid]]
-   (let [gv-uuids (keys output-uuid->result-min-values)]
-     {:fx (reduce (fn [acc gv-uuid]
-                    (let [max-val (get output-uuid->result-max-values gv-uuid)]
-                      (-> acc
-                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
-                                            ws-uuid
-                                            gv-uuid
-                                            :y-axis-limit/min
-                                            0]])
-                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
-                                            ws-uuid
-                                            gv-uuid
-                                            :y-axis-limit/max
-                                            (if (< max-val 1)
-                                              (to-precision max-val 1)
-                                              (.ceil js/Math max-val))]]))))
-                  []
-                  gv-uuids)})))
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
+                  (let [[_min-to-use max-to-use] (if-let [direcitonal-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
+                                                   (get output-min-max-values direcitonal-parent-uuid)
+                                                   [min-val max-val])]
+                    (-> acc
+                        (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                          ws-uuid
+                                          gv-uuid
+                                          :y-axis-limit/min
+                                          0]])
+                        (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                          ws-uuid
+                                          gv-uuid
+                                          :y-axis-limit/max
+                                          (if (< max-to-use 1)
+                                            (to-precision max-to-use 1)
+                                            (.ceil js/Math max-to-use))]]))))
+                []
+                output-min-max-values)}))
 
 (rp/reg-event-fx
  :worksheet/update-x-axis-limit-attr
@@ -503,21 +512,32 @@
                        ws-uuid)]
      {:transact [(assoc {:db/id eid} attr value)]})))
 
+(defn get-table-filter-eid [db ws-uuid gv-uuid]
+  (d/q '[:find ?f .
+         :in $ ?ws-uuid ?group-var-uuid
+         :where
+         [?w :worksheet/uuid ?ws-uuid]
+         [?w :worksheet/table-settings ?t]
+         [?t :table-settings/filters ?f]
+         [?f :table-filter/group-variable-uuid ?group-var-uuid]]
+       db
+       ws-uuid
+       gv-uuid))
+
 (rp/reg-event-fx
  :worksheet/update-table-filter-attr
- [(rp/inject-cofx :ds)]
- (fn [{ds :ds} [_ ws-uuid group-var-uuid attr value]]
-   (when-let [table-filter-id (d/q '[:find ?f .
-                                     :in $ ?ws-uuid ?group-var-uuid
-                                     :where
-                                     [?w :worksheet/uuid ?ws-uuid]
-                                     [?w :worksheet/table-settings ?t]
-                                     [?t :table-settings/filters ?f]
-                                     [?f :table-filter/group-variable-uuid ?group-var-uuid]]
-                                   ds
-                                   ws-uuid
-                                   group-var-uuid)]
-     {:transact [(assoc {:db/id table-filter-id} attr value)]})))
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ _ group-var-uuid]] [:vms/directional-children group-var-uuid]))]
+ (fn [{ds                   :ds
+       directional-children :vms/directional-children} [_ ws-uuid group-var-uuid attr value]]
+   (when-let [table-filter-id (get-table-filter-eid ds ws-uuid group-var-uuid)]
+     (let [children-payload (map (fn [child]
+                                   (let [child-table-filter-id
+                                         (get-table-filter-eid ds ws-uuid (:bp/uuid child))]
+                                     (assoc {:db/id child-table-filter-id} attr value)))
+                                 directional-children)]
+       {:transact (cond-> [(assoc {:db/id table-filter-id} attr value)]
+                    (seq children-payload) (concat children-payload))}))))
 
 (rp/reg-event-fx
  :worksheet/add-table-filter
@@ -541,21 +561,24 @@
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
  (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
    {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
-                  (-> acc
-                      (conj [:dispatch [:worksheet/update-table-filter-attr
-                                        ws-uuid
-                                        gv-uuid
-                                        :table-filter/min
-                                        (if (< min-val 1)
-                                          (to-precision min-val 1)
-                                          (.floor js/Math min-val))]])
-                      (conj [:dispatch [:worksheet/update-table-filter-attr
-                                        ws-uuid
-                                        gv-uuid
-                                        :table-filter/max
-                                        (if (< max-val 1)
-                                          (to-precision max-val 1)
-                                          (.ceil js/Math max-val))]])))
+                  (let [[min-to-use max-to-use] (if-let [direcitonal-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
+                                                  (get output-min-max-values direcitonal-parent-uuid)
+                                                  [min-val max-val])]
+                    (-> acc
+                        (conj [:dispatch [:worksheet/update-table-filter-attr
+                                          ws-uuid
+                                          gv-uuid
+                                          :table-filter/min
+                                          (if (< min-to-use 1)
+                                            (to-precision min-to-use 1)
+                                            (.floor js/Math min-to-use))]])
+                        (conj [:dispatch [:worksheet/update-table-filter-attr
+                                          ws-uuid
+                                          gv-uuid
+                                          :table-filter/max
+                                          (if (< max-to-use 1)
+                                            (to-precision max-to-use 1)
+                                            (.ceil js/Math max-to-use))]]))))
                 []
                 output-min-max-values)}))
 
@@ -575,8 +598,10 @@
 
 (rp/reg-event-fx
  :worksheet/toggle-enable-filter
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ _ group-var-uuid]] [:vms/directional-children group-var-uuid]))]
+ (fn [{ds                   :ds
+       directional-children :vms/directional-children} [_ ws-uuid gv-uuid]]
    (when-let [eid (d/q '[:find ?f .
                          :in $ ?uuid ?gv-uuid
                          :where
@@ -585,9 +610,22 @@
                          [?t :table-settings/filters ?f]
                          [?f :table-filter/group-variable-uuid ?gv-uuid]]
                        ds ws-uuid gv-uuid)]
-     (let [enabled? (:table-filter/enabled? (d/entity ds eid))]
-       {:transact [{:db/id                 eid
-                    :table-filter/enabled? (not enabled?)}]}))))
+     (let [enabled?         (:table-filter/enabled? (d/entity ds eid))
+           children-payload (map (fn [child]
+                                   (let [table-filter-id (d/q '[:find ?f .
+                                                                :in $ ?uuid ?gv-uuid
+                                                                :where
+                                                                [?w :worksheet/uuid ?uuid]
+                                                                [?w :worksheet/table-settings ?t]
+                                                                [?t :table-settings/filters ?f]
+                                                                [?f :table-filter/group-variable-uuid ?gv-uuid]]
+                                                              ds ws-uuid (:bp/uuid child))]
+                                     {:db/id                 table-filter-id
+                                      :table-filter/enabled? (not enabled?)}))
+                                 directional-children)]
+       {:transact (cond-> [{:db/id                 eid
+                            :table-filter/enabled? (not enabled?)}]
+                    (seq children-payload) (concat children-payload))}))))
 
 (rp/reg-event-fx
  :worksheet/update-graph-settings-attr
@@ -614,12 +652,12 @@
                     submodule-io
                     {:keys [title body] :as _payload}]]
    (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
-     {:transact [(cond-> {:db/id -1
+     {:transact [(cond-> {:db/id            -1
                           :worksheet/_notes ws-id
-                          :note/name (if (empty? title)
-                                       (str submodule-name " " submodule-io)
-                                       title)
-                          :note/content body}
+                          :note/name        (if (empty? title)
+                                              (str submodule-name " " submodule-io)
+                                              title)
+                          :note/content     body}
                    submodule-uuid (assoc :note/submodule submodule-uuid))]})))
 
 (rp/reg-event-fx
@@ -698,25 +736,25 @@
                     fire-head-at-attack
                     contain-status
                     units-uuid]]
-   {:transact [(cond-> {:worksheet/_diagrams [:worksheet/uuid ws-uuid]
-                        :worksheet.diagram/title title
+   {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                        :worksheet.diagram/title               title
                         :worksheet.diagram/group-variable-uuid group-variable-uuid
-                        :worksheet.diagram/row-id row-id
-                        :worksheet.diagram/units-uuid units-uuid
-                        :worksheet.diagram/ellipses [(let [l (- fire-head-at-report fire-back-at-report)
-                                                           w (/ l length-to-width-ratio)]
-                                                       {:ellipse/legend-id "Fire Perimeter at Report"
-                                                        :ellipse/semi-major-axis (/ l 2)
-                                                        :ellipse/semi-minor-axis (/ w 2)
-                                                        :ellipse/rotation 90
-                                                        :ellipse/color "blue"})
-                                                     (let [l (- fire-head-at-attack fire-back-at-attack)
-                                                           w (/ l length-to-width-ratio)]
-                                                       {:ellipse/legend-id "Fire Perimeter at Attack"
-                                                        :ellipse/semi-major-axis (/ l 2)
-                                                        :ellipse/semi-minor-axis (/ w 2)
-                                                        :ellipse/rotation 90
-                                                        :ellipse/color "red"})]}
+                        :worksheet.diagram/row-id              row-id
+                        :worksheet.diagram/units-uuid          units-uuid
+                        :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "Fire Perimeter at Report"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "blue"})
+                                                                (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "Fire Perimeter at Attack"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "red"})]}
                  (= contain-status 3)
                  (assoc :worksheet.diagram/scatter-plots [{:scatter-plot/legend-id     "Fireline Constructed"
                                                            :scatter-plot/color         "black"
@@ -816,24 +854,24 @@
                   :worksheet.diagram/row-id              row-id
                   :worksheet.diagram/units-uuid          units-uuid
                   :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "MaxSpread"
-                                                                   :arrow/length max-spread-rate
-                                                                   :arrow/rotation max-spread-dir
-                                                                   :arrow/color "red"}
+                                                                   :arrow/length    max-spread-rate
+                                                                   :arrow/rotation  max-spread-dir
+                                                                   :arrow/color     "red"}
 
                                                                   {:arrow/legend-id "Flanking1"
-                                                                   :arrow/length flanking-spread-rate
-                                                                   :arrow/rotation flanking-dir
-                                                                   :arrow/color "#81c3cb"}
+                                                                   :arrow/length    flanking-spread-rate
+                                                                   :arrow/rotation  flanking-dir
+                                                                   :arrow/color     "#81c3cb"}
 
                                                                   {:arrow/legend-id "Flanking2"
-                                                                   :arrow/length flanking-spread-rate
-                                                                   :arrow/rotation (mod (+ flanking-dir 180) 360)
-                                                                   :arrow/color "#347da0"}
+                                                                   :arrow/length    flanking-spread-rate
+                                                                   :arrow/rotation  (mod (+ flanking-dir 180) 360)
+                                                                   :arrow/color     "#347da0"}
 
                                                                   {:arrow/legend-id "Backing"
-                                                                   :arrow/length backing-spread-rate
-                                                                   :arrow/rotation backing-dir
-                                                                   :arrow/color "orange"}
+                                                                   :arrow/length    backing-spread-rate
+                                                                   :arrow/rotation  backing-dir
+                                                                   :arrow/color     "orange"}
 
                                                                   (let [l (min max-spread-rate wind-speed)]
                                                                     {:arrow/legend-id "Wind"
@@ -841,12 +879,12 @@
                                                                      ;; make wind 10% larger than
                                                                      ;; max spread rate.
                                                                      ;; :arrow/length   wind-speed
-                                                                     :arrow/length (if (> wind-speed max-spread-rate)
-                                                                                     (* l 1.1)
-                                                                                     l)
-                                                                     :arrow/rotation wind-dir
-                                                                     :arrow/color "blue"
-                                                                     :arrow/dashed? true})]
+                                                                     :arrow/length    (if (> wind-speed max-spread-rate)
+                                                                                        (* l 1.1)
+                                                                                        l)
+                                                                     :arrow/rotation  wind-dir
+                                                                     :arrow/color     "blue"
+                                                                     :arrow/dashed?   true})]
 
                                                            has-direction-of-interest?
                                                            (conj {:arrow/legend-id "Interest"
