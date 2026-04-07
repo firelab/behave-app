@@ -5,7 +5,7 @@
             [rewrite-clj.zip  :as z]
             [rewrite-clj.node :as n]))
 
-(defn keyword-entry?
+(defn- keyword-entry?
   "True if a require vector has :as or :refer as its second element.
    Uses z/right (skips whitespace) to find the keyword directly."
   [zloc]
@@ -13,7 +13,7 @@
     (try (#{:as :refer} (z/sexpr second-child))
          (catch Exception _ nil))))
 
-(defn require-vectors
+(defn- require-vectors
   "Returns all zipper locations of [ns-sym :as/:refer ...] vectors
    within the :require clause of the given file zipper."
   [root-zloc]
@@ -22,10 +22,12 @@
        (take-while (complement z/end?))
        (filter #(and (z/vector? %) (keyword-entry? %)))))
 
-(defn ns-sym-len [entry-zloc]
+(defn- ns-sym-len
+  [entry-zloc]
   (count (str (z/sexpr (z/down entry-zloc)))))
 
-(defn set-whitespace-after-ns-sym [entry-zloc spaces]
+(defn- set-whitespace-after-ns-sym
+  [entry-zloc spaces]
   (let [ws-node (n/whitespace-node (str/join (repeat spaces " ")))]
     (-> entry-zloc
         z/down        ; at ns-sym
@@ -33,7 +35,9 @@
         (z/replace ws-node)
         z/up)))
 
-(defn align-file! [path]
+(defn- align-file!
+  "Aligns all `:imports`/`:requires` dependencies."
+  [path]
   (let [content (slurp path)
         zloc    (z/of-string content {:track-position? true})
         entries (require-vectors zloc)]

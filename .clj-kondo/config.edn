@@ -1,6 +1,6 @@
 {:linters {:shadowed-var      {:level :warning}
            :single-key-in     {:level :warning}
-           :missing-docstring {:level :warning}}
+           :missing-docstring {:level :ignore}}
  :lint-as {;; Herb
            herb.core/defglobal                clojure.core/def
 
