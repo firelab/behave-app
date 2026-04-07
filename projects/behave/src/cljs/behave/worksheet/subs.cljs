@@ -887,7 +887,7 @@
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
       (if (contains? (set all-output-uuids) gv-uuid)
-        (let [parent-directional-gv (:bp/uuid directional-parent-entity gv-uuid)]
+        (let [parent-directional-gv (:bp/uuid (directional-parent-entity gv-uuid))]
           (cond-> (update acc gv-uuid (fn [[min-v max-v]]
                                         (let [min-float   (js/parseFloat min-v)
                                               max-float   (js/parseFloat max-v)
