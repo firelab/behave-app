@@ -1,5 +1,7 @@
 #+TITLE: 3. Building WebAssembly
 
+Prev: [[file:01_getting_started.org][1. Getting Started]] | Next: [[file:03_vms_guide.org][3. VMS Guide]]
+
 ** Behave-Lib
 
 The "behave-lib" directory includes the build process for generating a WASM file using c++ code from

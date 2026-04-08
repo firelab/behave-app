@@ -1,6 +1,6 @@
 #+TITLE: 1. Getting Started
 
-Next: [[file:01_index.org][0. Architecture Overview]] | Prev: [[file:02_building_wasm.org][2. Building WebAssembly]]
+Prev: [[file:00_index.org][0. Architecture Overview]] | Next: [[file:02_building_wasm.org][2. Building WebAssembly]]
 
 *** Prerequisites
 

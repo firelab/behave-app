@@ -68,7 +68,7 @@ Behave is a point system that calculates fire behavior for an area (or point) wi
 <INSERT LICENSE>
 
 ** Architecture
-[[./arch/index.org][Learn more about the architecture of the Behave application here.]]
+[[./arch/00_index.org][Learn more about the architecture of the Behave application here.]]
 
 ** Contact Us
 :PROPERTIES:
