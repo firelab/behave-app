@@ -1,7 +1,7 @@
 (ns behave.handlers
   (:require [behave-routing.main               :refer [routes]]
             [behave.download-vms               :refer [export-from-vms export-images-from-vms]]
-            [behave.init                       :refer [init-handler]]
+            [behave.init                       :refer [active-clients init-handler]]
             [behave.open                       :refer [open-handler]]
             [behave.save                       :refer [save-handler]]
             [behave.sync                       :refer [sync-handler]]
@@ -14,8 +14,8 @@
             [config.interface                  :refer [get-config]]
             [logging.interface                 :as l :refer [log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
-            [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
             [ring.middleware.keyword-params    :refer [wrap-keyword-params]]
+            [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
             [ring.middleware.reload            :refer [wrap-reload]]
             [ring.middleware.resource          :refer [wrap-resource]]
             [ring.util.codec                   :refer [url-decode]]
@@ -40,7 +40,7 @@
   (inst-ms (java.util.Date.)))
 
 (defn- kill-app!
-  "Use Runtime exit to kill entire JVM Process"
+  "Use Runtime exit to kill entire JVM Process."
   []
   (.exit (Runtime/getRuntime) 0))
 
@@ -77,13 +77,18 @@
   (if (= (get-config :server :mode) "prod")
     (let [{:keys [cancel]} params]
       (cond
-        (nil? cancel)
+        cancel
         (do
-          (reset! close-time (now-in-ms))
-          (put! @kill-channel true))
+          (swap! active-clients inc)
+          (log-str [:CLIENTS :cancel-close @active-clients])
+          (put! @cancel-channel true))
 
         :else
-        (put! @cancel-channel true))
+        (let [n (swap! active-clients dec)]
+          (log-str [:CLIENTS :close n])
+          (reset! close-time (now-in-ms))
+          (when (<= n 0)
+            (put! @kill-channel true))))
       {:status 200 :body "OK"})
     {:status 404 :body "Not Found"}))
 
@@ -113,8 +118,8 @@
                         (str/split #"&"))
             params  (reduce (fn [params keyval]
                               (let [[k v] (str/split keyval #"=")]
-                               (assoc params (keyword k) (edn/read-string v))))
-                           params keyvals)]
+                                (assoc params (keyword k) (edn/read-string v))))
+                            params keyvals)]
         (handler (assoc req :params params))))))
 
 (defn- wrap-params [handler]
@@ -167,30 +172,33 @@
   (fn [request]
     (handler (assoc request :figwheel? figwheel?))))
 
-(defn server-handler-stack
-  "Server handler stack."
-  [{:keys [reload? figwheel?]}]
+(defn handler-stack
+  "Unified handler stack. Options:
+   - `:cef?`      Skip resource serving and multipart (CEF handles these)
+   - `:reload?`   Enable hot-reload middleware
+   - `:figwheel?` Attach figwheel context to requests"
+  [{:keys [cef? reload? figwheel?]}]
   (-> routing-handler
       (wrap-figwheel figwheel?)
       wrap-params
       wrap-keyword-params
       wrap-query-params
       wrap-req-content-type+accept
-      (wrap-resource "public" {:allow-symlinks? true})
-      (wrap-content-type {:mime-types {"wasm" "application/wasm"}})
-      wrap-multipart-params
+      (optional-middleware #(wrap-resource % "public" {:allow-symlinks? true}) (not cef?))
+      (optional-middleware #(wrap-content-type % {:mime-types {"wasm" "application/wasm"}}) (not cef?))
+      (optional-middleware wrap-multipart-params (not cef?))
       wrap-exceptions
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
+(defn server-handler-stack
+  "Server handler stack."
+  [{:keys [reload? figwheel?]}]
+  (handler-stack {:reload? reload? :figwheel? figwheel?}))
+
 (defn create-cef-handler-stack
-  "Custom handler stack for Chrome Embedded Framework."
+  "Handler stack for Chrome Embedded Framework."
   []
-  (-> routing-handler
-      wrap-params
-      wrap-keyword-params
-      wrap-query-params
-      wrap-req-content-type+accept
-      wrap-exceptions))
+  (handler-stack {:cef? true}))
 
 ;; This is for Figwheel
 (def ^{:doc "Figwheel handler."}
