@@ -1,5 +1,6 @@
 (ns behave-cms.handler
   (:require [behave-cms.file-io                 :refer [file-handler]]
+            [behave-cms.migrations              :refer [migrations-page run-migration!]]
             [behave-cms.remote-api              :refer [api-handler clj-handler]]
             [behave-cms.routes                  :refer [app-routes api-routes public-routes]]
             [behave-cms.sync                    :refer [sync-handler]]

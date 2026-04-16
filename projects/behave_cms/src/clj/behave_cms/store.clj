@@ -1,8 +1,7 @@
 (ns behave-cms.store
-  (:require [behave.schema.core       :refer [all-schemas]]
-            [datomic-store.main       :as s]
-            [schema-migrate.interface :as sm]
-            [config.interface         :refer [get-config]]))
+  (:require [behave.schema.core :refer [all-schemas]]
+            [datomic-store.main :as s]
+            [config.interface   :refer [get-config]]))
 
 (defn connect!
   "Connects to datomic DB given `db-config`.
@@ -14,8 +13,7 @@
     (s/default-conn db-config
                     all-schemas
                     (fn [conn]
-                      (s/migrate! conn all-schemas)
-                      (sm/run-pending-migrations! conn "development/migrations"))
+                      (s/migrate! conn all-schemas))
                     [:bp/migration-id])))
 
 (defn default-conn

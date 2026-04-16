@@ -27,6 +27,57 @@
       (->> (str "migrations."))
       symbol))
 
+(defn discover-all-migrations
+  "Like [[discover-migrations]] but includes namespaces with `^{:migrate/ignore? true}`.
+   Each map has :id, :ns-sym, :ignored?, :payload-var, :steps-var."
+  [dir]
+  (->> (io/file dir)
+       (.listFiles)
+       (filter clj-file?)
+       (map file->ns-sym)
+       (sort)
+       (remove #(= % 'migrations.template))
+       (keep (fn [ns-sym]
+               (require ns-sym)
+               (let [ns-meta (meta (find-ns ns-sym))]
+                 {:id          (name ns-sym)
+                  :ns-sym      ns-sym
+                  :ignored?    (boolean (:migrate/ignore? ns-meta))
+                  :payload-var (or (ns-resolve ns-sym 'payload-fn)
+                                   (ns-resolve ns-sym 'payload))
+                  :steps-var   (ns-resolve ns-sym 'payload-steps)})))
+       vec))
+
+(defn applied-migrations
+  "Returns all applied migrations from Datomic, sorted by id.
+   Each entry: `{:id \"...\", :applied-at #inst \"...\"}`"
+  [conn]
+  (->> (d/q '[:find ?id ?tx-time
+              :where
+              [_ :bp/migration-id ?id ?tx]
+              [?tx :db/txInstant ?tx-time]]
+            (d/db conn))
+       (map (fn [[id tx-time]] {:id id :applied-at tx-time}))
+       (sort-by :id)))
+
+(defn run-migration-by-id!
+  "Run a single migration identified by `migration-id`.
+   Returns `:ok` if applied, `:already-applied` if previously run, throws if not found."
+  [conn dir migration-id]
+  (if (migration-applied? conn migration-id)
+    :already-applied
+    (let [migrations (discover-migrations dir)
+          migration  (some #(when (= (:id %) migration-id) %) migrations)]
+      (when-not migration
+        (throw (ex-info "Migration not found" {:migration-id migration-id})))
+      (let [{:keys [id payload-var steps-var]} migration
+            marker (core/->migration id)]
+        (if steps-var
+          (run-multi-step! conn @steps-var marker)
+          (let [payload (resolve-payload @payload-var conn)]
+            (run-single-step! conn payload marker))))
+      :ok)))
+
 (defn discover-migrations
   "Find all migration namespaces in `dir`.
    Returns them sorted by name.

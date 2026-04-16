@@ -144,3 +144,17 @@
                   with `^{:migrate/ignore? true}` metadata and migrations
                   already recorded via `:bp/migration-id`. Halts on failure."}
   run-pending-migrations! r/run-pending-migrations!)
+
+(def ^{:arglists '([dir])
+       :doc      "Like [[run-pending-migrations!]] but includes `^{:migrate/ignore? true}` namespaces.
+                  Each map has :id, :ns-sym, :ignored?, :payload-var, :steps-var."}
+  discover-all-migrations r/discover-all-migrations)
+
+(def ^{:arglists '([conn])
+       :doc      "Returns all applied migrations from Datomic, sorted by id.
+                  Each entry: `{:id \"...\", :applied-at #inst \"...\"}`"}
+  applied-migrations r/applied-migrations)
+
+(def ^{:arglists '([conn dir migration-id])
+       :doc      "Run a single migration by id string. Returns :ok, :already-applied, or throws."}
+  run-migration-by-id! r/run-migration-by-id!)
