@@ -1,5 +1,6 @@
 (ns behave.vms.subs
   (:require [behave.schema.core  :refer [rules]]
+            [behave.translate    :refer [<t]]
             [behave.vms.store    :refer [entity-from-eid
                                          entity-from-nid
                                          entity-from-uuid
@@ -7,11 +8,10 @@
                                          pull-many
                                          q
                                          vms-conn]]
-            [behave.translate    :refer [<t]]
-            [map-utils.interface :refer [index-by]]
             [datascript.core     :as d]
-            [re-frame.core       :refer [reg-sub subscribe]]
-            [re-frame.core       :as rf]))
+            [map-utils.interface :refer [index-by]]
+            [re-frame.core       :as rf]
+            [re-frame.core       :refer [reg-sub subscribe]]))
 
 (reg-sub
  :vms/query
@@ -140,6 +140,17 @@
                                     (:application/prioritized-results
                                      (d/entity @@vms-conn app-id))))]
      (distinct (concat prioritized-results normal-order)))))
+
+(reg-sub
+ :vms/note-categories
+ (fn [_]
+   (sort (d/q '[:find  [?name ...]
+                :in    $ ?app-name
+                :where
+                [?app :application/name ?app-name]
+                [?app :application/note-categories ?cat]
+                [?cat :note-category/name ?name]]
+              @@vms-conn "BehavePlus"))))
 
 (reg-sub
  :vms/units-uuid->short-code

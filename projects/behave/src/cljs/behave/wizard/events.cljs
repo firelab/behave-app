@@ -1,20 +1,20 @@
 (ns behave.wizard.events
   (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.lib.units              :refer [convert]]
-            [browser-utils.core            :refer [scroll-top!]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [behave.vms.store              :as vms]
             [behave.store                  :as s]
+            [behave.vms.store              :as vms]
             [bidi.bidi                     :refer [path-for]]
-            [goog.string                   :as gstring]
+            [browser-utils.core            :refer [scroll-top!]]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
-            [re-frame.core                 :as rf]
+            [day8.re-frame.async-flow-fx]
+            [goog.string                   :as gstring]
             [number-utils.interface        :refer [is-numeric? parse-float]]
+            [re-frame.core                 :as rf]
             [string-utils.interface        :refer [->str]]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [day8.re-frame.async-flow-fx]))
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers
 
@@ -184,8 +184,8 @@
 
 (rf/reg-event-fx
  :wizard/create-note
- (fn [_cfx [_id ws-uuid submodule-uuid submodule-name submodule-io payload]]
-   {:fx [[:dispatch [:worksheet/create-note ws-uuid submodule-uuid submodule-name submodule-io payload]]
+ (fn [_cfx [_id ws-uuid payload]]
+   {:fx [[:dispatch [:worksheet/create-note ws-uuid payload]]
          [:dispatch [:wizard/toggle-show-add-note-form]]]}))
 
 (rf/reg-event-fx

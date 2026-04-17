@@ -135,30 +135,25 @@
                                       submodules)}]])]]))
 
 (defn wizard-note
-  [{:keys [note display-submodule-headers?]}]
+  [{:keys [note]}]
   (r/with-let [[note-id
-                note-name
-                note-content
-                submodule-name
-                submodule-io] note
-               content-atom   (r/atom note-content)
-               title-atom     (r/atom note-name)]
+                note-category
+                note-content] note
+               content-atom     (r/atom note-content)
+               category-atom    (r/atom note-category)
+               *note-categories (subscribe [:vms/note-categories])]
     (if @(subscribe [:wizard/edit-note? note-id])
       [:div.wizard-note
        [:div.wizard-note__content
-        (when display-submodule-headers?
-          [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
-        [c/note {:title-label       "Note's Name / Category"
-                 :title-placeholder "Enter note's name or category"
-                 :title-value       @title-atom
-                 :body-value        @content-atom
-                 :on-save           #((reset! content-atom (:body %))
-                                      (reset! title-atom (:title %))
-                                      (dispatch [:wizard/update-note note-id %]))}]]]
+        [c/note {:title-label  "Category"
+                 :title-value  @category-atom
+                 :categories   @*note-categories
+                 :body-value   @content-atom
+                 :on-save      #(do (reset! content-atom (:body %))
+                                    (reset! category-atom (:title %))
+                                    (dispatch [:wizard/update-note note-id %]))}]]]
       [:div.wizard-note
-       (when display-submodule-headers?
-         [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
-       [:div.wizard-note__name @title-atom]
+       [:div.wizard-note__name @category-atom]
        [:div.wizard-note__content @content-atom]
        [:div.wizard-note__manage
         [c/button {:variant   "primary"
@@ -178,8 +173,7 @@
      [:div.wizard-notes__header "Run's Notes"]
      (doall (for [[id & _rest :as n] notes]
               ^{:key id}
-              [wizard-note {:note                       n
-                            :display-submodule-headers? false}]))]))
+              [wizard-note {:note n}]))]))
 
 (defn wizard-expand []
   (let [working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
@@ -199,14 +193,14 @@
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
-        submodule-uuid           (:bp/uuid @*submodule)
-        *notes                   (subscribe [:wizard/notes ws-uuid submodule-uuid])
+        *notes                   (subscribe [:wizard/notes ws-uuid])
         *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
+        *note-categories         (subscribe [:vms/note-categories])
         on-back                  #(dispatch [:wizard/back])
         on-next                  #(dispatch [:wizard/next])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
@@ -224,16 +218,11 @@
                       :icon-position "left"
                       :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
            (when @*show-add-note-form?
-             [c/note {:title-label       @(<t (bp "enter_notes_name_or_category"))
-                      :title-placeholder @(<t (bp "enter_notes_name_or_category"))
-                      :title-value       ""
-                      :body-value        ""
-                      :on-save           #(dispatch [:wizard/create-note
-                                                     ws-uuid
-                                                     submodule-uuid
-                                                     (:submodule/name @*submodule)
-                                                     (name (:submodule/io @*submodule))
-                                                     %])}])]
+             [c/note {:title-label  "Category"
+                      :title-value  ""
+                      :body-value   ""
+                      :categories   @*note-categories
+                      :on-save      #(dispatch [:wizard/create-note ws-uuid %])}])]
           [wizard-notes @*notes]])
        [:div
         {:data-theme-color module}
@@ -763,6 +752,7 @@
         *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
+        *note-categories         (subscribe [:vms/note-categories])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
         computing?               @(subscribe [:state :worksheet-computing?])
@@ -812,16 +802,11 @@
                           :icon-position "left"
                           :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
                (when @*show-add-note-form?
-                 [c/note {:title-label       @(<t (bp "enter_notes_name_or_category"))
-                          :title-placeholder @(<t (bp "enter_notes_name_or_category"))
-                          :title-value       ""
-                          :body-value        ""
-                          :on-save           #(dispatch [:wizard/create-note
-                                                         ws-uuid
-                                                         nil
-                                                         nil
-                                                         (name io)
-                                                         %])}])]
+                 [c/note {:title-label  "Category"
+                          :title-value  ""
+                          :body-value   ""
+                          :categories   @*note-categories
+                          :on-save      #(dispatch [:wizard/create-note ws-uuid %])}])]
               [wizard-notes @*notes]])
            [:div.wizard-header__submodule-navigator
             [:div.wizard-header__submodule-navigator__label

@@ -614,29 +614,21 @@
 (rp/reg-event-fx
  :worksheet/create-note
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_id
-                    ws-uuid
-                    submodule-uuid
-                    submodule-name
-                    submodule-io
-                    {:keys [title body] :as _payload}]]
+ (fn [{:keys [ds]} [_id ws-uuid {:keys [title body] :as _payload}]]
    (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
-     {:transact [(cond-> {:db/id            -1
-                          :worksheet/_notes ws-id
-                          :note/name        (if (empty? title)
-                                              (str submodule-name " " submodule-io)
-                                              title)
-                          :note/content     body}
-                   submodule-uuid (assoc :note/submodule submodule-uuid))]})))
+     {:transact [{:db/id            -1
+                  :worksheet/_notes ws-id
+                  :note/category    title
+                  :note/content     body}]})))
 
 (rp/reg-event-fx
  :worksheet/update-note
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ note-id {:keys [title body] :as _payload}]]
    (when-let [note (d/entity ds note-id)]
-     {:transact [{:db/id        (:db/id note)
-                  :note/name    title
-                  :note/content body}]})))
+     {:transact [{:db/id         (:db/id note)
+                  :note/category title
+                  :note/content  body}]})))
 
 (rp/reg-event-fx
  :worksheet/delete-note

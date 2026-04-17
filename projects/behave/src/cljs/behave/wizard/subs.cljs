@@ -1,17 +1,17 @@
 (ns behave.wizard.subs
-  (:require [behave.schema.core     :refer [rules]]
+  (:require [behave-routing.main    :refer [routes]]
             [behave.lib.units       :refer [convert]]
-            [behave.vms.store       :refer [vms-conn]]
+            [behave.schema.core     :refer [rules]]
             [behave.translate       :refer [<t bp]]
-            [clojure.set            :refer [rename-keys intersection]]
-            [datascript.core        :as d]
-            [re-frame.core          :refer [reg-sub subscribe] :as rf]
-            [number-utils.interface :refer [is-numeric? parse-float]]
-            [string-utils.interface :refer [->kebab]]
-            [clojure.string         :as str]
+            [behave.vms.store       :refer [vms-conn]]
             [bidi.bidi              :refer [path-for]]
-            [behave-routing.main    :refer [routes]]
-            [goog.string            :as gstring]))
+            [clojure.set            :refer [rename-keys intersection]]
+            [clojure.string         :as str]
+            [datascript.core        :as d]
+            [goog.string            :as gstring]
+            [number-utils.interface :refer [is-numeric? parse-float]]
+            [re-frame.core          :refer [reg-sub subscribe] :as rf]
+            [string-utils.interface :refer [->kebab]]))
 
 ;;; Helpers
 
@@ -457,26 +457,20 @@
                              [?s :submodule/io ?io]]
                 submodule-uuid])))
 
-;; returns a collection of [note-id note-name note-content submodule-name submodule-io]
-;; Optionally filter notes using submodule-uuid
+;; Returns a collection of [note-id note-category note-content]
 (reg-sub
  :wizard/notes
 
  (fn [[_id ws-uuid]]
    (subscribe [:worksheet ws-uuid]))
 
- (fn [worksheet [_ _ws-uuid submodule-uuid]]
-   (let [notes (:worksheet/notes worksheet)]
-     (cond->> notes
-       submodule-uuid (filter (fn [{s-uuid :note/submodule}]
-                                (or (= s-uuid submodule-uuid)
-                                    (nil? s-uuid))))
-       :always        (map (fn resolve-uuid [{id      :db/id
-                                              name    :note/name
-                                              content :note/content
-                                              s-uuid  :note/submodule}]
-                             (into   [id name content]
-                                     @(subscribe [:wizard/submodule-name+io s-uuid]))))))))
+ (fn [worksheet _]
+   (->> (:worksheet/notes worksheet)
+        (map (fn [{id       :db/id
+                   category :note/category
+                   name     :note/name
+                   content  :note/content}]
+               [id (or category name) content])))))
 
 (reg-sub
  :wizard/edit-note?

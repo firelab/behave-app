@@ -1,6 +1,6 @@
 (ns behave.schema.application
-  (:require [clojure.spec.alpha :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string?]]))
+  (:require [behave.schema.utils :refer [valid-key? uuid-string?]]
+            [clojure.spec.alpha :as s]))
 
 ;;; Spec
 
@@ -83,6 +83,12 @@
    {:db/ident       :application/prioritized-results
     :db/doc         "Appication's prioritized results entries. These entries prioritizes a result's order
                      over the natural order that comes from Modules, Submodules, Groups and Group-variables."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :application/note-categories
+    :db/doc         "Application's note categories."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}])
