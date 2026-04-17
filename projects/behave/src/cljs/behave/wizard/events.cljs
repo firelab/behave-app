@@ -1,20 +1,20 @@
 (ns behave.wizard.events
   (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.lib.units              :refer [convert]]
-            [browser-utils.core            :refer [scroll-top!]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [behave.vms.store              :as vms]
             [behave.store                  :as s]
+            [behave.vms.store              :as vms]
             [bidi.bidi                     :refer [path-for]]
-            [goog.string                   :as gstring]
+            [browser-utils.core            :refer [scroll-top!]]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
-            [re-frame.core                 :as rf]
+            [day8.re-frame.async-flow-fx]
+            [goog.string                   :as gstring]
             [number-utils.interface        :refer [is-numeric? parse-float]]
+            [re-frame.core                 :as rf]
             [string-utils.interface        :refer [->str]]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [day8.re-frame.async-flow-fx]))
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers
 
@@ -103,26 +103,26 @@
                         :results-page :settings)]
      {:fx [[:dispatch [:navigate path]]
            [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
-           [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]
+           [:dispatch [:worksheet/update-all-axis-limits-from-results ws-uuid]]
            [:dispatch [:worksheet/set-default-graph-settings ws-uuid]]
            [:dispatch [:state/set :worksheet-computing? false]]]})))
 
 (defn- solve-flow [params]
   {:first-dispatch [:wizard/before-solve params]
-   :rules [{:when   :seen-all-of?
-            :events [:worksheet/remove-unused-inputs
-                     :worksheet/proccess-conditonally-set-output-group-variables
-                     :worksheet/process-search-table-output-group-variables
-                     :worksheet/proccess-conditonally-set-input-group-variables
-                     :worksheet/delete-existing-diagrams
-                     :worksheet/delete-existing-result-table]
-            :dispatch [:wizard/solve params]}
-           {:when     :seen?
-            :events   :wizard/solve
-            :dispatch [:wizard/after-solve params]}
-           {:when   :seen?
-            :events :wizard/after-solve
-            :halt?  true}]})
+   :rules          [{:when     :seen-all-of?
+                     :events   [:worksheet/remove-unused-inputs
+                                :worksheet/proccess-conditonally-set-output-group-variables
+                                :worksheet/process-search-table-output-group-variables
+                                :worksheet/proccess-conditonally-set-input-group-variables
+                                :worksheet/delete-existing-diagrams
+                                :worksheet/delete-existing-result-table]
+                     :dispatch [:wizard/solve params]}
+                    {:when     :seen?
+                     :events   :wizard/solve
+                     :dispatch [:wizard/after-solve params]}
+                    {:when   :seen?
+                     :events :wizard/after-solve
+                     :halt?  true}]})
 
 (rf/reg-event-fx
  :wizard/run-solve
@@ -380,8 +380,8 @@
 (rf/reg-event-fx
  :wizard/standard-navigate-io-tab
  (fn [_ [_ ws-uuid io]]
-   {:fx [[:dispatch [:navigate (path-for routes :ws/wizard-standard
-                                         {:ws-uuid  ws-uuid
-                                          :workflow :standard
-                                          :io       io})]]]
+   {:fx                 [[:dispatch [:navigate (path-for routes :ws/wizard-standard
+                                                         {:ws-uuid  ws-uuid
+                                                          :workflow :standard
+                                                          :io       io})]]]
     :browser/scroll-top {}}))
