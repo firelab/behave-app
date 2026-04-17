@@ -1,17 +1,17 @@
 (ns behave.wizard.subs
-  (:require [behave.schema.core     :refer [rules]]
+  (:require [behave-routing.main    :refer [routes]]
             [behave.lib.units       :refer [convert]]
-            [behave.vms.store       :refer [vms-conn]]
+            [behave.schema.core     :refer [rules]]
             [behave.translate       :refer [<t bp]]
-            [clojure.set            :refer [rename-keys intersection]]
-            [datascript.core        :as d]
-            [re-frame.core          :refer [reg-sub subscribe] :as rf]
-            [number-utils.interface :refer [is-numeric? parse-float]]
-            [string-utils.interface :refer [->kebab]]
-            [clojure.string         :as str]
+            [behave.vms.store       :refer [vms-conn]]
             [bidi.bidi              :refer [path-for]]
-            [behave-routing.main    :refer [routes]]
-            [goog.string            :as gstring]))
+            [clojure.set            :refer [rename-keys intersection]]
+            [clojure.string         :as str]
+            [datascript.core        :as d]
+            [goog.string            :as gstring]
+            [number-utils.interface :refer [is-numeric? parse-float]]
+            [re-frame.core          :refer [reg-sub subscribe] :as rf]
+            [string-utils.interface :refer [->kebab]]))
 
 ;;; Helpers
 
@@ -165,8 +165,8 @@
                '[* {:group/group-variables
                     [* {:variable/_group-variables
                         [* {:variable/list
-                            [* {:list/tag-set [*]
-                                :list/color-tag-set [*]
+                            [* {:list/tag-set                        [*]
+                                :list/color-tag-set                  [*]
                                 :list/options
                                 [* {:list-option/tag-refs      [*]
                                     :list-option/color-tag-ref [*]}]}]}]}]}
@@ -206,7 +206,7 @@
                       [* {:variable/_group-variables
                           [* {:variable/list
                               [* {:list/options [*]}]}]}]
-                      :group/children [*]}]}]
+                      :group/children        [*]}]}]
                group-id]))
 
  (fn [group]
@@ -501,6 +501,30 @@
    tab-selected))
 
 (reg-sub
+ :wizard/gv-list-options-with-colors
+ (fn [[_ gv-uuid]]
+   (subscribe [:vms/pull
+               '[* {:variable/_group-variables
+                    [* {:variable/list
+                        [* {:list/options
+                            [* {:list-option/color-tag-ref [*]}]}]}]}]
+               [:bp/uuid gv-uuid]]))
+ (fn [gv _]
+   (->> (get-in gv [:variable/_group-variables 0 :variable/list :list/options])
+        (filter :list-option/color-tag-ref)
+        (mapv (fn [opt]
+                {:value (:list-option/value opt)
+                 :t-key (:list-option/translation-key opt)
+                 :color (get-in opt [:list-option/color-tag-ref :tag/color])})))))
+
+(reg-sub
+ :wizard/selected-output-cell-coloring
+ (fn [_ _]
+   (subscribe [:state [:selected-output-cell-coloring]]))
+ (fn [gv-uuid _]
+   gv-uuid))
+
+(reg-sub
  :wizard/worksheet-date
 
  (fn [[_ ws-uuid]]
@@ -542,24 +566,24 @@
              values              :conditional/values
              sub-conditionals    :conditional/sub-conditionals
              sub-conditional-op  :conditional/sub-conditional-operator}]
-           (let [{:keys [group-uuid io]} @(subscribe [:wizard/conditional-io+group-uuid
-                                                      group-variable-uuid])
-                 conditional-values-set  (set values)
-                 worksheet-value         (cond
-                                           (= ttype :module)
-                                           (map name (:worksheet/modules worksheet))
-
-                                           (= io :output)
-                                           @(subscribe [:worksheet/output-enabled?
-                                                        ws-uuid
+           (let [{:keys [group-uuid io]}   @(subscribe [:wizard/conditional-io+group-uuid
                                                         group-variable-uuid])
+                 conditional-values-set    (set values)
+                 worksheet-value           (cond
+                                             (= ttype :module)
+                                             (map name (:worksheet/modules worksheet))
 
-                                           (= io :input)
-                                           @(subscribe [:worksheet/input-value
-                                                        ws-uuid
-                                                        group-uuid
-                                                        0
-                                                        group-variable-uuid]))
+                                             (= io :output)
+                                             @(subscribe [:worksheet/output-enabled?
+                                                          ws-uuid
+                                                          group-variable-uuid])
+
+                                             (= io :input)
+                                             @(subscribe [:worksheet/input-value
+                                                          ws-uuid
+                                                          group-uuid
+                                                          0
+                                                          group-variable-uuid]))
                  worksheet-value-set       (cond
                                              (= ttype :module)      (set worksheet-value)
                                              (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))

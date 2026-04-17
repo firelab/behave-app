@@ -17,7 +17,7 @@
           [:th.table-header__header {:scope "col"} header-name])
         (conj [:th.table-header__header {:scope "col"}]))]])
 
-(defn matrix-table [{:keys [title sub-title column-headers row-headers data rows-label cols-label]}]
+(defn matrix-table [{:keys [title sub-title column-headers row-headers data rows-label cols-label cell-colors]}]
   (let [column-headers      (->params column-headers)
         row-headers         (->params row-headers)
         data                (->params data)
@@ -32,6 +32,7 @@
         [:tr.table-row
          [:th.table-header__header {:scope "row"} row-name]
          (for [column-header column-headers
-               :let          [j (:key column-header)]]
+               :let          [j (:key column-header)
+                              color (get cell-colors [i j])]]
            ^{:key j}
-           [:td.table-cell (get data [i j])])])]]))
+           [:td.table-cell {:style (when color {:background-color color})} (get data [i j])])])]]))
