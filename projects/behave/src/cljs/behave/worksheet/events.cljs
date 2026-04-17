@@ -1,7 +1,6 @@
 (ns behave.worksheet.events
   (:require [behave.components.toolbar     :refer [step-priority]]
             [behave.importer               :refer [import-worksheet]]
-            [behave.logger                 :refer [log]]
             [behave.solver.core            :refer [solve-worksheet]]
             [behave.vms.subs               :refer [directional-parent-entity]]
             [behave.wizard.subs            :refer [all-conditionals-pass?]]
@@ -629,8 +628,12 @@
 
 (rp/reg-event-fx
  :worksheet/update-graph-settings-attr
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid attr value]]
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid attr]] [:worksheet/graph-settings-axis-group-variable-uuid ws-uuid attr]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid _ value]] [:worksheet/graph-settings-axis-attr ws-uuid value]))]
+ (fn [{ds               :ds
+       original-gv-uuid :worksheet/graph-settings-axis-group-variable-uuid
+       attr-to-swap     :worksheet/graph-settings-axis-attr} [_ ws-uuid attr value]]
    (when-let [g (first (d/q '[:find [?g]
                               :in $ ?uuid
                               :where
@@ -638,7 +641,10 @@
                               [?w :worksheet/graph-settings ?g]]
                             ds
                             ws-uuid))]
-     {:transact [(assoc {:db/id g} attr value)]})))
+     (if attr-to-swap
+       {:transact [(assoc {:db/id g} attr value)
+                   (assoc {:db/id g} attr-to-swap original-gv-uuid)]}
+       {:transact [(assoc {:db/id g} attr value)]}))))
 
 ;;Notes
 

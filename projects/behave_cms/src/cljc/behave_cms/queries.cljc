@@ -48,4 +48,12 @@
 
     [(app-root ?a ?s)
      [?m :module/submodules ?s]
+     [?a :application/modules ?m]]
+
+    ;; Find app root from an action entity
+    [(app-root ?a ?action)
+     [?gv :group-variable/actions ?action]
+     [?g :group/group-variables ?gv]
+     [?sm :submodule/groups ?g]
+     [?m :module/submodules ?sm]
      [?a :application/modules ?m]]])

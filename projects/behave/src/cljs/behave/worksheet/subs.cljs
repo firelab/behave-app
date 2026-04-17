@@ -625,6 +625,30 @@
     :variables [ws-uuid attr]}))
 
 (rp/reg-sub
+ :worksheet/graph-settings-axis-group-variable-uuid
+ (fn [_ [_ ws-uuid attr]]
+   {:type      :query
+    :query     '[:find  ?gv-uuid .
+                 :in    $ ?ws-uuid ?attr
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/graph-settings ?gs]
+                 [?gs ?attr ?gv-uuid]]
+    :variables [ws-uuid attr]}))
+
+(rp/reg-sub
+ :worksheet/graph-settings-axis-attr
+ (fn [_ [_ ws-uuid gv-uuid]]
+   {:type      :query
+    :query     '[:find  ?attr .
+                 :in    $ ?ws-uuid ?gv-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/graph-settings ?gs]
+                 [?gs ?attr ?gv-uuid]]
+    :variables [ws-uuid gv-uuid]}))
+
+(rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
  (fn [_ [_ ws-uuid graph-output-uuids]]
    {:type      :query
@@ -729,9 +753,11 @@
             *cached-decimals   (rf/subscribe [:settings/cached-decimal domain-uuid])
             significant-digits (or @*cached-decimals (:domain/decimals domain))]
         (fn continuous-fmt [value]
-          (cond->> value
-            :always                             (parse-float)
-            (and significant-digits is-output?) (gstring/format (str "%." significant-digits "f")))))
+          (let [float-value (parse-float value)]
+            (cond
+              (and (= significant-digits "0") (< 0 float-value 1)) "< 1"
+              (and significant-digits is-output?)                  (gstring/format (str "%." significant-digits "f") float-value)
+              :else                                                float-value))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
@@ -809,16 +835,16 @@
                 [?w :worksheet/result-table ?rt]
                 [?rt :result-table/rows ?r]
 
-                ;;get row
+             ;;get row
                 [?r :result-row/id ?row]
 
-                ;;get-header
+             ;;get-header
                 [?r :result-row/cells ?c]
                 [?c :result-cell/header ?h]
                 [?h :result-header/group-variable-uuid ?col-uuid]
                 [?h :result-header/repeat-id ?repeat-id]
 
-                ;;get value
+             ;;get value
                 [?c :result-cell/value ?value]]
     :variables
     [ws-uuid]}))
@@ -1293,14 +1319,15 @@
 (rf/reg-sub
  :worksheet/repeat-groups?
  (fn [_ [_ ws-uuid]]
-   (some pos? (d/q '[:find [?rid ...]
-                     :in  $ ?ws-uuid
-                     :where
-                     [?w :worksheet/uuid ?ws-uuid]
-                     [?w :worksheet/input-groups ?g]
-                     [?g :input-group/group-uuid ?g-uuid]
-                     [?g :input-group/repeat-id ?rid]]
-                   @@s/conn ws-uuid))))
+   (some true? (d/q '[:find [?repeat ...]
+                      :in  $ $vms ?ws-uuid
+                      :where
+                      [$ ?w :worksheet/uuid ?ws-uuid]
+                      [$ ?w :worksheet/input-groups ?g]
+                      [$ ?g :input-group/group-uuid ?g-uuid]
+                      [$vms ?group :bp/uuid ?g-uuid]
+                      [$vms ?group :group/repeat? ?repeat]]
+                    @@s/conn @@vms-conn ws-uuid))))
 
 (rf/reg-sub
  :worksheet/should-keep-input?

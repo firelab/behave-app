@@ -1,9 +1,9 @@
 (ns behave.print.subs
-  (:require [behave.store :as s]
-            [clojure.string :as str]
-            [datascript.core :as d]
-            [re-frame.core :as rf]
-            [re-posh.core :as rp]
+  (:require [behave.store           :as s]
+            [clojure.string         :as str]
+            [datascript.core        :as d]
+            [re-frame.core          :as rf]
+            [re-posh.core           :as rp]
             [string-utils.interface :refer [split-commas-or-spaces]]))
 
 (rf/reg-sub
@@ -15,11 +15,10 @@
  (fn [[uuid+values units-lookup] _]
    (->> uuid+values
         (map (fn resolve-gv-uuid [[gv-uuid values]]
-               (let [var-name          @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
-                     discrte-multiple? @(rf/subscribe [:vms/is-group-variable-discrete-multiple? gv-uuid])]
-                 [var-name (get units-lookup gv-uuid) gv-uuid (cond->> (split-commas-or-spaces values)
-                                                                discrte-multiple?
-                                                                (sort-by #(long %)))]))))))
+               (let [var-name @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
+                 [var-name (get units-lookup gv-uuid) gv-uuid (->> values
+                                                                   (split-commas-or-spaces)
+                                                                   (sort-by #(long %)))]))))))
 
 (rf/reg-sub
  :worksheet/matrix-table-data-single-multi-valued-input
@@ -139,23 +138,23 @@
 (rp/reg-sub
  :worksheet/first-row-results-gv-uuid->value
  (fn [_ [_ ws-uuid gv-uuid]]
-   {:type  :query
-    :query '[:find ?value .
-             :in $ ?ws-uuid ?gv-uuid
-             :where
-             [?w :worksheet/uuid ?ws-uuid]
-             [?w :worksheet/result-table ?rt]
-             [?rt :result-table/rows ?r]
+   {:type      :query
+    :query     '[:find ?value .
+                 :in $ ?ws-uuid ?gv-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/result-table ?rt]
+                 [?rt :result-table/rows ?r]
 
              ;;get row
-             [?r :result-row/id 0]
+                 [?r :result-row/id 0]
 
              ;;get-header
-             [?r :result-row/cells ?c]
-             [?c :result-cell/header ?h]
-             [?h :result-header/group-variable-uuid ?gv-uuid]
-             [?h :result-header/repeat-id ?repeat-id]
+                 [?r :result-row/cells ?c]
+                 [?c :result-cell/header ?h]
+                 [?h :result-header/group-variable-uuid ?gv-uuid]
+                 [?h :result-header/repeat-id ?repeat-id]
 
              ;;get value
-             [?c :result-cell/value ?value]]
+                 [?c :result-cell/value ?value]]
     :variables [ws-uuid gv-uuid]}))

@@ -185,6 +185,11 @@
   [conn t]
   (:db/id (t-key->entity conn t)))
 
+(defn t-key->bp-uuid
+  "Get the db/id using translation-key"
+  [conn t]
+  (:bp/uuid (t-key->entity conn t)))
+
 (defn t-key-action-name->eid
   "Given a translation-key of a group-variable an action's name return the action's entity id"
   [conn gv-t-key action-name]
@@ -344,7 +349,7 @@
 
 (defn ->conditional
   "Payload for a Conditional."
-  [_conn {:keys [ttype operator values group-variable-uuid] :as params}]
+  [conn {:keys [ttype operator values group-variable-uuid sub-conditional-operator sub-conditionals] :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
@@ -354,14 +359,16 @@
                   group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
                   ttype                    (assoc :conditional/type ttype)
                   operator                 (assoc :conditional/operator operator)
-                  values                   (assoc :conditional/values values))]
+                  values                   (assoc :conditional/values values)
+                  sub-conditional-operator (assoc :conditional/sub-conditional-operator sub-conditional-operator)
+                  (seq sub-conditionals)   (assoc :conditional/sub-conditionals (map #(->conditional conn %) sub-conditionals)))]
     (if (spec/valid? :behave/conditional payload)
       payload
       (spec/explain :behave/conditional payload))))
 
 (defn ->action
   "Payload for an Action."
-  [conn {:keys [nname ttype target-value conditionals] :as params}]
+  [conn {:keys [nname ttype target-value conditionals conditionals-operator] :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
@@ -371,6 +378,7 @@
                   nname                    (assoc :action/name nname)
                   ttype                    (assoc :action/type ttype)
                   target-value             (assoc :action/target-value target-value)
+                  conditionals-operator (assoc :action/conditionals-operator conditionals-operator)
                   conditionals             (assoc :action/conditionals (map #(->conditional conn %) conditionals)))]
     (if (spec/valid? :behave/action payload)
       payload
