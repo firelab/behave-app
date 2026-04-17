@@ -559,9 +559,10 @@
 (rf/reg-sub
  :worksheet/graphed-output-uuids
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet ws-uuid]))
- (fn [worksheet [_ ws-uuid]]
-   (->> (d/q '[:find  ?uuid ?hide-result ?graph-result ?order
+   [(rf/subscribe [:worksheet ws-uuid])
+    (rf/subscribe [:vms/group-variable-order])])
+ (fn [[worksheet group-variable-order] [_ ws-uuid]]
+   (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
                :in    $ $ws % ?ws-uuid
                :where
                [$ws ?w :worksheet/uuid ?ws-uuid]
@@ -570,13 +571,12 @@
                [$ws ?o :output/enabled? true]
                (lookup ?uuid ?gv)
                [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]
-               [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]
-               [$ ?gv :group-variable/order ?order]]
+               [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]]
              @@vms-conn
              @@s/conn
              rules
              ws-uuid)
-        (sort-by last)
+        (sort-by #(.indexOf group-variable-order (first %)))
         (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
         (map first)
         (map (fn [gv-uuid] @(rf/subscribe [:vms/entity-from-uuid gv-uuid])))
@@ -1026,15 +1026,12 @@
 
 (rf/reg-sub
  :worksheet/graph-settings
- (fn [[_ ws-uuid]]
-   (rf/subscribe [:query '[:find ?gs .
-                           :in $ ?ws-uuid
-                           :where
-                           [?w :worksheet/uuid ?ws-uuid]
-                           [?w :worksheet/graph-settings ?gs]]
-                  [ws-uuid]]))
- (fn [id _]
-   (d/entity @@s/conn id)))
+ (fn [[_ ws-uuid] _]
+   (rf/subscribe [:pull '[{:worksheet/graph-settings [* {:graph-settings/y-axis-limits [*]}
+                                                      {:graph-settings/x-axis-limits [*]}]}]
+                  [:worksheet/uuid ws-uuid]]))
+ (fn [result _]
+   (:worksheet/graph-settings result)))
 
 (defn- missing-input? [value]
   (or (nil? value) (empty? value)))
