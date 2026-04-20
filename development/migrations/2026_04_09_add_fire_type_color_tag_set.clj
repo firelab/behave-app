@@ -65,7 +65,8 @@
    {"behaveplus:tags:fire-type"          "Fire Type"
     "behaveplus:tags:fire-type:surface"  "Surface"
     "behaveplus:tags:fire-type:torching" "Torching"
-    "behaveplus:tags:fire-type:crowning" "Crowning"}))
+    "behaveplus:tags:fire-type:crowning" "Crowning"
+    "behaveplus:color_by"                "Color by"}))
 
 ;; ===========================================================================================================
 ;; Transact Payload

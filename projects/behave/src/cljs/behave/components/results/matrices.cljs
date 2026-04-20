@@ -430,12 +430,12 @@
        (if (= output-count 1)
          (let [{gv-uuid :bp/uuid} (first discrete-outputs-with-colors)
                output-name        @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
-           [c/toggle {:label     (str "Color by " output-name)
+           [c/toggle {:label     (gstring/format "%s : %s" @(<t (bp "color_by")) output-name)
                       :checked?  (= selected-uuid gv-uuid)
                       :on-change #(dispatch [:wizard/set-discrete-color-output
                                              (if (= selected-uuid gv-uuid) :none gv-uuid)])}])
          [c/radio-group
-          {:label   "Color cells by:"
+          {:label   @(<t (bp "color_by"))
            :options (conj
                      (mapv (fn [{gv-uuid :bp/uuid}]
                              (let [output-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
