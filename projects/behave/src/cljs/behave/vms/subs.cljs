@@ -13,6 +13,21 @@
             [re-frame.core       :as rf]
             [re-frame.core       :refer [reg-sub subscribe]]))
 
+(defonce ^:private bp-app-id (atom nil))
+
+;;; Helpers
+
+(defn- get-app-id []
+  (if @bp-app-id
+    @bp-app-id
+    (reset! bp-app-id @(q '[:find ?app-id .
+                            :in $ ?app-name
+                            :where
+                            [?app-id :application/name ?app-name]]
+                          "BehavePlus"))))
+
+;;; Subscriptions
+
 (reg-sub
  :vms/query
  (fn [_ [_ query & variables]]
@@ -144,13 +159,8 @@
 (reg-sub
  :vms/note-categories
  (fn [_]
-   (sort (d/q '[:find  [?name ...]
-                :in    $ ?app-name
-                :where
-                [?app :application/name ?app-name]
-                [?app :application/note-categories ?cat]
-                [?cat :note-category/name ?name]]
-              @@vms-conn "BehavePlus"))))
+   (let [app-id (get-app-id)]
+     (d/pull @@vms-conn '[{:application/note-categories [*]}] app-id))))
 
 (reg-sub
  :vms/units-uuid->short-code

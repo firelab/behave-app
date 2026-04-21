@@ -61,6 +61,9 @@
               ["Error: Value(s) are not positive." 0 v-max])]
     (apply gstring/format msg)))
 
+(defn- intersect? [s1 s2]
+  (pos? (count (intersection s1 s2))))
+
 ;;; Subscriptions
 
 (reg-sub
@@ -488,6 +491,22 @@
    (true? (get-in state [:worksheet :show-add-note-form?]))))
 
 (reg-sub
+ :wizard/note-categories
+ (fn [_]
+   (rf/subscribe [:vms/note-categories]))
+ (fn [result [_ ws-modules]]
+   (let [ws-module-ids (set (map :db/id ws-modules))
+         note-categories (:application/note-categories result)]
+     (->> note-categories
+          (filter #(let [nc-modules (set (map :db/id (:note-category/modules %)))]
+                     (or (empty? nc-modules) (= ws-module-ids nc-modules))))
+          (sort-by :note-category/order)
+          (map :note-category/name)
+          (map #(zipmap [:label :value] (repeat %)))))))
+
+#_(user/clear! :wizard/note-categories)
+
+(reg-sub
  :wizard/results-tab-selected
  (fn [_ _]
    (subscribe [:state [:worksheet :results :tab-selected]]))
@@ -523,9 +542,6 @@
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
-
-(defn- intersect? [s1 s2]
-  (pos? (count (intersection s1 s2))))
 
 (defn- resolve-conditionals [worksheet conditionals]
   (let [ws-uuid (:worksheet/uuid worksheet)]

@@ -176,8 +176,7 @@
 
 (defn- option [{:keys [label value selected? disabled?]}]
   [:option
-   {:key      value
-    :class    "input-dropdown__option"
+   {:class    "input-dropdown__option"
     :disabled disabled?
     :selected selected?
     :value    value} label])
@@ -185,7 +184,7 @@
 (defn- option-group [label]
   [:optgroup {:key label :class "input-dropdown__option-group" :label label}])
 
-(defn dropdown [{:keys [label id name on-change disabled? error? options]}]
+(defn dropdown [{:keys [label id name value on-change disabled? error? options]}]
   [:div {:class ["input-dropdown"
                  (when error? "input-dropdown--error")
                  (when disabled? "input-dropdown--disabled")]}
@@ -197,10 +196,13 @@
       :disabled  disabled?
       :id        id
       :name      name
+      :value     value
       :on-change on-change}
      (for [{:keys [group] :as opt} options]
        (if (some? group)
+         ^{:key group}
          [option-group group (for [o (:options opt)] [option o])]
+         ^{:key (:value opt)}
          [option opt]))]]])
 
 ;;==============================================================================

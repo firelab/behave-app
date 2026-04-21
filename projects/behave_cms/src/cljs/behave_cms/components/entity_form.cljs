@@ -9,10 +9,12 @@
             [clojure.string                                :as str]
             [re-frame.core                                 :as rf]
             [reagent.core                                  :as r]
+            [map-utils.interface                           :refer [index-by]]
             [string-utils.interface                        :refer [->kebab ->str]]))
 
 ;;; Constants
 (def ^:private db-attrs                  (map :db/ident all-schemas))
+(def ^:private db-attrs-index            (index-by :db/ident all-schemas))
 (def ^:private db-cardinality-many-attrs (->> all-schemas
                                               (filter #(= :db.cardinality/many (:db/cardinality %)))
                                               (map :db/ident)
@@ -45,8 +47,10 @@
     (->> cardinality-many-attrs
          (map
           (fn [attr]
-            (let [new-values (set (get new-data attr))
-                  old-values (set (get original attr))]
+            (let [attr-details (get db-attrs-index attr)
+                  is-ref?      (= :db.type/ref (:db/valueType attr-details))
+                  new-values   (set (get new-data attr))
+                  old-values   (set (map (if is-ref? :db/id identity) (get original attr)))]
               (map (fn [v] [:db/retract id attr v])
                    (set/difference old-values new-values)))))
          (apply concat))))
@@ -436,6 +440,9 @@
                                              result)))
         on-submit    (u/on-submit #(let [state @(rf/subscribe [:state state-path])]
                                      (cond-> state
+                                       :always
+                                       (dissoc :group-variable-lookup)
+
                                        id
                                        (merge {:db/id id})
 
@@ -450,9 +457,6 @@
 
                                        (and id (cardinality-many-fields? fields state))
                                        (retract-cardinality-many-values original)
-
-                                       :always
-                                       (dissoc :group-variable-lookup)
 
                                        :always
                                        (upsert-entity!))
