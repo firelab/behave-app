@@ -74,7 +74,6 @@
 
 (comment
   ;; Phase 1: create the tag set, link it to the list, and add translations
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (def tx-data @(d/transact conn (concat payload translations-payload)))
 
   ;; Phase 2: assign color-tag-ref to each CrownFireType list option.
@@ -90,7 +89,6 @@
                                        {:db/id                     eid
                                         :list-option/color-tag-ref (sm/t-key->eid conn t-key)})))
                              vec)]
-    #_{:clj-kondo/ignore [:missing-docstring]}
     (def tx-data-2 @(d/transact conn options-payload))))
 
 ;; ===========================================================================================================

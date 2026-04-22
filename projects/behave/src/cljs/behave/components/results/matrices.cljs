@@ -459,7 +459,10 @@
 ;; View for Result Matrices
 ;;==============================================================================
 
-(defn result-matrices [ws-uuid]
+(defn result-matrices
+  "Construct all result matrices for a give worksheet
+  - ws-uuid : worksheet uuid"
+  [ws-uuid]
   (let [directions                      @(subscribe [:worksheet/output-directions ws-uuid])
         map-units-settings-entity       @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?              (:map-units-settings/enabled? map-units-settings-entity)
