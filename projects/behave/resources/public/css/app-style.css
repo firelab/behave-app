@@ -1604,3 +1604,31 @@ body {
   text-align: left;
 }
 
+.result-matrices__color-selector {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.result-matrices__color-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.result-matrices__color-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.result-matrices__color-legend__swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
