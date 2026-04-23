@@ -1001,9 +1001,11 @@
          enabled-map (->> group-variables
                           (mapcat (fn [{group-variable-uuid :bp/uuid
                                         actions             :group-variable/actions}]
-                                    (for [{conditionals    :action/conditionals
+                                    (for [{atype           :action/type
+                                           conditionals    :action/conditionals
                                            conditionals-op :action/conditionals-operator} actions
-                                          :when                                           (all-conditionals-pass? worksheet conditionals-op conditionals)]
+                                          :when                                           (and (= :select atype)
+                                                                                               (all-conditionals-pass? worksheet conditionals-op conditionals))]
                                       [group-variable-uuid true])))
                           (into {}))
          merged-map  (merge reset-map enabled-map)
