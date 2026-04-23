@@ -21,8 +21,9 @@
 (rf/reg-event-fx
  :settings/cache-decimal-preference
  (fn [_ [_ domain v-uuid decimal]]
-   {:fx [[:dispatch [:settings/set [:units domain v-uuid :decimals] decimal]]
-         [:dispatch [:local-storage/update-in [:units v-uuid :decimals] decimal]]]}))
+   (let [decimal (js/parseInt decimal 10)]
+     {:fx [[:dispatch [:settings/set [:units domain v-uuid :decimals] decimal]]
+           [:dispatch [:local-storage/update-in [:units v-uuid :decimals] decimal]]]})))
 
 (rf/reg-event-fx
  :settings/load-units-from-local-storage
@@ -31,7 +32,7 @@
 
  (fn [{units-settings :settings/all-units+decimals} _]
    {:fx (into []
-              (for [[domain settings] units-settings
+              (for [[domain settings]         units-settings
                     [_
                      domain-name
                      domain-uuid
@@ -40,7 +41,7 @@
                      native-domain-unit-uuid
                      english-domain-unit-uuid
                      metric-domain-unit-uuid
-                     decimals]        settings]
+                     decimals]                settings]
                 [:dispatch [:settings/set [:units domain domain-uuid]
                             {:domain-name              domain-name
                              :domain-dimension-uuid    domain-dimension-uuid
