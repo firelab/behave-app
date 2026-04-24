@@ -96,9 +96,10 @@
                                                                         next-io])]
                           (when (and module-slug submodule-slug)
                             (dispatch [:wizard/select-tab (merge params
-                                                                 {:module    module-slug
-                                                                  :io        next-io
-                                                                  :submodule submodule-slug})]))))]
+                                                                 {:module     module-slug
+                                                                  :current-io io
+                                                                  :io         next-io
+                                                                  :submodule  submodule-slug})]))))]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -194,7 +195,7 @@
                   :on-click  #(dispatch [:wizard/toggle-expand])
                   :variant   "primary"}]])))
 
-(defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
+(defn wizard-page [{:keys [module io submodule route-handler ws-uuid workflow] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *module                  (subscribe [:wizard/*module module])
@@ -209,7 +210,9 @@
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/back])
-        on-next                  #(dispatch [:wizard/next])
+        on-next                  #(dispatch [:wizard/next {:ws-uuid    ws-uuid
+                                                           :workflow   workflow
+                                                           :current-io io}])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ]
     [:div.wizard-page
