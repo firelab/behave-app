@@ -2,6 +2,7 @@
   (:require [behave.components.core  :as c]
             [behave.translate        :refer [<t bp]]
             [behave.units-conversion :refer [to-map-units]]
+            [cljs.math               :refer [round]]
             [clojure.string          :as str]
             [goog.string             :as gstring]
             [re-frame.core           :refer [subscribe]]))
@@ -15,7 +16,7 @@
                                        (fn [[gv-uuid]]
                                          (= gv-uuid output-gv-uuid))
                                        table-setting-filters))]
-    (and enabled? mmin mmax (not (<= mmin value mmax)))))
+    (and enabled? mmin mmax (not (<= mmin (round value) mmax)))))
 
 (defn- header-label [label units]
   (if (seq units)

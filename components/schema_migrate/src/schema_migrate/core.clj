@@ -414,7 +414,7 @@
   "Payload for a new Group Variable."
   [conn {:keys
          [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key conditionally-set? actions
-          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator]     :as params}]
+          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator direction-variables] :as params}]
   (let [payload (if (spec/valid? :behave/group-variable params)
                   params
                   (cond-> {}
@@ -430,6 +430,7 @@
                     cpp-class                                       (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
                     cpp-function                                    (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
                     cpp-parameter                                   (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
+                    (seq direction-variables)                       (assoc :group-variable/direction-variables direction-variables)
                     translation-key                                 (assoc :group-variable/translation-key translation-key)
                     translation-key                                 (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
                     translation-key                                 (assoc :group-variable/help-key (str translation-key ":help"))
