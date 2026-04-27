@@ -66,8 +66,7 @@
         [button {:variant   "secondary"
                  :label     save-label
                  :size      "large"
-                 :disabled? (or (> (count @written-body) limit)
-                                (empty? effective-title))
+                 :disabled? (> (count @written-body) limit)
                  :icon-name "save"
                  :on-click  #(on-save {:title effective-title
                                        :body  @written-body})}]]])))
