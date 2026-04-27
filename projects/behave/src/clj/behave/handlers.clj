@@ -9,7 +9,6 @@
             [bidi.bidi                         :refer [match-route]]
             [clojure.core.async                :refer [<! alts! chan go-loop put! timeout]]
             [clojure.edn                       :as edn]
-            [clojure.stacktrace                :as st]
             [clojure.string                    :as str]
             [config.interface                  :refer [get-config]]
             [logging.interface                 :as l :refer [log-str]]
