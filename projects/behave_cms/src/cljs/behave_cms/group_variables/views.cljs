@@ -79,7 +79,7 @@
                 :on-select #(let [v (u/input-value %)]
                               (if (= v "Select Direction...")
                                 (rf/dispatch [:api/retract-entity-attr entity :group-variable/direction-ref])
-                                (when-let [opt (first (filter #(= (:list-option/value %) v) options))]
+                                (when-let [opt (first (filter (fn [list-option] (= (:list-option/value list-option) v)) options))]
                                   (rf/dispatch [:api/update-entity {:db/id                        id
                                                                     :group-variable/direction-ref (:db/id opt)}]))))}]]))
 
