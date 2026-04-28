@@ -10,7 +10,6 @@
             [behave-cms.components.sidebar                 :refer [sidebar sidebar-width]]
             [behave-cms.components.table-entity-form       :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations            :refer [all-translations]]
-            [behave-cms.directions.subs]
             [behave-cms.help.views                         :refer [help-editor]]
             [behave-cms.routes                             :refer [app-routes]]
             [behave-cms.utils                              :as u]
@@ -70,16 +69,19 @@
 
 (defn- direction-ref-setting [entity]
   (let [{id :db/id} entity
-        directions  (rf/subscribe [:directions])
-        selected    (get-in entity [:group-variable/direction-ref :direction/id])]
+        dir-list    (first (filter #(= (:list/name %) "Directions") @(rf/subscribe [:lists])))
+        options     (sort-by :list-option/order (:list/options dir-list))
+        selected    (get-in entity [:group-variable/direction-ref :list-option/value])]
     [:div.mt-1
      [dropdown {:label     "Direction"
                 :selected  selected
-                :options   (map (fn [d] {:label (name (:direction/id d)) :value (:direction/id d)}) @directions)
-                :on-select #(let [kw (u/input-keyword %)]
-                              (if (= kw (keyword "Select Direction..."))
+                :options   (map (fn [o] {:label (:list-option/name o) :value (:list-option/value o)}) options)
+                :on-select #(let [v (u/input-value %)]
+                              (if (= v "Select Direction...")
                                 (rf/dispatch [:api/retract-entity-attr entity :group-variable/direction-ref])
-                                (rf/dispatch [:api/update-entity {:db/id id :group-variable/direction-ref [:direction/id kw]}])))}]]))
+                                (when-let [opt (first (filter #(= (:list-option/value %) v) options))]
+                                  (rf/dispatch [:api/update-entity {:db/id                        id
+                                                                    :group-variable/direction-ref (:db/id opt)}]))))}]]))
 
 (defn- settings [group-variable]
   [:div.row.mt-2
@@ -115,7 +117,7 @@
                                                                       :group/_group-variables             [*]
                                                                       :group-variable/actions             [*]
                                                                       :group-variable/direction-variables [* {:variable/_group-variables [*]}]
-                                                                      :group-variable/direction-ref       [:direction/id]}]])
+                                                                      :group-variable/direction-ref       [:list-option/value :db/id]}]])
         gv-id               (:db/id @group-variable)
         is-output?          (rf/subscribe [:group-variable/output? gv-id])
         actions             (:group-variable/actions @group-variable)

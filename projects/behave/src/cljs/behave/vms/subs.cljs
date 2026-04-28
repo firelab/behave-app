@@ -232,7 +232,7 @@
           :where
           [?gv :bp/uuid ?gv-uuid]
           [?gv :group-variable/direction-ref ?dir-eid]
-          [?dir-eid :direction/id _]]
+          [?dir-eid :list-option/value _]]
         @@vms-conn)))
 
 (reg-sub
@@ -243,7 +243,7 @@
              :where
              [?gv :bp/uuid ?gv-uuid]
              [?gv :group-variable/direction-ref ?dir-eid]
-             [?dir-eid :direction/id ?dir-id]]
+             [?dir-eid :list-option/value ?dir-id]]
            @@vms-conn
            gv-uuid)
       direction)))
@@ -252,10 +252,13 @@
  :vms/direction-color
  (fn [_ [_ direction-id]]
    (d/q '[:find ?color .
-          :in $ ?id
+          :in $ ?value
           :where
-          [?d :direction/id ?id]
-          [?d :direction/color ?color]]
+          [?l :list/name "Directions"]
+          [?l :list/options ?lo]
+          [?lo :list-option/value ?value]
+          [?lo :list-option/color-tag-ref ?tag]
+          [?tag :tag/color ?color]]
         @@vms-conn
         direction-id)))
 
@@ -263,10 +266,12 @@
  :vms/direction-translation-key
  (fn [_ [_ direction-id]]
    (d/q '[:find ?t-key .
-          :in $ ?id
+          :in $ ?value
           :where
-          [?d :direction/id ?id]
-          [?d :direction/translation-key ?t-key]]
+          [?l :list/name "Directions"]
+          [?l :list/options ?lo]
+          [?lo :list-option/value ?value]
+          [?lo :list-option/translation-key ?t-key]]
         @@vms-conn
         direction-id)))
 

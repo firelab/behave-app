@@ -93,35 +93,13 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :direction/id
-    :db/doc         "Direction's stable identifier keyword (:heading, :backing, :flanking)."
-    :db/valueType   :db.type/keyword
-    :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :direction/translation-key
-    :db/doc         "Direction's translation key."
-    :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :direction/color
-    :db/doc         "Direction's header background color as a hex string."
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :direction/order
-    :db/doc         "Direction's display order."
-    :db/valueType   :db.type/long
-    :db/cardinality :db.cardinality/one}
-
    {:db/ident       :group-variable/direction
     :db/doc         "DEPRECATED: use :group-variable/direction-ref. Group variable's direction keyword."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :group-variable/direction-ref
-    :db/doc         "Group variable's reference to a Direction entity. Replaces :group-variable/direction."
+    :db/doc         "Group variable's reference to a list-option of the 'Directions' list. Replaces :group-variable/direction."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 

@@ -151,7 +151,7 @@
  :group/_variables
  (fn [[_ group-id]]
    (subscribe [:pull-children :group/group-variables group-id '[* {:variable/_group-variables    [*]
-                                                                   :group-variable/direction-ref [:direction/id]}]]))
+                                                                   :group-variable/direction-ref [:list-option/value]}]]))
  identity)
 
 (reg-sub
@@ -174,11 +174,11 @@
    (->> variables
         (map (fn [variable]
                (let [nid       (:bp/nid variable)
-                     direction (or (get-in variable [:group-variable/direction-ref :direction/id])
-                                   (:group-variable/direction variable))
+                     direction (or (get-in variable [:group-variable/direction-ref :list-option/value])
+                                   (some-> (:group-variable/direction variable) name))
                      v-name    (get-in variable [:variable/_group-variables 0 :variable/name])]
                  {:label (if direction
-                           (gstring/format "%s (%s)" v-name (name direction))
+                           (gstring/format "%s (%s)" v-name direction)
                            v-name)
                   :link  (path-for app-routes :get-group-variable :nid nid)})))
         (sort-by :label))))

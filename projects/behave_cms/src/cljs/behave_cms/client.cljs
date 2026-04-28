@@ -6,7 +6,6 @@
                                                         verify-email-page]]
             [behave-cms.components.menu         :refer [menu]]
             [behave-cms.config                  :refer [update-config]]
-            [behave-cms.directions.views        :refer [list-directions-page]]
             [behave-cms.domains.views           :refer [domains-page]]
             [behave-cms.events]
             [behave-cms.group-variables.views   :refer [group-variable-page]]
@@ -42,7 +41,6 @@
    {:page "Variables" :path "/variables"}
    {:page "Variable  Domains" :path "/domains"}
    {:page "Lists" :path "/lists"}
-   {:page "Directions" :path "/directions"}
    {:page "Tags" :path "/tags"}
    {:page "Units" :path "/units"}
    {:page "Languages" :path "/languages"}
@@ -50,7 +48,6 @@
 
 (def app-pages {:applications         list-applications-page
                 :dashboard            dashboard/root-component
-                :directions           list-directions-page
                 :domains              domains-page
                 :get-application      list-modules-page
                 :get-group            list-subgroups-page

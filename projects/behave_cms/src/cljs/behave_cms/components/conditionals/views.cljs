@@ -142,10 +142,10 @@
                              label   :variable/name
                              dir-ref :group-variable/direction-ref
                              dir-kw  :group-variable/direction}]
-                         (let [direction (or (:direction/id dir-ref) dir-kw)]
+                         (let [direction (or (:list-option/value dir-ref) (some-> dir-kw name))]
                            {:value value
                             :label (if direction
-                                     (str label " (" (name direction) ")")
+                                     (str label " (" direction ")")
                                      label)})) @variables)}]
 
      [dropdown
@@ -306,13 +306,13 @@
                     [module-id]      @(rf/subscribe [:group-variable/module-submodule-group gv-id])
                     module-name      @(rf/subscribe [:entity-attr module-id :module/name])
                     dir-ref-eid      @(rf/subscribe [:entity-attr gv-id :group-variable/direction-ref])
-                    direction        (or (when dir-ref-eid @(rf/subscribe [:entity-attr dir-ref-eid :direction/id]))
-                                         @(rf/subscribe [:entity-attr gv-id :group-variable/direction]))
+                    direction        (or (when dir-ref-eid @(rf/subscribe [:entity-attr dir-ref-eid :list-option/value]))
+                                         (some-> @(rf/subscribe [:entity-attr gv-id :group-variable/direction]) name))
                     v-name           (if (= conditional-type :module)
                                        "Module"
                                        (let [n @(rf/subscribe [:gv-uuid->variable-name gv-uuid])]
                                          (if direction
-                                           (str n " (" (name direction) ")")
+                                           (str n " (" direction ")")
                                            n)))]
                 [:div.conditionals-graph__node
                  (when (seq sub-conditionals)

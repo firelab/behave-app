@@ -31,7 +31,6 @@
                      :subgroups         :subgroup
                      :submodules        :submodule
                      :translations      :translation
-                     :directions        :direction
                      :tags              :tag
                      :tools             :tool
                      :subtools          :subtool
@@ -104,7 +103,6 @@
      (entity-route :group-variables)
      (entity-route :variables)
      (entity-route :domains)
-     (entity-route :directions)
      (entity-route :lists)
      (entity-route :help-pages)
      (entity-route :tags)

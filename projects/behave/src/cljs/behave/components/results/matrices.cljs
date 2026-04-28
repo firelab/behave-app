@@ -373,7 +373,7 @@
                  direction-t-key @(subscribe [:vms/direction-translation-key direction])
                  direction-color @(subscribe [:vms/direction-color direction])
                  title           (or (when direction-t-key @(<t direction-t-key))
-                                     (str/capitalize (name direction)))]
+                                     (str/capitalize direction))]
              [construct-result-matrices
               {:title                 title
                :header-color          direction-color
