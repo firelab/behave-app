@@ -231,20 +231,44 @@
           :in $
           :where
           [?gv :bp/uuid ?gv-uuid]
-          [?gv :group-variable/direction ?direction]]
+          [?gv :group-variable/direction-ref ?dir-eid]
+          [?dir-eid :direction/id _]]
         @@vms-conn)))
 
 (reg-sub
  :vms/group-variable-is-directional?
  (fn [_ [_ gv-uuid direction]]
-   (= (d/q '[:find  ?direction .
+   (= (d/q '[:find  ?dir-id .
              :in $ ?gv-uuid
              :where
              [?gv :bp/uuid ?gv-uuid]
-             [?gv :group-variable/direction ?direction]]
+             [?gv :group-variable/direction-ref ?dir-eid]
+             [?dir-eid :direction/id ?dir-id]]
            @@vms-conn
            gv-uuid)
       direction)))
+
+(reg-sub
+ :vms/direction-color
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?color .
+          :in $ ?id
+          :where
+          [?d :direction/id ?id]
+          [?d :direction/color ?color]]
+        @@vms-conn
+        direction-id)))
+
+(reg-sub
+ :vms/direction-translation-key
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?t-key .
+          :in $ ?id
+          :where
+          [?d :direction/id ?id]
+          [?d :direction/translation-key ?t-key]]
+        @@vms-conn
+        direction-id)))
 
 (reg-sub
  :vms/resolve-enum-translation

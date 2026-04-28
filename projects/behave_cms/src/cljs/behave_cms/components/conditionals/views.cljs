@@ -138,11 +138,15 @@
                      (set-field (conj cond-path :conditional/values) nil)
                      (set-field (conj cond-path :conditional/group-variable-uuid)
                                 (u/input-value %)))
-       :options   (map (fn [{value :bp/uuid label :variable/name direction :group-variable/direction}]
-                         {:value value
-                          :label (if direction
-                                   (str label " (" (name direction) ")")
-                                   label)}) @variables)}]
+       :options   (map (fn [{value   :bp/uuid
+                             label   :variable/name
+                             dir-ref :group-variable/direction-ref
+                             dir-kw  :group-variable/direction}]
+                         (let [direction (or (:direction/id dir-ref) dir-kw)]
+                           {:value value
+                            :label (if direction
+                                     (str label " (" (name direction) ")")
+                                     label)})) @variables)}]
 
      [dropdown
       {:label     "Operator:"
@@ -301,7 +305,9 @@
                     gv-id            @(rf/subscribe [:bp/lookup gv-uuid])
                     [module-id]      @(rf/subscribe [:group-variable/module-submodule-group gv-id])
                     module-name      @(rf/subscribe [:entity-attr module-id :module/name])
-                    direction        @(rf/subscribe [:entity-attr gv-id :group-variable/direction])
+                    dir-ref-eid      @(rf/subscribe [:entity-attr gv-id :group-variable/direction-ref])
+                    direction        (or (when dir-ref-eid @(rf/subscribe [:entity-attr dir-ref-eid :direction/id]))
+                                         @(rf/subscribe [:entity-attr gv-id :group-variable/direction]))
                     v-name           (if (= conditional-type :module)
                                        "Module"
                                        (let [n @(rf/subscribe [:gv-uuid->variable-name gv-uuid])]

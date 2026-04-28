@@ -10,6 +10,7 @@
             [behave-cms.components.sidebar                 :refer [sidebar sidebar-width]]
             [behave-cms.components.table-entity-form       :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations            :refer [all-translations]]
+            [behave-cms.directions.subs]
             [behave-cms.help.views                         :refer [help-editor]]
             [behave-cms.routes                             :refer [app-routes]]
             [behave-cms.utils                              :as u]
@@ -67,22 +68,18 @@
       #(do (swap! *value? not)
            (update!))]]))
 
-(defn- dropdown-setting [label attr entity]
+(defn- direction-ref-setting [entity]
   (let [{id :db/id} entity
-        selected    (get entity attr)]
+        directions  (rf/subscribe [:directions])
+        selected    (get-in entity [:group-variable/direction-ref :direction/id])]
     [:div.mt-1
-     [dropdown {:label     label
+     [dropdown {:label     "Direction"
                 :selected  selected
-                :options   [{:label "Heading"
-                             :value "heading"}
-                            {:label "Backing"
-                             :value "backing"}
-                            {:label "Flanking"
-                             :value "flanking"}]
-                :on-select #(do
-                              (if (= (u/input-keyword %) (keyword "Select Direction..."))
-                                (rf/dispatch [:api/retract-entity-attr entity attr])
-                                (rf/dispatch [:api/update-entity {:db/id id attr (u/input-keyword %)}])))}]]))
+                :options   (map (fn [d] {:label (name (:direction/id d)) :value (:direction/id d)}) @directions)
+                :on-select #(let [kw (u/input-keyword %)]
+                              (if (= kw (keyword "Select Direction..."))
+                                (rf/dispatch [:api/retract-entity-attr entity :group-variable/direction-ref])
+                                (rf/dispatch [:api/update-entity {:db/id id :group-variable/direction-ref [:direction/id kw]}])))}]]))
 
 (defn- settings [group-variable]
   [:div.row.mt-2
@@ -92,7 +89,7 @@
    [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]
    [bool-setting "Hide from CSV Export?" :group-variable/hide-csv? group-variable]
    [bool-setting "Hide from Graphs?" :group-variable/hide-graph? group-variable]
-   [dropdown-setting "Direction" :group-variable/direction group-variable]])
+   [direction-ref-setting group-variable]])
 
 ;;; Public Views
 
@@ -117,7 +114,8 @@
   (let [group-variable      (rf/subscribe [:entity [:bp/nid nid] '[* {:variable/_group-variables          [*]
                                                                       :group/_group-variables             [*]
                                                                       :group-variable/actions             [*]
-                                                                      :group-variable/direction-variables [* {:variable/_group-variables [*]}]}]])
+                                                                      :group-variable/direction-variables [* {:variable/_group-variables [*]}]
+                                                                      :group-variable/direction-ref       [:direction/id]}]])
         gv-id               (:db/id @group-variable)
         is-output?          (rf/subscribe [:group-variable/output? gv-id])
         actions             (:group-variable/actions @group-variable)

@@ -34,12 +34,17 @@
                              :field-key :group/name}]}]]))
 
 (defn- variables-table [group-id]
-  (let [group-variables (rf/subscribe [:group/variables group-id])]
+  (let [group-variables (rf/subscribe [:group/variables group-id])
+        rows            (mapv (fn [gv]
+                                (assoc gv :group-variable/direction
+                                       (or (get-in gv [:group-variable/direction-ref :direction/id])
+                                           (:group-variable/direction gv))))
+                              (sort-by :group-variable/order @group-variables))]
     [simple-table
      [:variable/name :group-variable/direction :group-variable/conditionally-set?]
-     (sort-by :group-variable/order @group-variables)
-     {:on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
-      :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
+     rows
+     {:on-increase #(rf/dispatch [:api/reorder % rows :group-variable/order :inc])
+      :on-decrease #(rf/dispatch [:api/reorder % rows :group-variable/order :dec])
       :on-select   #(rf/dispatch [:subgroups/edit-variables (first (:variable/_group-variables %))])}]))
 
 (defn- add-variable [group-id]
