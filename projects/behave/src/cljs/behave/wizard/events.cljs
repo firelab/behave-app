@@ -5,15 +5,12 @@
             [behave.store                  :as s]
             [behave.vms.store              :as vms]
             [bidi.bidi                     :refer [path-for]]
-            [browser-utils.core            :refer [scroll-top!]]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
             [day8.re-frame.async-flow-fx]
-            [goog.string                   :as gstring]
             [number-utils.interface        :refer [is-numeric? parse-float]]
             [re-frame.core                 :as rf]
-            [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers

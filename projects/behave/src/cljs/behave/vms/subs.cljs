@@ -10,7 +10,6 @@
                                          vms-conn]]
             [datascript.core     :as d]
             [map-utils.interface :refer [index-by]]
-            [re-frame.core       :as rf]
             [re-frame.core       :refer [reg-sub subscribe]]))
 
 (defonce ^:private bp-app-id (atom nil))
@@ -181,8 +180,8 @@
 
 (reg-sub
  :entity-uuid->name
- (fn [_ [_ uuid]]
-   (let [entity (entity-from-uuid uuid)]
+ (fn [_ [_ entity-uuid]]
+   (let [entity (entity-from-uuid entity-uuid)]
      (->> entity
           (keys)
           (filter #(= (name %) "name"))

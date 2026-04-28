@@ -11,6 +11,7 @@
 ;; Checkbox
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn checkbox [{:keys [label id name on-change checked? disabled? error?]}]
   [:label {:class ["input-checkbox"
                    (when checked? "input-checkbox--checked")
@@ -60,6 +61,7 @@
 ;; Number
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom step]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
@@ -85,6 +87,7 @@
 ;; Range
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn range-input [{:keys [label id name on-change disabled? error? min max]}]
   [:div {:class ["input-range " (when error? "input-range--error")]}
    [:label
@@ -104,6 +107,7 @@
 ;; Radio Group
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn radio-input [{:keys [label id name value on-change checked? disabled? error?]}]
   [:label {:class ["input-radio"
                    (when checked? "input-radio--checked")
@@ -184,6 +188,7 @@
 (defn- option-group [label]
   [:optgroup {:key label :class "input-dropdown__option-group" :label label}])
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn dropdown [{:keys [label id name value on-change disabled? error? options]}]
   [:div {:class ["input-dropdown"
                  (when error? "input-dropdown--error")
@@ -209,6 +214,7 @@
 ;; Text
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn text-input
   [{:keys [disabled? error? error-msg focused? id label name on-blur on-change on-focus
            placeholder value value-atom default-value on-key-press background font-color]}]
@@ -444,8 +450,8 @@
                                                  (multi-select-on-select selections selection disable-multi-valued-input?))
                                                (reset! search nil))))
                    :on-change    #(do (reset! search (input-value %))
-                                      (reset! filtered-options (filter (fn [option]
-                                                                         (str/includes? (str/lower-case (:label option))
+                                      (reset! filtered-options (filter (fn [the-option]
+                                                                         (str/includes? (str/lower-case (:label the-option))
                                                                                         (str/lower-case @search)))
                                                                        options)))
                    :value-atom   search}]]

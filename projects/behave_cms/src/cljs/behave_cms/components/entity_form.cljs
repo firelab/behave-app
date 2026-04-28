@@ -118,7 +118,7 @@
 
 ;;; Sub-components
 
-(defmulti field-input (fn [{type :type}] type))
+(defmulti field-input (fn [{field-type :type}] field-type))
 
 (defmethod field-input :select [{:keys [label options on-change state disabled?]}]
   [:div.mb-3
@@ -230,6 +230,7 @@
      :value         @state
      :on-change     #(on-change (u/input-int-value %))}]])
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defmethod field-input :default [{:keys [type label autocomplete disabled? autofocus? required? placeholder on-change state]
                                   :or   {type "text" disabled? false required? false}}]
   [:div.my-3
@@ -462,6 +463,7 @@
                                        (upsert-entity!))
                                      (rf/dispatch [:state/set-state state-path nil])))]
     [:form {:on-submit on-submit}
+     #_{:clj-kondo/ignore [:shadowed-var]}
      (for [{:keys [field-key type] :as field} fields]
        ^{:key field-key}
        (if (= type :keywords)
