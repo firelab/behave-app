@@ -855,7 +855,7 @@
             :where
             [?gv :bp/uuid ?gv-uuid]
             [?gv :group-variable/direction-ref ?dir-eid]
-            [?dir-eid :list-option/value ?dir-id]]
+            [?dir-eid :list-option/name ?dir-id]]
           @@vms-conn
           gv-uuid)
      direction))
@@ -1228,7 +1228,7 @@
           [$ws ?o :output/enabled? true]
           (lookup ?gv-uuid ?gv)
           [?gv :group-variable/direction-ref ?dir-eid]
-          [?dir-eid :list-option/value ?dir-id]]
+          [?dir-eid :list-option/name ?dir-id]]
         @@vms-conn @@s/conn rules ws-uuid)))
 
 (rf/reg-sub

@@ -14,6 +14,7 @@
             [behave-cms.routes                             :refer [app-routes]]
             [behave-cms.utils                              :as u]
             [bidi.bidi                                     :refer [path-for]]
+            [goog.string                                   :as gstring]
             [re-frame.core                                 :as rf]))
 
 ;;; Constants
@@ -69,17 +70,17 @@
 
 (defn- direction-ref-setting [entity]
   (let [{id :db/id} entity
-        dir-list    (first (filter #(= (:list/name %) "Directions") @(rf/subscribe [:lists])))
+        dir-list    (first (filter #(= (:list/name %) "FireDirection") @(rf/subscribe [:lists])))
         options     (sort-by :list-option/order (:list/options dir-list))
-        selected    (get-in entity [:group-variable/direction-ref :list-option/value])]
+        selected    (get-in entity [:group-variable/direction-ref :list-option/name])]
     [:div.mt-1
      [dropdown {:label     "Direction"
                 :selected  selected
-                :options   (map (fn [o] {:label (:list-option/name o) :value (:list-option/value o)}) options)
+                :options   (map (fn [o] {:label (:list-option/name o) :value (:list-option/name o)}) options)
                 :on-select #(let [v (u/input-value %)]
                               (if (= v "Select Direction...")
                                 (rf/dispatch [:api/retract-entity-attr entity :group-variable/direction-ref])
-                                (when-let [opt (first (filter (fn [list-option] (= (:list-option/value list-option) v)) options))]
+                                (when-let [opt (first (filter (fn [list-option] (= (:list-option/name list-option) v)) options))]
                                   (rf/dispatch [:api/update-entity {:db/id                        id
                                                                     :group-variable/direction-ref (:db/id opt)}]))))}]]))
 
@@ -117,7 +118,7 @@
                                                                       :group/_group-variables             [*]
                                                                       :group-variable/actions             [*]
                                                                       :group-variable/direction-variables [* {:variable/_group-variables [*]}]
-                                                                      :group-variable/direction-ref       [:list-option/value :db/id]}]])
+                                                                      :group-variable/direction-ref       [:list-option/name :db/id]}]])
         gv-id               (:db/id @group-variable)
         is-output?          (rf/subscribe [:group-variable/output? gv-id])
         actions             (:group-variable/actions @group-variable)
@@ -129,7 +130,8 @@
         link-id             (rf/subscribe [:state :link])
         destination-link-id (-> (rf/subscribe [:entity @link-id])
                                 deref
-                                (get-in [:link/destination :db/id]))]
+                                (get-in [:link/destination :db/id]))
+        direction           (get-in @group-variable [:group-variable/direction-ref :list-option/name])]
     [:<>
      [sidebar
       "Variables"
@@ -140,7 +142,9 @@
       sidebar-width
       [:div.container
        [:div.row.mb-3.mt-4
-        [:h2 (:variable/name variable)]]
+        [:h2 (if direction
+               (gstring/format "%s (%s)" (:variable/name variable) direction)
+               (:variable/name variable))]]
        [accordion
         "Translations"
         [:h5 "Worksheet Translations"]

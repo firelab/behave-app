@@ -37,7 +37,7 @@
   (let [group-variables (rf/subscribe [:group/variables group-id])
         rows            (mapv (fn [gv]
                                 (assoc gv :group-variable/direction
-                                       (or (get-in gv [:group-variable/direction-ref :list-option/value])
+                                       (or (get-in gv [:group-variable/direction-ref :list-option/name])
                                            (some-> (:group-variable/direction gv) name))))
                               (sort-by :group-variable/order @group-variables))]
     [simple-table
