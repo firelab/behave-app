@@ -12,8 +12,21 @@
   "Assoc k onto m with v. If k already exists, conj v into a vector."
   [m k v]
   (assoc m k
-    (if-let [cur (get m k)]
-      (if (vector? cur)
-        (conj cur v)
-        [cur v])
-      v)))
+         (if-let [cur (get m k)]
+           (if (vector? cur)
+             (conj cur v)
+             [cur v])
+           v)))
+
+(defn update-map
+  "Update map given"
+  ([m value-fn]
+   (reduce-kv (fn [m k v]
+                (assoc m k (value-fn v)))
+              {}
+              m))
+  ([m value-fn key-fn]
+   (reduce-kv (fn [m k v]
+                (assoc m (key-fn k) (value-fn v)))
+              {}
+              m)))

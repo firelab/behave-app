@@ -5,6 +5,7 @@
             [cljs.math               :refer [round]]
             [clojure.string          :as str]
             [goog.string             :as gstring]
+            [map-utils.interface     :as map-utils]
             [re-frame.core           :as rf :refer [dispatch dispatch-sync subscribe]]))
 
 ;;==============================================================================
@@ -23,22 +24,23 @@
 
 (defn- compute-color-map-1d [color-gv-uuid matrix-data-raw input-fmt-fn]
   (when color-gv-uuid
-    (let [color-options @(subscribe [:wizard/gv-list-options-with-colors color-gv-uuid])
-          value->color  (color-options->value-color-map color-options)
-          row->color    (reduce-kv (fn [acc [row col-uuid] v]
-                                     (if (= col-uuid color-gv-uuid)
-                                       (if-let [color (get value->color v)]
-                                         (assoc acc row color)
-                                         acc)
-                                       acc))
-                                   {}
-                                   matrix-data-raw)]
-      (reduce-kv (fn [acc [row col-uuid] _]
-                   (if-let [color (get row->color row)]
-                     (assoc acc [(input-fmt-fn row) col-uuid] color)
-                     acc))
-                 {}
-                 matrix-data-raw))))
+    (let [color-options  @(subscribe [:wizard/gv-list-options-with-colors color-gv-uuid])
+          value->color   (color-options->value-color-map color-options)
+          entries-by-row (group-by (fn [[[row _] _]] row) matrix-data-raw)]
+      (reduce-kv
+       (fn [acc row entries]
+         (if-let [color (some (fn [[[_ col-uuid] v]]
+                                (when (= col-uuid color-gv-uuid)
+                                  (get value->color v)))
+                              entries)]
+           (let [fmt-row (input-fmt-fn row)]
+             (reduce (fn [a [[_ col-uuid] _]]
+                       (assoc a [fmt-row col-uuid] color))
+                     acc
+                     entries))
+           acc))
+       {}
+       entries-by-row))))
 
 (defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
   (let [[_ mmin mmax enabled?] (first (filter
@@ -58,13 +60,13 @@
      :rep-fraction (:map-units-settings/map-rep-fraction entity)}))
 
 (defn- format-matrix-cell
-  ([value formatter shaded? in-range?]
-   [:div {:class (cond-> ["result-matrix-cell-value"]
-                   shaded?   (conj "table-cell__shaded")
-                   in-range? (conj "table-cell__in-range"))}
-    (if (neg? value)
-      "-"
-      (formatter value))]))
+  [value formatter shaded? in-range?]
+  [:div {:class (cond-> ["result-matrix-cell-value"]
+                  shaded?   (conj "table-cell__shaded")
+                  in-range? (conj "table-cell__in-range"))}
+   (if (neg? value)
+     "-"
+     (formatter value))])
 
 (defn- convert-to-map-units [value units map-units map-rep-frac]
   (to-map-units value units map-units map-rep-frac))
@@ -319,10 +321,14 @@
                                                                            :submatrix-gv-uuid submatrix-gv-uuid
                                                                            :submatrix-value   submatrix-value})
         cell-colors                                 (when color-map
-                                                      (reduce-kv (fn [acc [row col] color]
-                                                                   (assoc acc [(row-fmt-fn row) (col-fmt-fn col)] color))
-                                                                 {}
-                                                                 color-map))
+                                                      (map-utils/update-map color-map
+                                                                            identity
+                                                                            (fn [[row col]]
+                                                                              [(row-fmt-fn row) (col-fmt-fn col)]))
+                                                      #_(reduce-kv (fn [acc [row col] color]
+                                                                     (assoc acc [(row-fmt-fn row) (col-fmt-fn col)] color))
+                                                                   {}
+                                                                   color-map))
         row-headers                                 (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
         column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)
         row-headers-sorted                          (sort-by :name row-headers)

@@ -487,25 +487,27 @@
  :wizard/gv-list-options-with-colors
  (fn [[_ gv-uuid]]
    (subscribe [:vms/pull
-               '[* {:variable/_group-variables
-                    [* {:variable/list
-                        [* {:list/options
-                            [* {:list-option/color-tag-ref [*]}]}]}]}]
+               '[{:variable/_group-variables
+                  [{:variable/list
+                    [{:list/options
+                      [:list-option/value
+                       :list-option/translation-key
+                       {:list-option/color-tag-ref [:tag/color]}]}]}]}]
                [:bp/uuid gv-uuid]]))
  (fn [gv _]
-   (->> (get-in gv [:variable/_group-variables 0 :variable/list :list/options])
-        (filter :list-option/color-tag-ref)
-        (mapv (fn [opt]
-                {:value (:list-option/value opt)
-                 :t-key (:list-option/translation-key opt)
-                 :color (get-in opt [:list-option/color-tag-ref :tag/color])})))))
+   (into []
+         (keep (fn [opt]
+                 (when-let [color (get-in opt [:list-option/color-tag-ref :tag/color])]
+                   {:value (:list-option/value opt)
+                    :t-key (:list-option/translation-key opt)
+                    :color color})))
+         (get-in gv [:variable/_group-variables 0 :variable/list :list/options]))))
 
 (reg-sub
  :wizard/selected-output-cell-coloring
  (fn [_ _]
    (subscribe [:state [:selected-output-cell-coloring]]))
- (fn [gv-uuid _]
-   gv-uuid))
+ identity)
 
 (reg-sub
  :wizard/worksheet-date
