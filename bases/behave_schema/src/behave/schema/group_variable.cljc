@@ -167,6 +167,7 @@
 
 ;;; Tests
 
+#_{:clj-kondo/ignore [:unresolved-symbol]}
 (comment
   (s/explain :behave/group-variable {:bp/uuid                        (str (random-uuid))
                                      :group-variable/order           0

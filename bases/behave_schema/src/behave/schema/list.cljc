@@ -217,6 +217,7 @@
 
 ;;; Tests
 
+#_{:clj-kondo/ignore [:unresolved-symbol]}
 (comment
   (s/valid? :behave/list {:list/uuid            (str (random-uuid))
                           :list/name            "My List"

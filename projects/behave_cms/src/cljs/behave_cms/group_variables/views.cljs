@@ -120,9 +120,7 @@
                                                                       :group-variable/direction-variables [* {:variable/_group-variables [*]}]
                                                                       :group-variable/direction-ref       [:list-option/name :db/id]}]])
         gv-id               (:db/id @group-variable)
-        is-output?          (rf/subscribe [:group-variable/output? gv-id])
         actions             (:group-variable/actions @group-variable)
-        action-id           (rf/subscribe [:editors :action])
         group               (:group/_group-variables @group-variable)
         variable            (get-in @group-variable [:variable/_group-variables 0])
         group-variables     (rf/subscribe [:sidebar/variables (:db/id group)])

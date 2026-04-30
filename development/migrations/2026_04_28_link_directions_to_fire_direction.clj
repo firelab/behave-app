@@ -1,6 +1,7 @@
 (ns migrations.2026-04-28-link-directions-to-fire-direction
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
+            [clojure.string           :as str]
             [datomic.api              :as d]
             [schema-migrate.interface :as sm]))
 
@@ -96,7 +97,7 @@
   (concat
    [[:db/add fire-direction-eid :list/color-tag-set -100]]
    (for [[opt-eid opt-name] fire-direction-options
-         :let               [lc-name (clojure.string/lower-case opt-name)
+         :let               [lc-name (str/lower-case opt-name)
                              tag-id  (tag-name->tempid lc-name)]
          :when              tag-id]
      [:db/add opt-eid :list-option/color-tag-ref tag-id])))
@@ -107,7 +108,7 @@
 
 (def ^:private name->option-eid
   (into {} (for [[opt-eid opt-name] fire-direction-options]
-             [(clojure.string/lower-case opt-name) opt-eid])))
+             [(str/lower-case opt-name) opt-eid])))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def gv-pairs

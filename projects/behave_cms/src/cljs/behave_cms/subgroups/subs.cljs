@@ -104,8 +104,8 @@
 
  (fn [groups _]
    (->> groups
-        (map (fn [{nid :bp/nid name :group/name}]
-               {:label name
+        (map (fn [{nid :bp/nid group-name :group/name}]
+               {:label group-name
                 :link  (path-for app-routes :get-group :nid nid)}))
         (sort-by :label))))
 
@@ -126,9 +126,9 @@
                  [?v :variable/name ?name]]
                [group-id]]))
  (fn [results]
-   (mapv (fn [[id name]]
+   (mapv (fn [[id var-name]]
            (-> @(subscribe [:entity id])
-               (assoc :variable/name name))) results)))
+               (assoc :variable/name var-name))) results)))
 
 (reg-sub
  :group/module-conditionals
