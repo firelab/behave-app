@@ -969,8 +969,9 @@
                                     (for [{atype           :action/type
                                            conditionals    :action/conditionals
                                            conditionals-op :action/conditionals-operator} actions
-                                          :when                                           (and (= :select atype)
-                                                                                               (all-conditionals-pass? worksheet conditionals-op conditionals))]
+                                          :when                                           (or (empty? conditionals)
+                                                                                              (and (= :select atype)
+                                                                                                   (all-conditionals-pass? worksheet conditionals-op conditionals)))]
                                       [group-variable-uuid true])))
                           (into {}))
          merged-map  (merge reset-map enabled-map)
