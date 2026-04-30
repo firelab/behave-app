@@ -176,25 +176,6 @@
    (->> (mapv edit-groups groups)
         (sort-by #(:group/order %)))))
 
-(defn- edit-groups-for-result-table [group]
-  (when group
-    (cond-> group
-      (seq (:group/group-variables group))
-      (assoc :group/group-variables
-             (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
-                                                     {:bp/uuid :variable/uuid})]
-                      (-> %
-                          (dissoc :variable/_group-variables)
-                          (merge variable-data)
-                          (dissoc :variable/group-variables)
-                          (update :variable/kind keyword)))
-                   (remove #(:group-variable/research? %)
-                           (:group/group-variables group))))
-
-      (seq (:group/children group))
-      (assoc :group/children
-             (map edit-groups (:group/children group))))))
-
 ;; Subgroups
 
 (reg-sub
@@ -471,11 +452,11 @@
        submodule-uuid (filter (fn [{s-uuid :note/submodule}]
                                 (or (= s-uuid submodule-uuid)
                                     (nil? s-uuid))))
-       :always        (map (fn resolve-uuid [{id      :db/id
-                                              name    :note/name
-                                              content :note/content
-                                              s-uuid  :note/submodule}]
-                             (into   [id name content]
+       :always        (map (fn resolve-uuid [{id        :db/id
+                                              note-name :note/name
+                                              content   :note/content
+                                              s-uuid    :note/submodule}]
+                             (into   [id note-name content]
                                      @(subscribe [:wizard/submodule-name+io s-uuid]))))))))
 
 (reg-sub
@@ -631,7 +612,7 @@
                                            (all-conditionals-pass?
                                             worksheet cond-operator conditionals))]
           :when  (and target-value conditionals-passed?)]
-      (if (= (:action/type action) :select)
+      (when (= (:action/type action) :select)
         (or (:action/target-value action) "true"))))))
 
 (reg-sub
@@ -939,8 +920,8 @@
 (reg-sub
  :wizard/show-graph-settings?
  (fn [[_ ws-uuid]] (subscribe [:wizard/multi-value-input-count ws-uuid]))
- (fn [count _]
-   (pos? count)))
+ (fn [input-count _]
+   (pos? input-count)))
 
 (reg-sub
  :wizard/enable-graph-settings?

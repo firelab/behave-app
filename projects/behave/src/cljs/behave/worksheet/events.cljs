@@ -14,13 +14,6 @@
 
 ;;; Helpers
 
-(defn ^:private q-worksheet [conn ws-uuid]
-  (d/q '[:find ?ws .
-         :in $ ?ws-uuid
-         :where
-         [?ws :worksheet/uuid ?ws-uuid]]
-       conn ws-uuid))
-
 (defn ^:private q-input-group [conn ws-uuid group-uuid repeat-id]
   (d/q '[:find ?ig .
          :in $ ?ws-uuid ?group-uuid ?repeat-id
@@ -50,22 +43,6 @@
          [?ig :input-group/inputs ?i]
          [?i :input/value ?value]]
        conn ws-uuid group-uuid repeat-id))
-
-(defn ^:private q-input-unit [conn group-id group-variable-uuid]
-  (or (d/q '[:find ?units .
-             :in $ ?ig ?uuid
-             :where
-             [?ig :input-group/inputs ?i]
-             [?i :input/group-variable-uuid ?uuid]
-             [?i :input/units ?units]] ;; `:input/units` deprecated
-           conn group-id group-variable-uuid)
-      (d/q '[:find ?units .
-             :in $ ?ig ?uuid
-             :where
-             [?ig :input-group/inputs ?i]
-             [?i :input/group-variable-uuid ?uuid]
-             [?i :input/units-uuid ?units]]
-           conn group-id group-variable-uuid)))
 
 (defn ^:private add-input-group-tx [ws-uuid group-uuid repeat-id]
   {:db/id                   -1
@@ -109,13 +86,13 @@
 
 (rp/reg-event-fx
  :worksheet/new
- (fn [_ [_ {:keys [uuid name modules version]}]]
-   (let [tx (cond-> {:worksheet/uuid    (or uuid (str (d/squuid)))
+ (fn [_ [_ {id :uuid ws-name :name :keys [modules version]}]]
+   (let [tx (cond-> {:worksheet/uuid    (or id (str (d/squuid)))
                      :worksheet/modules modules
                      :worksheet/created (.now js/Date)}
               version
               (assoc :worksheet/version version))]
-     {:transact [(merge tx (when name {:worksheet/name name}))]})))
+     {:transact [(merge tx (when ws-name {:worksheet/name ws-name}))]})))
 
 (rp/reg-event-fx
  :worksheet/update-attr
@@ -217,7 +194,7 @@
 (rp/reg-event-fx
  :worksheet/insert-output-units
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid gv-uuid]] [:worksheet/output-eid ws-uuid gv-uuid]))]
- (fn [{output-eid :worksheet/output-eid} [_ _ gv-uuid unit-uuid]]
+ (fn [{output-eid :worksheet/output-eid} [_ _ _ unit-uuid]]
    (when output-eid
      (let [payload [{:db/id             output-eid
                      :output/units-uuid unit-uuid}]]
@@ -299,14 +276,10 @@
                       [?h :result-header/group-variable-uuid ?group-variable-uuid]
                       [?h :result-header/repeat-id ?repeat-id]]
                     ds table group-variable-uuid repeat-id)
-       (let [headers (count (d/q '[:find [?h ...]
-                                   :in $ ?t
-                                   :where [?t :result-table/headers ?h]]
-                                 ds table))]
-         {:transact [{:db/id                table
-                      :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
-                                              :result-header/repeat-id           repeat-id
-                                              :result-header/units               units}]}]})))))
+       {:transact [{:db/id                table
+                    :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
+                                            :result-header/repeat-id           repeat-id
+                                            :result-header/units               units}]}]}))))
 
 (rp/reg-event-fx
  :worksheet/add-result-table-row
@@ -428,7 +401,7 @@
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/multi-value-input-uuids ws-uuid]))
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{worksheet               :worksheet
-       multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ ws-uuid]]
+       multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ _]]
    (when (pos? (count multi-value-input-uuids))
      (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
            gv-uuids         (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %])) multi-value-input-uuids)]
@@ -792,20 +765,20 @@
 (rp/reg-event-fx
  :worksheet/add-contain-diagram
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_
-                    ws-uuid
-                    title
-                    group-variable-uuid
-                    row-id
-                    fire-perimeter-points-X
-                    fire-perimeter-points-Y
-                    length-to-width-ratio
-                    fire-back-at-report
-                    fire-head-at-report
-                    fire-back-at-attack
-                    fire-head-at-attack
-                    contain-status
-                    units-uuid]]
+ (fn [_ [_
+         ws-uuid
+         title
+         group-variable-uuid
+         row-id
+         fire-perimeter-points-X
+         fire-perimeter-points-Y
+         length-to-width-ratio
+         fire-back-at-report
+         fire-head-at-report
+         fire-back-at-attack
+         fire-head-at-attack
+         contain-status
+         units-uuid]]
    {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
                         :worksheet.diagram/title               title
                         :worksheet.diagram/group-variable-uuid group-variable-uuid

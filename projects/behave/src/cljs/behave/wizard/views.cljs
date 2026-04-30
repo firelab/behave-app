@@ -26,8 +26,7 @@
                                                             input-value]]
             [goog.string                            :as gstring]
             [goog.string.format]
-            [re-frame.core                          :as rf]
-            [re-frame.core                          :refer [dispatch dispatch-sync subscribe]]
+            [re-frame.core                          :as rf :refer [dispatch dispatch-sync subscribe]]
             [reagent.core                           :as r]
             [string-utils.core                      :as s]
             [string-utils.interface                 :refer [->kebab]]))
@@ -299,7 +298,7 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [route-handler ws-uuid workflow] :as params}]
+(defn wizard-review-page [{:keys [route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
@@ -604,7 +603,7 @@
                      :min-attr-id :table-filter/min
                      :max-attr-id :table-filter/max}]]))
 
-(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow] :as params}]
+(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
@@ -653,7 +652,7 @@
 
 ;; Wizard Results Page
 
-(defn wizard-results-page [{:keys [route-handler ws-uuid workflow] :as params}]
+(defn wizard-results-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
