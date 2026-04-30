@@ -768,26 +768,27 @@
  :wizard/conditionally-set-group-variables
 
  (fn [[_ ws-uuid]]
-   (subscribe [:worksheet/modules ws-uuid]))
+   [(subscribe [:worksheet/modules ws-uuid])
+    (subscribe [:worksheet/all-output-uuids ws-uuid])])
 
- (fn [modules [_ _ io]]
-   (letfn [(get-conditionally-set-group-variables [module-eid]
-             (d/q '[:find [?gv ...]
-                    :in $ % ?module-eid ?io
-                    :where
-                    [?module-eid :module/submodules ?s]
-                    [?s :submodule/io ?io]
-                    (group ?s ?g)
-                    [?g :group/group-variables ?gv]
-                    (or [?gv :group-variable/conditionally-set? true]
-                        [?gv :group-variable/actions _])]
-                  @@vms-conn
-                  rules
-                  module-eid
-                  io))]
-
-     (->> (mapcat #(get-conditionally-set-group-variables (:db/id %)) modules)
-          (map #(d/touch (d/entity @@vms-conn %)))))))
+ (fn [[modules worksheet-output-uuids] [_ _ io]]
+   (let [db          @@vms-conn
+         module-eids (mapv :db/id modules)
+         output-set  (set worksheet-output-uuids)
+         gv-eids     (d/q '[:find [?gv ...]
+                            :in    $ % [?module-eid ...] ?io
+                            :where
+                            [?module-eid :module/submodules ?s]
+                            [?s :submodule/io ?io]
+                            (group ?s ?g)
+                            [?g :group/group-variables ?gv]
+                            (or [?gv :group-variable/conditionally-set? true]
+                                [?gv :group-variable/actions _])]
+                          db rules module-eids io)]
+     (into []
+           (comp (map #(d/entity db %))
+                 (remove #(contains? output-set (:bp/uuid %))))
+           gv-eids))))
 
 (reg-sub
  :wizard/conditionally-set-input-data
