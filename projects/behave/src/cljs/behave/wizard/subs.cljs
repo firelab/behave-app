@@ -168,8 +168,8 @@
                '[* {:group/group-variables
                     [* {:variable/_group-variables
                         [* {:variable/list
-                            [* {:list/tag-set [*]
-                                :list/color-tag-set [*]
+                            [* {:list/tag-set                        [*]
+                                :list/color-tag-set                  [*]
                                 :list/options
                                 [* {:list-option/tag-refs      [*]
                                     :list-option/color-tag-ref [*]}]}]}]}]}
@@ -190,7 +190,7 @@
                       [* {:variable/_group-variables
                           [* {:variable/list
                               [* {:list/options [*]}]}]}]
-                      :group/children [*]}]}]
+                      :group/children        [*]}]}]
                group-id]))
 
  (fn [group]
@@ -476,7 +476,7 @@
  (fn [_]
    (subscribe [:vms/note-categories]))
  (fn [result [_ ws-modules]]
-   (let [ws-module-ids (set (map :db/id ws-modules))
+   (let [ws-module-ids   (set (map :db/id ws-modules))
          note-categories (:application/note-categories result)]
      (->> note-categories
           (filter #(let [nc-modules (set (map :db/id (:note-category/modules %)))]
@@ -533,24 +533,24 @@
              values              :conditional/values
              sub-conditionals    :conditional/sub-conditionals
              sub-conditional-op  :conditional/sub-conditional-operator}]
-           (let [{:keys [group-uuid io]} @(subscribe [:wizard/conditional-io+group-uuid
-                                                      group-variable-uuid])
-                 conditional-values-set  (set values)
-                 worksheet-value         (cond
-                                           (= ttype :module)
-                                           (map name (:worksheet/modules worksheet))
-
-                                           (= io :output)
-                                           @(subscribe [:worksheet/output-enabled?
-                                                        ws-uuid
+           (let [{:keys [group-uuid io]}   @(subscribe [:wizard/conditional-io+group-uuid
                                                         group-variable-uuid])
+                 conditional-values-set    (set values)
+                 worksheet-value           (cond
+                                             (= ttype :module)
+                                             (map name (:worksheet/modules worksheet))
 
-                                           (= io :input)
-                                           @(subscribe [:worksheet/input-value
-                                                        ws-uuid
-                                                        group-uuid
-                                                        0
-                                                        group-variable-uuid]))
+                                             (= io :output)
+                                             @(subscribe [:worksheet/output-enabled?
+                                                          ws-uuid
+                                                          group-variable-uuid])
+
+                                             (= io :input)
+                                             @(subscribe [:worksheet/input-value
+                                                          ws-uuid
+                                                          group-uuid
+                                                          0
+                                                          group-variable-uuid]))
                  worksheet-value-set       (cond
                                              (= ttype :module)      (set worksheet-value)
                                              (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
@@ -779,7 +779,8 @@
                     [?s :submodule/io ?io]
                     (group ?s ?g)
                     [?g :group/group-variables ?gv]
-                    [?gv :group-variable/conditionally-set? true]]
+                    (or [?gv :group-variable/conditionally-set? true]
+                        [?gv :group-variable/actions _])]
                   @@vms-conn
                   rules
                   module-eid

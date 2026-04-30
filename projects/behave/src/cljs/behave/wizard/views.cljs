@@ -95,9 +95,10 @@
                                                                         next-io])]
                           (when (and module-slug submodule-slug)
                             (dispatch [:wizard/select-tab (merge params
-                                                                 {:module    module-slug
-                                                                  :io        next-io
-                                                                  :submodule submodule-slug})]))))]
+                                                                 {:module     module-slug
+                                                                  :current-io io
+                                                                  :io         next-io
+                                                                  :submodule  submodule-slug})]))))]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -144,13 +145,13 @@
     (if @(subscribe [:wizard/edit-note? note-id])
       [:div.wizard-note
        [:div.wizard-note__content
-        [c/note {:title-label  "Category"
-                 :title-value  @category-atom
-                 :categories   note-categories
-                 :body-value   @content-atom
-                 :on-save      #(do (reset! content-atom (:body %))
-                                    (reset! category-atom (:title %))
-                                    (dispatch [:wizard/update-note note-id %]))}]]]
+        [c/note {:title-label "Category"
+                 :title-value @category-atom
+                 :categories  note-categories
+                 :body-value  @content-atom
+                 :on-save     #(do (reset! content-atom (:body %))
+                                   (reset! category-atom (:title %))
+                                   (dispatch [:wizard/update-note note-id %]))}]]]
       [:div.wizard-note
        [:div.wizard-note__header
         [:div.wizard-note__name @category-atom]
@@ -189,7 +190,7 @@
                   :on-click  #(dispatch [:wizard/toggle-expand])
                   :variant   "primary"}]])))
 
-(defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
+(defn wizard-page [{:keys [module io submodule route-handler ws-uuid workflow] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *module                  (subscribe [:wizard/*module module])
@@ -204,7 +205,9 @@
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         *note-categories         (subscribe [:wizard/note-categories modules])
         on-back                  #(dispatch [:wizard/back])
-        on-next                  #(dispatch [:wizard/next])
+        on-next                  #(dispatch [:wizard/next {:ws-uuid    ws-uuid
+                                                           :workflow   workflow
+                                                           :current-io io}])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ]
     [:div.wizard-page
@@ -289,7 +292,7 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [route-handler ws-uuid _workflow] :as params}]
+(defn wizard-review-page [{:keys [route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
@@ -594,7 +597,7 @@
                      :min-attr-id :table-filter/min
                      :max-attr-id :table-filter/max}]]))
 
-(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow] :as _params}]
+(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
@@ -644,7 +647,7 @@
 
 ;; Wizard Results Page
 
-(defn wizard-results-page [{:keys [route-handler ws-uuid workflow] :as _params}]
+(defn wizard-results-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
