@@ -476,7 +476,7 @@
  (fn [_]
    (subscribe [:vms/note-categories]))
  (fn [result [_ ws-modules]]
-   (let [ws-module-ids (set (map :db/id ws-modules))
+   (let [ws-module-ids   (set (map :db/id ws-modules))
          note-categories (:application/note-categories result)]
      (->> note-categories
           (filter #(let [nc-modules (set (map :db/id (:note-category/modules %)))]

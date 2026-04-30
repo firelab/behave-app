@@ -145,13 +145,13 @@
     (if @(subscribe [:wizard/edit-note? note-id])
       [:div.wizard-note
        [:div.wizard-note__content
-        [c/note {:title-label  "Category"
-                 :title-value  @category-atom
-                 :categories   note-categories
-                 :body-value   @content-atom
-                 :on-save      #(do (reset! content-atom (:body %))
-                                    (reset! category-atom (:title %))
-                                    (dispatch [:wizard/update-note note-id %]))}]]]
+        [c/note {:title-label "Category"
+                 :title-value @category-atom
+                 :categories  note-categories
+                 :body-value  @content-atom
+                 :on-save     #(do (reset! content-atom (:body %))
+                                   (reset! category-atom (:title %))
+                                   (dispatch [:wizard/update-note note-id %]))}]]]
       [:div.wizard-note
        [:div.wizard-note__header
         [:div.wizard-note__name @category-atom]
