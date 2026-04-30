@@ -10,8 +10,22 @@
                                          vms-conn]]
             [datascript.core     :as d]
             [map-utils.interface :refer [index-by]]
-            [re-frame.core       :as rf]
             [re-frame.core       :refer [reg-sub subscribe]]))
+
+(defonce ^:private bp-app-id (atom nil))
+
+;;; Helpers
+
+(defn- get-app-id []
+  (if @bp-app-id
+    @bp-app-id
+    (reset! bp-app-id @(q '[:find ?app-id .
+                            :in $ ?app-name
+                            :where
+                            [?app-id :application/name ?app-name]]
+                          "BehavePlus"))))
+
+;;; Subscriptions
 
 (reg-sub
  :vms/query
@@ -142,6 +156,12 @@
      (distinct (concat prioritized-results normal-order)))))
 
 (reg-sub
+ :vms/note-categories
+ (fn [_]
+   (let [app-id (get-app-id)]
+     (d/pull @@vms-conn '[{:application/note-categories [*]}] app-id))))
+
+(reg-sub
  :vms/units-uuid->short-code
  (fn [_ [_ units-uuid]]
    (:unit/short-code (entity-from-uuid units-uuid))))
@@ -160,8 +180,8 @@
 
 (reg-sub
  :entity-uuid->name
- (fn [_ [_ uuid]]
-   (let [entity (entity-from-uuid uuid)]
+ (fn [_ [_ entity-uuid]]
+   (let [entity (entity-from-uuid entity-uuid)]
      (->> entity
           (keys)
           (filter #(= (name %) "name"))

@@ -272,6 +272,7 @@ body {
 /* -- End Sidebar -- */
 /* - End Sidebar Container - */
 
+
 /* -- Working Area -- */
 .working-area {
   width: calc(100% - 400px - 180px);
@@ -492,17 +493,8 @@ body {
   font-weight: var(--font-weight-300);
 }
 
-.wizard-header__banner__notes-button--minus .button__icon {
-  top: -4px;
-}
-
 .wizard-add-notes {
   padding: 5px;
-}
-
-.wizard-add-notes .button__icon,
-.wizard-header__banner__notes-button--plus .button__icon {
-  top: -2px;
 }
 
 .wizard-header__results-toolbar {
@@ -920,8 +912,17 @@ body {
   background-color: var(--darkblue-2);
 }
 
+.wizard-note__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 18px;
+  padding-bottom: 5px;
+}
+
 .wizard-note__name {
-  padding: 5px 18px;
+  padding: 10px;
   font-weight: var(--font-weight-bold);
   color: var(--medblue-3);
   background-color: none;
@@ -936,8 +937,7 @@ body {
 }
 
 .wizard-note__content {
-  margin: 5px 0px 5px 18px;
-  padding: 18px 0px 18px 0px;
+  padding: 10px;
   border-top: solid 1px var(--gray-4);
   border-bottom: dashed 1px var(--gray-4);
   color: var(--black);
@@ -946,12 +946,8 @@ body {
 .wizard-note__manage {
   display: flex;
   flex-direction: row;
-  justify-content: right;
-  padding: 18px 33px 18px 0px;
-}
-
-.wizard-note__manage .button +.button {
-  margin-left: 60px;
+  align-items: center;
+  gap: 8px;
 }
 
 .wizard-note .note > textarea {
