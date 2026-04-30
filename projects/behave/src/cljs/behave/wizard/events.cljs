@@ -200,8 +200,8 @@
 
 (rf/reg-event-fx
  :wizard/create-note
- (fn [_cfx [_id ws-uuid submodule-uuid submodule-name submodule-io payload]]
-   {:fx [[:dispatch [:worksheet/create-note ws-uuid submodule-uuid submodule-name submodule-io payload]]
+ (fn [_cfx [_id ws-uuid payload]]
+   {:fx [[:dispatch [:worksheet/create-note ws-uuid payload]]
          [:dispatch [:wizard/toggle-show-add-note-form]]]}))
 
 (rf/reg-event-fx

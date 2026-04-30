@@ -20,6 +20,8 @@
             babashka
             clojure
             openjdk17
+            nodejs
+            yarn
           ] ++ [ conveyor ];
 
           shellHook = ''
