@@ -755,9 +755,15 @@
         (fn continuous-fmt [value]
           (let [float-value (parse-float value)]
             (cond
-              (and (= significant-digits "0") (< 0 float-value 1)) "< 1"
-              (and significant-digits is-output?)                  (gstring/format (str "%." significant-digits "f") float-value)
-              :else                                                float-value))))
+              (and (= significant-digits 0)
+                   (< 0 float-value 1))
+              "< 1"
+
+              (and significant-digits is-output?)
+              (gstring/format (str "%." significant-digits "f") float-value)
+
+              :else
+              float-value))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
