@@ -139,7 +139,7 @@
      (or (first (filter (partial matching-submodule? io slug) submodules))
          (first (if (= :input io) inputs outputs))))))
 
-(defn edit-groups [group]
+(defn- edit-groups [group]
   (when group
     (cond-> group
       (seq (:group/group-variables group))
@@ -297,7 +297,9 @@
          (update :variable/kind keyword)))))
 
 ;; TODO Might want to set this in a config file to the application
-(def ^:const multi-value-input-limit 3)
+(def ^:const multi-value-input-limit
+  "Constant for setting max number of multi valued input allowed"
+  3)
 
 (reg-sub
  :wizard/multi-value-input-limit
@@ -495,6 +497,32 @@
    tab-selected))
 
 (reg-sub
+ :wizard/gv-list-options-with-colors
+ (fn [[_ gv-uuid]]
+   (subscribe [:vms/pull
+               '[{:variable/_group-variables
+                  [{:variable/list
+                    [{:list/options
+                      [:list-option/value
+                       :list-option/translation-key
+                       {:list-option/color-tag-ref [:tag/color]}]}]}]}]
+               [:bp/uuid gv-uuid]]))
+ (fn [gv _]
+   (into []
+         (keep (fn [opt]
+                 (when-let [color (get-in opt [:list-option/color-tag-ref :tag/color])]
+                   {:value (:list-option/value opt)
+                    :t-key (:list-option/translation-key opt)
+                    :color color})))
+         (get-in gv [:variable/_group-variables 0 :variable/list :list/options]))))
+
+(reg-sub
+ :wizard/selected-output-cell-coloring
+ (fn [_ _]
+   (subscribe [:state [:selected-output-cell-coloring]]))
+ identity)
+
+(reg-sub
  :wizard/worksheet-date
 
  (fn [[_ ws-uuid]]
@@ -571,7 +599,12 @@
                this-conditional)))
          conditionals)))
 
-(defn all-conditionals-pass? [worksheet conditionals-operator conditionals]
+(defn all-conditionals-pass?
+  "Proccess all conditionals to ensure they all pass, defaults to true if no conditionals exist.
+  - worksheet : worksheet entity
+  - conditionals-operator: keyword #{:or :and}
+  - conditionals : sequence of conditionals (see conditionals schema)"
+  [worksheet conditionals-operator conditionals]
   (if (seq conditionals)
     (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
       (if (= conditionals-operator :or)
