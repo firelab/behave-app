@@ -324,11 +324,7 @@
                                                       (map-utils/update-map color-map
                                                                             identity
                                                                             (fn [[row col]]
-                                                                              [(row-fmt-fn row) (col-fmt-fn col)]))
-                                                      #_(reduce-kv (fn [acc [row col] color]
-                                                                     (assoc acc [(row-fmt-fn row) (col-fmt-fn col)] color))
-                                                                   {}
-                                                                   color-map))
+                                                                              [(row-fmt-fn row) (col-fmt-fn col)])))
         row-headers                                 (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
         column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)
         row-headers-sorted                          (sort-by :name row-headers)
