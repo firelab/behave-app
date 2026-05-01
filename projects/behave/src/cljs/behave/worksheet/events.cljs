@@ -567,13 +567,13 @@
  (fn [{ds                   :ds
        directional-children :vms/directional-children} [_ ws-uuid group-var-uuid attr value]]
    (when-let [table-filter-id (get-table-filter-eid ds ws-uuid group-var-uuid)]
-     (let [children-payload (map (fn [child]
-                                   (let [child-table-filter-id
-                                         (get-table-filter-eid ds ws-uuid (:bp/uuid child))]
-                                     (assoc {:db/id child-table-filter-id} attr value)))
-                                 directional-children)]
-       {:transact (cond-> [(assoc {:db/id table-filter-id} attr value)]
-                    (seq children-payload) (concat children-payload))}))))
+     (let [children-payload (for [child directional-children
+                                  :let  [child-table-filter-id (get-table-filter-eid ds ws-uuid (:bp/uuid child))]
+                                  :when child-table-filter-id]
+                              (assoc {:db/id child-table-filter-id} attr value))
+           payload          (cond-> [(assoc {:db/id table-filter-id} attr value)]
+                              (seq children-payload) (concat children-payload))]
+       {:transact payload}))))
 
 (rp/reg-event-fx
  :worksheet/add-table-filter
@@ -953,6 +953,29 @@
                     [:db.fn/retractEntity input-eid])
                   input-eids)]
      {:transact payload})))
+
+(rf/reg-event-fx
+ :worksheet/proccess-group-variables-with-actions-but-not-conditionally-set
+
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/group-variables-with-actions-but-not-conditionally-set ws-uuid :output]))]
+
+ (fn [{worksheet       :worksheet
+       group-variables :wizard/group-variables-with-actions-but-not-conditionally-set} [_ ws-uuid]]
+   (let [reset-map   (zipmap (map :bp/uuid group-variables) (repeat false))
+         enabled-map (->> group-variables
+                          (mapcat (fn [{group-variable-uuid :bp/uuid
+                                        actions             :group-variable/actions}]
+                                    (for [{atype           :action/type
+                                           conditionals    :action/conditionals
+                                           conditionals-op :action/conditionals-operator} actions
+                                          :when                                           (and (= :select atype)
+                                                                                               (all-conditionals-pass? worksheet conditionals-op conditionals))]
+                                      [group-variable-uuid true])))
+                          (into {}))
+         merged-map  (merge reset-map enabled-map)
+         payload     (mapv (fn [[gv-uuid v]] [:dispatch [:worksheet/upsert-output ws-uuid gv-uuid v]]) merged-map)]
+     {:fx payload})))
 
 (rf/reg-event-fx
  :worksheet/proccess-conditonally-set-output-group-variables

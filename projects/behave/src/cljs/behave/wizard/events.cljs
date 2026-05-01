@@ -46,9 +46,9 @@
             (= io :input))
        (-> (dissoc :fx)
            (assoc :async-flow
-                  {:first-dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]
+                  {:first-dispatch [:worksheet/proccess-group-variables-with-actions-but-not-conditionally-set ws-uuid]
                    :rules          [{:when     :seen?
-                                     :events   :worksheet/proccess-conditonally-set-output-group-variables
+                                     :events   :worksheet/proccess-group-variables-with-actions-but-not-conditionally-set
                                      :dispatch [:navigate path]
                                      :halt?    true}]}))))))
 
@@ -86,9 +86,9 @@
                                     (= current-io :output)
                                     (= next-io :input))]
      (if guided-output->input?
-       {:async-flow {:first-dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]
+       {:async-flow {:first-dispatch [:worksheet/proccess-group-variables-with-actions-but-not-conditionally-set ws-uuid]
                      :rules          [{:when     :seen?
-                                       :events   :worksheet/proccess-conditonally-set-output-group-variables
+                                       :events   :worksheet/proccess-group-variables-with-actions-but-not-conditionally-set
                                        :dispatch [:navigate next-path]
                                        :halt?    true}]}}
        {:fx [[:dispatch [:navigate next-path]]]}))))
