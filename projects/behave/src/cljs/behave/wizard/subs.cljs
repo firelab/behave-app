@@ -61,6 +61,9 @@
               ["Error: Value(s) are not positive." 0 v-max])]
     (apply gstring/format msg)))
 
+(defn- intersect? [s1 s2]
+  (pos? (count (intersection s1 s2))))
+
 ;;; Subscriptions
 
 (reg-sub
@@ -440,26 +443,20 @@
                              [?s :submodule/io ?io]]
                 submodule-uuid])))
 
-;; returns a collection of [note-id note-name note-content submodule-name submodule-io]
-;; Optionally filter notes using submodule-uuid
+;; Returns a collection of [note-id note-category note-content]
 (reg-sub
  :wizard/notes
 
  (fn [[_id ws-uuid]]
    (subscribe [:worksheet ws-uuid]))
 
- (fn [worksheet [_ _ws-uuid submodule-uuid]]
-   (let [notes (:worksheet/notes worksheet)]
-     (cond->> notes
-       submodule-uuid (filter (fn [{s-uuid :note/submodule}]
-                                (or (= s-uuid submodule-uuid)
-                                    (nil? s-uuid))))
-       :always        (map (fn resolve-uuid [{id      :db/id
-                                              nname   :note/name
-                                              content :note/content
-                                              s-uuid  :note/submodule}]
-                             (into   [id nname content]
-                                     @(subscribe [:wizard/submodule-name+io s-uuid]))))))))
+ (fn [worksheet _]
+   (->> (:worksheet/notes worksheet)
+        (map (fn [{id        :db/id
+                   category  :note/category
+                   note-name :note/name
+                   content   :note/content}]
+               [id (or category note-name) content])))))
 
 (reg-sub
  :wizard/edit-note?
@@ -475,6 +472,22 @@
  :wizard/show-add-note-form?
  (fn [{:keys [state]} _]
    (true? (get-in state [:worksheet :show-add-note-form?]))))
+
+(reg-sub
+ :wizard/note-categories
+ (fn [_]
+   (subscribe [:vms/note-categories]))
+ (fn [result [_ ws-modules]]
+   (let [ws-module-ids   (set (map :db/id ws-modules))
+         note-categories (:application/note-categories result)]
+     (->> note-categories
+          (filter #(let [nc-modules (set (map :db/id (:note-category/modules %)))]
+                     (or (empty? nc-modules) (= ws-module-ids nc-modules))))
+          (sort-by :note-category/order)
+          (map :note-category/name)
+          (map #(zipmap [:label :value] (repeat %)))))))
+
+#_(user/clear! :wizard/note-categories)
 
 (reg-sub
  :wizard/results-tab-selected
@@ -538,9 +551,6 @@
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
-
-(defn- intersect? [s1 s2]
-  (pos? (count (intersection s1 s2))))
 
 (defn- resolve-conditionals [worksheet conditionals]
   (let [ws-uuid (:worksheet/uuid worksheet)]
@@ -791,25 +801,27 @@
  :wizard/conditionally-set-group-variables
 
  (fn [[_ ws-uuid]]
-   (subscribe [:worksheet/modules ws-uuid]))
+   [(subscribe [:worksheet/modules ws-uuid])
+    (subscribe [:worksheet/all-output-uuids ws-uuid])])
 
- (fn [modules [_ _ io]]
-   (letfn [(get-conditionally-set-group-variables [module-eid]
-             (d/q '[:find [?gv ...]
-                    :in $ % ?module-eid ?io
-                    :where
-                    [?module-eid :module/submodules ?s]
-                    [?s :submodule/io ?io]
-                    (group ?s ?g)
-                    [?g :group/group-variables ?gv]
-                    [?gv :group-variable/conditionally-set? true]]
-                  @@vms-conn
-                  rules
-                  module-eid
-                  io))]
-
-     (->> (mapcat #(get-conditionally-set-group-variables (:db/id %)) modules)
-          (map #(d/touch (d/entity @@vms-conn %)))))))
+ (fn [[modules worksheet-output-uuids] [_ _ io]]
+   (let [db          @@vms-conn
+         module-eids (mapv :db/id modules)
+         output-set  (set worksheet-output-uuids)
+         gv-eids     (d/q '[:find [?gv ...]
+                            :in    $ % [?module-eid ...] ?io
+                            :where
+                            [?module-eid :module/submodules ?s]
+                            [?s :submodule/io ?io]
+                            (group ?s ?g)
+                            [?g :group/group-variables ?gv]
+                            (or [?gv :group-variable/conditionally-set? true]
+                                [?gv :group-variable/actions _])]
+                          db rules module-eids io)]
+     (into []
+           (comp (map #(d/entity db %))
+                 (remove #(contains? output-set (:bp/uuid %))))
+           gv-eids))))
 
 (reg-sub
  :wizard/conditionally-set-input-data
@@ -952,8 +964,8 @@
 (reg-sub
  :wizard/show-graph-settings?
  (fn [[_ ws-uuid]] (subscribe [:wizard/multi-value-input-count ws-uuid]))
- (fn [ccount _]
-   (pos? ccount)))
+ (fn [input-count _]
+   (pos? input-count)))
 
 (reg-sub
  :wizard/enable-graph-settings?

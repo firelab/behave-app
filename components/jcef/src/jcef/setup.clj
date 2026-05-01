@@ -35,13 +35,18 @@
 
 (defn jcef-builder
   "Produces a `CEFAppBuilder` with the installation
-   directory set according to the System OS."
+   directory set according to the System OS.
+
+   Skips installation (i.e. no Chrome/CEF download) whenever an
+   install directory is already present on disk. In packaged
+   Conveyor mode (`app.dir` is set) installation is always skipped
+   because the bundle ships with the app."
   []
   (let [app-dir  (System/getProperty "app.dir")
-        jcef-dir (get-jcef-dir)]
-    (if (nil? app-dir)
-      (doto (CefAppBuilder.)
-        (.setInstallDir jcef-dir))
-      (doto (CefAppBuilder.)
-        (.setInstallDir jcef-dir)
-        (.setSkipInstallation true)))))
+        jcef-dir (get-jcef-dir)
+        builder  (doto (CefAppBuilder.)
+                   (.setInstallDir jcef-dir))]
+    (when (or (some? app-dir)
+              (.exists jcef-dir))
+      (.setSkipInstallation builder true))
+    builder))
