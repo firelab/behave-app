@@ -119,15 +119,20 @@
              :when           opt-eid]
          [:db/add gv-eid :group-variable/direction-ref opt-eid])))
 
+(def payload
+  (concat directions-color-tag-payload
+          translations-payload
+          attach-payload
+          backfill-payload))
+
 ;; ===========================================================================================================
 ;; Transact
 ;; ===========================================================================================================
 
 (comment
-  (def tx1 @(d/transact conn (concat directions-color-tag-payload
-                                     translations-payload
-                                     attach-payload
-                                     backfill-payload))))
+  #_{:clj-kondo/ignore [:missing-docstring]}
+  (try (def tx-data @(d/transact conn payload))
+       (catch Exception e  (str "caught exception: " (.getMessage e)))))
 
 ;; ===========================================================================================================
 ;; Rollback
