@@ -5,15 +5,12 @@
             [behave.store                  :as s]
             [behave.vms.store              :as vms]
             [bidi.bidi                     :refer [path-for]]
-            [browser-utils.core            :refer [scroll-top!]]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
             [day8.re-frame.async-flow-fx]
-            [goog.string                   :as gstring]
             [number-utils.interface        :refer [is-numeric? parse-float]]
             [re-frame.core                 :as rf]
-            [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers
@@ -35,7 +32,7 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid module io submodule workflow]}]]
+ (fn [_ [_ {:keys [ws-uuid module current-io io submodule workflow]}]]
    (let [path (path-for routes
                         :ws/wizard-guided
                         :ws-uuid ws-uuid
@@ -43,8 +40,17 @@
                         :module module
                         :io io
                         :submodule submodule)]
-     {:fx              [[:dispatch [:navigate path]]]
-      :help/scroll-top nil})))
+     (cond-> {:fx              [[:dispatch [:navigate path]]]
+              :help/scroll-top nil}
+       (and (= current-io :output)
+            (= io :input))
+       (-> (dissoc :fx)
+           (assoc :async-flow
+                  {:first-dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]
+                   :rules          [{:when     :seen?
+                                     :events   :worksheet/proccess-conditonally-set-output-group-variables
+                                     :dispatch [:navigate path]
+                                     :halt?    true}]}))))))
 
 (rf/reg-event-fx
  :wizard/back
@@ -68,14 +74,24 @@
 
 (rf/reg-event-fx
  :wizard/next
- (fn [_]
-   (let [current-path       (str/replace
-                             (. (. js/document -location) -href)
-                             #"(^.*(?=(/worksheets)))"
-                             "")
-         current-path-index (.indexOf @current-route-order current-path)
-         next-path          (get @current-route-order (inc current-path-index))]
-     {:fx [[:dispatch [:navigate next-path]]]})))
+ (fn [_ [_ {:keys [ws-uuid workflow current-io]}]]
+   (let [current-path          (str/replace
+                                (. (. js/document -location) -href)
+                                #"(^.*(?=(/worksheets)))"
+                                "")
+         current-path-index    (.indexOf @current-route-order current-path)
+         next-path             (get @current-route-order (inc current-path-index))
+         next-io               (some-> next-path (str/split #"/") (get 6) keyword)
+         guided-output->input? (and (= workflow :guided)
+                                    (= current-io :output)
+                                    (= next-io :input))]
+     (if guided-output->input?
+       {:async-flow {:first-dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]
+                     :rules          [{:when     :seen?
+                                       :events   :worksheet/proccess-conditonally-set-output-group-variables
+                                       :dispatch [:navigate next-path]
+                                       :halt?    true}]}}
+       {:fx [[:dispatch [:navigate next-path]]]}))))
 
 (rf/reg-event-fx
  :wizard/before-solve
@@ -184,8 +200,8 @@
 
 (rf/reg-event-fx
  :wizard/create-note
- (fn [_cfx [_id ws-uuid submodule-uuid submodule-name submodule-io payload]]
-   {:fx [[:dispatch [:worksheet/create-note ws-uuid submodule-uuid submodule-name submodule-io payload]]
+ (fn [_cfx [_id ws-uuid payload]]
+   {:fx [[:dispatch [:worksheet/create-note ws-uuid payload]]
          [:dispatch [:wizard/toggle-show-add-note-form]]]}))
 
 (rf/reg-event-fx

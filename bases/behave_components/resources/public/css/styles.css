@@ -2251,15 +2251,40 @@ p {
 
 /* - End Compute - */
 
+/* -- Note -- */
+
 .note {
   flex-direction: column;
   display: flex;
   position: relative;
 }
 
-.note > .note__input-title {
-  padding: 34px 0px;
-  font-size: var(--font-size-16);
+.note__category-select {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.note__category-select .input-dropdown {
+  flex-direction: row;
+  align-items: center;
+}
+
+.note__category-select .input-dropdown__label {
+  padding-right: 12px;
+}
+
+.note__category-select .input-dropdown__select-wrapper {
+  margin-top: 0;
+}
+
+.note__category-select .input-dropdown__label,
+.note__category-select .input-text__label {
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
 }
 
 .note > textarea {
@@ -2271,6 +2296,8 @@ p {
 .note__footer {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 8px;
   position: relative;
   padding-top: 5px;
   font-size: var(--font-size-14);
@@ -2279,9 +2306,13 @@ p {
 
 .note__footer > button {
   margin-top: 14px;
+}
+
+.note__footer > button:first-of-type {
   margin-left: auto;
 }
 
+/* -- End Note -- */
 
 /* - Start Multi Select - */
 
