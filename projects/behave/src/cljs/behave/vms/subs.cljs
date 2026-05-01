@@ -251,20 +251,49 @@
           :in $
           :where
           [?gv :bp/uuid ?gv-uuid]
-          [?gv :group-variable/direction ?direction]]
+          [?gv :group-variable/direction-ref ?dir-eid]
+          [?dir-eid :list-option/value _]]
         @@vms-conn)))
 
 (reg-sub
  :vms/group-variable-is-directional?
  (fn [_ [_ gv-uuid direction]]
-   (= (d/q '[:find  ?direction .
+   (= (d/q '[:find  ?dir-id .
              :in $ ?gv-uuid
              :where
              [?gv :bp/uuid ?gv-uuid]
-             [?gv :group-variable/direction ?direction]]
+             [?gv :group-variable/direction-ref ?dir-eid]
+             [?dir-eid :list-option/name ?dir-id]]
            @@vms-conn
            gv-uuid)
       direction)))
+
+(reg-sub
+ :vms/direction-color
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?color .
+          :in $ ?name
+          :where
+          [?l :list/name "FireDirection"]
+          [?l :list/options ?lo]
+          [?lo :list-option/name ?name]
+          [?lo :list-option/color-tag-ref ?tag]
+          [?tag :tag/color ?color]]
+        @@vms-conn
+        direction-id)))
+
+(reg-sub
+ :vms/direction-translation-key
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?t-key .
+          :in $ ?name
+          :where
+          [?l :list/name "FireDirection"]
+          [?l :list/options ?lo]
+          [?lo :list-option/name ?name]
+          [?lo :list-option/translation-key ?t-key]]
+        @@vms-conn
+        direction-id)))
 
 (reg-sub
  :vms/resolve-enum-translation

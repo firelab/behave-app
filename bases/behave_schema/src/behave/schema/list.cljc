@@ -1,6 +1,6 @@
 (ns behave.schema.list
-  (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [many-ref? valid-key? uuid-string? zero-pos?]]))
+  (:require [behave.schema.utils :refer [many-ref? valid-key? uuid-string? zero-pos?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
@@ -68,7 +68,8 @@
    {:db/ident       :list/options
     :db/doc         "List's options."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    ;; List Options
    {:db/ident       :list-option/uuid
@@ -216,6 +217,7 @@
 
 ;;; Tests
 
+#_{:clj-kondo/ignore [:unresolved-symbol]}
 (comment
   (s/valid? :behave/list {:list/uuid            (str (random-uuid))
                           :list/name            "My List"

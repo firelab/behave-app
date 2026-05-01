@@ -856,11 +856,12 @@
     [ws-uuid]}))
 
 (defn- is-directional? [gv-uuid direction]
-  (= (d/q '[:find  ?direction .
+  (= (d/q '[:find  ?dir-id .
             :in $ ?gv-uuid
             :where
             [?gv :bp/uuid ?gv-uuid]
-            [?gv :group-variable/direction ?direction]]
+            [?gv :group-variable/direction-ref ?dir-eid]
+            [?dir-eid :list-option/name ?dir-id]]
           @@vms-conn
           gv-uuid)
      direction))
@@ -1224,7 +1225,7 @@
 (rf/reg-sub
  :worksheet/output-directions
  (fn [_ [_ ws-uuid]]
-   (d/q '[:find  [?direction ...]
+   (d/q '[:find  [?dir-id ...]
           :in    $ $ws % ?ws-uuid
           :where
           [$ws ?w :worksheet/uuid ?ws-uuid]
@@ -1232,7 +1233,8 @@
           [$ws ?o :output/group-variable-uuid ?gv-uuid]
           [$ws ?o :output/enabled? true]
           (lookup ?gv-uuid ?gv)
-          [?gv :group-variable/direction ?direction]]
+          [?gv :group-variable/direction-ref ?dir-eid]
+          [?dir-eid :list-option/name ?dir-id]]
         @@vms-conn @@s/conn rules ws-uuid)))
 
 (rf/reg-sub
