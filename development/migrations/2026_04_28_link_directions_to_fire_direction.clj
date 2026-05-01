@@ -10,15 +10,11 @@
 ;; ===========================================================================================================
 
 ;; 1. Create "Directions" color tag-set with Heading/Flanking/Backing tags and hex colors.
-;;    Tag translation keys reuse the existing FireDirection list-option translation keys so
-;;    human-readable labels are shared.
 ;; 2. Seed an English translation for the new tag-set key only; per-direction keys already exist.
 ;; 3. Attach :list/color-tag-set to the existing FireDirection list.
 ;; 4. Add :list-option/color-tag-ref to each FireDirection list-option (matched by :list-option/name).
 ;; 5. Backfill :group-variable/direction-ref from existing :group-variable/direction keywords,
 ;;    resolving against FireDirection options by :list-option/name.
-;;
-;; :group-variable/direction keywords are NOT retracted.
 
 ;; ===========================================================================================================
 ;; Initialize
