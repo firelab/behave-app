@@ -764,31 +764,42 @@
          parsed-values (map js/parseFloat (str/split values ","))]
      [0 (apply max parsed-values)])))
 
-(reg-sub
- :wizard/conditionally-set-group-variables
-
- (fn [[_ ws-uuid]]
-   [(subscribe [:worksheet/modules ws-uuid])
-    (subscribe [:worksheet/all-output-uuids ws-uuid])])
-
- (fn [[modules worksheet-output-uuids] [_ _ io]]
-   (let [db          @@vms-conn
-         module-eids (mapv :db/id modules)
-         output-set  (set worksheet-output-uuids)
-         gv-eids     (d/q '[:find [?gv ...]
+(defn- query-module-group-variables
+  [db modules io extra-where]
+  (let [module-eids (mapv :db/id modules)
+        query       (conj '[:find  [?gv ...]
                             :in    $ % [?module-eid ...] ?io
                             :where
                             [?module-eid :module/submodules ?s]
                             [?s :submodule/io ?io]
                             (group ?s ?g)
-                            [?g :group/group-variables ?gv]
-                            (or [?gv :group-variable/conditionally-set? true]
-                                [?gv :group-variable/actions _])]
-                          db rules module-eids io)]
+                            [?g :group/group-variables ?gv]]
+                          extra-where)
+        gv-eids     (d/q query db rules module-eids io)]
+    (mapv #(d/entity db %) gv-eids)))
+
+(reg-sub
+ :wizard/conditionally-set-group-variables
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/modules ws-uuid]))
+ (fn [modules [_ _ io]]
+   (query-module-group-variables @@vms-conn modules io
+                                 '[?gv :group-variable/conditionally-set? true])))
+
+(reg-sub
+ :wizard/output-group-variables-with-actions
+
+ (fn [[_ ws-uuid]]
+   [(subscribe [:worksheet/modules ws-uuid])
+    (subscribe [:worksheet/all-output-uuids ws-uuid])])
+
+ (fn [[modules worksheet-output-uuids] _]
+   (let [output-set (set worksheet-output-uuids)]
      (into []
-           (comp (map #(d/entity db %))
-                 (remove #(contains? output-set (:bp/uuid %))))
-           gv-eids))))
+           (remove #(contains? output-set (:bp/uuid %)))
+           (query-module-group-variables @@vms-conn modules :output
+                                         '[?gv :group-variable/actions _])))))
 
 (reg-sub
  :wizard/conditionally-set-input-data
