@@ -381,7 +381,9 @@
  (fn [_ [_ gv-uuid]]
    (get-group-hierarchy @@vms-conn gv-uuid)))
 
-(defn direction-variables [gv-uuid]
+(defn direction-variables
+  "Get `:group-variable/direction-variables` for the given group variable uuid"
+  [gv-uuid]
   (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
     (seq (:group-variable/direction-variables entity))))
 
@@ -390,7 +392,9 @@
  (fn [_ [_ gv-uuid]]
    (direction-variables gv-uuid)))
 
-(defn directional-parent-entity [gv-uuid]
+(defn directional-parent-entity
+  "Given a group variable uuid resolve parent ref of the :group-variable/_direction-variables attribute"
+  [gv-uuid]
   (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
     (first (:group-variable/_direction-variables entity))))
 

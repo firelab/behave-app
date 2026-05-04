@@ -38,6 +38,7 @@
 
 ;;; Schema
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def schema
   [{:db/ident       :group-variable/cpp-namespace
     :db/doc         "Group variable's C++ namespace."

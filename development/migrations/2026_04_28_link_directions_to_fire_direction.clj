@@ -119,6 +119,7 @@
              :when           opt-eid]
          [:db/add gv-eid :group-variable/direction-ref opt-eid])))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
   (concat directions-color-tag-payload
           translations-payload
@@ -139,4 +140,4 @@
 ;; ===========================================================================================================
 
 (comment
-  (sm/rollback-tx! conn tx1))
+  (sm/rollback-tx! conn tx-data))

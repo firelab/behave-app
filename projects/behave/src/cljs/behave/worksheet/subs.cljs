@@ -18,21 +18,18 @@
             [string-utils.interface      :refer [->kebab ->str]]))
 
 ;; Helpers
-(defn make-tree
+(defn- make-tree
   [xs]
   (into {} (map (fn [x] [(butlast x) [(last x)]]) xs)))
 
-(defn input-tree-to-vec
+(defn- input-tree-to-vec
   [[path leaf]]
   (let [input-vec (vec (concat (vec path) leaf))]
     (if (= (count input-vec) 4)
       (conj input-vec :none)
       input-vec)))
 
-(defn re-entity-from-uuid [bp-uuid]
-  (re/entity [:bp/uuid bp-uuid]))
-
-(defn re-entity-from-eid [eid]
+(defn- re-entity-from-eid [eid]
   (re/entity eid))
 
 (rf/reg-sub

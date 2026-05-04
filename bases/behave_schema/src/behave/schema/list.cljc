@@ -30,6 +30,7 @@
                                    :opt [:list-option/default
                                          :list-option/hide?]))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def schema
   ;; Lists
   [{:db/ident       :list/uuid
