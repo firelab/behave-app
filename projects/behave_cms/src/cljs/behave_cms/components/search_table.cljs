@@ -1,11 +1,11 @@
 (ns behave-cms.components.search-table
-  (:require [behave-cms.components.conditionals.views      :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.common            :refer [accordion btn-sm]]
-            [behave-cms.components.entity-form       :refer [entity-form]]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]
+  (:require [behave-cms.components.common             :refer [accordion btn-sm]]
+            [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.entity-form        :refer [entity-form]]
+            [behave-cms.components.table-entity-form  :refer [table-entity-form]]
             [behave-cms.submodules.subs]
-            [reagent.core                            :as r]
-            [re-frame.core                           :as rf]))
+            [re-frame.core                            :as rf]
+            [reagent.core                             :as r]))
 
 (defn search-tables
   "Component for displaying all existing search tables and a form for entering new ones"

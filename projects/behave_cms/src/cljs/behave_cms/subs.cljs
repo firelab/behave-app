@@ -2,6 +2,7 @@
   (:require [austinbirch.reactive-entity :as re]
             [behave-cms.applications.subs]
             [behave-cms.components.conditionals.subs]
+            [behave-cms.components.sidebar.subs]
             [behave-cms.domains.subs]
             [behave-cms.group-variables.subs]
             [behave-cms.groups.subs]

@@ -1,9 +1,9 @@
 (ns behave-cms.components.messaging
-  (:require [herb.core          :refer [<class]]
-            [reagent.core       :as r]
+  (:require [behave-cms.styles  :as $]
             [clojure.core.async :refer [chan go >! <! timeout]]
             [clojure.string     :as str]
-            [behave-cms.styles  :as $]))
+            [herb.core          :refer [<class]]
+            [reagent.core       :as r]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; State

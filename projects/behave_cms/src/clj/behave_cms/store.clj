@@ -1,7 +1,7 @@
 (ns behave-cms.store
   (:require [behave.schema.core :refer [all-schemas]]
-            [datomic-store.main :as s]
-            [config.interface   :refer [get-config]]))
+            [config.interface   :refer [get-config]]
+            [datomic-store.main :as s]))
 
 (defn connect!
   "Connects to datomic DB given `db-config`.

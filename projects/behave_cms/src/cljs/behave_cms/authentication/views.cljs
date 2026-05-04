@@ -1,9 +1,9 @@
 (ns behave-cms.authentication.views
-  (:require [reagent.core                 :as r]
-            [re-frame.core                :as rf]
+  (:require [behave-cms.components.common :refer [simple-form]]
             [behave-cms.styles            :as $]
-            [behave-cms.components.common :refer [simple-form]]
-            [behave-cms.utils             :as u]))
+            [behave-cms.utils             :as u]
+            [re-frame.core                :as rf]
+            [reagent.core                 :as r]))
 
 ;;; Helpers
 

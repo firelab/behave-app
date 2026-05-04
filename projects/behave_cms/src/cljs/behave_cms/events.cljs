@@ -92,9 +92,19 @@
  :navigate
  (fn [{db :db} [_ new-route]]
    (when-let [[new-history new-position new-route] (navigate (:router db) new-route)]
-     {:db                 (assoc db :router {:history new-history :curr-position new-position})
+     {:db                 (-> db
+                              (assoc :router {:history new-history :curr-position new-position})
+                              (assoc-in [:state :sidebar :toggled] #{}))
       :history/push-state {:position new-position
                            :route    new-route}})))
+
+(reg-event-db
+ :sidebar/toggle
+ (fn [db [_ id]]
+   (update-in db [:state :sidebar :toggled]
+              (fn [s]
+                (let [s (or s #{})]
+                  (if (contains? s id) (disj s id) (conj s id)))))))
 
 (reg-event-fx
  :refresh

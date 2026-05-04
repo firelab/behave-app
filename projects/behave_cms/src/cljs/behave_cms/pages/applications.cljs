@@ -1,9 +1,9 @@
 (ns behave-cms.pages.applications
-  (:require [behave-cms.components.common      :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]
-            [behave-cms.components.sidebar     :refer [sidebar sidebar-width]]
-            [re-frame.core                     :as rf]
-            [reagent.core                      :as r]))
+  (:require [behave-cms.components.common        :refer [simple-table]]
+            [behave-cms.components.entity-form   :refer [entity-form]]
+            [behave-cms.components.sidebar.views :refer [sidebar sidebar-width]]
+            [re-frame.core                       :as rf]
+            [reagent.core                        :as r]))
 
 (def columns [:application_name :version])
 

@@ -1,6 +1,6 @@
 (ns behave-cms.components.variable-search
-  (:require [reagent.core :as r]
-            [behave-cms.utils :as u]))
+  (:require [behave-cms.utils :as u]
+            [reagent.core     :as r]))
 
 (defn variable-search
   "Displays a variable search component. Takes a map with:

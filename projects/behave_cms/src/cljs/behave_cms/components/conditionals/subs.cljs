@@ -1,7 +1,7 @@
 (ns behave-cms.components.conditionals.subs
-  (:require [re-frame.core    :refer [reg-sub subscribe]]
+  (:require [behave-cms.store :refer [conn]]
             [datascript.core  :as d]
-            [behave-cms.store :refer [conn]]))
+            [re-frame.core    :refer [reg-sub subscribe]]))
 
 (reg-sub
  :conditionals/all-conditionals

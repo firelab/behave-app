@@ -1,7 +1,7 @@
 (ns behave-cms.groups.views
   (:require [behave-cms.components.common             :refer [accordion checkbox window]]
             [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.sidebar            :refer [sidebar sidebar-width]]
+            [behave-cms.components.sidebar.views      :refer [sidebar-width]]
             [behave-cms.components.table-entity-form  :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations       :refer [all-translations]]
             [behave-cms.groups.subs]
@@ -64,50 +64,43 @@
   [{nid :nid}]
   (let [submodule           (rf/subscribe [:entity [:bp/nid nid] '[* {:module/_submodules [*]}]])
         submodule-eid       (:db/id @submodule)
-        sidebar-groups      (rf/subscribe [:sidebar/groups submodule-eid])
         var-conditionals    (rf/subscribe [:submodule/variable-conditionals submodule-eid])
         module-conditionals (rf/subscribe [:submodule/module-conditionals submodule-eid])
         parent-module       (:module/_submodules @submodule)]
-    [:<>
-     [sidebar
-      "Groups"
-      @sidebar-groups
-      (str (:module/name parent-module) " Submodules")
-      (str "/modules/" (:bp/nid parent-module))]
-     [window sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (str (:submodule/name @submodule) " (" (->str (:submodule/io @submodule)) ")")]]
+    [window sidebar-width
+     [:div.container
+      [:div.row.mb-3.mt-4
+       [:h2 (str (:submodule/name @submodule) " (" (->str (:submodule/io @submodule)) ")")]]
 
-       [accordion
-        "Groups"
-        [groups-table (:db/id @submodule)]]
-       [:hr]
-       ^{:key "group-results-order"}
-       [accordion
-        "Groups Results Order"
-        [groups-results-order-table (:db/id @submodule)]]
-       [:hr]
-       ^{:key "conditionals"}
-       [accordion
-        "Conditionals"
-        [:div.col-9
-         [conditionals-graph submodule-eid submodule-eid :submodule/conditionals :submodule/conditionals-operator]]
-        [:div.col-3
-         [manage-conditionals submodule-eid :submodule/conditionals]]]
+      [accordion
+       "Groups"
+       [groups-table (:db/id @submodule)]]
+      [:hr]
+      ^{:key "group-results-order"}
+      [accordion
+       "Groups Results Order"
+       [groups-results-order-table (:db/id @submodule)]]
+      [:hr]
+      ^{:key "conditionals"}
+      [accordion
+       "Conditionals"
+       [:div.col-9
+        [conditionals-graph submodule-eid submodule-eid :submodule/conditionals :submodule/conditionals-operator]]
+       [:div.col-3
+        [manage-conditionals submodule-eid :submodule/conditionals]]]
 
-       [:hr]
-       [accordion
-        "Translations"
-        [:div.col-12
-         [all-translations (:submodule/translation-key @submodule)]]]
+      [:hr]
+      [accordion
+       "Translations"
+       [:div.col-12
+        [all-translations (:submodule/translation-key @submodule)]]]
 
-       [:hr]
-       [accordion
-        "Help Page"
-        [help-editor (:submodule/help-key @submodule)]]
+      [:hr]
+      [accordion
+       "Help Page"
+       [help-editor (:submodule/help-key @submodule)]]
 
-       [:hr]
-       [accordion
-        "Settings"
-        [settings @submodule]]]]]))
+      [:hr]
+      [accordion
+       "Settings"
+       [settings @submodule]]]]))

@@ -1,7 +1,7 @@
 (ns behave-cms.modules
-  (:require [clojure.string  :as str]
+  (:require [clojure.edn     :as edn]
             [clojure.java.io :as io]
-            [clojure.edn     :as edn]))
+            [clojure.string  :as str]))
 
 (def behave-dir (io/file "/Users/rsheperd/Code/sig/hatchet/test/resources/behave"))
 (def behave-class-files (filter #(str/ends-with? (.getAbsolutePath %) ".edn") (file-seq behave-dir)))

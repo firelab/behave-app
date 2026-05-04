@@ -2,7 +2,7 @@
   (:require [behave-cms.components.common            :refer [accordion btn-sm window]]
             [behave-cms.components.entity-form       :refer [entity-form]]
             [behave-cms.components.search-table      :refer [search-tables]]
-            [behave-cms.components.sidebar           :refer [sidebar sidebar-width]]
+            [behave-cms.components.sidebar.views     :refer [sidebar-width]]
             [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations      :refer [all-translations]]
             [behave-cms.help.views                   :refer [help-editor]]
@@ -92,64 +92,57 @@
     (let [module      (rf/subscribe [:entity [:bp/nid nid]
                                      '[* {:application/_modules [:db/id :application/name :bp/nid]}]])
           module-id   (:db/id @module)
-          application (get-in @module [:application/_modules 0])
-          submodules  (rf/subscribe [:sidebar/submodules module-id])]
-      [:<>
-       [sidebar
-        "Submodules"
-        @submodules
-        (str (:application/name application) " Modules")
-        (str "/applications/" (:bp/nid application))]
-       [window sidebar-width
-        [:div.container
-         [:div.row.mb-3.mt-4
-          [:h2 (:module/name @module)]]
-         [accordion
-          "Submodules"
-          [submodules-table (:db/id @module) (:db/id application)]]
-         [:hr]
-         [accordion
-          "Submodules Results Order"
-          [submodules-results-order-table (:db/id @module) (:db/id application)]]
-         [:hr]
-         [accordion
-          "Translations"
-          [:div.col-12
-           [all-translations (:module/translation-key @module)]]]
-         [:hr]
-         [accordion
-          "Help Page"
-          [:div.col-12
-           [help-editor (:module/help-key @module)]]]
-         [:hr]
-         [accordion
-          "Pivot Tables"
-          [:<>
-           [:hr]
-           [:div.col-12
-            (doall
-             (map
-              (fn [pivot-table-entity]
-                [:<>
-                 [accordion
-                  (:pivot-table/title pivot-table-entity)
-                  [pivot-table (:db/id pivot-table-entity) (:db/id application)]]
-                 [:hr]])
-              (:module/pivot-tables @module)))
-            (if @show-add-pivot-table?
-              [entity-form {:entity       :pivot-table
-                            :parent-field :module/_pivot-tables
-                            :parent-id    (:db/id @module)
-                            :fields       [{:label     "Title"
-                                            :required? true
-                                            :field-key :pivot-table/title}]
-                            :on-create    #(do (swap! show-add-pivot-table? not) %)}]
-              [btn-sm
-               :primary
-               "Add Pivot Table"
-               #(swap! show-add-pivot-table? not)])]]]
-         [:hr]
-         [accordion
-          "Search Tables"
+          application (get-in @module [:application/_modules 0])]
+      [window sidebar-width
+       [:div.container
+        [:div.row.mb-3.mt-4
+         [:h2 (:module/name @module)]]
+        [accordion
+         "Submodules"
+         [submodules-table (:db/id @module) (:db/id application)]]
+        [:hr]
+        [accordion
+         "Submodules Results Order"
+         [submodules-results-order-table (:db/id @module) (:db/id application)]]
+        [:hr]
+        [accordion
+         "Translations"
+         [:div.col-12
+          [all-translations (:module/translation-key @module)]]]
+        [:hr]
+        [accordion
+         "Help Page"
+         [:div.col-12
+          [help-editor (:module/help-key @module)]]]
+        [:hr]
+        [accordion
+         "Pivot Tables"
+         [:<>
           [:hr]
-          [search-tables module]]]]])))
+          [:div.col-12
+           (doall
+            (map
+             (fn [pivot-table-entity]
+               [:<>
+                [accordion
+                 (:pivot-table/title pivot-table-entity)
+                 [pivot-table (:db/id pivot-table-entity) (:db/id application)]]
+                [:hr]])
+             (:module/pivot-tables @module)))
+           (if @show-add-pivot-table?
+             [entity-form {:entity       :pivot-table
+                           :parent-field :module/_pivot-tables
+                           :parent-id    (:db/id @module)
+                           :fields       [{:label     "Title"
+                                           :required? true
+                                           :field-key :pivot-table/title}]
+                           :on-create    #(do (swap! show-add-pivot-table? not) %)}]
+             [btn-sm
+              :primary
+              "Add Pivot Table"
+              #(swap! show-add-pivot-table? not)])]]]
+        [:hr]
+        [accordion
+         "Search Tables"
+         [:hr]
+         [search-tables module]]]])))

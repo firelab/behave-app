@@ -1,7 +1,7 @@
 (ns behave-cms.pages.variables
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.common :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]))
+  (:require [behave-cms.components.common      :refer [simple-table]]
+            [behave-cms.components.entity-form :refer [entity-form]]
+            [re-frame.core                     :as rf]))
 
 (def columns [:variable_name])
 

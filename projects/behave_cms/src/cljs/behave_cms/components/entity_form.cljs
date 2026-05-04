@@ -7,9 +7,9 @@
             [behave.schema.core                            :refer [all-schemas]]
             [clojure.set                                   :as set]
             [clojure.string                                :as str]
+            [map-utils.interface                           :refer [index-by]]
             [re-frame.core                                 :as rf]
             [reagent.core                                  :as r]
-            [map-utils.interface                           :refer [index-by]]
             [string-utils.interface                        :refer [->kebab ->str]]))
 
 ;;; Constants
