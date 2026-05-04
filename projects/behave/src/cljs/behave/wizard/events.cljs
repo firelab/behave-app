@@ -227,6 +227,11 @@
          [:dispatch [:wizard/scroll-into-view "review-wizard-page__body" (name tab)]]]}))
 
 (rf/reg-event-fx
+ :wizard/set-discrete-color-output
+ (fn [_cfx [_ gv-uuid]]
+   {:fx [[:dispatch [:state/set [:selected-output-cell-coloring] gv-uuid]]]}))
+
+(rf/reg-event-fx
  :wizard/progress-bar-navigate
  [(rf/inject-cofx ::inject/sub
                   (fn [[_ ws-uuid _ [_ io]]]
@@ -237,10 +242,10 @@
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
                        (= handler :ws/home)
-                       (str "/worksheets/")
+                       "/worksheets/"
 
                        (= handler :ws/module-selection)
-                       (str "/worksheets/module-selection")
+                       "/worksheets/module-selection"
 
                        (and (= handler :ws/wizard-standard) io)
                        (path-for routes :ws/wizard-standard

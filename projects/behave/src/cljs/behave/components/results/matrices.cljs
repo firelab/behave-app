@@ -5,11 +5,42 @@
             [cljs.math               :refer [round]]
             [clojure.string          :as str]
             [goog.string             :as gstring]
-            [re-frame.core           :refer [subscribe]]))
+            [map-utils.interface     :as map-utils]
+            [re-frame.core           :as rf :refer [dispatch dispatch-sync subscribe]]))
 
 ;;==============================================================================
 ;; Helpers
 ;;==============================================================================
+
+(defn- find-discrete-outputs-with-colors [output-entities]
+  (->> output-entities
+       (filter (fn [{gv-uuid :bp/uuid}]
+                 (and @(subscribe [:wizard/discrete-group-variable? gv-uuid])
+                      (seq @(subscribe [:wizard/gv-list-options-with-colors gv-uuid])))))
+       vec))
+
+(defn- color-options->value-color-map [color-options]
+  (into {} (map (fn [{:keys [value color]}] [value color]) color-options)))
+
+(defn- compute-color-map-1d [cell-color-gv-uuid matrix-data-raw input-fmt-fn]
+  (when cell-color-gv-uuid
+    (let [color-options  @(subscribe [:wizard/gv-list-options-with-colors cell-color-gv-uuid])
+          value->color   (color-options->value-color-map color-options)
+          entries-by-row (group-by (fn [[[row _] _]] row) matrix-data-raw)]
+      (reduce-kv
+       (fn [acc row entries]
+         (if-let [color (some (fn [[[_ col-uuid] v]]
+                                (when (= col-uuid cell-color-gv-uuid)
+                                  (get value->color v)))
+                              entries)]
+           (let [fmt-row (input-fmt-fn row)]
+             (reduce (fn [a [[_ col-uuid] _]]
+                       (assoc a [fmt-row col-uuid] color))
+                     acc
+                     entries))
+           acc))
+       {}
+       entries-by-row))))
 
 (defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
   (let [[_ mmin mmax enabled?] (first (filter
@@ -163,6 +194,27 @@
    {}
    matrix-data-raw))
 
+(defn- compute-color-map-2d
+  [{:keys [ws-uuid row-gv-uuid row-values col-gv-uuid col-values
+           cell-color-gv-uuid submatrix-gv-uuid submatrix-value]}]
+  (when cell-color-gv-uuid
+    (let [color-options @(subscribe [:wizard/gv-list-options-with-colors cell-color-gv-uuid])
+          value->color  (color-options->value-color-map color-options)
+          matrix-data   (fetch-matrix-data-2d {:ws-uuid           ws-uuid
+                                               :row-gv-uuid       row-gv-uuid
+                                               :row-values        row-values
+                                               :col-gv-uuid       col-gv-uuid
+                                               :col-values        col-values
+                                               :output-gv-uuid    cell-color-gv-uuid
+                                               :submatrix-gv-uuid submatrix-gv-uuid
+                                               :submatrix-value   submatrix-value})]
+      (reduce-kv (fn [acc [row col] value]
+                   (if-let [color (get value->color value)]
+                     (assoc acc [row col] color)
+                     acc))
+                 {}
+                 matrix-data))))
+
 ;;==============================================================================
 ;; construct-result-matrices
 ;;==============================================================================
@@ -229,7 +281,7 @@
                  :rows    map-units-rows}))]))
 
 (defmethod construct-result-matrices 1
-  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities units-lookup shade-set any-filters-enabled? title header-color]}]
+  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities units-lookup shade-set any-filters-enabled? title header-color cell-color-gv-uuid]}]
   (let [[multi-var-name
          multi-var-units
          multi-var-gv-uuid
@@ -240,6 +292,7 @@
                                                   multi-var-gv-uuid
                                                   multi-var-values
                                                   (map :bp/uuid output-entities)])
+        color-map                    (compute-color-map-1d cell-color-gv-uuid matrix-data-raw input-fmt-fn)
         {:keys [units rep-fraction]} (fetch-map-units-settings ws-uuid)
         [regular-column-headers
          map-units-column-headers]   (reduce (fn [[reg mu] {output-gv-uuid :bp/uuid output-units :units}]
@@ -279,7 +332,8 @@
                             {:title          title
                              :header-color   header-color
                              :column-headers regular-column-headers
-                             :data           matrix-data-formatted}))
+                             :data           matrix-data-formatted
+                             :cell-colors    color-map}))
      (when (seq map-units-column-headers)
        [:div.result-matrix__map-units-table
         (c/matrix-table (merge common-matrix-props
@@ -290,7 +344,7 @@
 
 (defmethod construct-result-matrices 2
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled?
-           sub-title submatrix-value submatrix-gv-uuid header-color]}]
+           sub-title submatrix-value submatrix-gv-uuid header-color cell-color-gv-uuid]}]
   (let [graph-settings                              @(subscribe [:worksheet/graph-settings ws-uuid])
         x-axis-gv-uuid                              (:graph-settings/x-axis-group-variable-uuid graph-settings)
         z-axis-gv-uuid                              (:graph-settings/z-axis-group-variable-uuid graph-settings)
@@ -304,6 +358,19 @@
         input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])
         row-fmt-fn                                  (get input-formatters row-gv-uuid identity)
         col-fmt-fn                                  (get input-formatters col-gv-uuid identity)
+        color-map                                   (compute-color-map-2d {:ws-uuid            ws-uuid
+                                                                           :row-gv-uuid        row-gv-uuid
+                                                                           :row-values         row-values
+                                                                           :col-gv-uuid        col-gv-uuid
+                                                                           :col-values         col-values
+                                                                           :cell-color-gv-uuid cell-color-gv-uuid
+                                                                           :submatrix-gv-uuid  submatrix-gv-uuid
+                                                                           :submatrix-value    submatrix-value})
+        cell-colors                                 (when color-map
+                                                      (map-utils/update-map color-map
+                                                                            identity
+                                                                            (fn [[row col]]
+                                                                              [(row-fmt-fn row) (col-fmt-fn col)])))
         row-headers                                 (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
         column-headers                              (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)
         row-headers-sorted                          (sort-by :name row-headers)
@@ -334,7 +401,8 @@
                                                                :map-units            units
                                                                :map-rep-frac         rep-fraction
                                                                :shade-set            shade-set
-                                                               :any-filters-enabled? any-filters-enabled?})]
+                                                               :any-filters-enabled? any-filters-enabled?
+                                                               :color-map            color-map})]
                    (c/matrix-table {:title          (gstring/format @(<t (bp "s_map_units_(s)")) output-name units)
                                     :header-color   header-color
                                     :sub-title      sub-title
@@ -342,7 +410,8 @@
                                     :cols-label     (header-label col-name col-units)
                                     :row-headers    row-headers-sorted
                                     :column-headers column-headers-sorted
-                                    :data           data}))])
+                                    :data           data
+                                    :cell-colors    cell-colors}))])
               [:div.print__result-table
                (c/matrix-table {:title          (header-label output-name output-units)
                                 :header-color   header-color
@@ -351,10 +420,11 @@
                                 :cols-label     (header-label col-name col-units)
                                 :row-headers    row-headers-sorted
                                 :column-headers column-headers-sorted
-                                :data           matrix-data-formatted})]]))))]))
+                                :data           matrix-data-formatted
+                                :cell-colors    cell-colors})]]))))]))
 
 (defmethod construct-result-matrices 3
-  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled? units-lookup header-color]}]
+  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled? units-lookup header-color cell-color-gv-uuid]}]
   (let [graph-settings                             @(subscribe [:worksheet/graph-settings ws-uuid])
         z2-axis-group-variable-uuid                (:graph-settings/z2-axis-group-variable-uuid graph-settings)
         [var-name units-short-code gv-uuid values] (->> multi-valued-inputs
@@ -383,8 +453,60 @@
           :units-lookup         units-lookup
           :formatters           formatters
           :header-color         header-color
+          :cell-color-gv-uuid   cell-color-gv-uuid
           :shade-set            (get shade-set value)
           :any-filters-enabled? any-filters-enabled?}]])]))
+
+;;==============================================================================
+;; Discrete Color Selector & Legend
+;;==============================================================================
+
+(defn- color-legend [cell-color-gv-uuid]
+  (let [color-options                  @(subscribe [:wizard/gv-list-options-with-colors cell-color-gv-uuid])
+        color-options-grouped-by-color (group-by :color color-options)]
+    (when (seq color-options-grouped-by-color)
+      [:div.result-matrices__color-legend
+       (for [[color entries] color-options-grouped-by-color
+             :let            [entry (first entries)
+                              t-key (:t-key entry)]]
+         ^{:key t-key}
+         [:div.result-matrices__color-legend__item
+          [:span.result-matrices__color-legend__swatch {:style {:background-color color}}]
+          [:span.result-matrices__color-legend__text @(<t t-key)]])])))
+
+(defn- discrete-color-selector [discrete-outputs-with-colors]
+  (let [selected-uuid      @(subscribe [:wizard/selected-output-cell-coloring])
+        cell-color-gv-uuid (when-not (= :none selected-uuid) selected-uuid)
+        output-count       (count discrete-outputs-with-colors)]
+    (when (pos? output-count)
+      [:div.result-matrices__color-selector
+       (if (= output-count 1)
+         (let [{gv-uuid :bp/uuid} (first discrete-outputs-with-colors)
+               output-name        @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
+           [c/toggle {:label     (gstring/format "%s : %s" @(<t (bp "color_by")) output-name)
+                      :checked?  (= selected-uuid gv-uuid)
+                      :on-change #(dispatch [:wizard/set-discrete-color-output
+                                             (if (= selected-uuid gv-uuid) :none gv-uuid)])}])
+         [c/radio-group
+          {:label   @(<t (bp "color_by"))
+           :options (conj
+                     (mapv (fn [{gv-uuid :bp/uuid}]
+                             (let [output-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
+                               {:id        gv-uuid
+                                :name      "discrete-color-output"
+                                :value     gv-uuid
+                                :label     output-name
+                                :checked?  (= selected-uuid gv-uuid)
+                                :on-change #(dispatch [:wizard/set-discrete-color-output gv-uuid])}))
+                           discrete-outputs-with-colors)
+                     {:id        "none"
+                      :name      "discrete-color-output"
+                      :value     :none
+                      :label     "None"
+                      :checked?  (= selected-uuid :none)
+                      :on-change #(dispatch [:wizard/set-discrete-color-output :none])})}])
+       (when cell-color-gv-uuid
+         [color-legend cell-color-gv-uuid])])))
 
 ;;==============================================================================
 ;; View for Result Matrices
@@ -412,9 +534,12 @@
         non-directional-output-gv-uuids (remove #(contains? directional-uuids %) all-output-gv-uuids)
         directional-gv-uuids            (filter #(contains? directional-uuids %) all-output-gv-uuids)
         multi-valued-inputs             @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-        graph-settings                  @(subscribe [:worksheet/graph-settings ws-uuid])
         all-group-variables             (map (fn [gv-uuid] @(subscribe [:wizard/group-variable gv-uuid])) all-output-gv-uuids)
         all-output-entities             (map (fn [gv] (merge gv {:units (get units-lookup (:bp/uuid gv))})) all-group-variables)
+        discrete-outputs-with-colors    (find-discrete-outputs-with-colors all-output-entities)
+        color-output-state              @(subscribe [:wizard/selected-output-cell-coloring])
+        cell-color-gv-uuid              (when-not (= :none color-output-state) color-output-state)
+        graph-settings                  @(subscribe [:worksheet/graph-settings ws-uuid])
         shade-set                       (compute-shade-set {:ws-uuid               ws-uuid
                                                             :multi-valued-inputs   multi-valued-inputs
                                                             :all-output-gv-uuids   all-output-gv-uuids
@@ -422,8 +547,12 @@
                                                             :graph-settings        graph-settings
                                                             :table-setting-filters table-setting-filters})
         any-filters-enabled?            (boolean (some (fn [[_ _ _ enabled?]] enabled?) table-setting-filters))]
+    (when (and (seq discrete-outputs-with-colors) (nil? color-output-state))
+      (dispatch-sync [:wizard/set-discrete-color-output (:bp/uuid (first discrete-outputs-with-colors))]))
     (when (seq all-output-gv-uuids)
       [:div.wizard-results
+       (when (seq discrete-outputs-with-colors)
+         [discrete-color-selector discrete-outputs-with-colors])
        (when (seq directional-gv-uuids)
          (for [direction directions]
            (let [output-gv-uuids (filter #(deref (subscribe [:vms/group-variable-is-directional? % direction])) directional-gv-uuids)
@@ -444,6 +573,7 @@
                :output-entities      output-entities
                :units-lookup         units-lookup
                :formatters           formatters
+               :cell-color-gv-uuid   cell-color-gv-uuid
                :shade-set            shade-set
                :any-filters-enabled? any-filters-enabled?}])))
        (when (seq non-directional-output-gv-uuids)
@@ -459,5 +589,6 @@
              :output-entities      output-entities
              :units-lookup         units-lookup
              :formatters           formatters
+             :cell-color-gv-uuid   cell-color-gv-uuid
              :shade-set            shade-set
              :any-filters-enabled? any-filters-enabled?}]))])))
