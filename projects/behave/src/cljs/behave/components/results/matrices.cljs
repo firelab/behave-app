@@ -293,12 +293,6 @@
                                                   multi-var-values
                                                   (map :bp/uuid output-entities)])
         color-map                    (compute-color-map-1d color-gv-uuid matrix-data-raw input-fmt-fn)
-        rows-to-shade-set            (reduce-kv (fn [acc [row col-uuid] v]
-                                                  (cond-> acc
-                                                    (shade-cell-value? table-setting-filters col-uuid v)
-                                                    (conj row)))
-                                                #{}
-                                                matrix-data-raw)
         {:keys [units rep-fraction]} (fetch-map-units-settings ws-uuid)
         [regular-column-headers
          map-units-column-headers]   (reduce (fn [[reg mu] {output-gv-uuid :bp/uuid output-units :units}]
@@ -362,15 +356,6 @@
         input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])
         row-fmt-fn                                  (get input-formatters row-gv-uuid identity)
         col-fmt-fn                                  (get input-formatters col-gv-uuid identity)
-        shade-set                                   (compute-shade-set-2d {:ws-uuid               ws-uuid
-                                                                           :row-gv-uuid           row-gv-uuid
-                                                                           :row-values            row-values
-                                                                           :col-gv-uuid           col-gv-uuid
-                                                                           :col-values            col-values
-                                                                           :output-entities       output-entities
-                                                                           :table-setting-filters table-setting-filters
-                                                                           :submatrix-gv-uuid     submatrix-gv-uuid
-                                                                           :submatrix-value       submatrix-value})
         color-map                                   (compute-color-map-2d {:ws-uuid           ws-uuid
                                                                            :row-gv-uuid       row-gv-uuid
                                                                            :row-values        row-values
@@ -549,6 +534,7 @@
         discrete-outputs-with-colors    (find-discrete-outputs-with-colors all-output-entities)
         color-output-state              @(subscribe [:wizard/selected-output-cell-coloring])
         color-gv-uuid                   (when-not (= :none color-output-state) color-output-state)
+        graph-settings                  @(subscribe [:worksheet/graph-settings ws-uuid])
         shade-set                       (compute-shade-set {:ws-uuid               ws-uuid
                                                             :multi-valued-inputs   multi-valued-inputs
                                                             :all-output-gv-uuids   all-output-gv-uuids
