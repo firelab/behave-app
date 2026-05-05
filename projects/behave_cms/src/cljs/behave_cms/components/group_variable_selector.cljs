@@ -8,9 +8,11 @@
 (defn- ->option [name-key]
   (fn [m]
     {:value (:db/id m)
-     :label (if-let [direction (:group-variable/direction m)]
-              (gstring/format "%s (%s)" (name-key m) (name direction))
-              (name-key m))}))
+     :label (let [direction (or (get-in m [:group-variable/direction-ref :list-option/value])
+                                (some-> (:group-variable/direction m) name))]
+              (if direction
+                (gstring/format "%s (%s)" (name-key m) direction)
+                (name-key m)))}))
 
 (defn group-variable-selector
   "Displays a Group Variable selector.

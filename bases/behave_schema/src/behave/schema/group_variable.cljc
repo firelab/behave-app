@@ -38,6 +38,7 @@
 
 ;;; Schema
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def schema
   [{:db/ident       :group-variable/cpp-namespace
     :db/doc         "Group variable's C++ namespace."
@@ -94,8 +95,13 @@
     :db/cardinality :db.cardinality/many}
 
    {:db/ident       :group-variable/direction
-    :db/doc         "Group variable's direction."
+    :db/doc         "DEPRECATED: use :group-variable/direction-ref. Group variable's direction keyword."
     :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/direction-ref
+    :db/doc         "Group variable's reference to a list-option of the 'Directions' list. Replaces :group-variable/direction."
+    :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
    ;; Boolean Settings
@@ -162,6 +168,7 @@
 
 ;;; Tests
 
+#_{:clj-kondo/ignore [:unresolved-symbol]}
 (comment
   (s/explain :behave/group-variable {:bp/uuid                        (str (random-uuid))
                                      :group-variable/order           0
