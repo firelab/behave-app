@@ -69,7 +69,7 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn build-renumber-payload
   [db parent-ref order-attr]
-  (let [parents (d/q [:find '[?p ...] :where ['?p parent-ref]] db)]
+  (let [parent-ids (d/q [:find '[?p ...] :where ['?p parent-ref]] db)]
     (mapcat
      (fn [pid]
        (let [children    (->> (parent-ref (d/entity db pid)) (map :db/id))
@@ -85,12 +85,12 @@
               (when (not= i (order-of eid))
                 {:db/id eid order-attr i}))
             sorted-eids))))
-     parents)))
+     parent-ids)))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def raw-payload
   (let [db (d/db conn)]
-    (vec (mapcat (fn [[oa pr]] (build-renumber-payload db pr oa)) order-pairs))))
+    (vec (mapcat (fn [[oa parent-ref]] (build-renumber-payload db parent-ref oa)) order-pairs))))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conflicting-eids
