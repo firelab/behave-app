@@ -237,11 +237,16 @@
 
 (reg-event-fx
  :api/create-entity
- (fn [_ [_ data]]
-   {:transact [(merge {:db/id   -1
-                       :bp/uuid (str (squuid))
-                       :bp/nid  (nano-id)}
-                      data)]}))
+ (fn [_ [_ data {:keys [order-attr siblings]}]]
+   (let [next-order (when order-attr
+                      (if (seq siblings)
+                        (inc (apply max (keep order-attr siblings)))
+                        0))]
+     {:transact [(merge {:db/id   -1
+                         :bp/uuid (str (squuid))
+                         :bp/nid  (nano-id)}
+                        data
+                        (when order-attr {order-attr next-order}))]})))
 
 (reg-event-fx
  :api/upsert-entity
@@ -272,18 +277,23 @@
 
 (reg-event-fx
  :api/delete-entity
- (fn [_ [_ arg]]
-   (let [id (cond
-              (number? arg)
-              arg
-
-              (string? arg)
-              [:bp/nid arg]
-
-              (map? arg)
-              [:bp/nid (:bp/nid arg)])]
-
-     {:transact [[:db.fn/retractEntity id]]})))
+ (fn [_ [_ arg {:keys [order-attr siblings]}]]
+   (let [id         (cond
+                      (number? arg) arg
+                      (string? arg) [:bp/nid arg]
+                      (map? arg)    [:bp/nid (:bp/nid arg)])
+         deleted-id (cond
+                      (number? arg) arg
+                      (map? arg)    (:db/id arg))
+         renumber   (when (and order-attr (seq siblings) deleted-id)
+                      (->> siblings
+                           (remove #(= deleted-id (:db/id %)))
+                           (sort-by order-attr)
+                           (keep-indexed
+                            (fn [i e]
+                              (when (not= i (get e order-attr))
+                                {:db/id (:db/id e) order-attr i})))))]
+     {:transact (into [[:db.fn/retractEntity id]] renumber)})))
 
 (reg-event-fx
  :api/reorder
