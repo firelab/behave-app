@@ -441,6 +441,41 @@
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
 
+   {:db/ident       :worksheet.diagram/x-units-uuid
+    :db/doc         "Diagram's x-axis units UUID; overrides units-uuid for x-axis when present"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/y-units-uuid
+    :db/doc         "Diagram's y-axis units UUID; overrides units-uuid for y-axis when present"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/x-axis-title
+    :db/doc         "Diagram's x-axis title; defaults to 'x' when absent"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/y-axis-title
+    :db/doc         "Diagram's y-axis title; defaults to 'y' when absent"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/symmetric-axes?
+    :db/doc         "When true (default), both axes share a symmetric [-domain, domain] range"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/mirror-y?
+    :db/doc         "When true (default), scatter-plot points are mirrored across the x-axis"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/connect-points?
+    :db/doc         "When true, scatter-plot points are connected as a line (no individual dots). Defaults to false (separate points)."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    ;; Diagram Ellipses
    {:db/ident       :ellipse/legend-id
     :db/doc         "Id used for the legend"

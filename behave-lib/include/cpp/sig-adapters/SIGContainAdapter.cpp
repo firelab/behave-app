@@ -85,6 +85,21 @@ int SIGContainAdapter::getFirePerimeterPointCount( void ) const
     return( m_size );
 }
 
+DoubleVector SIGContainAdapter::getOptimizedContainProductionRates( void ) const
+{
+    return( DoubleVector(optimizedContainProductionRates_) );
+}
+
+DoubleVector SIGContainAdapter::getOptimizedContainAreas( void ) const
+{
+    return( DoubleVector(optimizedContainAreas_) );
+}
+
+int SIGContainAdapter::getOptimizedContainPointCount( void ) const
+{
+    return( (int)optimizedContainProductionRates_.size() );
+}
+
 
 double SIGContainAdapter::getFireHeadAtReport( void ) const
 {
@@ -291,9 +306,41 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
             ContainAdapter::containmentStatus_ = static_cast<ContainStatus::ContainStatusEnum>(containSimPtrAtContainmentPtr->status());
             ContainAdapter::finalProductionRate_ = finalFireLineLength_ / finalTime_;
 
-
+            // Sweep 0 .. floor(0.5 * optimal) to build production-rate vs containment-area curve
+            optimizedContainProductionRates_.clear();
+            optimizedContainAreas_.clear();
+            int optimalChH = static_cast<int>(
+                SpeedUnits::fromBaseUnits(autoComputedResourceProductionRate_, SpeedUnits::ChainsPerHour));
+            int sweepMax = optimalChH + optimalChH / 2;
+            for (int i = 0; i <= sweepMax; i++) {
+                Sem::ContainForce sweepForce;
+                sweepForce.addResource(resourceArrival,
+                                       static_cast<double>(i),
+                                       resourceDuration,
+                                       Sem::ContainFlank::LeftFlank,
+                                       desc);
+                Sem::ContainSim* sweepSimPtr = new Sem::ContainSim(
+                    ContainAdapter::reportSize_,
+                    ContainAdapter::reportRate_,
+                    ContainAdapter::diurnalROS_,
+                    ContainAdapter::fireStartTime_,
+                    ContainAdapter::lwRatio_,
+                    &sweepForce,
+                    ContainAdapter::tactic_,
+                    ContainAdapter::attackDistance_,
+                    ContainAdapter::retry_,
+                    ContainAdapter::minSteps_,
+                    ContainAdapter::maxSteps_,
+                    ContainAdapter::maxFireSize_,
+                    ContainAdapter::maxFireTime_);
+                sweepSimPtr->run();
+                optimizedContainProductionRates_.push_back(static_cast<double>(i));
+                optimizedContainAreas_.push_back(sweepSimPtr->finalFireSweep());
+            }
 
         } else { // the Simulation is not cointained even at maximum  resource production rate (10000 ch/h).
+            optimizedContainProductionRates_.clear();
+            optimizedContainAreas_.clear();
             // Store Values from initialCoontainSim
             ContainAdapter::m_size       = initialContainSimPtr->firePoints();
             ContainAdapter::m_x          = initialContainSimPtr->firePerimeterX();

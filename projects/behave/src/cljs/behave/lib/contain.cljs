@@ -94,6 +94,15 @@
 (defn getFirePerimeterY [self]
   (.getFirePerimeterY self))
 
+(defn getOptimizedContainProductionRates [self]
+  (.getOptimizedContainProductionRates self))
+
+(defn getOptimizedContainAreas [self]
+  (.getOptimizedContainAreas self))
+
+(defn getOptimizedContainPointCount [self]
+  (.getOptimizedContainPointCount self))
+
 (defn getFireSizeAtInitialAttack [self areaUnits]
   (.getFireSizeAtInitialAttack self areaUnits))
 

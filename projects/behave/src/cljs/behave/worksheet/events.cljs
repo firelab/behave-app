@@ -814,6 +814,30 @@
                                                            :scatter-plot/y-coordinates fire-perimeter-points-Y}]))]}))
 
 (rp/reg-event-fx
+ :worksheet/add-optimized-contain-diagram
+ [(rp/inject-cofx :ds)]
+ (fn [_ [_
+         ws-uuid
+         title
+         group-variable-uuid
+         row-id
+         production-rate-points
+         containment-area-points]]
+   {:transact [{:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                :worksheet.diagram/title               title
+                :worksheet.diagram/group-variable-uuid group-variable-uuid
+                :worksheet.diagram/row-id              row-id
+                :worksheet.diagram/x-axis-title        "Production Rate (ch/h)"
+                :worksheet.diagram/y-axis-title        "Containment Area (ac)"
+                :worksheet.diagram/symmetric-axes?     false
+                :worksheet.diagram/mirror-y?           false
+                :worksheet.diagram/connect-points?     true
+                :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "Production Rate vs Containment Area"
+                                                         :scatter-plot/color         "blue"
+                                                         :scatter-plot/x-coordinates production-rate-points
+                                                         :scatter-plot/y-coordinates containment-area-points}]}]}))
+
+(rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_

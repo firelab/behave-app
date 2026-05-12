@@ -32,6 +32,7 @@
 
 #include "ContainAdapter.h"
 #include "SIGCollections.h"
+#include <vector>
 
 enum class ContainMode {
     Default,
@@ -61,6 +62,9 @@ public:
   DoubleVector getFirePerimeterX( void ) const;
   DoubleVector getFirePerimeterY( void ) const;
   int getFirePerimeterPointCount( void ) const;
+  DoubleVector getOptimizedContainProductionRates( void ) const;
+  DoubleVector getOptimizedContainAreas( void ) const;
+  int getOptimizedContainPointCount( void ) const;
 
   double getFireBackAtReport( void ) const;
   double getFireHeadAtReport( void ) const;
@@ -84,6 +88,8 @@ protected:
   ContainMode containMode_ = ContainMode::Default;
   double  resourceArrivalTime_; //min
   double  resourceDuration_; //min
+  std::vector<double> optimizedContainProductionRates_;
+  std::vector<double> optimizedContainAreas_;
 };
 
 #endif //CONTAINADAPTER_H

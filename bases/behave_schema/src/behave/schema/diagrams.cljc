@@ -2,7 +2,7 @@
 
 (def schema
   [{:db/ident       :diagram/type
-    :db/doc         "Keyword #{:contain :fire-shape :wind-slope-spread-direction}"
+    :db/doc         "Keyword #{:contain :fire-shape :wind-slope-spread-direction :optimized-contain}"
     :db/valueType   :db.type/keyword
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}

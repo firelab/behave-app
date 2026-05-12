@@ -31,6 +31,21 @@
      (contain/getContainmentStatus module)
      (:diagram/units-uuid diagram)]))
 
+(defmethod build-event-vector :optimized-contain
+  [{:keys [ws-uuid row-id diagram module]}]
+  (let [gv-uuid     (get-in diagram [:diagram/group-variable :bp/uuid])
+        pr-points   (contain/getOptimizedContainProductionRates module)
+        area-points (contain/getOptimizedContainAreas module)]
+    [:worksheet/add-optimized-contain-diagram
+     ws-uuid
+     "Production Rate vs Containment Area"
+     gv-uuid
+     row-id
+     (->> (map #(.get pr-points %) (range (.size pr-points)))
+          (str/join ","))
+     (->> (map #(.get area-points %) (range (.size area-points)))
+          (str/join ","))]))
+
 (defmethod build-event-vector :fire-shape
   [{:keys [ws-uuid row-id diagram module]}]
   (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
