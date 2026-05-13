@@ -2080,7 +2080,7 @@ p {
   border: 1px solid var(--lightblue-5);
   text-align: center;
   color: var(--white);
-  background-color: var(--darkblue-2);
+  background-color: var(--medblue-2);
 }
 
 .table__title th,
