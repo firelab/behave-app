@@ -74,3 +74,11 @@
  :application/prioritized-results-count
  (fn [_ [_ app-id]]
    (count (:application/prioritized-results (d/entity @@conn app-id)))))
+
+;;; Note Categories
+
+(rf/reg-sub
+ :application/note-categories
+ (fn [[_ application-id]]
+   (rf/subscribe [:pull-children :application/note-categories application-id]))
+ identity)

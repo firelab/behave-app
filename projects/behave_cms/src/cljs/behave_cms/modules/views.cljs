@@ -5,6 +5,9 @@
    [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
    [behave-cms.components.translations      :refer [app-translations]]
    [behave-cms.help.views                   :refer [help-editor]]
+   [clojure.string                          :as str]
+   [map-utils.interface                     :refer [index-by]]
+   [string-utils.interface                  :refer [->kebab]]
    [re-frame.core                           :as rf]))
 
 ;;; Modules
@@ -83,6 +86,45 @@
                             :field-key :prioritized-results/group-variable
                             :type      :group-variable}]}]))
 
+;;; Note Categories
+
+(defn- note-categories-table [app-id]
+  (let [selected-state-path [:selected :note-category]
+        editor-state-path   [:editors :note-category]
+        entities            (rf/subscribe [:application/note-categories app-id])
+        module-options      (->> @(rf/subscribe [:application/modules app-id])
+                                 (map (juxt :module/name :db/id))
+                                 (map #(zipmap [:label :value] %)))
+        module-lookup       (index-by :value module-options)
+        xform               (fn [note-categories]
+                              (->> note-categories
+                                   (map (fn [nc]
+                                          (let [modules      (map :db/id (:note-category/modules nc))
+                                                module-names (map #(:label (get module-lookup %)) modules)]
+                                            (-> nc
+                                                (assoc :note-category/modules modules)
+                                                (assoc :note-category/module-names (str/join ", " module-names))))))))]
+
+    [table-entity-form
+     {:entity             :note-category
+      :form-state-path    editor-state-path
+      :entities           (sort-by :note-category/order (xform @entities))
+      :on-select          (table-entity-form-on-select selected-state-path)
+      :parent-id          app-id
+      :parent-field       :application/_note-categories
+      :table-header-attrs [:note-category/name :note-category/module-names]
+      :order-attr         :note-category/order
+      :translation-config {:key-fn  #(str "behaveplus:note-categories:" (->kebab (:note-category/name %)))
+                           :text-fn :note-category/name}
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :note-category/name}
+                           {:label     "Modules"
+                            :type      :set
+                            :required? false
+                            :field-key :note-category/modules
+                            :options   module-options}]}]))
+
 ;;; Public
 
 (defn list-modules-page
@@ -130,4 +172,10 @@
         "Application's Prioritized Results"
         [:div.col-12
          [:div.row
-          [prioritized-results-table app-id]]]]]]]))
+          [prioritized-results-table app-id]]]]
+       [:hr]
+       [accordion
+        "Application's Note Categories"
+        [:div.col-12
+         [:div.row
+          [note-categories-table app-id]]]]]]]))

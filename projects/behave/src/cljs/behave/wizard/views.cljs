@@ -95,9 +95,10 @@
                                                                         next-io])]
                           (when (and module-slug submodule-slug)
                             (dispatch [:wizard/select-tab (merge params
-                                                                 {:module    module-slug
-                                                                  :io        next-io
-                                                                  :submodule submodule-slug})]))))]
+                                                                 {:module     module-slug
+                                                                  :current-io io
+                                                                  :io         next-io
+                                                                  :submodule  submodule-slug})]))))]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -135,51 +136,69 @@
                                       submodules)}]])]]))
 
 (defn wizard-note
-  [{:keys [note display-submodule-headers?]}]
+  [{:keys [note]} note-categories]
   (r/with-let [[note-id
-                note-name
-                note-content
-                submodule-name
-                submodule-io] note
+                note-category
+                note-content] note
                content-atom   (r/atom note-content)
-               title-atom     (r/atom note-name)]
+               category-atom  (r/atom note-category)]
     (if @(subscribe [:wizard/edit-note? note-id])
       [:div.wizard-note
        [:div.wizard-note__content
-        (when display-submodule-headers?
-          [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
-        [c/note {:title-label       "Note's Name / Category"
-                 :title-placeholder "Enter note's name or category"
-                 :title-value       @title-atom
-                 :body-value        @content-atom
-                 :on-save           #((reset! content-atom (:body %))
-                                      (reset! title-atom (:title %))
-                                      (dispatch [:wizard/update-note note-id %]))}]]]
+        [c/note {:title-label "Category"
+                 :title-value @category-atom
+                 :categories  note-categories
+                 :body-value  @content-atom
+                 :on-save     #(do (reset! content-atom (:body %))
+                                   (reset! category-atom (:title %))
+                                   (dispatch [:wizard/update-note note-id %]))}]]]
       [:div.wizard-note
-       (when display-submodule-headers?
-         [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
-       [:div.wizard-note__name @title-atom]
-       [:div.wizard-note__content @content-atom]
-       [:div.wizard-note__manage
-        [c/button {:variant   "primary"
-                   :label     @(<t (bp "delete"))
-                   :size      "small"
-                   :icon-name "delete"
-                   :on-click  #(dispatch [:worksheet/delete-note note-id])}]
-        [c/button {:variant   "secondary"
-                   :label     @(<t (bp "edit"))
-                   :size      "small"
-                   :icon-name "edit"
-                   :on-click  #(dispatch [:wizard/edit-note note-id])}]]])))
+       [:div.wizard-note__header
+        [:div.wizard-note__name @category-atom]
+        [:div.wizard-note__manage
+         [c/button {:variant   "secondary"
+                    :label     @(<t (bp "edit"))
+                    :size      "small"
+                    :icon-name "edit"
+                    :on-click  #(dispatch [:wizard/edit-note note-id])}]
+         [c/button {:variant   "primary"
+                    :label     @(<t (bp "delete"))
+                    :size      "small"
+                    :icon-name "delete"
+                    :on-click  #(when (js/confirm @(<t (bp "confirm_delete_note")))
+                                  (dispatch [:worksheet/delete-note note-id]))}]]]
+       [:div.wizard-note__content @content-atom]])))
 
-(defn wizard-notes [notes]
+(defn wizard-notes [notes modules]
   (when (seq notes)
-    [:div.wizard-notes
-     [:div.wizard-notes__header "Run's Notes"]
-     (doall (for [[id & _rest :as n] notes]
-              ^{:key id}
-              [wizard-note {:note                       n
-                            :display-submodule-headers? false}]))]))
+    (let [*note-categories (subscribe [:wizard/note-categories modules])]
+      [:div.wizard-notes
+       [:div.wizard-notes__header "Run's Notes"]
+       (doall (for [[id & _rest :as n] notes]
+                ^{:key id}
+                [wizard-note {:note n} @*note-categories]))])))
+
+(defn- add-note-section [ws-uuid modules]
+  (let [*notes               (subscribe [:wizard/notes ws-uuid])
+        *show-add-note-form? (subscribe [:wizard/show-add-note-form?])
+        *note-categories     (subscribe [:wizard/note-categories modules])]
+    [:<>
+     [:div.wizard-add-notes
+      (if @*show-add-note-form?
+        [c/note {:title-label             "Category"
+                 :title-value             ""
+                 :body-value              ""
+                 :categories              @*note-categories
+                 :cancel-label            @(<t (bp "cancel"))
+                 :discard-confirm-message @(<t (bp "confirm_discard_note"))
+                 :on-cancel               #(dispatch [:wizard/toggle-show-add-note-form])
+                 :on-save                 #(dispatch [:wizard/create-note ws-uuid %])}]
+        [c/button {:label         @(<t (bp "add_notes"))
+                   :variant       "outline-primary"
+                   :icon-name     :plus
+                   :icon-position "left"
+                   :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}])]
+     [wizard-notes @*notes modules]]))
 
 (defn wizard-expand []
   (let [working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
@@ -193,22 +212,21 @@
                   :on-click  #(dispatch [:wizard/toggle-expand])
                   :variant   "primary"}]])))
 
-(defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
+(defn wizard-page [{:keys [module io submodule route-handler ws-uuid workflow] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
-        submodule-uuid           (:bp/uuid @*submodule)
-        *notes                   (subscribe [:wizard/notes ws-uuid submodule-uuid])
         *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
-        *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/back])
-        on-next                  #(dispatch [:wizard/next])
+        on-next                  #(dispatch [:wizard/next {:ws-uuid    ws-uuid
+                                                           :workflow   workflow
+                                                           :current-io io}])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ]
     [:div.wizard-page
@@ -216,25 +234,7 @@
       [wizard-header params modules]
       [:div.wizard-page__body
        (when @*show-notes?
-         [:<>
-          [:div.wizard-add-notes
-           [c/button {:label         @(<t (bp "add_notes"))
-                      :variant       "outline-primary"
-                      :icon-name     :plus
-                      :icon-position "left"
-                      :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
-           (when @*show-add-note-form?
-             [c/note {:title-label       @(<t (bp "enter_notes_name_or_category"))
-                      :title-placeholder @(<t (bp "enter_notes_name_or_category"))
-                      :title-value       ""
-                      :body-value        ""
-                      :on-save           #(dispatch [:wizard/create-note
-                                                     ws-uuid
-                                                     submodule-uuid
-                                                     (:submodule/name @*submodule)
-                                                     (name (:submodule/io @*submodule))
-                                                     %])}])]
-          [wizard-notes @*notes]])
+         [add-note-section ws-uuid modules])
        [:div
         {:data-theme-color module}
         [submodule-page params io @*groups]]
@@ -295,7 +295,7 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [route-handler ws-uuid workflow] :as params}]
+(defn wizard-review-page [{:keys [route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
@@ -328,7 +328,7 @@
             (show-or-close-notes-button @*show-notes?)]]
           [:div.wizard-review
            (when @*show-notes?
-             (wizard-notes @*notes))
+             (wizard-notes @*notes modules))
            (for [module modules
                  :let   [module-name (:module/name module)]]
              [:div {:data-theme-color module-name}
@@ -392,8 +392,8 @@
         *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
         gv-uuid+min+max-entries-sorted (->> @*gv-uuid+min+max-entries
                                             (sort-by #(.indexOf @*gv-order (first %))))
-        *default-max-values            (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
-        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
+        *default-max-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
+        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :min])
         units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
         maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val [[gv-uuid _min-val max-val enabled?]]
                                                                               [gv-uuid max-val enabled?])
@@ -417,7 +417,10 @@
         names                          (map (fn get-variable-name [[gv-uuid _min _max]]
                                               (gstring/format "%s (%s)"
                                                               @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
-                                                              (get units-lookup gv-uuid)))
+                                                              (get units-lookup
+                                                                   (if-let [direcitonal-children (seq @(subscribe [:vms/directional-children gv-uuid]))]
+                                                                     (:bp/uuid (first direcitonal-children))
+                                                                     gv-uuid))))
                                             gv-uuid+min+max-entries-sorted)
         enabled-check-boxes            (when (= rf-event-id :worksheet/update-table-filter-attr)
                                          (map (fn [[gv-uuid _min _max enabled?]]
@@ -597,11 +600,12 @@
                      :min-attr-id :table-filter/min
                      :max-attr-id :table-filter/max}]]))
 
-(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow] :as params}]
+(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
-  (let [*notes               (subscribe [:wizard/notes ws-uuid])
+  (let [modules              @(subscribe [:worksheet/modules ws-uuid])
+        *notes               (subscribe [:wizard/notes ws-uuid])
         *show-notes?         (subscribe [:wizard/show-notes?])
         on-back              #(dispatch [:wizard/back])
         on-next              #(dispatch [:navigate (path-for routes :ws/results
@@ -628,7 +632,7 @@
            @(<t (bp "result_settings"))]
           (show-or-close-notes-button @*show-notes?)]]
         (when @*show-notes?
-          (wizard-notes @*notes))
+          (wizard-notes @*notes modules))
         [:div.wizard-page__body
          [:div.wizard-results__table-settings
           [:div.wizard-results__table-settings__header "Table Settings"]
@@ -646,13 +650,13 @@
 
 ;; Wizard Results Page
 
-(defn wizard-results-page [{:keys [route-handler ws-uuid workflow] :as params}]
+(defn wizard-results-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
   (let [*worksheet          (subscribe [:worksheet ws-uuid])
+        modules             @(subscribe [:worksheet/modules ws-uuid])
         *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        *notes              (subscribe [:wizard/notes ws-uuid])
         *tab-selected       (subscribe [:wizard/results-tab-selected])
         *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
         show-tool-selector? @(subscribe [:tool/show-tool-selector?])
@@ -660,7 +664,7 @@
         repeat-groups?      @(subscribe [:worksheet/repeat-groups? ws-uuid])
         tabs                (cond-> []
 
-                              (seq @*notes)
+                              :always
                               (conj {:label     (-> @(<t (bp "notes"))
                                                     s/capitalize-words)
                                      :tab       :notes
@@ -725,7 +729,7 @@
                         :tabs     tabs}]]]
         [:div.review-wizard-page__body
          [:div.wizard-results__notes {:id "notes"}
-          (wizard-notes @*notes)]
+          [add-note-section ws-uuid modules]]
          [:div.wizard-notes__header {:id "inputs"}
           (-> @(<t (bp "inputs"))
               s/capitalize-words)]
@@ -760,9 +764,7 @@
         *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
-        *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
-        *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
         computing?               @(subscribe [:state :worksheet-computing?])
@@ -804,25 +806,7 @@
                @(<t (bp "module_input_selections")))]
             (show-or-close-notes-button @*show-notes?)]
            (when @*show-notes?
-             [:<>
-              [:div.wizard-add-notes
-               [c/button {:label         @(<t (bp "add_notes"))
-                          :variant       "outline-primary"
-                          :icon-name     :plus
-                          :icon-position "left"
-                          :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
-               (when @*show-add-note-form?
-                 [c/note {:title-label       @(<t (bp "enter_notes_name_or_category"))
-                          :title-placeholder @(<t (bp "enter_notes_name_or_category"))
-                          :title-value       ""
-                          :body-value        ""
-                          :on-save           #(dispatch [:wizard/create-note
-                                                         ws-uuid
-                                                         nil
-                                                         nil
-                                                         (name io)
-                                                         %])}])]
-              [wizard-notes @*notes]])
+             [add-note-section ws-uuid modules])
            [:div.wizard-header__submodule-navigator
             [:div.wizard-header__submodule-navigator__label
              (if (= (count modules) 1)

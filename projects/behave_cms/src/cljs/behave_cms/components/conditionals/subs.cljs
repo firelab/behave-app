@@ -1,7 +1,7 @@
 (ns behave-cms.components.conditionals.subs
-  (:require [re-frame.core      :refer [reg-sub subscribe]]
-            [datascript.core :as d]
-            [behave-cms.store   :refer [conn]]))
+  (:require [re-frame.core    :refer [reg-sub subscribe]]
+            [datascript.core  :as d]
+            [behave-cms.store :refer [conn]]))
 
 (reg-sub
  :conditionals/all-conditionals
@@ -21,7 +21,7 @@
          module-conditionals         (d/q '[:find ?c
                                             :in $ ?g ?conditional-attr
                                             :where
-                                            [?g ?conditionals-attr ?c]
+                                            [?g ?conditional-attr ?c]
                                             [?c :conditional/type :module]]
                                           @@conn
                                           eid

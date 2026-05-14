@@ -52,11 +52,15 @@
   t-key->eid c/t-key->eid)
 
 (def ^{:arglists '([conn t])
+       :doc      "Get the :bp/uuid using translation-key"}
+  t-key->bp-uuid c/t-key->bp-uuid)
+
+(def ^{:arglists '([conn t])
        :doc      "Given a translation-key of a group-variable an action's name return the action's entity id"}
   t-key-action-name->eid c/t-key-action-name->eid)
 
 (def ^{:arglists '([conn bp6-code])
-       :doc "Given a Behave6 Variable code (e.g. `vSurfaceFuelCode`), returns the matching variable entity ID."}
+       :doc      "Given a Behave6 Variable code (e.g. `vSurfaceFuelCode`), returns the matching variable entity ID."}
   bp6-code->variable-eid c/bp6-code->variable-eid)
 
 (def ^{:arglists '([conn attr])
@@ -95,15 +99,15 @@
   remove-nested-i18ns-tx c/remove-nested-i18ns-tx)
 
 (def ^{:arglists '([data])
-       :doc "Payload for a new Entity, which adds a :bp/nid and :bp/uuid."}
+       :doc      "Payload for a new Entity, which adds a :bp/nid and :bp/uuid."}
   ->entity c/->entity)
 
 (def ^{:arglists '([uuid operator value])
-       :doc "Payload for a Group Variable Conditional."}
+       :doc      "Payload for a Group Variable Conditional."}
   ->gv-conditional c/->gv-conditional)
 
 (def ^{:arglists '([operator values])
-       :doc "Payload for a Module Conditional."}
+       :doc      "Payload for a Module Conditional."}
   ->module-conditional c/->module-conditional)
 
 (def ^{:arglists '([conn params])
@@ -111,7 +115,7 @@
   ->conditional c/->conditional)
 
 (def ^{:arglists '([conn params])
-       :doc "Payload for a new Group."}
+       :doc      "Payload for a new Group."}
   ->group c/->group)
 
 (def ^{:arglists '([conn params])
@@ -123,14 +127,14 @@
   ->variable c/->variable)
 
 (def ^{:arglists '([conn params])
-       :doc "Payload for a new Group Variable."}
+       :doc      "Payload for a new Group Variable."}
   ->group-variable c/->group-variable)
 
 (def ^{:arglists '([source-eid destination-eid])
-       :doc "Payload for a new Link."}
+       :doc      "Payload for a new Link."}
   ->link c/->link)
 
-(def ^{:arglists '([migration-name])
+(def ^{:arglists    '([migration-name])
        :->actiondoc "Payload for a new migration."}
   ->migration c/->migration)
 

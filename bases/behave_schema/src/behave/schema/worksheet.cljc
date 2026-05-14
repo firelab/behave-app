@@ -1,6 +1,6 @@
 (ns behave.schema.worksheet
-  (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [many-ref? single-ref? uuid-string?]]))
+  (:require [behave.schema.utils :refer [many-ref? single-ref? uuid-string?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
@@ -132,6 +132,11 @@
 
    {:db/ident       :note/content
     :db/doc         "Note's content."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :note/category
+    :db/doc         "Note's category name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

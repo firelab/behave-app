@@ -1,14 +1,12 @@
 (ns behave.core
   (:gen-class)
-  (:import [javax.swing JFrame SwingUtilities UIManager]
-           [javax.imageio ImageIO])
-  (:require [clojure.java.io      :as io]
-            [behave.handlers      :refer [create-cef-handler-stack]]
-            [behave.server        :refer [init-config! init-db!]]
-            [file-utils.interface :refer [os-type app-data-dir]]
+  (:import [javax.imageio ImageIO]
+           [javax.swing JFrame SwingUtilities UIManager])
+  (:require [behave.handlers      :refer [create-cef-handler-stack]]
+            [behave.server        :as server]
+            [clojure.java.io      :as io]
             [config.interface     :refer [get-config]]
-            [jcef.core            :refer [show-dev-tools!]]
-            [jcef.interface       :refer [create-cef-app! custom-request-handler show-loader!]]
+            [file-utils.interface :refer [os-type app-data-dir]]
             [logging.interface    :as l :refer [log-str]]))
 
 ;;; Logging
@@ -60,49 +58,81 @@
 
 (defonce ^:private the-app (atom nil))
 
-(defn -main
-  "CEF client start method."
-  [& _args]
-  (init-config!)
-  (let [loader          (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
-        mode            (get-config :server :mode)
-        http-port       (or (get-config :server :http-port) 8080)
-        org-name        (get-config :site :org-name)
-        app-name        (get-config :site :app-name)
-        my-app-data-dir (app-data-dir org-name app-name)
-        log-config      (if (= "prod" mode)
-                          (assoc (get-config :logging) :log-dir (str (io/file my-app-data-dir "logs")))
-                          (get-config :logging))
-        db-config       (if (= "prod" mode)
-                          (assoc-in (get-config :database :config)
-                                    [:store :path]
-                                    (str (io/file my-app-data-dir "db.sqlite")))
-                          (get-config :database :config))
-        cache-path      (str (io/file my-app-data-dir ".cache"))
-        request-handler (custom-request-handler
-                         {:protocol     "http"
-                          :authority    (format "localhost:%s" http-port)
-                          :resource-dir "public"
-                          :ring-handler (create-cef-handler-stack)})]
+;;; Runtime Detection
+
+(defn- conveyor?
+  "True when running inside a Conveyor-packaged app (app.dir is set)."
+  []
+  (some? (System/getProperty "app.dir")))
+
+;;; Entry Points
+
+(defn- start-cef!
+  "Start the app in JCEF desktop mode."
+  []
+  ;; Lazy-require jcef so server mode never loads jcef namespaces or
+  ;; org.cef.* classes. Only this code path pulls in the native bundle.
+  (let [show-loader!           (requiring-resolve 'jcef.interface/show-loader!)
+        create-cef-app!        (requiring-resolve 'jcef.interface/create-cef-app!)
+        custom-request-handler (requiring-resolve 'jcef.interface/custom-request-handler)
+        loader                 (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
+        mode                   (get-config :server :mode)
+        http-port              (or (get-config :server :http-port) 8080)
+        org-name               (get-config :site :org-name)
+        app-name               (get-config :site :app-name)
+        my-app-data-dir        (app-data-dir org-name app-name)
+        log-config             (if (= "prod" mode)
+                                 (assoc (get-config :logging) :log-dir (str (io/file my-app-data-dir "logs")))
+                                 (get-config :logging))
+        db-config              (if (= "prod" mode)
+                                 (assoc-in (get-config :database :config)
+                                           [:store :path]
+                                           (str (io/file my-app-data-dir "db.sqlite")))
+                                 (get-config :database :config))
+        cache-path             (str (io/file my-app-data-dir ".cache"))
+        request-handler        (custom-request-handler
+                                {:protocol     "http"
+                                 :authority    (format "localhost:%s" http-port)
+                                 :resource-dir "public"
+                                 :ring-handler (create-cef-handler-stack)})]
 
     (start-logging! log-config)
-    (init-db! db-config)
+    (server/init-db! db-config)
 
     (create-cef-app!
-     {:title           (get-config :site :title)
-      :url             (str "http://localhost:" http-port)
-      :cache-path      cache-path
-      :fullscreen?     true
-      :on-shown        (fn [app & _]
-                         (reset! the-app app)
-                         (.dispose (:frame loader)))
-      :request-handler request-handler
+     {:title                                                (get-config :site :title)
+      :url                                                  (str "http://localhost:" http-port)
+      :cache-path                                           cache-path
+      :fullscreen?                                          true
+      :on-shown                                             (fn [app & _]
+                                                              (reset! the-app app)
+                                                              (.dispose (:frame loader)))
+      :request-handler                                      request-handler
       :on-before-launch
       (fn [{:keys [frame]}]
         (on-before-launch frame (get-config :site :title)))})))
 
+(defn -main
+  "Unified entry point. Detects runtime environment and starts
+   in CEF desktop mode or HTTP server mode."
+  [& _args]
+  (if (conveyor?)
+    (do
+      (server/init-config!)
+      (server/enrich-config!)
+      (start-cef!))
+    (do
+      (server/start-server!)
+      ;; `server.core/start-server!` runs Jetty with `:join? false`, and
+      ;; neither `vms-sync!` nor `watch-kill-signal!` blocks — so without
+      ;; parking here the main thread would return and the JVM would exit
+      ;; before any request could be served. Block until the process is
+      ;; killed (Ctrl-C / SIGTERM).
+      @(promise))))
+
 (comment
   (-main)
+  (start-cef!)
   ;; Dev Tools
   @the-app
   (require '[jcef.core :as jc])
