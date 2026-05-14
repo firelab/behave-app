@@ -1,5 +1,7 @@
 (ns behave-cms.units.views
-  (:require [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+  (:require [behave-cms.components.common            :refer [window]]
+            [behave-cms.components.sidebar.views     :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.events]
             [behave-cms.subs]
             [re-frame.core                           :as rf]))
@@ -60,10 +62,11 @@
           selected-unit-state-path      [:selected :unit]
           unit-editor-path              [:editors :unit]
           selected-dimension            (rf/subscribe [:state selected-dimension-state-path])]
-      [:div.container
-       [:div {:style {:height "500px"}}
-        [dimensions-table selected-dimension-state-path dimension-editor-state-path]]
-       (when @selected-dimension
-         [:div {:style {:height "500px"}}
-          [units-table selected-unit-state-path unit-editor-path selected-dimension-state-path]])])
+      [window sidebar-width
+       [:div.container
+        [:div {:style {:height "500px"}}
+         [dimensions-table selected-dimension-state-path dimension-editor-state-path]]
+        (when @selected-dimension
+          [:div {:style {:height "500px"}}
+           [units-table selected-unit-state-path unit-editor-path selected-dimension-state-path]])]])
     [:div "Loading..."]))
