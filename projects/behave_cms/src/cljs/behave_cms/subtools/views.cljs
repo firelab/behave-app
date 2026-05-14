@@ -1,17 +1,17 @@
 (ns behave-cms.subtools.views
-  (:require [clojure.set   :refer [difference]]
-            [reagent.core  :as r]
-            [re-frame.core :as rf]
-            [string-utils.interface :refer [->kebab]]
-            [behave-cms.components.common          :refer [accordion radio-buttons simple-table window checkbox]]
+  (:require [behave-cms.components.common          :refer [accordion radio-buttons simple-table window checkbox]]
             [behave-cms.components.cpp-editor      :refer [cpp-editor-form]]
-            [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [->sidebar-links sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
             [behave-cms.components.variable-search :refer [variable-search]]
-            [behave-cms.utils :as u]
+            [behave-cms.events]
+            [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.subs]
-            [behave-cms.events]))
+            [behave-cms.utils :as u]
+            [clojure.set   :refer [difference]]
+            [re-frame.core :as rf]
+            [reagent.core  :as r]
+            [string-utils.interface :refer [->kebab]]))
 
 ;;; Constants
 
@@ -42,9 +42,9 @@
                                   {:variable/_subtool-variables      %
                                    :subtool-variable/translation-key (str translation-key ":" (->kebab (:variable/name variable)))
                                    :subtool-variable/help-key        (str translation-key ":" (->kebab (:variable/name variable)) ":help")
-                                   :subtool-variable/order           (count variables)
                                    :subtool-variable/io              io
-                                   :subtool/_variables               subtool-id}]))
+                                   :subtool/_variables               subtool-id}
+                                  {:order-attr :subtool-variable/order :siblings variables}]))
       :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]))
 
 (defn- manage-variable [subtool-id translation-key variables]
@@ -74,7 +74,8 @@
     {:on-select   #(rf/dispatch [:subtool/edit-variable (first (:variable/_subtool-variables %))])
      :on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable "
                                           (:variable/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))
+                     (rf/dispatch [:api/delete-entity %
+                                   {:order-attr :subtool-variable/order :siblings variables}]))
      :on-increase #(rf/dispatch [:api/reorder % variables :subtool-variable/order :inc])
      :on-decrease #(rf/dispatch [:api/reorder % variables :subtool-variable/order :dec])}]])
 
