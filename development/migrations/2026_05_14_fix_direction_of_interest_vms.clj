@@ -23,9 +23,11 @@
 ;; Payload
 ;; ===========================================================================================================
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def direction-of-interest-eid
   (sm/t-key->eid conn "behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:direction-of-interest:direction-of-interest"))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def direction-of-interest-variable-eid
   (sm/name->eid conn :variable/name "Direction of Interest"))
 
