@@ -7,7 +7,7 @@
 
 ;;; Styles
 
-(def sidebar-width "450px")
+(def sidebar-width "300px")
 
 (defn- $sidebar []
   {:position         "fixed"
@@ -36,7 +36,7 @@
   {:display     "inline-block"
    :width       "24px"
    :flex-shrink "0"
-   :font-size   "15px"
+   :font-size   "10px"
    :color       (if active? "white" (color-picker :dark-gray))
    :cursor      "pointer"
    :text-align  "center"
@@ -48,7 +48,7 @@
    :overflow      "hidden"
    :text-overflow "ellipsis"
    :white-space   "nowrap"
-   :font-size     "17px"
+   :font-size     "12px"
    :cursor        "pointer"
    :padding       "7px 4px 7px 0"})
 
