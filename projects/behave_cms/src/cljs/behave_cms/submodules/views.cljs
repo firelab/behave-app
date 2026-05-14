@@ -99,11 +99,11 @@
          [:h2 (:module/name @module)]]
         [accordion
          "Submodules"
-         [submodules-table (:db/id @module)]]
+         [submodules-table module-id]]
         [:hr]
         [accordion
          "Submodules Results Order"
-         [submodules-results-order-table (:db/id @module)]]
+         [submodules-results-order-table module-id]]
         [:hr]
         [accordion
          "Translations"

@@ -1,9 +1,9 @@
 (ns ^:figwheel-hooks behave-cms.client
   (:require [behave-cms.applications.views       :refer [list-applications-page]]
             [behave-cms.authentication.views     :refer [invite-user-page
-                                                        login-page
-                                                        reset-password-page
-                                                        verify-email-page]]
+                                                         login-page
+                                                         reset-password-page
+                                                         verify-email-page]]
             [behave-cms.components.menu          :refer [menu]]
             [behave-cms.components.sidebar.views :refer [sidebar]]
             [behave-cms.config                   :refer [update-config]]
@@ -84,7 +84,7 @@
     [:h1 {:style {:text-align "center"}}
      "404 - Page Not Found"]]])
 
-(defn page-component [params]
+(defn page-component [_params]
   (fn [params]
     (let [current-route                  (rf/subscribe [:route])
           {:keys [handler route-params]} (match-route app-routes @current-route)
@@ -144,7 +144,7 @@
     (render-root cur-params)
     (rf/dispatch-sync [:initialize])))
 
-(defn- ^:after-load mount-root!
+(defn ^:after-load mount-root!
   "A hook for figwheel to call the init function again."
   []
   (init {}))

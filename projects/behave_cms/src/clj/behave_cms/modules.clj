@@ -26,9 +26,9 @@
       (spit filename (format "\n\n-- %s\n" (k->s class-name)) :append true)
       #_(spit filename (format "\nSELECT cpp.create_class('%s', '%s');\n" (k->s cpp-ns) (k->s class-name)) :append true)
       (when (map? fns)
-        (doseq [[_ {:keys [type id parameters] :or {type "void"}}] fns]
+        (doseq [[_ {fn-type :type id :id parameters :parameters :or {fn-type "void"}}] fns]
           (when id
-            (spit filename (format "SELECT cpp.add_class_function('%s', '%s', '%s');\n" (k->s class-name) id type) :append true)
+            (spit filename (format "SELECT cpp.add_class_function('%s', '%s', '%s');\n" (k->s class-name) id fn-type) :append true)
             (let [fname id]
-              (doseq [[idx {:keys [type id] :or {type "void"}}] (map-indexed vector parameters)]
-                (spit filename (format "SELECT cpp.add_function_parameter('%s', '%s', '%s', '%s', %d);\n" (k->s class-name) fname type id idx) :append true)))))))))
+              (doseq [[idx {param-type :type param-id :id :or {param-type "void"}}] (map-indexed vector parameters)]
+                (spit filename (format "SELECT cpp.add_function_parameter('%s', '%s', '%s', '%s', %d);\n" (k->s class-name) fname param-type param-id idx) :append true)))))))))

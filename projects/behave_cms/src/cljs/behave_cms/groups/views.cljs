@@ -62,11 +62,8 @@
   "Component for groups page. Takes a single map with:
    - :id [int] - Submodule Entity ID"
   [{nid :nid}]
-  (let [submodule           (rf/subscribe [:entity [:bp/nid nid] '[* {:module/_submodules [*]}]])
-        submodule-eid       (:db/id @submodule)
-        var-conditionals    (rf/subscribe [:submodule/variable-conditionals submodule-eid])
-        module-conditionals (rf/subscribe [:submodule/module-conditionals submodule-eid])
-        parent-module       (:module/_submodules @submodule)]
+  (let [submodule     (rf/subscribe [:entity [:bp/nid nid] '[* {:module/_submodules [*]}]])
+        submodule-eid (:db/id @submodule)]
     [window sidebar-width
      [:div.container
       [:div.row.mb-3.mt-4

@@ -49,9 +49,9 @@
      :link     (path-for app-routes :get-submodule :nid (:bp/nid e))
      :children (mapv group-node groups)}))
 
-(defn- module-node [mod]
+(defn- module-node [m]
   (let [db         @@conn
-        e          (d/entity db (:db/id mod))
+        e          (d/entity db (:db/id m))
         submodules (sort-by :submodule/order (:module/submodules e))]
     {:id       (:db/id e)
      :nid      (:bp/nid e)

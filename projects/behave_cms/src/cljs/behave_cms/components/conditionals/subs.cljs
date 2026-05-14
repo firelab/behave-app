@@ -26,9 +26,9 @@
                                           @@conn
                                           eid
                                           cond-attr)]
-     (concat (mapv (fn [[id name]]
+     (concat (mapv (fn [[id option-name]]
                      (-> @(subscribe [:entity id])
-                         (assoc :variable/name name))) group-variable-conditionals)
+                         (assoc :variable/name option-name))) group-variable-conditionals)
              (mapv (fn [[id]]
                      (-> @(subscribe [:entity id])
                          (assoc :variable/name "Modules selected"))) module-conditionals)))))

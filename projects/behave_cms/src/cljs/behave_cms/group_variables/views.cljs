@@ -128,7 +128,6 @@
                                 deref
                                 (get-in [:link/destination :db/id]))
         direction           (get-in @group-variable [:group-variable/direction-ref :list-option/name])]
-    (prn "direction:" direction)
     [window
      sidebar-width
      [:div.container
