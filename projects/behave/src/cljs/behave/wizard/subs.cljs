@@ -139,7 +139,7 @@
      (or (first (filter (partial matching-submodule? io slug) submodules))
          (first (if (= :input io) inputs outputs))))))
 
-(defn edit-groups [group]
+(defn- edit-groups [group]
   (when group
     (cond-> group
       (seq (:group/group-variables group))
@@ -297,7 +297,9 @@
          (update :variable/kind keyword)))))
 
 ;; TODO Might want to set this in a config file to the application
-(def ^:const multi-value-input-limit 3)
+(def ^:const multi-value-input-limit
+  "Constant for setting max number of multi valued input allowed"
+  3)
 
 (reg-sub
  :wizard/multi-value-input-limit
@@ -495,6 +497,32 @@
    tab-selected))
 
 (reg-sub
+ :wizard/gv-list-options-with-colors
+ (fn [[_ gv-uuid]]
+   (subscribe [:vms/pull
+               '[{:variable/_group-variables
+                  [{:variable/list
+                    [{:list/options
+                      [:list-option/value
+                       :list-option/translation-key
+                       {:list-option/color-tag-ref [:tag/color]}]}]}]}]
+               [:bp/uuid gv-uuid]]))
+ (fn [gv _]
+   (into []
+         (keep (fn [opt]
+                 (when-let [color (get-in opt [:list-option/color-tag-ref :tag/color])]
+                   {:value (:list-option/value opt)
+                    :t-key (:list-option/translation-key opt)
+                    :color color})))
+         (get-in gv [:variable/_group-variables 0 :variable/list :list/options]))))
+
+(reg-sub
+ :wizard/selected-output-cell-coloring
+ (fn [_ _]
+   (subscribe [:state [:selected-output-cell-coloring]]))
+ identity)
+
+(reg-sub
  :wizard/worksheet-date
 
  (fn [[_ ws-uuid]]
@@ -571,7 +599,12 @@
                this-conditional)))
          conditionals)))
 
-(defn all-conditionals-pass? [worksheet conditionals-operator conditionals]
+(defn all-conditionals-pass?
+  "Proccess all conditionals to ensure they all pass, defaults to true if no conditionals exist.
+  - worksheet : worksheet entity
+  - conditionals-operator: keyword #{:or :and}
+  - conditionals : sequence of conditionals (see conditionals schema)"
+  [worksheet conditionals-operator conditionals]
   (if (seq conditionals)
     (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
       (if (= conditionals-operator :or)
@@ -764,31 +797,42 @@
          parsed-values (map js/parseFloat (str/split values ","))]
      [0 (apply max parsed-values)])))
 
-(reg-sub
- :wizard/conditionally-set-group-variables
-
- (fn [[_ ws-uuid]]
-   [(subscribe [:worksheet/modules ws-uuid])
-    (subscribe [:worksheet/all-output-uuids ws-uuid])])
-
- (fn [[modules worksheet-output-uuids] [_ _ io]]
-   (let [db          @@vms-conn
-         module-eids (mapv :db/id modules)
-         output-set  (set worksheet-output-uuids)
-         gv-eids     (d/q '[:find [?gv ...]
+(defn- query-module-group-variables
+  [db modules io extra-where]
+  (let [module-eids (mapv :db/id modules)
+        query       (conj '[:find  [?gv ...]
                             :in    $ % [?module-eid ...] ?io
                             :where
                             [?module-eid :module/submodules ?s]
                             [?s :submodule/io ?io]
                             (group ?s ?g)
-                            [?g :group/group-variables ?gv]
-                            (or [?gv :group-variable/conditionally-set? true]
-                                [?gv :group-variable/actions _])]
-                          db rules module-eids io)]
+                            [?g :group/group-variables ?gv]]
+                          extra-where)
+        gv-eids     (d/q query db rules module-eids io)]
+    (mapv #(d/entity db %) gv-eids)))
+
+(reg-sub
+ :wizard/conditionally-set-group-variables
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/modules ws-uuid]))
+ (fn [modules [_ _ io]]
+   (query-module-group-variables @@vms-conn modules io
+                                 '[?gv :group-variable/conditionally-set? true])))
+
+(reg-sub
+ :wizard/output-group-variables-with-actions
+
+ (fn [[_ ws-uuid]]
+   [(subscribe [:worksheet/modules ws-uuid])
+    (subscribe [:worksheet/all-output-uuids ws-uuid])])
+
+ (fn [[modules worksheet-output-uuids] _]
+   (let [output-set (set worksheet-output-uuids)]
      (into []
-           (comp (map #(d/entity db %))
-                 (remove #(contains? output-set (:bp/uuid %))))
-           gv-eids))))
+           (remove #(contains? output-set (:bp/uuid %)))
+           (query-module-group-variables @@vms-conn modules :output
+                                         '[?gv :group-variable/actions _])))))
 
 (reg-sub
  :wizard/conditionally-set-input-data

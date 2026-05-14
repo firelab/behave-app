@@ -7,13 +7,11 @@
             [behave-cms.languages.events]
             [behave-cms.lists.events]
             [behave-cms.modules.events]
-            [behave-cms.routes    :refer [app-routes singular]]
             [behave-cms.subgroups.events]
             [behave-cms.submodules.events]
             [behave-cms.subtools.events]
             [behave-cms.utils     :as u]
             [behave-cms.variables.events]
-            [bidi.bidi            :refer [path-for]]
             [clojure.core.async   :refer [go <!]]
             [data-utils.interface :refer [remove-nth]]
             [datascript.core      :refer [squuid]]
@@ -26,17 +24,19 @@
 
 ;;; Initialization
 
-(def initial-state {:router   {:history       ["/"]
-                               :curr-position 0}
-                    :state    {:editors  {}
-                               :sidebar  {}
-                               :selected {}
-                               :loaded?  false}
-                    :entities {:applications {}
-                               :functions    {}
-                               :groups       {}
-                               :modules      {}
-                               :variables    {}}})
+(def initial-state
+  "Initial app-db state."
+  {:router   {:history       ["/"]
+              :curr-position 0}
+   :state    {:editors  {}
+              :sidebar  {}
+              :selected {}
+              :loaded?  false}
+   :entities {:applications {}
+              :functions    {}
+              :groups       {}
+              :modules      {}
+              :variables    {}}})
 
 (reg-event-db
  :initialize
@@ -52,13 +52,13 @@
 
 (reg-fx
  :session/get
- (fn [path]
+ (fn [p]
    (cond
-     (keyword? path)
-     (get (u/get-session-storage) path)
+     (keyword? p)
+     (get (u/get-session-storage) p)
 
-     (or (vector? path) (seq? path))
-     (get-in (u/get-session-storage) path))))
+     (or (vector? p) (seq? p))
+     (get-in (u/get-session-storage) p))))
 
 (reg-fx
  :session/set
@@ -77,7 +77,9 @@
 
 ;;; Navigation
 
-(defn navigate [{:keys [history curr-position]} new-route]
+(defn navigate
+  "Compute new history/position when navigating to a route."
+  [{:keys [history curr-position]} new-route]
   (let [curr-route (get history curr-position)]
     (when (not= new-route curr-route)
       (let [new-history  (-> (+ curr-position 1)
@@ -108,7 +110,7 @@
 
 (reg-event-fx
  :refresh
- (fn [{db :db} [_ new-route]]
+ (fn [_ [_ new-route]]
    (set! (.-location js/window) new-route)))
 
 (reg-event-db
@@ -123,64 +125,66 @@
 (reg-event-db
  :state/set-state
  (path :state)
- (fn [db [_ path value]]
+ (fn [db [_ p value]]
    (cond
-     (or (vector? path) (list? path))
-     (assoc-in db path value)
+     (or (vector? p) (list? p))
+     (assoc-in db p value)
 
-     (keyword? path)
-     (assoc db path value)
+     (keyword? p)
+     (assoc db p value)
 
      :else db)))
 
 (reg-event-db
  :state/update
  (path :state)
- (fn [db [_ path f]]
+ (fn [db [_ p f]]
    (cond
-     (or (vector? path) (list? path))
-     (update-in db path f)
+     (or (vector? p) (list? p))
+     (update-in db p f)
 
-     (keyword? path)
-     (update db path f)
+     (keyword? p)
+     (update db p f)
 
      :else db)))
 
 (reg-event-db
  :state/select
  (path [:state :selected])
- (fn [db [_ path value]]
-   (if (keyword? path)
-     (assoc db path value)
+ (fn [db [_ p value]]
+   (if (keyword? p)
+     (assoc db p value)
      db)))
 
 (reg-event-db
  :state/merge
  (path :state)
- (fn [state [_ path value]]
-   (let [orig-value (get-in state path)]
+ (fn [state [_ p value]]
+   (let [orig-value (get-in state p)]
      (cond
        (nil? orig-value)
-       (assoc-in state path value)
+       (assoc-in state p value)
 
        (and (map? orig-value) (map? value))
-       (update-in state path merge value)
+       (update-in state p merge value)
 
        (and (or (vector? orig-value) (seq? orig-value))
             (or (vector? value) (seq? orig-value)))
-       (update-in state path into value)))))
+       (update-in state p into value)))))
 
 (reg-event-db
  :state/remove-nth
  (path :state)
- (fn [db [_ path n]]
-   (let [v (get-in db path)]
-     (println [:REMOVE-NTH [:ARGS path n] path v (remove-nth v n) (assoc-in db path (remove-nth v n))])
-     (assoc-in db path (remove-nth v n)))))
+ (fn [db [_ p n]]
+   (let [v (get-in db p)]
+     (println [:REMOVE-NTH [:ARGS p n] p v (remove-nth v n) (assoc-in db p (remove-nth v n))])
+     (assoc-in db p (remove-nth v n)))))
 
 ;;; AJAX/Fetch Effects
 
-(defn request [{:keys [uri method data on-success on-error fn-args]}]
+(defn request
+  "Issue an EDN ajax request and dispatch on success/error."
+  [{:keys [uri method data on-success on-error fn-args]}]
   (let [handler (fn [[ok result]]
                   (dispatch [(if ok on-success on-error)
                              result
@@ -194,7 +198,9 @@
 
 (reg-fx :api/request request)
 
-(defn http-request [{:keys [uri method body on-success on-error fn-args]}]
+(defn http-request
+  "Issue an HTTP request via core.async and dispatch on success/error."
+  [{:keys [uri method body on-success on-error fn-args]}]
   (go (let [response (<! (u/call-remote! method uri body))]
         (if (<= 200 (:status response) 299)
           (dispatch (conj [on-success response] fn-args))
@@ -247,11 +253,16 @@
 
 (reg-event-fx
  :api/create-entity
- (fn [_ [_ data]]
-   {:transact [(merge {:db/id   -1
-                       :bp/uuid (str (squuid))
-                       :bp/nid  (nano-id)}
-                      data)]}))
+ (fn [_ [_ data {:keys [order-attr siblings]}]]
+   (let [next-order (when order-attr
+                      (if (seq siblings)
+                        (inc (apply max (keep order-attr siblings)))
+                        0))]
+     {:transact [(merge {:db/id   -1
+                         :bp/uuid (str (squuid))
+                         :bp/nid  (nano-id)}
+                        data
+                        (when order-attr {order-attr next-order}))]})))
 
 (reg-event-fx
  :api/upsert-entity
@@ -282,18 +293,23 @@
 
 (reg-event-fx
  :api/delete-entity
- (fn [_ [_ arg]]
-   (let [id (cond
-              (number? arg)
-              arg
-
-              (string? arg)
-              [:bp/nid arg]
-
-              (map? arg)
-              [:bp/nid (:bp/nid arg)])]
-
-     {:transact [[:db.fn/retractEntity id]]})))
+ (fn [_ [_ arg {:keys [order-attr siblings]}]]
+   (let [id         (cond
+                      (number? arg) arg
+                      (string? arg) [:bp/nid arg]
+                      (map? arg)    [:bp/nid (:bp/nid arg)])
+         deleted-id (cond
+                      (number? arg) arg
+                      (map? arg)    (:db/id arg))
+         renumber   (when (and order-attr (seq siblings) deleted-id)
+                      (->> siblings
+                           (remove #(= deleted-id (:db/id %)))
+                           (sort-by order-attr)
+                           (keep-indexed
+                            (fn [i e]
+                              (when (not= i (get e order-attr))
+                                {:db/id (:db/id e) order-attr i})))))]
+     {:transact (into [[:db.fn/retractEntity id]] renumber)})))
 
 (reg-event-fx
  :api/reorder

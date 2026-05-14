@@ -102,7 +102,9 @@
                   :outline-danger
                   "Delete Search Table"
                   #(when (js/confirm (str "Are you sure you want to delete this search table?"))
-                     (rf/dispatch [:api/delete-entity search-table-id]))]]]]
+                     (rf/dispatch [:api/delete-entity search-table-id
+                                   {:order-attr :search-table/order
+                                    :siblings   (:module/search-tables @module)}]))]]]]
               [:hr]]))
          (:module/search-tables @module)))
        (if @show-add-search-table?
@@ -123,7 +125,12 @@
                                        :type      :radio
                                        :options   [{:label "Minimum" :value :min}
                                                    {:label "Maximum" :value :max}]}]
-                       :on-create    #(do (swap! show-add-search-table? not) %)}]
+                       :on-create    #(let [siblings (:module/search-tables @module)]
+                                        (swap! show-add-search-table? not)
+                                        (assoc % :search-table/order
+                                               (if (seq siblings)
+                                                 (inc (apply max (keep :search-table/order siblings)))
+                                                 0)))}]
          [btn-sm
           :primary
           "Add Search Table"

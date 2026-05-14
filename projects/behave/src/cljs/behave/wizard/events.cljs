@@ -46,9 +46,9 @@
             (= io :input))
        (-> (dissoc :fx)
            (assoc :async-flow
-                  {:first-dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]
+                  {:first-dispatch [:worksheet/proccess-output-group-variables-with-actions ws-uuid]
                    :rules          [{:when     :seen?
-                                     :events   :worksheet/proccess-conditonally-set-output-group-variables
+                                     :events   :worksheet/proccess-output-group-variables-with-actions
                                      :dispatch [:navigate path]
                                      :halt?    true}]}))))))
 
@@ -86,9 +86,9 @@
                                     (= current-io :output)
                                     (= next-io :input))]
      (if guided-output->input?
-       {:async-flow {:first-dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]
+       {:async-flow {:first-dispatch [:worksheet/proccess-output-group-variables-with-actions ws-uuid]
                      :rules          [{:when     :seen?
-                                       :events   :worksheet/proccess-conditonally-set-output-group-variables
+                                       :events   :worksheet/proccess-output-group-variables-with-actions
                                        :dispatch [:navigate next-path]
                                        :halt?    true}]}}
        {:fx [[:dispatch [:navigate next-path]]]}))))
@@ -227,6 +227,11 @@
          [:dispatch [:wizard/scroll-into-view "review-wizard-page__body" (name tab)]]]}))
 
 (rf/reg-event-fx
+ :wizard/set-discrete-color-output
+ (fn [_cfx [_ gv-uuid]]
+   {:fx [[:dispatch [:state/set [:selected-output-cell-coloring] gv-uuid]]]}))
+
+(rf/reg-event-fx
  :wizard/progress-bar-navigate
  [(rf/inject-cofx ::inject/sub
                   (fn [[_ ws-uuid _ [_ io]]]
@@ -237,10 +242,10 @@
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
                        (= handler :ws/home)
-                       (str "/worksheets/")
+                       "/worksheets/"
 
                        (= handler :ws/module-selection)
-                       (str "/worksheets/module-selection")
+                       "/worksheets/module-selection"
 
                        (and (= handler :ws/wizard-standard) io)
                        (path-for routes :ws/wizard-standard

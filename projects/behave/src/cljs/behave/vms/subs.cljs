@@ -251,20 +251,49 @@
           :in $
           :where
           [?gv :bp/uuid ?gv-uuid]
-          [?gv :group-variable/direction ?direction]]
+          [?gv :group-variable/direction-ref ?dir-eid]
+          [?dir-eid :list-option/value _]]
         @@vms-conn)))
 
 (reg-sub
  :vms/group-variable-is-directional?
  (fn [_ [_ gv-uuid direction]]
-   (= (d/q '[:find  ?direction .
+   (= (d/q '[:find  ?dir-id .
              :in $ ?gv-uuid
              :where
              [?gv :bp/uuid ?gv-uuid]
-             [?gv :group-variable/direction ?direction]]
+             [?gv :group-variable/direction-ref ?dir-eid]
+             [?dir-eid :list-option/name ?dir-id]]
            @@vms-conn
            gv-uuid)
       direction)))
+
+(reg-sub
+ :vms/direction-color
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?color .
+          :in $ ?name
+          :where
+          [?l :list/name "FireDirection"]
+          [?l :list/options ?lo]
+          [?lo :list-option/name ?name]
+          [?lo :list-option/color-tag-ref ?tag]
+          [?tag :tag/color ?color]]
+        @@vms-conn
+        direction-id)))
+
+(reg-sub
+ :vms/direction-translation-key
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?t-key .
+          :in $ ?name
+          :where
+          [?l :list/name "FireDirection"]
+          [?l :list/options ?lo]
+          [?lo :list-option/name ?name]
+          [?lo :list-option/translation-key ?t-key]]
+        @@vms-conn
+        direction-id)))
 
 (reg-sub
  :vms/resolve-enum-translation
@@ -352,7 +381,9 @@
  (fn [_ [_ gv-uuid]]
    (get-group-hierarchy @@vms-conn gv-uuid)))
 
-(defn direction-variables [gv-uuid]
+(defn direction-variables
+  "Get `:group-variable/direction-variables` for the given group variable uuid"
+  [gv-uuid]
   (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
     (seq (:group-variable/direction-variables entity))))
 
@@ -361,7 +392,9 @@
  (fn [_ [_ gv-uuid]]
    (direction-variables gv-uuid)))
 
-(defn directional-parent-entity [gv-uuid]
+(defn directional-parent-entity
+  "Given a group variable uuid resolve parent ref of the :group-variable/_direction-variables attribute"
+  [gv-uuid]
   (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
     (first (:group-variable/_direction-variables entity))))
 
