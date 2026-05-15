@@ -33,8 +33,6 @@ jobs:
       if: steps.changed-files.outputs.has_files == 'true'
       run: clj-kondo --lint projects/ components/ bases/ --skip-lint
 
-    - uses: DeLaGuardo/clojure-lint-action@master
+    - name: Lint changed files
       if: steps.changed-files.outputs.has_files == 'true'
-      with:
-        clj-kondo-args: --lint ${{ steps.changed-files.outputs.files }}
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      run: clj-kondo --lint ${{ steps.changed-files.outputs.files }}
