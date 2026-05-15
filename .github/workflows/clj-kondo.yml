@@ -31,7 +31,7 @@ jobs:
 
     - name: Build analysis cache
       if: steps.changed-files.outputs.has_files == 'true'
-      run: clj-kondo --lint projects/ components/ bases/ --skip-lint
+      run: clj-kondo --lint projects/ components/ bases/ || true
 
     - name: Lint changed files
       if: steps.changed-files.outputs.has_files == 'true'
