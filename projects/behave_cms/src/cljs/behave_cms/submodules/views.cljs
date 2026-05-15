@@ -43,10 +43,61 @@
                                    :type      :keyword-select
                                    :field-key :pivot-column/function
                                    :required  true
-                                   :options   [{:value "sum" :label "sum"}
-                                               {:value "min" :label "min"}
-                                               {:value "max" :label "max"}
-                                               {:value "count" :label "count"}]}))}]))
+                                   :options   [{:value :sum :label "sum"}
+                                               {:value :min :label "min"}
+                                               {:value :max :label "max"}
+                                               {:value :count :label "count"}]}))}]))
+
+(defn- diagrams-table [module-id app-id]
+  (let [selected-state-path [:selected :diagram]
+        editor-state-path   [:editors :diagram]
+        diagrams            (rf/subscribe [:diagrams module-id])]
+    [table-entity-form
+     {:entity             :diagram
+      :form-state-path    editor-state-path
+      :entities           (sort-by :diagram/type @diagrams)
+      :on-select          (table-entity-form-on-select selected-state-path)
+      :parent-id          module-id
+      :parent-field       :module/_diagrams
+      :table-header-attrs [:diagram/type :diagram/title]
+      :entity-form-fields [{:label     "Type"
+                            :required? true
+                            :field-key :diagram/type
+                            :type      :keyword-select
+                            :options   [{:value :contain :label "Contain"}
+                                        {:value :optimized-contain :label "Optimized Contain"}
+                                        {:value :fire-shape :label "Fire Shape"}
+                                        {:value :wind-slope-spread-direction :label "Wind/Slope/Spread Direction"}]}
+                           {:label     "Title"
+                            :required? true
+                            :field-key :diagram/title}
+                           {:label     "Anchor Group Variable"
+                            :field-key :diagram/group-variable
+                            :required? true
+                            :type      :group-variable
+                            :app-id    app-id}
+                           {:label     "X-Axis Title"
+                            :field-key :diagram/x-axis-title}
+                           {:label     "Y-Axis Title"
+                            :field-key :diagram/y-axis-title}
+                           {:label     "X-Axis Units"
+                            :field-key :diagram/x-units-uuid
+                            :type      :unit}
+                           {:label     "Y-Axis Units"
+                            :field-key :diagram/y-units-uuid
+                            :type      :unit}
+                           {:label     "Symmetric Axes?"
+                            :field-key :diagram/symmetric-axes?
+                            :type      :boolean}
+                           {:label     "Mirror Y?"
+                            :field-key :diagram/mirror-y?
+                            :type      :boolean}
+                           {:label     "Connect Points?"
+                            :field-key :diagram/connect-points?
+                            :type      :boolean}]
+      :translation-attrs  [{:label "Title Translation" :attr :diagram/title-translation-key}
+                           {:label "X-Axis Title Translation" :attr :diagram/x-axis-title-translation-key}
+                           {:label "Y-Axis Title Translation" :attr :diagram/y-axis-title-translation-key}]}]))
 
 (defn- submodules-table [module-id app-id]
   (let [selected-state-path [:selected :submodule]
@@ -111,6 +162,10 @@
          [accordion
           "Submodules Results Order"
           [submodules-results-order-table (:db/id @module) (:db/id application)]]
+         [:hr]
+         [accordion
+          "Diagrams"
+          [diagrams-table (:db/id @module) (:db/id application)]]
          [:hr]
          [accordion
           "Translations"

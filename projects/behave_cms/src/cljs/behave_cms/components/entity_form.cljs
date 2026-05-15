@@ -7,9 +7,9 @@
             [behave.schema.core                            :refer [all-schemas]]
             [clojure.set                                   :as set]
             [clojure.string                                :as str]
+            [map-utils.interface                           :refer [index-by]]
             [re-frame.core                                 :as rf]
             [reagent.core                                  :as r]
-            [map-utils.interface                           :refer [index-by]]
             [string-utils.interface                        :refer [->kebab ->str]]))
 
 ;;; Constants
@@ -129,6 +129,17 @@
      :on-select #(on-change (u/input-value %))
      :selected  @state}]])
 
+(defmethod field-input :unit [{:keys [label on-change state disabled?]}]
+  (let [options (rf/subscribe [:units/short-code-options])]
+    (fn [_]
+      [:div.mb-3
+       [dropdown
+        {:label     label
+         :options   @options
+         :disabled? disabled?
+         :on-select #(on-change (u/input-value %))
+         :selected  @state}]])))
+
 (defmethod field-input :keyword-select [{:keys [label options on-change state disabled?]}]
   [:div.mb-3
    [dropdown
@@ -194,6 +205,18 @@
              :checked   checked?
              :on-change #(on-change (.. % -target -checked))}]
            [:label.form-check-label {:for id} label]])))]))
+
+(defmethod field-input :boolean [{:keys [label on-change state disabled?]
+                                  :or   {disabled? false}}]
+  (let [id (u/sentence->kebab label)]
+    [:div.form-check.my-3
+     [:input.form-check-input
+      {:type      "checkbox"
+       :id        id
+       :disabled  disabled?
+       :checked   (boolean (when-not (= @state "") @state))
+       :on-change #(on-change (.. % -target -checked))}]
+     [:label.form-check-label {:for id} label]]))
 
 (defmethod field-input :radio [{:keys [label options on-change state required?]}]
   (let [group-label label]

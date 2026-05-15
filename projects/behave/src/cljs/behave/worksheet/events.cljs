@@ -776,7 +776,6 @@
  [(rp/inject-cofx :ds)]
  (fn [_ [_
          ws-uuid
-         title
          group-variable-uuid
          row-id
          fire-perimeter-points-X
@@ -786,13 +785,10 @@
          fire-head-at-report
          fire-back-at-attack
          fire-head-at-attack
-         contain-status
-         units-uuid]]
+         contain-status]]
    {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                        :worksheet.diagram/title               title
                         :worksheet.diagram/group-variable-uuid group-variable-uuid
                         :worksheet.diagram/row-id              row-id
-                        :worksheet.diagram/units-uuid          units-uuid
                         :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
                                                                       w (/ l length-to-width-ratio)]
                                                                   {:ellipse/legend-id       "Fire Perimeter at Report"
@@ -818,20 +814,13 @@
  [(rp/inject-cofx :ds)]
  (fn [_ [_
          ws-uuid
-         title
          group-variable-uuid
          row-id
          production-rate-points
          containment-area-points]]
    {:transact [{:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                :worksheet.diagram/title               title
                 :worksheet.diagram/group-variable-uuid group-variable-uuid
                 :worksheet.diagram/row-id              row-id
-                :worksheet.diagram/x-axis-title        "Production Rate (ch/h)"
-                :worksheet.diagram/y-axis-title        "Containment Area (ac)"
-                :worksheet.diagram/symmetric-axes?     false
-                :worksheet.diagram/mirror-y?           false
-                :worksheet.diagram/connect-points?     true
                 :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "Production Rate vs Containment Area"
                                                          :scatter-plot/color         "blue"
                                                          :scatter-plot/x-coordinates production-rate-points
@@ -842,7 +831,6 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_
                     ws-uuid
-                    title
                     group-variable-uuid
                     row-id
                     elliptical-A
@@ -851,8 +839,7 @@
                     wind-direction
                     _wind-speed
                     slope-direction
-                    _elapsed-time
-                    units-uuid]]
+                    _elapsed-time]]
    (let [existing-eid    (d/q '[:find ?d .
                                 :in $ ?uuid ?gv-uuid ?row-id
                                 :where
@@ -865,10 +852,8 @@
          semi-minor-axis (min elliptical-A elliptical-B)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                  :worksheet.diagram/title               title
                   :worksheet.diagram/group-variable-uuid group-variable-uuid
                   :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/units-uuid          units-uuid
                   :worksheet.diagram/ellipses            [{:ellipse/legend-id       "SurfaceFire"
                                                            :ellipse/semi-major-axis semi-major-axis
                                                            :ellipse/semi-minor-axis semi-minor-axis
@@ -900,7 +885,6 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_
                     ws-uuid
-                    title
                     group-variable-uuid
                     row-id
                     max-spread-dir
@@ -913,8 +897,7 @@
                     backing-dir
                     backing-spread-rate
                     wind-dir
-                    wind-speed
-                    units-uuid]]
+                    wind-speed]]
    (let [existing-eid (d/q '[:find ?d .
                              :in $ ?uuid ?gv-uuid ?row-id
                              :where
@@ -925,10 +908,8 @@
                            ds ws-uuid group-variable-uuid row-id)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                  :worksheet.diagram/title               title
                   :worksheet.diagram/group-variable-uuid group-variable-uuid
                   :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/units-uuid          units-uuid
                   :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "MaxSpread"
                                                                    :arrow/length    max-spread-rate
                                                                    :arrow/rotation  max-spread-dir

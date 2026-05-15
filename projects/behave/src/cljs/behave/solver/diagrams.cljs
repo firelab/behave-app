@@ -14,7 +14,6 @@
         y-points (contain/getFirePerimeterY module)]
     [:worksheet/add-contain-diagram
      ws-uuid
-     "Containment"
      gv-uuid
      row-id
      (->> (map #(.get x-points %) (range (.size x-points)))
@@ -28,8 +27,7 @@
      (contain/getFireHeadAtReport module)
      (contain/getFireBackAtAttack module)
      (contain/getFireHeadAtAttack module)
-     (contain/getContainmentStatus module)
-     (:diagram/units-uuid diagram)]))
+     (contain/getContainmentStatus module)]))
 
 (defmethod build-event-vector :optimized-contain
   [{:keys [ws-uuid row-id diagram module]}]
@@ -38,7 +36,6 @@
         area-points (contain/getOptimizedContainAreas module)]
     [:worksheet/add-optimized-contain-diagram
      ws-uuid
-     "Production Rate vs Containment Area"
      gv-uuid
      row-id
      (->> (map #(.get pr-points %) (range (.size pr-points)))
@@ -51,7 +48,6 @@
   (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
     [:worksheet/add-surface-fire-shape-diagram
      ws-uuid
-     "Fire Shape"
      gv-uuid
      row-id
      (surface/getEllipticalA module (enums/length-units "Chains"))
@@ -62,15 +58,13 @@
                            (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))
      (surface/getSlope module (enums/slope-units "Percent"))
-     (surface/getElapsedTime module (enums/time-units "Hours"))
-     (:diagram/units-uuid diagram)]))
+     (surface/getElapsedTime module (enums/time-units "Hours"))]))
 
 (defmethod build-event-vector :wind-slope-spread-direction
   [{:keys [ws-uuid row-id diagram module]}]
   (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
     [:worksheet/add-wind-slope-spread-direction-diagram
      ws-uuid
-     "Wind/Slope/Spread Direction"
      gv-uuid
      row-id
      (surface/getDirectionOfMaxSpread module)
@@ -84,8 +78,7 @@
      (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
      (surface/getWindDirection module)
      (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
-                           (surface/getWindHeightInputMode module))
-     (:diagram/units-uuid diagram)]))
+                           (surface/getWindHeightInputMode module))]))
 
 (defn store-all-diagrams! [{:keys [ws-uuid row-id module diagrams]}]
   (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]

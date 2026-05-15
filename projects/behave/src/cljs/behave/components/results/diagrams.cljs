@@ -1,5 +1,6 @@
 (ns behave.components.results.diagrams
   (:require [behave.components.vega.diagram :refer [output-diagram]]
+            [behave.translate               :refer [<t]]
             [clojure.set                    :refer [rename-keys]]
             [clojure.string                 :as str]
             [goog.string                    :as gstring]
@@ -71,26 +72,27 @@
                            ellipses            :worksheet.diagram/ellipses
                            arrows              :worksheet.diagram/arrows
                            scatter-plots       :worksheet.diagram/scatter-plots
-                           title               :worksheet.diagram/title
-                           group-variable-uuid :worksheet.diagram/group-variable-uuid
-                           units-uuid          :worksheet.diagram/units-uuid
-                           x-units-uuid        :worksheet.diagram/x-units-uuid
-                           y-units-uuid        :worksheet.diagram/y-units-uuid
-                           x-axis-title        :worksheet.diagram/x-axis-title
-                           y-axis-title        :worksheet.diagram/y-axis-title
-                           symmetric-axes?     :worksheet.diagram/symmetric-axes?
-                           mirror-y?           :worksheet.diagram/mirror-y?
-                           connect-points?     :worksheet.diagram/connect-points?}]
+                           group-variable-uuid :worksheet.diagram/group-variable-uuid}]
 
-  (let [symmetric?         (if (some? symmetric-axes?) symmetric-axes? true)
+  (let [cms-diagram        @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
+        title              (if-let [tk (:diagram/title-translation-key cms-diagram)]
+                             @(<t tk)
+                             (:diagram/title cms-diagram))
+        x-units-uuid       (:diagram/x-units-uuid cms-diagram)
+        y-units-uuid       (:diagram/y-units-uuid cms-diagram)
+        x-axis-title       (if-let [tk (:diagram/x-axis-title-translation-key cms-diagram)]
+                             @(<t tk)
+                             (:diagram/x-axis-title cms-diagram))
+        y-axis-title       (if-let [tk (:diagram/y-axis-title-translation-key cms-diagram)]
+                             @(<t tk)
+                             (:diagram/y-axis-title cms-diagram))
+        symmetric-axes?    (:diagram/symmetric-axes? cms-diagram)
+        mirror-y?          (:diagram/mirror-y? cms-diagram)
+        connect-points?    (:diagram/connect-points? cms-diagram)
+        symmetric?         (if (some? symmetric-axes?) symmetric-axes? true)
         do-mirror?         (if (some? mirror-y?) mirror-y? true)
-        units-short-code   (when units-uuid @(subscribe [:vms/units-uuid->short-code units-uuid]))
-        x-units-short-code (if x-units-uuid
-                             @(subscribe [:vms/units-uuid->short-code x-units-uuid])
-                             units-short-code)
-        y-units-short-code (if y-units-uuid
-                             @(subscribe [:vms/units-uuid->short-code y-units-uuid])
-                             units-short-code)
+        x-units-short-code (when x-units-uuid @(subscribe [:vms/units-uuid->short-code x-units-uuid]))
+        y-units-short-code (when y-units-uuid @(subscribe [:vms/units-uuid->short-code y-units-uuid]))
         x-vals             (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
                                    (map #(Math/abs (:arrow/length %)) arrows)
                                    (->> scatter-plots

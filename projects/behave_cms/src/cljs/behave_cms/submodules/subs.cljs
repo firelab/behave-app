@@ -10,6 +10,12 @@
  identity)
 
 (reg-sub
+ :diagrams
+ (fn [[_ module-id]]
+   (subscribe [:pull-children :module/diagrams module-id]))
+ identity)
+
+(reg-sub
  :sidebar/submodules
  (fn [[_ module-id]]
    (subscribe [:submodules module-id]))
