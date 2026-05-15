@@ -22,6 +22,17 @@ jobs:
         echo "files=$FILES" >> $GITHUB_OUTPUT
         echo "has_files=$([ -n "$FILES" ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
+    - name: Install clj-kondo
+      if: steps.changed-files.outputs.has_files == 'true'
+      run: |
+        curl -sLO https://raw.githubusercontent.com/clj-kondo/clj-kondo/master/script/install-clj-kondo
+        chmod +x install-clj-kondo
+        ./install-clj-kondo
+
+    - name: Build analysis cache
+      if: steps.changed-files.outputs.has_files == 'true'
+      run: clj-kondo --lint projects/ components/ bases/ --skip-lint
+
     - uses: DeLaGuardo/clojure-lint-action@master
       if: steps.changed-files.outputs.has_files == 'true'
       with:
