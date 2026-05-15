@@ -18,7 +18,7 @@ jobs:
     - name: Get changed Clojure files
       id: changed-files
       run: |
-        FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(clj|cljs|cljc)$' | tr '\n' ' ')
+        FILES=$(git diff --name-only --diff-filter=d origin/${{ github.base_ref }}...HEAD | grep -E '\.(clj|cljs|cljc)$' | tr '\n' ' ')
         echo "files=$FILES" >> $GITHUB_OUTPUT
         echo "has_files=$([ -n "$FILES" ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
