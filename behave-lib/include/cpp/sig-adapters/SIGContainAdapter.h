@@ -32,6 +32,7 @@
 
 #include "ContainAdapter.h"
 #include "SIGCollections.h"
+#include <memory>
 #include <vector>
 
 enum class ContainMode {
@@ -90,6 +91,13 @@ protected:
   double  resourceDuration_; //min
   std::vector<double> optimizedContainProductionRates_;
   std::vector<double> optimizedContainAreas_;
+
+private:
+  std::unique_ptr<Sem::ContainSim> runSimAtProductionRate(double productionRate,
+                                                          double resourceArrival,
+                                                          double resourceDuration,
+                                                          const char* desc);
+  void storeSimResults(Sem::ContainSim* sim);
 };
 
 #endif //CONTAINADAPTER_H
