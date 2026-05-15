@@ -60,7 +60,6 @@
                        :diagram/x-units-uuid                 (short-code->uuid "ch/h")
                        :diagram/y-units-uuid                 (short-code->uuid "ac")
                        :diagram/symmetric-axes?              false
-                       :diagram/mirror-y?                    false
                        :diagram/connect-points?              true}]}])
 
 ;; ===========================================================================================================
@@ -90,21 +89,18 @@
     :diagram/title                 "Containment"
     :diagram/title-translation-key "behaveplus:contain:diagrams:contain:title"
     :diagram/symmetric-axes?       true
-    :diagram/mirror-y?             true
     :diagram/x-units-uuid          (short-code->uuid "ch")
     :diagram/y-units-uuid          (short-code->uuid "ch")}
    {:db/id                         fire-shape-diagram-eid
     :diagram/title                 "Fire Shape"
     :diagram/title-translation-key "behaveplus:surface:diagrams:fire-shape:title"
     :diagram/symmetric-axes?       true
-    :diagram/mirror-y?             true
     :diagram/x-units-uuid          (short-code->uuid "ch")
     :diagram/y-units-uuid          (short-code->uuid "ch")}
    {:db/id                         wind-slope-diagram-eid
     :diagram/title                 "Wind/Slope/Spread Direction"
     :diagram/title-translation-key "behaveplus:surface:diagrams:wind-slope-spread-direction:title"
     :diagram/symmetric-axes?       true
-    :diagram/mirror-y?             true
     :diagram/x-units-uuid          (short-code->uuid "ch/h")
     :diagram/y-units-uuid          (short-code->uuid "ch/h")}])
 

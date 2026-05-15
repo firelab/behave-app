@@ -72,11 +72,6 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :diagram/mirror-y?
-    :db/doc         "When true (default), scatter-plot points are mirrored across the x-axis"
-    :db/valueType   :db.type/boolean
-    :db/cardinality :db.cardinality/one}
-
    {:db/ident       :diagram/connect-points?
     :db/doc         "When true, scatter-plot points are connected as a line. Defaults to false."
     :db/valueType   :db.type/boolean

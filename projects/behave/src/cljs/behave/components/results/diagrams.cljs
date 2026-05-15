@@ -87,10 +87,8 @@
                              @(<t tk)
                              (:diagram/y-axis-title cms-diagram))
         symmetric-axes?    (:diagram/symmetric-axes? cms-diagram)
-        mirror-y?          (:diagram/mirror-y? cms-diagram)
         connect-points?    (:diagram/connect-points? cms-diagram)
         symmetric?         (if (some? symmetric-axes?) symmetric-axes? true)
-        do-mirror?         (if (some? mirror-y?) mirror-y? true)
         x-units-short-code (when x-units-uuid @(subscribe [:vms/units-uuid->short-code x-units-uuid]))
         y-units-short-code (when y-units-uuid @(subscribe [:vms/units-uuid->short-code y-units-uuid]))
         x-vals             (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
@@ -142,12 +140,9 @@
                                                {:legend-id legend-id
                                                 :color     color
                                                 :connect?  connect-points?
-                                                :data      (cond-> (mapv (fn [x y] {"x" x "y" y})
-                                                                         x-doubles
-                                                                         y-doubles)
-                                                             do-mirror? (concat (mapv (fn [x y] {"x" x "y" (* -1 y)})
-                                                                                      x-doubles
-                                                                                      y-doubles)))}))
+                                                :data      (mapv (fn [x y] {"x" x "y" y})
+                                                                 x-doubles
+                                                                 y-doubles)}))
                                            scatter-plots)}]
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 

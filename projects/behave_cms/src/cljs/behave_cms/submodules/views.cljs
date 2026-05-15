@@ -89,9 +89,6 @@
                            {:label     "Symmetric Axes?"
                             :field-key :diagram/symmetric-axes?
                             :type      :boolean}
-                           {:label     "Mirror Y?"
-                            :field-key :diagram/mirror-y?
-                            :type      :boolean}
                            {:label     "Connect Points?"
                             :field-key :diagram/connect-points?
                             :type      :boolean}]

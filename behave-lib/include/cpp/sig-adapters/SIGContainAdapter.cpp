@@ -32,6 +32,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <vector>
 
 void SIGContainAdapter::addResource(double arrival,
                                     TimeUnits::TimeUnitsEnum arrivalTimeUnits,
@@ -72,17 +73,21 @@ double SIGContainAdapter::getPerimeterAtInitialAttack(LengthUnits::LengthUnitsEn
 
 DoubleVector SIGContainAdapter::getFirePerimeterX( void ) const
 {
-    return( DoubleVector(m_x, m_size) );
+    std::vector<double> v(m_x, m_x + m_size);
+    v.insert(v.end(), m_x, m_x + m_size);
+    return( DoubleVector(v) );
 }
 
 DoubleVector SIGContainAdapter::getFirePerimeterY( void ) const
 {
-    return( DoubleVector(m_y, m_size) );
+    std::vector<double> v(m_y, m_y + m_size);
+    for (int i = 0; i < m_size; i++) { v.push_back(-m_y[i]); }
+    return( DoubleVector(v) );
 }
 
 int SIGContainAdapter::getFirePerimeterPointCount( void ) const
 {
-    return( m_size );
+    return( 2 * m_size );
 }
 
 DoubleVector SIGContainAdapter::getOptimizedContainProductionRates( void ) const
