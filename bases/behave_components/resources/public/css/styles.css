@@ -1345,6 +1345,7 @@ p {
 .input-number__error {
   color: var(--error);
   font-size: var(--font-size-10);
+  margin-top: 3px;
 }
 
 .input-number--disabled .input-number__input,

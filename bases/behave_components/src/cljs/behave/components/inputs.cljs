@@ -1,11 +1,11 @@
 (ns behave.components.inputs
   (:require
-   [behave.components.button :refer [button]]
    [behave.components.a11y :refer [on-space on-enter]]
+   [behave.components.button :refer [button]]
    [behave.components.icon.core :refer [icon]]
-   [reagent.core :as r]
+   [clojure.string :as str]
    [goog.string :as gstring]
-   [clojure.string :as str]))
+   [reagent.core :as r]))
 
 ;;==============================================================================
 ;; Checkbox
@@ -62,26 +62,29 @@
 ;;==============================================================================
 
 #_{:clj-kondo/ignore [:shadowed-var]}
-(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom step]}]
+(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom step placeholder]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
     {:class "input-number__label" :for id}
     label]
-   [:input
-    (cond-> {:type "number"
-             :class "input-number__input"
-             :disabled disabled?
-             :id id
-             :name name
-             :on-change on-change
-             :on-blur on-blur
-             :min min
-             :max max}
-      step       (assoc :step step)
-      value      (assoc :value value)
-      value-atom (assoc :value @value-atom))]
-   (when error?
-     [:div.input-number__error error-msg])])
+   [:div.input-number__field
+    [:input
+     (cond-> {:type "number"
+              :class "input-number__input"
+              :disabled disabled?
+              :id id
+              :name name
+              :on-key-down #(when (#{"," " "} (.-key %)) (.preventDefault %))
+              :on-change on-change
+              :on-blur on-blur
+              :min min
+              :max max}
+       step        (assoc :step step)
+       placeholder (assoc :placeholder placeholder)
+       value       (assoc :value value)
+       value-atom  (assoc :value @value-atom))]
+    (when error?
+      [:div.input-number__error error-msg])]])
 
 ;;==============================================================================
 ;; Range
