@@ -68,8 +68,8 @@
                                     :group-variable/translation-key        (str @translation-key ":" (->kebab (:variable/name variable)))
                                     :group-variable/result-translation-key (-> (str/replace @translation-key #":input:|:output:" ":result:")
                                                                                (str ":" (->kebab (:variable/name variable))))
-                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
-                                    :group-variable/order                  (count @group-variables)}]))
+                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")}
+                                   {:order-attr :group-variable/order :siblings @group-variables}]))
        :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]]))
 
 ;;; Settings

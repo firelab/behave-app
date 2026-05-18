@@ -96,7 +96,7 @@
                            {:label "X-Axis Title Translation" :attr :diagram/x-axis-title-translation-key}
                            {:label "Y-Axis Title Translation" :attr :diagram/y-axis-title-translation-key}]}]))
 
-(defn- submodules-table [module-id app-id]
+(defn- submodules-table [module-id]
   (let [selected-state-path [:selected :submodule]
         editor-state-path   [:editors :submodule]
         submodule           (rf/subscribe [:submodules module-id])]
@@ -105,8 +105,8 @@
       :form-state-path    editor-state-path
       :entities           (sort-by :submodule/order @submodule)
       :on-select          (table-entity-form-on-select selected-state-path)
-      :parent-id          app-id
-      :parent-field       :application/_submodules
+      :parent-id          module-id
+      :parent-field       :module/_submodules
       :table-header-attrs [:submodule/name :submodule/io]
       :order-attr         :submodule/order
       :entity-form-fields [{:label     "Name"
@@ -118,16 +118,16 @@
                             :options   [{:label "Input" :value :input}
                                         {:label "Output" :value :output}]}]}]))
 
-(defn- submodules-results-order-table [module-id app-id]
+(defn- submodules-results-order-table [module-id]
   (let [submodule (rf/subscribe [:submodules module-id])]
     [table-entity-form
      {:entity             :submodule
       :entities           (sort-by :submodule/results-order @submodule)
       :modify?            false
-      :parent-id          app-id
-      :parent-field       :application/_submodules
+      :parent-id          module-id
+      :parent-field       :module/_submodules
       :table-header-attrs [:submodule/name :submodule/io]
-      :order-attr         :submodule/order
+      :order-attr         :submodule/results-order
       :entity-form-fields [{:label     "Name"
                             :required? true
                             :field-key :submodule/name}]}]))
@@ -154,11 +154,11 @@
           [:h2 (:module/name @module)]]
          [accordion
           "Submodules"
-          [submodules-table (:db/id @module) (:db/id application)]]
+          [submodules-table (:db/id @module)]]
          [:hr]
          [accordion
           "Submodules Results Order"
-          [submodules-results-order-table (:db/id @module) (:db/id application)]]
+          [submodules-results-order-table (:db/id @module)]]
          [:hr]
          [accordion
           "Diagrams"
