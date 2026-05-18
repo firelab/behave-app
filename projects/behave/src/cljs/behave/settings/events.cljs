@@ -22,7 +22,7 @@
  :settings/cache-decimal-preference
  (fn [_ [_ domain v-uuid decimal]]
    (let [decimal (js/parseInt decimal 10)]
-     {:fx [[:dispatch [:settings/set [:units domain v-uuid :decimals] decimal]]
+     {:fx [[:dispatch [:settings/set [:units domain v-uuid :domain-decimals] decimal]]
            [:dispatch [:local-storage/update-in [:units v-uuid :decimals] decimal]]]})))
 
 (rf/reg-event-fx

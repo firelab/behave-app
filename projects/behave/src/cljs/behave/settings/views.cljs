@@ -4,8 +4,8 @@
    [behave.settings.events]
    [behave.translate       :refer [<t bp]]
    [dom-utils.interface    :refer [input-value]]
-   [reagent.core           :as r]
-   [re-frame.core          :as rf]))
+   [re-frame.core          :as rf]
+   [reagent.core           :as r]))
 
 ;;==============================================================================
 ;; Fuel Model Set Selection Tab
