@@ -1,11 +1,11 @@
 (ns behave-cms.lists.views
-  (:require [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
-            [behave-cms.components.translations      :refer [all-translations]]
+  (:require [behave-cms.components.common            :refer [window]]
+            [behave-cms.components.sidebar.views     :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.events]
             [behave-cms.subs]
             [clojure.set                             :refer [rename-keys]]
-            [re-frame.core                           :as rf]
-            [string-utils.interface                  :refer [->kebab]]))
+            [re-frame.core                           :as rf]))
 
 (defn- list-option-table [selected-state-path editor-state-path selected-list-path]
   (let [selected-list     (rf/subscribe [:state selected-list-path])
@@ -96,10 +96,11 @@
           selected-list-option-state-path [:selected :list-option]
           list-option-editor-path         [:editors :list-option]
           selected-list                   (rf/subscribe [:state selected-list-state-path])]
-      [:div.container-fluid
-       [:div {:style {:height "500px"}}
-        [list-table selected-list-state-path list-editor-path selected-list-option-state-path]]
-       (when @selected-list
-         [:div {:style {:height "500px"}}
-          [list-option-table selected-list-option-state-path list-option-editor-path selected-list-state-path]])])
+      [window sidebar-width
+       [:div.container-fluid
+        [:div {:style {:height "500px"}}
+         [list-table selected-list-state-path list-editor-path selected-list-option-state-path]]
+        (when @selected-list
+          [:div {:style {:height "500px"}}
+           [list-option-table selected-list-option-state-path list-option-editor-path selected-list-state-path]])]])
     [:div "Loading..."]))

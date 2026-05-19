@@ -1,5 +1,7 @@
 (ns behave-cms.languages.views
-  (:require [behave-cms.components.table-entity-form :refer [table-entity-form]]
+  (:require [behave-cms.components.common            :refer [window]]
+            [behave-cms.components.sidebar.views     :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [re-frame.core                           :as rf]))
 
 (defn list-languages-page
@@ -8,18 +10,19 @@
   (if @(rf/subscribe [:state :loaded?])
     (let [language-editor-state-path [:editors :language]
           languages                  @(rf/subscribe [:languages])]
-      [:div.container-fluid
-       [:div {:style {:height "500px"}}
-        [table-entity-form
-         {:title              "Languages"
-          :form-state-path    language-editor-state-path
-          :entity             :language
-          :entities           (sort-by :language/name languages)
-          :table-header-attrs [:language/name :language/shortcode]
-          :entity-form-fields [{:label     "Language"
-                                :required? true
-                                :field-key :language/name}
-                               {:label     "Shortcode"
-                                :field-key :language/shortcode
-                                :required? true}]}]]])
+      [window sidebar-width
+       [:div.container-fluid
+        [:div {:style {:height "500px"}}
+         [table-entity-form
+          {:title              "Languages"
+           :form-state-path    language-editor-state-path
+           :entity             :language
+           :entities           (sort-by :language/name languages)
+           :table-header-attrs [:language/name :language/shortcode]
+           :entity-form-fields [{:label     "Language"
+                                 :required? true
+                                 :field-key :language/name}
+                                {:label     "Shortcode"
+                                 :field-key :language/shortcode
+                                 :required? true}]}]]]])
     [:div "Loading..."]))

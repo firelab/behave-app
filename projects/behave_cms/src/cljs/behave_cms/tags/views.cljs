@@ -1,5 +1,7 @@
 (ns behave-cms.tags.views
-  (:require [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+  (:require [behave-cms.components.common            :refer [window]]
+            [behave-cms.components.sidebar.views     :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.events]
             [behave-cms.subs]
             [re-frame.core                           :as rf]
@@ -58,9 +60,10 @@
         selected-tag-state-path     [:selected :tag]
         tag-editor-path             [:editors :tag]
         selected-tag-set            (rf/subscribe [:state selected-tag-set-state-path])]
-    [:div.container-fluid
-     [:div {:style {:height "500px"}}
-      [tag-sets-table selected-tag-set-state-path tag-set-editor-path selected-tag-state-path]]
-     (when @selected-tag-set
-       [:div {:style {:height "500px"}}
-        [tags-table selected-tag-state-path tag-editor-path selected-tag-set-state-path]])]))
+    [window sidebar-width
+     [:div.container-fluid
+      [:div {:style {:height "500px"}}
+       [tag-sets-table selected-tag-set-state-path tag-set-editor-path selected-tag-state-path]]
+      (when @selected-tag-set
+        [:div {:style {:height "500px"}}
+         [tags-table selected-tag-state-path tag-editor-path selected-tag-set-state-path]])]]))

@@ -1,14 +1,5 @@
 (ns behave-cms.markdown.core
   (:require [clojure.string        :as str]
-            [markdown.core         :as md]
-            [markdown.links        :refer [link
-                                           image
-                                           reference-link
-                                           image-reference-link
-                                           implicit-reference-link
-                                           footnote-link]]
-            [markdown.lists        :refer [li]]
-            [markdown.tables       :refer [table]]
             [markdown.common       :refer [bold
                                            bold-italic
                                            dashes
@@ -21,6 +12,15 @@
                                            strikethrough
                                            strong
                                            thaw-strings]]
+            [markdown.core         :as md]
+            [markdown.links        :refer [link
+                                           image
+                                           reference-link
+                                           image-reference-link
+                                           implicit-reference-link
+                                           footnote-link]]
+            [markdown.lists        :refer [li]]
+            [markdown.tables       :refer [table]]
             [markdown.transformers :refer [autoemail-transformer
                                            autourl-transformer
                                            blockquote-1
