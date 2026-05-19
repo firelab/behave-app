@@ -1,7 +1,7 @@
 (ns behave-cms.subgroups.views
   (:require [behave-cms.components.common             :refer [accordion checkbox simple-table window]]
             [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.sidebar            :refer [sidebar sidebar-width]]
+            [behave-cms.components.sidebar.views      :refer [sidebar-width]]
             [behave-cms.components.table-entity-form  :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations       :refer [all-translations]]
             [behave-cms.components.variable-search    :refer [variable-search]]
@@ -98,25 +98,10 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [nid]}]
-  (let [group            (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
-        id               (:db/id @group)
-        parent-group     (rf/subscribe [:subgroup/parent id])
-        parent-submodule (:submodule/_groups @group)
-        group-variables  (rf/subscribe [:sidebar/variables id])
-        subgroups        (rf/subscribe [:sidebar/subgroups id])]
+  (let [group (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
+        id    (:db/id @group)]
     [:div
      {:id (str id)}
-     [sidebar
-      "Variables"
-      @group-variables
-      (if @parent-group
-        (:group/name @parent-group)
-        (str (:submodule/name parent-submodule) " Groups"))
-      (if @parent-group
-        (str "/groups/" (:bp/nid @parent-group))
-        (str "/submodules/" (:bp/nid parent-submodule)))
-      "Subgroups"
-      (when (seq @subgroups) @subgroups)]
      [window
       sidebar-width
       [:div.container
