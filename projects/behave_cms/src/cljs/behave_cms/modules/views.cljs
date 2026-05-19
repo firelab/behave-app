@@ -7,8 +7,8 @@
    [behave-cms.help.views                   :refer [help-editor]]
    [clojure.string                          :as str]
    [map-utils.interface                     :refer [index-by]]
-   [string-utils.interface                  :refer [->kebab]]
-   [re-frame.core                           :as rf]))
+   [re-frame.core                           :as rf]
+   [string-utils.interface                  :refer [->kebab]]))
 
 ;;; Modules
 
@@ -144,7 +144,7 @@
       "Tools"
       (->sidebar-links @tools :tool/name :get-tool)]
      [window sidebar-width
-      [:div.container
+      [:div.container-fluid
        [:div.row.mb-3.mt-4
         [:h2 (:application/name @application)]]
        [accordion

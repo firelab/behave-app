@@ -8,7 +8,7 @@
   (if @(rf/subscribe [:state :loaded?])
     (let [language-editor-state-path [:editors :language]
           languages                  @(rf/subscribe [:languages])]
-      [:div.container
+      [:div.container-fluid
        [:div {:style {:height "500px"}}
         [table-entity-form
          {:title              "Languages"

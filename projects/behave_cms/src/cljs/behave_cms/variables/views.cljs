@@ -20,7 +20,7 @@
           units->option       (fn [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid}]
                                 {:value unit-uuid
                                  :label (str unit-name " (" short-code ")")})]
-      [:div.container
+      [:div.container-fluid
        {:style {:height "900px"}}
        [table-entity-form
         {:title              "Variables"

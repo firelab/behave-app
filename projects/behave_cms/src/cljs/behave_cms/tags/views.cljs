@@ -58,7 +58,7 @@
         selected-tag-state-path     [:selected :tag]
         tag-editor-path             [:editors :tag]
         selected-tag-set            (rf/subscribe [:state selected-tag-set-state-path])]
-    [:div.container
+    [:div.container-fluid
      [:div {:style {:height "500px"}}
       [tag-sets-table selected-tag-set-state-path tag-set-editor-path selected-tag-state-path]]
      (when @selected-tag-set

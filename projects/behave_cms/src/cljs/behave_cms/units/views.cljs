@@ -60,7 +60,7 @@
           selected-unit-state-path      [:selected :unit]
           unit-editor-path              [:editors :unit]
           selected-dimension            (rf/subscribe [:state selected-dimension-state-path])]
-      [:div.container
+      [:div.container-fluid
        [:div {:style {:height "500px"}}
         [dimensions-table selected-dimension-state-path dimension-editor-state-path]]
        (when @selected-dimension

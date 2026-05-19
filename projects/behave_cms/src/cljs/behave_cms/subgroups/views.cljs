@@ -119,7 +119,7 @@
       (when (seq @subgroups) @subgroups)]
      [window
       sidebar-width
-      [:div.container
+      [:div.container-fluid
        ^{:key "name"}
        [:div.row.mb-3.mt-4
         [:h2 (:group/name @group)]]

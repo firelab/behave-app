@@ -75,7 +75,7 @@
       (str (:module/name parent-module) " Submodules")
       (str "/modules/" (:bp/nid parent-module))]
      [window sidebar-width
-      [:div.container
+      [:div.container-fluid
        [:div.row.mb-3.mt-4
         [:h2 (str (:submodule/name @submodule) " (" (->str (:submodule/io @submodule)) ")")]]
 

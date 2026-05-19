@@ -158,7 +158,7 @@
         (str (:application/name application) " Modules")
         (str "/applications/" (:bp/nid application))]
        [window sidebar-width
-        [:div.container
+        [:div.container-fluid
          [:div.row.mb-3.mt-4
           [:h2 (:module/name @module)]]
          [accordion

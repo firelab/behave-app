@@ -115,8 +115,7 @@
      [:thead
       [:tr
        [:th "Language"]
-       [:th "Key"]
-       [:th "Translation"]]]
+       [:th "Key / Translation"]]]
      [:tbody
       (for [{language-id :db/id language :language/name shortcode :language/shortcode} @languages]
         (let [translation-entry (get-in translation-lookup [[shortcode translation-key] 0] {})
@@ -125,10 +124,6 @@
           ^{:key id}
           [:tr
            [:td language]
-           [:td {:style {:width "20%"}} translation-key]
            [:td
-            [translation-editor
-             language-id
-             translation-key
-             id
-             translation]]]))]]))
+            [:div.mb-1 {:style {:font-weight "bold"}} translation-key]
+            [translation-editor language-id translation-key id translation]]]))]]))
