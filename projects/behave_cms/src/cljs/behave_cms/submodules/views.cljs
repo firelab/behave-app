@@ -151,7 +151,7 @@
           module-id   (:db/id @module)
           application (get-in @module [:application/_modules 0])]
       [window sidebar-width
-       [:div.containe-fluid
+       [:div.container-fluid
         [:div.row.mb-3.mt-4
          [:h2 (:module/name @module)]]
         [accordion
