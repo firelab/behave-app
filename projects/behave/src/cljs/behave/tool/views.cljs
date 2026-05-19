@@ -289,13 +289,13 @@
 
 (defmethod tool-output :discrete
   [{:keys [variable tool-uuid subtool-uuid]}]
-  (let [{sv-uuid  :bp/uuid
-         var-name :variable/name
-         list     :variable/list
-         help-key :subtool-variable/help-key} variable
-        translated-name                       @(rf/subscribe [:tool/sv->translated-name sv-uuid])
-        value                                 @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
-        list-options                          (index-by :list-option/value (:list/options list))
+  (let [{sv-uuid   :bp/uuid
+         var-name  :variable/name
+         vlist     :variable/list
+         help-key  :subtool-variable/help-key} variable
+        translated-name                        @(rf/subscribe [:tool/sv->translated-name sv-uuid])
+        value                                  @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
+        list-options                           (index-by :list-option/value (:list/options vlist))
         matching-option                       (get list-options (str value))
         background                            (get-in matching-option [:list-option/color-tag-ref :tag/color] "#FFFFFF")
         lum-bg                                (apply luminance (hex-to-rgb background))
