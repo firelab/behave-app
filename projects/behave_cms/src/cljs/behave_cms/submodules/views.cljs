@@ -86,8 +86,17 @@
                            {:label     "Y-Axis Units"
                             :field-key :diagram/y-units-uuid
                             :type      :unit}
-                           {:label     "Symmetric Axes?"
-                            :field-key :diagram/symmetric-axes?
+                           {:label     "Show Quadrant 1?"
+                            :field-key :diagram/show-quadrant-1?
+                            :type      :boolean}
+                           {:label     "Show Quadrant 2?"
+                            :field-key :diagram/show-quadrant-2?
+                            :type      :boolean}
+                           {:label     "Show Quadrant 3?"
+                            :field-key :diagram/show-quadrant-3?
+                            :type      :boolean}
+                           {:label     "Show Quadrant 4?"
+                            :field-key :diagram/show-quadrant-4?
                             :type      :boolean}
                            {:label     "Connect Points?"
                             :field-key :diagram/connect-points?

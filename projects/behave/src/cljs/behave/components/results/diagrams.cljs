@@ -86,25 +86,41 @@
         y-axis-title       (if-let [tk (:diagram/y-axis-title-translation-key cms-diagram)]
                              @(<t tk)
                              (:diagram/y-axis-title cms-diagram))
-        symmetric-axes?    (:diagram/symmetric-axes? cms-diagram)
+        show-q1?           (get cms-diagram :diagram/show-quadrant-1? true)
+        show-q2?           (get cms-diagram :diagram/show-quadrant-2? true)
+        show-q3?           (get cms-diagram :diagram/show-quadrant-3? true)
+        show-q4?           (get cms-diagram :diagram/show-quadrant-4? true)
         connect-points?    (:diagram/connect-points? cms-diagram)
-        symmetric?         (if (some? symmetric-axes?) symmetric-axes? true)
         x-units-short-code (when x-units-uuid @(subscribe [:vms/units-uuid->short-code x-units-uuid]))
         y-units-short-code (when y-units-uuid @(subscribe [:vms/units-uuid->short-code y-units-uuid]))
-        x-vals             (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
-                                   (map #(Math/abs (:arrow/length %)) arrows)
-                                   (->> scatter-plots
-                                        (mapcat #(str/split (:scatter-plot/x-coordinates %) ","))
-                                        (map #(Math/abs (double %)))))
-        y-vals             (concat (map #(Math/abs (* 2 (:ellipse/semi-major-axis %))) ellipses)
-                                   (map #(Math/abs (:arrow/length %)) arrows)
-                                   (->> scatter-plots
-                                        (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
-                                        (map #(Math/abs (double %)))))
-        domain             (apply max (concat x-vals y-vals))
-        x-domain           (if symmetric? [(* -1 domain) domain] [0 (apply max x-vals)])
-        y-max              (* 1.1 (apply max y-vals))
-        y-domain           (if symmetric? [(* -1 domain) domain] [(* -0.1 y-max) y-max])]
+        buffer             0.10 ; 10% axis buffer
+        ellipse-x          (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
+        ellipse-y          (map #(Math/abs (* 2 (:ellipse/semi-major-axis %))) ellipses)
+        arrow-mag          (map #(Math/abs (:arrow/length %)) arrows)
+        scatter-x          (->> scatter-plots
+                                (mapcat #(str/split (:scatter-plot/x-coordinates %) ","))
+                                (mapv js/parseFloat))
+        scatter-y          (->> scatter-plots
+                                (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
+                                (mapv js/parseFloat))
+        shape-max          (apply max 0 (concat ellipse-x ellipse-y arrow-mag))
+        scale              (fn [side-max] (* (+ 1 buffer) (max shape-max side-max)))
+        x-pos-max          (scale (apply max 0 (filter pos? scatter-x)))
+        x-neg-max          (scale (apply max 0 (->> scatter-x (filter neg?) (map -))))
+        y-pos-max          (scale (apply max 0 (filter pos? scatter-y)))
+        y-neg-max          (scale (apply max 0 (->> scatter-y (filter neg?) (map -))))
+        x-pos?             (or show-q1? show-q4?)
+        x-neg?             (or show-q2? show-q3?)
+        y-pos?             (or show-q1? show-q2?)
+        y-neg?             (or show-q3? show-q4?)
+        all-quads?         (and show-q1? show-q2? show-q3? show-q4?) ;if all quadrants are set to be shown, center the origin and use the max value of data on each axis
+        square-max         (max x-pos-max x-neg-max y-pos-max y-neg-max)
+        x-right            (if all-quads? square-max x-pos-max)
+        x-left             (if all-quads? square-max x-neg-max)
+        y-top              (if all-quads? square-max y-pos-max)
+        y-bot              (if all-quads? square-max y-neg-max)
+        x-domain           [(if x-neg? (* -1 x-left) 0) (if x-pos? x-right 0)]
+        y-domain           [(if y-neg? (* -1 y-bot)  0) (if y-pos? y-top   0)]]
     [:div.diagram
      [output-diagram {:title         (build-title ws-uuid title row-id)
                       :width         500

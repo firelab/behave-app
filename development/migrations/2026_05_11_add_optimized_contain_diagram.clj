@@ -11,9 +11,9 @@
 ;;    This diagram displays production rate vs containment area as a scatter plot,
 ;;    populated by the new C++ sweep in doContainRunWithOptimalResource.
 ;;
-;; 2. Backfills :diagram/title + :diagram/title-translation-key onto the 3 existing
-;;    diagram entities (:contain, :fire-shape, :wind-slope-spread-direction) — these
-;;    attrs are new; the titles were previously hardcoded in the app.
+;; 2. Backfills :diagram/title + :diagram/title-translation-key + :diagram/show-quadrant-N?
+;;    onto the 3 existing diagram entities (:contain, :fire-shape, :wind-slope-spread-direction).
+;;    All four quadrant flags are set to true (full symmetric rendering, matching prior behavior).
 ;;
 ;; 3. Seeds English translations for all 6 new translation keys.
 ;; ===========================================================================================================
@@ -59,7 +59,10 @@
                        :diagram/y-axis-title-translation-key "behaveplus:contain:diagrams:optimized-contain:y-axis-title"
                        :diagram/x-units-uuid                 (short-code->uuid "ch/h")
                        :diagram/y-units-uuid                 (short-code->uuid "ac")
-                       :diagram/symmetric-axes?              false
+                       :diagram/show-quadrant-1?             true
+                       :diagram/show-quadrant-2?             false
+                       :diagram/show-quadrant-3?             false
+                       :diagram/show-quadrant-4?             false
                        :diagram/connect-points?              true}]}])
 
 ;; ===========================================================================================================
@@ -88,19 +91,28 @@
   [{:db/id                         contain-diagram-eid
     :diagram/title                 "Containment"
     :diagram/title-translation-key "behaveplus:contain:diagrams:contain:title"
-    :diagram/symmetric-axes?       true
+    :diagram/show-quadrant-1?      true
+    :diagram/show-quadrant-2?      true
+    :diagram/show-quadrant-3?      true
+    :diagram/show-quadrant-4?      true
     :diagram/x-units-uuid          (short-code->uuid "ch")
     :diagram/y-units-uuid          (short-code->uuid "ch")}
    {:db/id                         fire-shape-diagram-eid
     :diagram/title                 "Fire Shape"
     :diagram/title-translation-key "behaveplus:surface:diagrams:fire-shape:title"
-    :diagram/symmetric-axes?       true
+    :diagram/show-quadrant-1?      true
+    :diagram/show-quadrant-2?      true
+    :diagram/show-quadrant-3?      true
+    :diagram/show-quadrant-4?      true
     :diagram/x-units-uuid          (short-code->uuid "ch")
     :diagram/y-units-uuid          (short-code->uuid "ch")}
    {:db/id                         wind-slope-diagram-eid
     :diagram/title                 "Wind/Slope/Spread Direction"
     :diagram/title-translation-key "behaveplus:surface:diagrams:wind-slope-spread-direction:title"
-    :diagram/symmetric-axes?       true
+    :diagram/show-quadrant-1?      true
+    :diagram/show-quadrant-2?      true
+    :diagram/show-quadrant-3?      true
+    :diagram/show-quadrant-4?      true
     :diagram/x-units-uuid          (short-code->uuid "ch/h")
     :diagram/y-units-uuid          (short-code->uuid "ch/h")}])
 

@@ -67,8 +67,23 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :diagram/symmetric-axes?
-    :db/doc         "When true (default), both axes share a symmetric [-domain, domain] range"
+   {:db/ident       :diagram/show-quadrant-1?
+    :db/doc         "Show upper-right quadrant (x >= 0, y >= 0). Defaults to true."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram/show-quadrant-2?
+    :db/doc         "Show upper-left quadrant (x <= 0, y >= 0). Defaults to true."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram/show-quadrant-3?
+    :db/doc         "Show lower-left quadrant (x <= 0, y <= 0). Defaults to true."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram/show-quadrant-4?
+    :db/doc         "Show lower-right quadrant (x >= 0, y <= 0). Defaults to true."
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
