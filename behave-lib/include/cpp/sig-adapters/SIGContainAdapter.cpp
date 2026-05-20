@@ -208,9 +208,11 @@ std::unique_ptr<Sem::ContainSim> SIGContainAdapter::runSimAtProductionRate(doubl
 
 void SIGContainAdapter::storeSimResults(Sem::ContainSim* sim)
 {
-    ContainAdapter::m_size       = sim->firePoints();
-    ContainAdapter::m_x          = sim->firePerimeterX();
-    ContainAdapter::m_y          = sim->firePerimeterY();
+    ContainAdapter::m_size  = sim->firePoints();
+    ContainAdapter::m_xData = std::vector<double>(sim->firePerimeterX(), sim->firePerimeterX() + ContainAdapter::m_size);
+    ContainAdapter::m_yData = std::vector<double>(sim->firePerimeterY(), sim->firePerimeterY() + ContainAdapter::m_size);
+    ContainAdapter::m_x     = ContainAdapter::m_xData.data();
+    ContainAdapter::m_y     = ContainAdapter::m_yData.data();
     ContainAdapter::m_reportHead = sim->fireHeadAtReport();
     ContainAdapter::m_reportBack = sim->fireBackAtReport();
     ContainAdapter::m_attackHead = sim->fireHeadAtAttack();

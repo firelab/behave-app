@@ -27,6 +27,10 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def contain-mode-gv-uuid
+  (sm/t-key->bp-uuid conn "behaveplus:contain:input:suppression:contain_mode:contain_mode"))
+
 ;; ===========================================================================================================
 ;; Helpers
 ;; ===========================================================================================================
@@ -43,6 +47,35 @@
        short-code))
 
 ;; ===========================================================================================================
+;; Payload — Optimized Contain Diagram group variable (new entity)
+;; ===========================================================================================================
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def optimized-contain-diagram-variable
+  (sm/->variable conn {:db/id -1
+                       :nname "Optimized Contain Diagram"
+                       :kind  :continuous}))
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def optimized-contain-diagram-gv
+  (sm/->group-variable
+   conn
+   {:db/id              -2
+    :parent-group-eid   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment")
+    :variable-eid       -1
+    :order              7
+    :translation-key    "behaveplus:contain:output:fire:containment:optimized-contain-diagram"
+    :conditionally-set? true
+    :hide-result?       true
+    :actions            [{:nname        "Set to True when Contain Mode is Compute with Optiomal Resource"
+                          :ttype        :select
+                          :target-value "true"
+                          :conditionals [{:ttype               :group-variable
+                                          :operator            :equal
+                                          :values              "1"
+                                          :group-variable-uuid contain-mode-gv-uuid}]}]}))
+
+;; ===========================================================================================================
 ;; Payload — Optimized Contain Diagram (new entity)
 ;; ===========================================================================================================
 
@@ -50,7 +83,7 @@
 (def optimized-contain-payload
   [{:db/id           (sm/t-key->eid conn "behaveplus:contain")
     :module/diagrams [{:diagram/type                         :optimized-contain
-                       :diagram/group-variable               (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:autocomputed_resource_production_rate")
+                       :diagram/group-variable               -2
                        :diagram/title                        "Production Rate vs Containment Area"
                        :diagram/title-translation-key        "behaveplus:contain:diagrams:optimized-contain:title"
                        :diagram/x-axis-title                 "Production Rate"
@@ -124,16 +157,19 @@
 (def translations-payload
   (sm/build-translations-payload
    conn
-   {"behaveplus:contain:diagrams:optimized-contain:title"           "Production Rate vs Containment Area"
-    "behaveplus:contain:diagrams:optimized-contain:x-axis-title"    "Production Rate"
-    "behaveplus:contain:diagrams:optimized-contain:y-axis-title"    "Containment Area"
-    "behaveplus:contain:diagrams:contain:title"                     "Containment"
-    "behaveplus:surface:diagrams:fire-shape:title"                  "Fire Shape"
-    "behaveplus:surface:diagrams:wind-slope-spread-direction:title" "Wind/Slope/Spread Direction"}))
+   {"behaveplus:contain:output:fire:containment:optimized-contain-diagram" "Optimized Contain Diagram"
+    "behaveplus:contain:diagrams:optimized-contain:title"                  "Production Rate vs Containment Area"
+    "behaveplus:contain:diagrams:optimized-contain:x-axis-title"           "Production Rate"
+    "behaveplus:contain:diagrams:optimized-contain:y-axis-title"           "Containment Area"
+    "behaveplus:contain:diagrams:contain:title"                            "Containment"
+    "behaveplus:surface:diagrams:fire-shape:title"                         "Fire Shape"
+    "behaveplus:surface:diagrams:wind-slope-spread-direction:title"        "Wind/Slope/Spread Direction"}))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
-  (concat optimized-contain-payload
+  (concat [optimized-contain-diagram-variable
+           optimized-contain-diagram-gv]
+          optimized-contain-payload
           legacy-diagram-payload
           translations-payload))
 

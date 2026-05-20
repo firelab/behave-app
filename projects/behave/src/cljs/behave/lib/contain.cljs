@@ -86,7 +86,7 @@
   (.getFireHeadAtReport self))
 
 (defn getFirePerimeterPointCount [self]
-  (.getFirePoints self))
+  (.getFirePerimeterPointCount self))
 
 (defn getFirePerimeterX [self]
   (.getFirePerimeterX self))
