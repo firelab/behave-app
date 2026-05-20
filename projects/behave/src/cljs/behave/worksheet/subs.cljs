@@ -795,6 +795,25 @@
                    [gv-uuid (create-formatter variable multi-discrete? is-output?)]))
                results)))))
 
+(rf/reg-sub
+ :worksheet/result-table-significant-digits
+ (fn [_ [_ gv-uuids]]
+   (let [results (d/q '[:find ?gv-uuid (pull ?v [:variable/kind :variable/domain-uuid])
+                        :in $ % [?gv-uuid ...]
+                        :where
+                        (lookup ?gv-uuid ?gv)
+                        (group-variable _ ?gv ?v)]
+                      @@vms-conn rules gv-uuids)]
+     (into {}
+           (keep (fn [[gv-uuid variable]]
+                   (when (= :continuous (:variable/kind variable))
+                     (let [domain-uuid      (:variable/domain-uuid variable)
+                           domain           @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
+                           *cached-decimals (rf/subscribe [:settings/cached-decimal domain-uuid])
+                           sig-digits       (or @*cached-decimals (:domain/decimals domain))]
+                       [gv-uuid sig-digits]))))
+           results))))
+
 (rp/reg-sub
  :worksheet/map-units-settings-eid
  (fn [_ [_ ws-uuid]]
