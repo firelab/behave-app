@@ -11,7 +11,7 @@
     (let [language-editor-state-path [:editors :language]
           languages                  @(rf/subscribe [:languages])]
       [window sidebar-width
-       [:div.container
+       [:div.container-fluid
         [:div {:style {:height "500px"}}
          [table-entity-form
           {:title              "Languages"

@@ -7,7 +7,7 @@
 
 (defn list-applications-page [_]
   [window sidebar-width
-   [:div.container {:style {:height "900px"}}
+   [:div.container-fluid {:style {:height "900px"}}
     [table-entity-form
      {:title              "Applications"
       :entity             :application

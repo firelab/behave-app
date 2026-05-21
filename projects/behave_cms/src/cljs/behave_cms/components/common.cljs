@@ -41,7 +41,7 @@
   (let [selected  (if (u/atom? selected) @selected selected)
         selected? (if (or multiple? (coll? selected))
                     #(not (nil? ((set selected) %)))
-                    #(= % (if (keyword? selected) (name selected) selected)))]
+                    #(= % selected))]
     [:div.mb-3
      [:label.form-label label]
      [:select.form-select

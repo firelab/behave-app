@@ -98,7 +98,7 @@
         domain-editor-state-path       [:editors :domain]
         selected-domain-set            (rf/subscribe [:state selected-domain-set-state-path])]
     [window sidebar-width
-     [:div.container
+     [:div.container-fluid
       [:div {:style {:height "400px"}}
        [domain-sets-table
         selected-domain-set-state-path
