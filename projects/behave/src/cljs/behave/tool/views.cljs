@@ -137,9 +137,9 @@
         resolved-english-uuid                          (or (:domain/english-unit-uuid domain) english-unit-uuid)
         resolved-metric-uuid                           (or (:domain/metric-unit-uuid domain) metric-unit-uuid)
         unit-uuid                                      @(rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
-        units-system                                   @(rf/subscribe [:settings/tool-units-system])
+        units-system                                   (rf/subscribe [:settings/tool-units-system])
         effective-unit-uuid                            (or unit-uuid
-                                                           (case units-system
+                                                           (case @units-system
                                                              :english resolved-english-uuid
                                                              :metric  resolved-metric-uuid
                                                              resolved-native-uuid))
