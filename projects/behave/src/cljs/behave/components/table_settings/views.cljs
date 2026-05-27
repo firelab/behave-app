@@ -10,7 +10,7 @@
         group-variables          (map #(deref (subscribe [:wizard/group-variable %])) multi-valued-input-uuids)]
     (letfn [(radio-group [{:keys [label attr fallback-attr]}]
               (let [selected? (or (first @(subscribe [:table-settings/get-attr ws-uuid attr]))
-                                  (first @(subscribe [:worksheet/get-graph-settings-attr ws-uuid fallback-attr])))]
+                                  (first @(subscribe [:graph-settings/get-attr ws-uuid fallback-attr])))]
                 [c/radio-group
                  {:label   label
                   :options (mapv (fn [{group-var-uuid :bp/uuid}]
