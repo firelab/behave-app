@@ -1,11 +1,10 @@
 (ns behave-cms.group-variables.subs
-  (:require [clojure.string     :as str]
-            [datascript.core    :as d]
-            [behave-cms.store   :refer [conn]]
-            [behave-cms.queries :refer [rules]]
+  (:require [behave-cms.queries  :refer [rules]]
+            [behave-cms.store    :refer [conn]]
             [behave.schema.rules :refer [all-rules]]
-            [re-posh.core       :as rp]
-            [re-frame.core      :refer [reg-sub subscribe]]))
+            [datascript.core     :as d]
+            [re-frame.core       :refer [reg-sub subscribe]]
+            [re-posh.core        :as rp]))
 
 ;;; Links
 
@@ -144,9 +143,9 @@
                   [?c :conditional/type :module]]
                 [gv-id conditionals-attr]])])
  (fn [[group-variable-conditionals module-conditionals]]
-   (concat (mapv (fn [[id name]]
+   (concat (mapv (fn [[id option-name]]
                    (-> @(subscribe [:entity id])
-                       (assoc :variable/name name))) group-variable-conditionals)
+                       (assoc :variable/name option-name))) group-variable-conditionals)
            (mapv (fn [[id]]
                    (-> @(subscribe [:entity id])
                        (assoc :variable/name "Modules selected"))) module-conditionals))))

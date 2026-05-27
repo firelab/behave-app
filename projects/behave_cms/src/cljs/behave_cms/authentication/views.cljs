@@ -1,9 +1,9 @@
 (ns behave-cms.authentication.views
-  (:require [reagent.core                 :as r]
-            [re-frame.core                :as rf]
+  (:require [behave-cms.components.common :refer [simple-form]]
             [behave-cms.styles            :as $]
-            [behave-cms.components.common :refer [simple-form]]
-            [behave-cms.utils             :as u]))
+            [behave-cms.utils             :as u]
+            [re-frame.core                :as rf]
+            [reagent.core                 :as r]))
 
 ;;; Helpers
 
@@ -93,7 +93,7 @@
 (defn invite-user-page
   "The root component for the /invite-user page."
   []
-  (let [name            (r/atom nil)
+  (let [full-name       (r/atom nil)
         email           (r/atom nil)
         loading?        (rf/subscribe [:state :loading?])
         invite-success? (rf/subscribe [:state :invite-success?])
@@ -110,9 +110,9 @@
          [simple-form
           "Invite User"
           "Submit"
-          [["Name" name "text" "name"]
+          [["Name" full-name "text" "name"]
            ["Email" email "email" "email"]]
-          #(rf/dispatch [:auth/invite-user @name @email])])]]]))
+          #(rf/dispatch [:auth/invite-user @full-name @email])])]]]))
 
 (defn login-page
   "The root component for the /login page.

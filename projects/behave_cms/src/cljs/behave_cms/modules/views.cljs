@@ -1,14 +1,14 @@
 (ns behave-cms.modules.views
   (:require
    [behave-cms.components.common            :refer [accordion window]]
-   [behave-cms.components.sidebar           :refer [sidebar sidebar-width ->sidebar-links]]
+   [behave-cms.components.sidebar.views     :refer [sidebar-width]]
    [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
    [behave-cms.components.translations      :refer [app-translations]]
    [behave-cms.help.views                   :refer [help-editor]]
    [clojure.string                          :as str]
    [map-utils.interface                     :refer [index-by]]
-   [string-utils.interface                  :refer [->kebab]]
-   [re-frame.core                           :as rf]))
+   [re-frame.core                           :as rf]
+   [string-utils.interface                  :refer [->kebab]]))
 
 ;;; Modules
 
@@ -132,50 +132,40 @@
   - id [int] - Application Entity ID"
   [{nid :nid}]
   (let [application (rf/subscribe [:application [:bp/nid nid]])
-        app-id      (:db/id @application)
-        modules     (rf/subscribe [:application/modules app-id])
-        tools       (rf/subscribe [:application/tools app-id])]
-    [:<>
-     [sidebar
-      "Modules"
-      (->sidebar-links @modules :module/name :get-module)
-      "Applications"
-      "/applications"
-      "Tools"
-      (->sidebar-links @tools :tool/name :get-tool)]
-     [window sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (:application/name @application)]]
-       [accordion
-        "Modules"
-        [modules-table app-id]]
-       [:hr]
-       [accordion
-        "Modules Results Order"
-        [modules-results-order-table app-id]]
-       [:hr]
-       [accordion
-        "Tools"
-        [tools-table app-id]]
-       [:hr]
-       [accordion
-        "Help Page"
-        [:div.col-12
-         [help-editor (:application/help-key @application)]]]
-       [:hr]
-       [accordion
-        "Application Translations"
-        [app-translations (:application/translation-key @application)]]
-       [:hr]
-       [accordion
-        "Application's Prioritized Results"
-        [:div.col-12
-         [:div.row
-          [prioritized-results-table app-id]]]]
-       [:hr]
-       [accordion
-        "Application's Note Categories"
-        [:div.col-12
-         [:div.row
-          [note-categories-table app-id]]]]]]]))
+        app-id      (:db/id @application)]
+    [window sidebar-width
+     [:div.container
+      [:div.row.mb-3.mt-4
+       [:h2 (:application/name @application)]]
+      [accordion
+       "Modules"
+       [modules-table app-id]]
+      [:hr]
+      [accordion
+       "Modules Results Order"
+       [modules-results-order-table app-id]]
+      [:hr]
+      [accordion
+       "Tools"
+       [tools-table app-id]]
+      [:hr]
+      [accordion
+       "Help Page"
+       [:div.col-12
+        [help-editor (:application/help-key @application)]]]
+      [:hr]
+      [accordion
+       "Application Translations"
+       [app-translations (:application/translation-key @application)]]
+      [:hr]
+      [accordion
+       "Application's Prioritized Results"
+       [:div.col-12
+        [:div.row
+         [prioritized-results-table app-id]]]]
+      [:hr]
+      [accordion
+       "Application's Note Categories"
+       [:div.col-12
+        [:div.row
+         [note-categories-table app-id]]]]]]))

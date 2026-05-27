@@ -1,8 +1,8 @@
 (ns behave-cms.pages.login
-  (:require [reagent.core                 :as r]
-            [re-frame.core                :as rf]
+  (:require [behave-cms.components.common :refer [simple-form]]
             [behave-cms.styles            :as $]
-            [behave-cms.components.common :refer [simple-form]]))
+            [re-frame.core                :as rf]
+            [reagent.core                 :as r]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI Components
@@ -17,7 +17,7 @@
 (defn root-component
   "The root component for the /login page.
   Displays either the login form or request new password form and a link to the register page."
-  [{:keys [redirect]}]
+  [_]
   (let [forgot?  (r/atom false)
         email    (r/atom "")
         password (r/atom "")]

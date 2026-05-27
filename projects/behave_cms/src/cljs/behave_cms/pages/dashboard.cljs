@@ -1,6 +1,4 @@
-(ns behave-cms.pages.dashboard
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.common :refer [btn]]))
+(ns behave-cms.pages.dashboard)
 
 (defn root-component [_]
   [:<>

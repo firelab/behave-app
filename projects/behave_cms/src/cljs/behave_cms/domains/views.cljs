@@ -1,5 +1,7 @@
 (ns behave-cms.domains.views
-  (:require [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+  (:require [behave-cms.components.common            :refer [window]]
+            [behave-cms.components.sidebar.views     :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.events]
             [behave-cms.subs]
             [re-frame.core                           :as rf]))
@@ -95,15 +97,16 @@
         selected-domain-state-path     [:selected :domain]
         domain-editor-state-path       [:editors :domain]
         selected-domain-set            (rf/subscribe [:state selected-domain-set-state-path])]
-    [:div.container
-     [:div {:style {:height "400px"}}
-      [domain-sets-table
-       selected-domain-set-state-path
-       domain-set-editor-path
-       selected-domain-state-path]]
-     (when @selected-domain-set
-       [:div {:style {:height "500px"}}
-        [domains-table
-         selected-domain-state-path
-         domain-editor-state-path
-         selected-domain-set-state-path]])]))
+    [window sidebar-width
+     [:div.container
+      [:div {:style {:height "400px"}}
+       [domain-sets-table
+        selected-domain-set-state-path
+        domain-set-editor-path
+        selected-domain-state-path]]
+      (when @selected-domain-set
+        [:div {:style {:height "500px"}}
+         [domains-table
+          selected-domain-state-path
+          domain-editor-state-path
+          selected-domain-set-state-path]])]]))
