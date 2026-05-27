@@ -300,6 +300,21 @@
     :db/cardinality :db.cardinality/one
     :db/isComponent true}
 
+   {:db/ident       :table-settings/row-group-variable-uuid
+    :db/doc         "Matrix table row variable (independent of graph axes)."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :table-settings/col-group-variable-uuid
+    :db/doc         "Matrix table column variable (independent of graph axes)."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :table-settings/submatrix-group-variable-uuid
+    :db/doc         "Matrix table submatrix (per-sub-table) variable (independent of graph axes)."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    ;; Table filters
    {:db/ident       :table-filter/group-variable-uuid
     :db/doc         "Table filter's variable"

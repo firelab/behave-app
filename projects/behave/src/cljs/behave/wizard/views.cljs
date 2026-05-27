@@ -13,6 +13,8 @@
                                                             pivot-tables
                                                             search-tables]]
             [behave.components.review-input-group   :as review]
+            [behave.components.table-settings.subs]
+            [behave.components.table-settings.views :refer [table-settings-modal]]
             [behave.tool.views                      :refer [tool tool-selector]]
             [behave.translate                       :refer [<t bp]]
             [behave.wizard.events]
@@ -654,49 +656,51 @@
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
-  (let [*worksheet          (subscribe [:worksheet ws-uuid])
-        modules             @(subscribe [:worksheet/modules ws-uuid])
-        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        *tab-selected       (subscribe [:wizard/results-tab-selected])
-        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])
-        repeat-groups?      @(subscribe [:worksheet/repeat-groups? ws-uuid])
-        tabs                (cond-> []
+  (let [*worksheet              (subscribe [:worksheet ws-uuid])
+        modules                 @(subscribe [:worksheet/modules ws-uuid])
+        *ws-date                (subscribe [:wizard/worksheet-date ws-uuid])
+        *tab-selected           (subscribe [:wizard/results-tab-selected])
+        *cell-data              (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
+        repeat-groups?          @(subscribe [:worksheet/repeat-groups? ws-uuid])
+        show-table-settings?    @(subscribe [:table-settings/show?])
+        multi-value-input-count (count @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
+        tabs                    (cond-> []
 
-                              :always
-                              (conj {:label     (-> @(<t (bp "notes"))
-                                                    s/capitalize-words)
-                                     :tab       :notes
-                                     :icon-name :notes
-                                     :selected? (= @*tab-selected :notes)})
+                                  :always
+                                  (conj {:label     (-> @(<t (bp "notes"))
+                                                        s/capitalize-words)
+                                         :tab       :notes
+                                         :icon-name :notes
+                                         :selected? (= @*tab-selected :notes)})
 
-                              :always
-                              (into [{:label     (-> @(<t (bp "inputs"))
-                                                     s/capitalize-words)
-                                      :tab       :inputs
-                                      :icon-name :tables
-                                      :selected? (= @*tab-selected :inputs)}
+                                  :always
+                                  (into [{:label     (-> @(<t (bp "inputs"))
+                                                         s/capitalize-words)
+                                          :tab       :inputs
+                                          :icon-name :tables
+                                          :selected? (= @*tab-selected :inputs)}
 
-                                     {:label     (-> @(<t (bp "output_tables"))
-                                                     s/capitalize-words)
-                                      :tab       :outputs
-                                      :icon-name :tables
-                                      :selected? (= @*tab-selected :outputs)}])
+                                         {:label     (-> @(<t (bp "output_tables"))
+                                                         s/capitalize-words)
+                                          :tab       :outputs
+                                          :icon-name :tables
+                                          :selected? (= @*tab-selected :outputs)}])
 
-                              @(subscribe [:wizard/enable-graph-settings? ws-uuid])
-                              (conj {:label     (-> @(<t (bp "output_graphs"))
-                                                    s/capitalize-words)
-                                     :tab       :graph
-                                     :icon-name :graphs
-                                     :selected? (= @*tab-selected :graph)})
+                                  @(subscribe [:wizard/enable-graph-settings? ws-uuid])
+                                  (conj {:label     (-> @(<t (bp "output_graphs"))
+                                                        s/capitalize-words)
+                                         :tab       :graph
+                                         :icon-name :graphs
+                                         :selected? (= @*tab-selected :graph)})
 
-                              (seq (:worksheet/diagrams @*worksheet))
-                              (conj {:label     (-> @(<t (bp "output_diagrams"))
-                                                    s/capitalize-words)
-                                     :tab       :diagram
-                                     :icon-name :graphs
-                                     :selected? (= @*tab-selected :diagram)}))]
+                                  (seq (:worksheet/diagrams @*worksheet))
+                                  (conj {:label     (-> @(<t (bp "output_diagrams"))
+                                                        s/capitalize-words)
+                                         :tab       :diagram
+                                         :icon-name :graphs
+                                         :selected? (= @*tab-selected :diagram)}))]
     (when (not @*tab-selected)
       (dispatch-sync [:wizard/results-select-tab (first tabs)]))
     [:<>
@@ -704,6 +708,8 @@
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-table-settings?
+       [table-settings-modal ws-uuid])
      [:div.accordion
       [:div.accordion__header @(<t "behaveplus:working_area")]
       [wizard-expand]
@@ -741,6 +747,12 @@
             (when (not repeat-groups?)
               (search-tables ws-uuid))
             [pivot-tables ws-uuid]
+            (when (>= multi-value-input-count 2)
+              [:div.wizard-results__table-settings-button
+               [c/button {:label     "Table Settings"
+                          :variant   "secondary"
+                          :icon-name "settings"
+                          :on-click  #(dispatch [:table-settings/toggle])}]])
             [result-matrices ws-uuid]
             [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
             ;; [raw-result-table ws-uuid]

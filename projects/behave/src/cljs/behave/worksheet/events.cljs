@@ -420,26 +420,36 @@
  (fn [{worksheet               :worksheet
        multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ _]]
    (when (pos? (count multi-value-input-uuids))
-     (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
-           gv-uuids         (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %])) multi-value-input-uuids)]
-       {:transact [; First clear any existing graph settings.
-                   [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
-                   [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
-                   [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
-                   ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
-                   (cond-> {:db/id graph-setting-id}
+     (let [graph-setting-id  (get-in worksheet [:worksheet/graph-settings :db/id])
+           table-settings-id (get-in worksheet [:worksheet/table-settings :db/id])
+           gv-uuids          (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %])) multi-value-input-uuids)]
+       {:transact (into
+                   [; First clear any existing graph settings.
+                    [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
+                    [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
+                    [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
+                     ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
+                    (cond-> {:db/id graph-setting-id}
 
-                     ;; sets default x-axis selection if available
-                     (first multi-value-input-uuids)
-                     (assoc :graph-settings/x-axis-group-variable-uuid (first gv-uuids))
+                       ;; sets default x-axis selection if available
+                      (first multi-value-input-uuids)
+                      (assoc :graph-settings/x-axis-group-variable-uuid (first gv-uuids))
 
-                     ;; sets default z-axis selection if available
-                     (second multi-value-input-uuids)
-                     (assoc :graph-settings/z-axis-group-variable-uuid (second gv-uuids))
+                       ;; sets default z-axis selection if available
+                      (second multi-value-input-uuids)
+                      (assoc :graph-settings/z-axis-group-variable-uuid (second gv-uuids))
 
-                     ;; sets default z2-axis selection if available
-                     (nth multi-value-input-uuids 2 nil)
-                     (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]}))))
+                       ;; sets default z2-axis selection if available
+                      (nth multi-value-input-uuids 2 nil)
+                      (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]
+                    ;; default table-settings row/col (col = x = first, row = z = second)
+                   (when (and table-settings-id (second multi-value-input-uuids))
+                     [(cond-> {:db/id table-settings-id}
+                        true
+                        (assoc :table-settings/col-group-variable-uuid (first gv-uuids)
+                               :table-settings/row-group-variable-uuid (second gv-uuids))
+                        (nth multi-value-input-uuids 2 nil)
+                        (assoc :table-settings/submatrix-group-variable-uuid (nth gv-uuids 2)))]))}))))
 
 (rp/reg-event-fx
  :worksheet/toggle-graph-settings

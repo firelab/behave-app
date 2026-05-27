@@ -598,18 +598,6 @@
              ws-uuid))))
 
 (rp/reg-sub
- :worksheet/get-table-settings-attr
- (fn [_ [_ ws-uuid attr]]
-   {:type      :query
-    :query     '[:find  [?value ...]
-                 :in    $ ?ws-uuid ?attr
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/table-settings ?t]
-                 [?t ?attr ?value]]
-    :variables [ws-uuid attr]}))
-
-(rp/reg-sub
  :worksheet/get-graph-settings-attr
  (fn [_ [_ ws-uuid attr]]
    {:type      :query
@@ -1055,6 +1043,14 @@
                   [:worksheet/uuid ws-uuid]]))
  (fn [result _]
    (:worksheet/graph-settings result)))
+
+(rf/reg-sub
+ :worksheet/table-settings
+ (fn [[_ ws-uuid] _]
+   (rf/subscribe [:pull '[{:worksheet/table-settings [*]}]
+                  [:worksheet/uuid ws-uuid]]))
+ (fn [result _]
+   (:worksheet/table-settings result)))
 
 (defn- missing-input? [value]
   (or (nil? value) (empty? value)))

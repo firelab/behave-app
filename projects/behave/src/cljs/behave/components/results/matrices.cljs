@@ -121,7 +121,7 @@
           output-entities))
 
 (defn- compute-shade-set
-  [{:keys [ws-uuid multi-valued-inputs all-output-gv-uuids all-output-entities graph-settings table-setting-filters sig-digits]}]
+  [{:keys [ws-uuid multi-valued-inputs all-output-gv-uuids all-output-entities graph-settings table-settings table-setting-filters sig-digits]}]
   (case (count multi-valued-inputs)
     1 (let [[_ _ multi-var-gv-uuid multi-var-values] (first multi-valued-inputs)
             all-matrix-data-raw                      @(subscribe [:worksheet/matrix-table-data-single-multi-valued-input
@@ -135,13 +135,15 @@
                        (conj row)))
                    #{}
                    all-matrix-data-raw))
-    2 (let [x-axis-gv-uuid               (:graph-settings/x-axis-group-variable-uuid graph-settings)
-            z-axis-gv-uuid               (:graph-settings/z-axis-group-variable-uuid graph-settings)
+    2 (let [row-axis-gv-uuid             (or (:table-settings/row-group-variable-uuid table-settings)
+                                             (:graph-settings/z-axis-group-variable-uuid graph-settings))
+            col-axis-gv-uuid             (or (:table-settings/col-group-variable-uuid table-settings)
+                                             (:graph-settings/x-axis-group-variable-uuid graph-settings))
             [_ _ row-gv-uuid row-values] (->> multi-valued-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid z-axis-gv-uuid)))
+                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid row-axis-gv-uuid)))
                                               first)
             [_ _ col-gv-uuid col-values] (->> multi-valued-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid x-axis-gv-uuid)))
+                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid col-axis-gv-uuid)))
                                               first)]
         (compute-shade-set-2d {:ws-uuid               ws-uuid
                                :row-gv-uuid           row-gv-uuid
@@ -151,18 +153,21 @@
                                :output-entities       all-output-entities
                                :table-setting-filters table-setting-filters
                                :sig-digits            sig-digits}))
-    3 (let [z2-axis-uuid                 (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+    3 (let [z2-axis-uuid                 (or (:table-settings/submatrix-group-variable-uuid table-settings)
+                                             (:graph-settings/z2-axis-group-variable-uuid graph-settings))
             [_ _ z2-gv-uuid z2-values]   (->> multi-valued-inputs
                                               (filter (fn [[_ _ gv-uuid]] (= gv-uuid z2-axis-uuid)))
                                               first)
             rest-inputs                  (filter (fn [[_ _ gv-uuid]] (not= gv-uuid z2-axis-uuid)) multi-valued-inputs)
-            x-axis-gv-uuid               (:graph-settings/x-axis-group-variable-uuid graph-settings)
-            z-axis-gv-uuid               (:graph-settings/z-axis-group-variable-uuid graph-settings)
+            row-axis-gv-uuid             (or (:table-settings/row-group-variable-uuid table-settings)
+                                             (:graph-settings/z-axis-group-variable-uuid graph-settings))
+            col-axis-gv-uuid             (or (:table-settings/col-group-variable-uuid table-settings)
+                                             (:graph-settings/x-axis-group-variable-uuid graph-settings))
             [_ _ row-gv-uuid row-values] (->> rest-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid z-axis-gv-uuid)))
+                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid row-axis-gv-uuid)))
                                               first)
             [_ _ col-gv-uuid col-values] (->> rest-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid x-axis-gv-uuid)))
+                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid col-axis-gv-uuid)))
                                               first)]
         (reduce (fn [acc value]
                   (assoc acc value
@@ -353,13 +358,16 @@
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled?
            sub-title submatrix-value submatrix-gv-uuid header-color cell-color-gv-uuid]}]
   (let [graph-settings                              @(subscribe [:worksheet/graph-settings ws-uuid])
-        x-axis-gv-uuid                              (:graph-settings/x-axis-group-variable-uuid graph-settings)
-        z-axis-gv-uuid                              (:graph-settings/z-axis-group-variable-uuid graph-settings)
+        table-settings                              @(subscribe [:worksheet/table-settings ws-uuid])
+        row-axis-gv-uuid                            (or (:table-settings/row-group-variable-uuid table-settings)
+                                                        (:graph-settings/z-axis-group-variable-uuid graph-settings))
+        col-axis-gv-uuid                            (or (:table-settings/col-group-variable-uuid table-settings)
+                                                        (:graph-settings/x-axis-group-variable-uuid graph-settings))
         [row-name row-units row-gv-uuid row-values] (->> multi-valued-inputs
-                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid z-axis-gv-uuid)))
+                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid row-axis-gv-uuid)))
                                                          first)
         [col-name col-units col-gv-uuid col-values] (->> multi-valued-inputs
-                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid x-axis-gv-uuid)))
+                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid col-axis-gv-uuid)))
                                                          first)
         {:keys [units rep-fraction]}                (fetch-map-units-settings ws-uuid)
         input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])
@@ -433,7 +441,9 @@
 (defmethod construct-result-matrices 3
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled? units-lookup header-color cell-color-gv-uuid]}]
   (let [graph-settings                             @(subscribe [:worksheet/graph-settings ws-uuid])
-        z2-axis-group-variable-uuid                (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+        table-settings                             @(subscribe [:worksheet/table-settings ws-uuid])
+        z2-axis-group-variable-uuid                (or (:table-settings/submatrix-group-variable-uuid table-settings)
+                                                       (:graph-settings/z2-axis-group-variable-uuid graph-settings))
         [var-name units-short-code gv-uuid values] (->> multi-valued-inputs
                                                         (filter (fn [[_ _ gv-uuid]] (= gv-uuid z2-axis-group-variable-uuid)))
                                                         first)
@@ -547,12 +557,14 @@
         color-output-state              @(subscribe [:wizard/selected-output-cell-coloring])
         cell-color-gv-uuid              (when-not (= :none color-output-state) color-output-state)
         graph-settings                  @(subscribe [:worksheet/graph-settings ws-uuid])
+        table-settings                  @(subscribe [:worksheet/table-settings ws-uuid])
         sig-digits                      @(subscribe [:worksheet/result-table-significant-digits all-output-gv-uuids])
         shade-set                       (compute-shade-set {:ws-uuid               ws-uuid
                                                             :multi-valued-inputs   multi-valued-inputs
                                                             :all-output-gv-uuids   all-output-gv-uuids
                                                             :all-output-entities   all-output-entities
                                                             :graph-settings        graph-settings
+                                                            :table-settings        table-settings
                                                             :table-setting-filters table-setting-filters
                                                             :sig-digits            sig-digits})
         any-filters-enabled?            (boolean (some (fn [[_ _ _ enabled?]] enabled?) table-setting-filters))]
