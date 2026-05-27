@@ -85,9 +85,9 @@
                  [?v :variable/name ?name]]
                [pivot-table-id]]))
  (fn [results]
-   (mapv (fn [[id name]]
+   (mapv (fn [[id variable-name]]
            (-> @(subscribe [:entity id])
-               (assoc :variable/name name))) results)))
+               (assoc :variable/name variable-name))) results)))
 
 (reg-sub
  :search-table/columns

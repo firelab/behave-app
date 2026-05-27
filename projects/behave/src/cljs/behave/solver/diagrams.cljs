@@ -5,7 +5,9 @@
             [clojure.string     :as str]
             [re-frame.core      :as rf]))
 
-(defmulti build-event-vector (fn [{:keys [diagram]}] (:diagram/type diagram)))
+(defmulti build-event-vector
+  "Builds an re-frame event vector to store a diagram's solver outputs, dispatched on `:diagram/type`."
+  (fn [{:keys [diagram]}] (:diagram/type diagram)))
 
 (defmethod build-event-vector :contain
   [{:keys [ws-uuid row-id diagram module]}]
@@ -80,7 +82,9 @@
      (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))]))
 
-(defn store-all-diagrams! [{:keys [ws-uuid row-id module diagrams]}]
+(defn store-all-diagrams!
+  "Dispatches store events for every diagram whose group-variable is an active worksheet output."
+  [{:keys [ws-uuid row-id module diagrams]}]
   (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
     (doseq [diagram diagrams]
       (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]

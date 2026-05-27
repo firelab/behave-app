@@ -1,6 +1,7 @@
 (ns behave.schema.diagrams)
 
 (def schema
+  "Datomic schema for diagram entities."
   [{:db/ident       :diagram/type
     :db/doc         "Keyword #{:contain :fire-shape :wind-slope-spread-direction :optimized-contain}"
     :db/valueType   :db.type/keyword

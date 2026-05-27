@@ -7,7 +7,9 @@
             [re-frame.core                           :as rf]
             [string-utils.interface                  :refer [->kebab]]))
 
-(defn tags-table [selected-state-path editor-state-path selected-tag-set-path]
+(defn tags-table
+  "Component displaying and managing tags for the selected tag set."
+  [selected-state-path editor-state-path selected-tag-set-path]
   (let [selected-tag-set (rf/subscribe [:state selected-tag-set-path])
         entities         (:tag-set/tags @selected-tag-set)]
     [table-entity-form

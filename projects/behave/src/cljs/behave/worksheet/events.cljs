@@ -453,7 +453,9 @@
                                              (not enabled?))}]
       :fx       [[:dispatch [:worksheet/set-default-graph-settings ws-uuid]]]})))
 
-(defn get-graph-axis-limit-eid [db ws-uuid gv-uuid]
+(defn get-graph-axis-limit-eid
+  "Returns the y-axis-limit entity id for the given worksheet and group-variable, or nil."
+  [db ws-uuid gv-uuid]
   (d/q '[:find ?y .
          :in $ ?ws-uuid ?group-var-uuid
          :where
@@ -565,7 +567,9 @@
                        ws-uuid)]
      {:transact [(assoc {:db/id eid} attr value)]})))
 
-(defn get-table-filter-eid [db ws-uuid gv-uuid]
+(defn get-table-filter-eid
+  "Returns the table-filter entity id for the given worksheet and group-variable, or nil."
+  [db ws-uuid gv-uuid]
   (d/q '[:find ?f .
          :in $ ?ws-uuid ?group-var-uuid
          :where

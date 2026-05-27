@@ -118,7 +118,9 @@
 
 ;;; Sub-components
 
-(defmulti field-input (fn [{field-type :type}] field-type))
+(defmulti field-input
+  "Renders a form field input, dispatched on `:type`."
+  (fn [{field-type :type}] field-type))
 
 (defmethod field-input :select [{:keys [label options on-change state disabled?]}]
   [:div.mb-3

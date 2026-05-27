@@ -5,7 +5,9 @@
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [re-frame.core                           :as rf]))
 
-(defn list-applications-page [_]
+(defn list-applications-page
+  "Page component listing all applications."
+  [_]
   [window sidebar-width
    [:div.container-fluid {:style {:height "900px"}}
     [table-entity-form

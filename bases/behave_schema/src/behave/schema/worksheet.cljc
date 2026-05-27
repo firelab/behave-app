@@ -28,6 +28,7 @@
 ;;; Schema
 
 (def schema
+  "Datomic schema for worksheet entities."
   [{:db/ident       :worksheet/version
     :db/doc         "The application's version that was used to generate this worksheet"
     :db/valueType   :db.type/string

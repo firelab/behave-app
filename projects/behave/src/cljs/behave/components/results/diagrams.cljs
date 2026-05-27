@@ -162,7 +162,9 @@
                                            scatter-plots)}]
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 
-(defn result-diagrams [ws-uuid]
+(defn result-diagrams
+  "Reagent component rendering all diagrams for a worksheet."
+  [ws-uuid]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
       [:div.wizard-results__diagrams {:id "diagram"}
