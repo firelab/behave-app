@@ -146,19 +146,21 @@
                                       :title         (or y-axis-title "y")
                                       :units         y-units-short-code
                                       :tick-min-step 5}
-                      :ellipses      (mapv #(rename-keys (into {} %)
-                                                         {:ellipse/legend-id       :legend-id
-                                                          :ellipse/semi-major-axis :a
-                                                          :ellipse/semi-minor-axis :b
-                                                          :ellipse/rotation        :phi
-                                                          :ellipse/color           :color})
+                      :ellipses      (mapv #(-> (rename-keys (into {} %)
+                                                             {:ellipse/legend-id       :legend-id
+                                                              :ellipse/semi-major-axis :a
+                                                              :ellipse/semi-minor-axis :b
+                                                              :ellipse/rotation        :phi
+                                                              :ellipse/color           :color})
+                                                (update :legend-id (fn [k] @(<t k))))
                                            ellipses)
-                      :arrows        (mapv #(rename-keys (into {} %)
-                                                         {:arrow/legend-id :legend-id
-                                                          :arrow/length    :r
-                                                          :arrow/rotation  :theta
-                                                          :arrow/color     :color
-                                                          :arrow/dashed?   :dashed?})
+                      :arrows        (mapv #(-> (rename-keys (into {} %)
+                                                             {:arrow/legend-id :legend-id
+                                                              :arrow/length    :r
+                                                              :arrow/rotation  :theta
+                                                              :arrow/color     :color
+                                                              :arrow/dashed?   :dashed?})
+                                                (update :legend-id (fn [k] @(<t k))))
                                            arrows)
                       :scatter-plots (mapv (fn [{legend-id     :scatter-plot/legend-id
                                                  x-coordinates :scatter-plot/x-coordinates
@@ -166,7 +168,7 @@
                                                  color         :scatter-plot/color}]
                                              (let [x-doubles (map double (str/split x-coordinates ","))
                                                    y-doubles (map double (str/split y-coordinates ","))]
-                                               {:legend-id legend-id
+                                               {:legend-id @(<t legend-id)
                                                 :color     color
                                                 :connect?  connect-points?
                                                 :data      (let [pts (mapv (fn [x y] {"x" x "y" y})
