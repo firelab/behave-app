@@ -106,7 +106,7 @@
                            scatter-plots       :worksheet.diagram/scatter-plots
                            group-variable-uuid :worksheet.diagram/group-variable-uuid}]
 
-  (let [scatter-plot-legacy? (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.4"))
+  (let [scatter-plot-legacy? (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.5"))
         cms-diagram          @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
         title                (if-let [tk (:diagram/title-translation-key cms-diagram)]
                                @(<t tk)
