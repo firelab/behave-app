@@ -28,6 +28,7 @@
                  "components/schema_migrate/src"
                  "components/string_utils/src"
                  "components/transport/src"
+                 "components/version_utils/src"
 
                  ;; Bases
                  "bases/behave_components/src"
@@ -128,6 +129,7 @@
                        "components/server/test"
                        "components/string_utils/test"
                        "components/transport/test"
+                       "components/version_utils/test"
 
                        ;; Bases
                        "bases/behave_routing/test"

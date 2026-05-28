@@ -778,18 +778,18 @@
 (rp/reg-event-fx
  :worksheet/add-contain-diagram
  [(rp/inject-cofx :ds)]
- (fn [_ [_
-         ws-uuid
-         group-variable-uuid
-         row-id
-         fire-perimeter-points-X
-         fire-perimeter-points-Y
-         length-to-width-ratio
-         fire-back-at-report
-         fire-head-at-report
-         fire-back-at-attack
-         fire-head-at-attack
-         contain-status]]
+ (fn [{:keys [db]} [_
+                    ws-uuid
+                    group-variable-uuid
+                    row-id
+                    fire-perimeter-points-X
+                    fire-perimeter-points-Y
+                    length-to-width-ratio
+                    fire-back-at-report
+                    fire-head-at-report
+                    fire-back-at-attack
+                    fire-head-at-attack
+                    contain-status]]
    {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
                         :worksheet.diagram/group-variable-uuid group-variable-uuid
                         :worksheet.diagram/row-id              row-id
@@ -811,24 +811,26 @@
                  (assoc :worksheet.diagram/scatter-plots [{:scatter-plot/legend-id     "Fireline Constructed"
                                                            :scatter-plot/color         "black"
                                                            :scatter-plot/x-coordinates fire-perimeter-points-X
-                                                           :scatter-plot/y-coordinates fire-perimeter-points-Y}]))]}))
+                                                           :scatter-plot/y-coordinates fire-perimeter-points-Y}]))
+               [:db/add [:worksheet/uuid ws-uuid] :worksheet/version (get-in db [:state :app-version])]]}))
 
 (rp/reg-event-fx
  :worksheet/add-optimized-contain-diagram
  [(rp/inject-cofx :ds)]
- (fn [_ [_
-         ws-uuid
-         group-variable-uuid
-         row-id
-         production-rate-points
-         containment-area-points]]
+ (fn [{:keys [db]} [_
+                    ws-uuid
+                    group-variable-uuid
+                    row-id
+                    production-rate-points
+                    containment-area-points]]
    {:transact [{:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
                 :worksheet.diagram/group-variable-uuid group-variable-uuid
                 :worksheet.diagram/row-id              row-id
                 :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "Production Rate vs Containment Area"
                                                          :scatter-plot/color         "blue"
                                                          :scatter-plot/x-coordinates production-rate-points
-                                                         :scatter-plot/y-coordinates containment-area-points}]}]}))
+                                                         :scatter-plot/y-coordinates containment-area-points}]}
+               [:db/add [:worksheet/uuid ws-uuid] :worksheet/version (get-in db [:state :app-version])]]}))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
