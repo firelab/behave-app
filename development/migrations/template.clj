@@ -1,6 +1,6 @@
 (ns migrations.template
-  (:require [schema-migrate.interface :as sm]
-            [datomic.api :as d]))
+  (:require [datomic.api :as d]
+            [schema-migrate.interface :as sm]))
 
 ;; ===========================================================================================================
 ;; Overview
@@ -21,13 +21,15 @@
   [])
 
 ;; Option B: Multi-step migration (uncomment and remove payload-fn above)
-;; Each step is a function of conn (or a raw payload vector).
+;; Each step is (fn [conn db] tx-data). The runner passes a fresh db snapshot
+;; taken after the prior step commits, so step N sees step N-1's writes.
+;; Use conn for sm/* helpers; use db for direct d/q / d/entity calls.
 ;; If any step fails, all previously completed steps are rolled back.
 ;;
 ;; #_{:clj-kondo/ignore [:missing-docstring]}
 ;; (def payload-steps
-;;   [(fn [conn] [{:db/id (sm/t-key->eid conn "behaveplus:...") :group/order 0}])
-;;    (fn [conn] [[:db/retractEntity (sm/t-key->eid conn "behaveplus:...")]])])
+;;   [(fn [conn db] [{:db/id (sm/t-key->eid conn "behaveplus:...") :group/order 0}])
+;;    (fn [conn db] [[:db/retractEntity (d/q '[:find ?e . :where ...] db)]])])
 
 ;; ===========================================================================================================
 ;; Manual REPL usage

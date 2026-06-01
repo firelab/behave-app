@@ -2,8 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string  :as str]
-   [datomic.api     :as d]
    [datomic-store.main :as ds]
+   [datomic.api     :as d]
    [schema-migrate.core :as core]))
 
 (defn migration-applied?
@@ -65,7 +65,9 @@
    Each migration must export one of:
    - `payload-fn`    — a function of `conn` returning transaction data
    - `payload`       — a def containing transaction data
-   - `payload-steps` — a vector of functions or payloads, executed in order"
+   - `payload-steps` — a vector of `(fn [conn db] tx-data)` functions executed
+                       in order; each receives a fresh `db` snapshot reflecting
+                       all prior steps in the same migration"
   [dir]
   (->> (io/file dir)
        (.listFiles)
@@ -96,13 +98,17 @@
   (ds/transact conn (concat payload [marker])))
 
 (defn- run-multi-step!
-  "Transact each step in order. If any step fails, roll back all
-   previously completed steps in reverse order, then re-throw."
+  "Transact each step in order. Each step must be `(fn [conn db] tx-data)`;
+   `db` is a fresh snapshot taken after the prior step commits, so step N
+   sees all writes from step N-1. If any step fails, roll back all previously
+   completed steps in reverse order, then re-throw."
   [conn steps marker]
   (let [completed (atom [])]
     (try
       (doseq [step steps]
-        (let [payload (resolve-payload step conn)
+        (assert (fn? step) "payload-steps entries must be (fn [conn db] tx-data)")
+        (let [db        (d/db conn)
+              payload   (step conn db)
               tx-result (ds/transact conn payload)]
           (swap! completed conj tx-result)))
       ;; All steps succeeded — record the migration marker

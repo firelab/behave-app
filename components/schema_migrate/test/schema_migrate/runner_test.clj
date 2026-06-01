@@ -88,7 +88,7 @@
         (is (runner/migration-applied? *conn* "migrations.2026-01-01-add-test-entity"))
         (is (= "hello"
                (d/q '[:find ?n .
-                       :where [?e :test/name ?n]]
+                      :where [?e :test/name ?n]]
                     (d/db *conn*))))))))
 
 (deftest single-step-payload-def-test
@@ -104,8 +104,8 @@
         (is (runner/migration-applied? *conn* "migrations.2026-01-01-static-payload"))
         (is (= 99
                (d/q '[:find ?v .
-                       :where [?e :test/name "static"]
-                              [?e :test/value ?v]]
+                      :where [?e :test/name "static"]
+                      [?e :test/value ?v]]
                     (d/db *conn*))))))))
 
 (deftest idempotency-test
@@ -122,7 +122,7 @@
         (runner/run-pending-migrations! *conn* (str dir))
         (is (= 1
                (d/q '[:find (count ?e) .
-                       :where [?e :test/name "once"]]
+                      :where [?e :test/name "once"]]
                     (d/db *conn*))))))))
 
 (deftest ignore-metadata-test
@@ -145,7 +145,7 @@
         (is (not (runner/migration-applied? *conn* "migrations.2026-01-01-ignored")))
         (is (runner/migration-applied? *conn* "migrations.2026-01-02-not-ignored"))
         (is (nil? (d/q '[:find ?e .
-                          :where [?e :test/name "should-not-exist"]]
+                         :where [?e :test/name "should-not-exist"]]
                        (d/db *conn*))))))))
 
 (deftest ordering-test
@@ -172,16 +172,16 @@
         :content  "(ns migrations.2026-01-01-multi-step)
 
 (def payload-steps
-  [(fn [conn] [{:test/name \"step1\" :test/value 1}])
-   (fn [conn] [{:test/name \"step2\" :test/value 2}])])
+  [(fn [conn db] [{:test/name \"step1\" :test/value 1}])
+   (fn [conn db] [{:test/name \"step2\" :test/value 2}])])
 "}]
       (fn [dir]
         (runner/run-pending-migrations! *conn* (str dir))
         (is (runner/migration-applied? *conn* "migrations.2026-01-01-multi-step"))
         (is (= 1 (d/q '[:find ?v . :where [?e :test/name "step1"] [?e :test/value ?v]]
-                       (d/db *conn*))))
+                      (d/db *conn*))))
         (is (= 2 (d/q '[:find ?v . :where [?e :test/name "step2"] [?e :test/value ?v]]
-                       (d/db *conn*))))))))
+                      (d/db *conn*))))))))
 
 (deftest multi-step-rollback-test
   (testing "When a step fails, previous steps are rolled back and marker is not recorded"
@@ -190,8 +190,8 @@
         :content  "(ns migrations.2026-01-01-multi-fail)
 
 (def payload-steps
-  [(fn [conn] [{:test/name \"will-rollback\" :test/value 1}])
-   (fn [conn] (throw (ex-info \"Step 2 failed\" {})))])
+  [(fn [conn db] [{:test/name \"will-rollback\" :test/value 1}])
+   (fn [conn db] (throw (ex-info \"Step 2 failed\" {})))])
 "}]
       (fn [dir]
         (is (thrown? Exception
@@ -199,8 +199,40 @@
         (is (not (runner/migration-applied? *conn* "migrations.2026-01-01-multi-fail")))
         ;; Step 1 should have been rolled back
         (is (nil? (d/q '[:find ?e .
-                          :where [?e :test/name "will-rollback"]]
+                         :where [?e :test/name "will-rollback"]]
                        (d/db *conn*))))))))
+
+(deftest multi-step-sees-prior-writes-test
+  (testing "Step N receives a db reflecting step N-1's committed writes"
+    (with-temp-migrations
+      [{:filename "2026_01_01_cross_step.clj"
+        :content  "(ns migrations.2026-01-01-cross-step
+  (:require [datomic.api :as d]))
+
+(def payload-steps
+  [(fn [conn db] [{:test/name \"marker\" :test/value 1}])
+   (fn [conn db]
+     (let [eid (d/q '[:find ?e . :where [?e :test/name \"marker\"]] db)]
+       [[:db/add eid :test/value 2]]))])
+"}]
+      (fn [dir]
+        (runner/run-pending-migrations! *conn* (str dir))
+        (is (runner/migration-applied? *conn* "migrations.2026-01-01-cross-step"))
+        (is (= 2 (d/q '[:find ?v . :where [?e :test/name "marker"] [?e :test/value ?v]]
+                      (d/db *conn*))))))))
+
+(deftest multi-step-rejects-non-fn-test
+  (testing "A raw vector as a payload-steps entry throws an assertion error"
+    (with-temp-migrations
+      [{:filename "2026_01_01_raw_vector_step.clj"
+        :content  "(ns migrations.2026-01-01-raw-vector-step)
+
+(def payload-steps
+  [[{:test/name \"raw\" :test/value 0}]])
+"}]
+      (fn [dir]
+        (is (thrown? AssertionError
+                     (runner/run-pending-migrations! *conn* (str dir))))))))
 
 (deftest halt-on-failure-test
   (testing "A failing migration halts execution — subsequent migrations don't run"
@@ -222,5 +254,5 @@
                      (runner/run-pending-migrations! *conn* (str dir))))
         (is (not (runner/migration-applied? *conn* "migrations.2026-01-02-should-not-run")))
         (is (nil? (d/q '[:find ?e .
-                          :where [?e :test/name "unreachable"]]
+                         :where [?e :test/name "unreachable"]]
                        (d/db *conn*))))))))
