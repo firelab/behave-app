@@ -585,7 +585,6 @@ body {
   border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
-.wizard-group__header--standard,
 .wizard-graph__output-header,
 .wizard-group--level-1 > .wizard-group__header {
   padding: 5px 18px;
@@ -820,14 +819,26 @@ body {
 }
 
 .wizard-standard__submodule-header {
-  padding: 10px 0px 0px 0px;
+  padding: 5px 0px 5px 10px;
   border-bottom: 2px solid var(--gray-4);
   font-weight: var(--font-weight-bold);
   background-color: var(--themed-header-background-color);
 }
 
+.wizard-group__header--standard {
+  padding-left: 20px;
+}
 
+.wizard-group__header--standard.wizard-group__header--leaf {
+  padding-left: 20px;
+  font-weight: var(--font-weight-normal);
+  background-color: var(--lightblue-2);
+}
 
+.wizard-subgroup__indent .wizard-group__header--standard {
+  padding-left: 30px;
+  font-weight: var(--font-weight-normal);
+}
 
 /* -- End Wizard Standard -- */
 

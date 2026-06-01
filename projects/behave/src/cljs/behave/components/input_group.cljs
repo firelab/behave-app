@@ -298,9 +298,11 @@
   (let [variables (sort-by :group-variable/order variables)]
     [:div.wizard-group
      {:class (str "wizard-group--level-" level)}
-     [:div {:class [(if (= workflow :standard)
-                      "wizard-group__header--standard"
-                      "wizard-group__header")]}
+     [:div {:class ["wizard-group__header"
+                    (when (= workflow :standard)
+                      "wizard-group__header--standard")
+                    (when-not (seq (:group/children group))
+                      "wizard-group__header--leaf")]}
       @(<t (:group/translation-key group))]
      (if (:group/repeat? group)
        [repeat-group params group variables]
