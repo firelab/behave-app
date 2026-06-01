@@ -981,7 +981,7 @@
 (reg-sub
  :wizard/enable-graph-settings?
  (fn [[_ ws-uuid]]
-   [(subscribe [:graph-settings/get-attr
+   [(subscribe [:graph-settings/attr-values
                 ws-uuid
                 :graph-settings/enabled?])
     (subscribe [:worksheet/multi-value-input-uuids ws-uuid])])

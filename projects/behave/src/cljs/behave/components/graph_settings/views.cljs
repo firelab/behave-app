@@ -88,7 +88,7 @@
         units-lookup             @(subscribe [:worksheet/result-table-units ws-uuid])
         enabled?                 @(subscribe [:wizard/enable-graph-settings? ws-uuid])]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
-              (let [*values   (subscribe [:graph-settings/get-attr ws-uuid attr])
+              (let [*values   (subscribe [:graph-settings/attr-values ws-uuid attr])
                     selected? (first @*values)]
                 [c/radio-group {:label   label
                                 :options (mapv (fn [{group-var-uuid :bp/uuid}]
