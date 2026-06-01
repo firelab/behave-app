@@ -3,12 +3,12 @@
             [re-posh.core  :as rp]))
 
 (reg-sub
- :table-settings/show?
+ :table-settings/modal-visible?
  (fn [db _]
    (get-in db [:state :wizard :show-table-settings?] false)))
 
 (rp/reg-sub
- :table-settings/get-attr
+ :table-settings/attr-values
  (fn [_ [_ ws-uuid attr]]
    {:type      :query
     :query     '[:find  [?value ...]
@@ -20,7 +20,7 @@
     :variables [ws-uuid attr]}))
 
 (rp/reg-sub
- :table-settings/axis-group-variable-uuid
+ :table-settings/gv-uuid-for-attr
  (fn [_ [_ ws-uuid attr]]
    {:type      :query
     :query     '[:find  ?gv-uuid .
@@ -32,7 +32,7 @@
     :variables [ws-uuid attr]}))
 
 (rp/reg-sub
- :table-settings/axis-attr-in
+ :table-settings/attr-holding-gv-uuid
  (fn [_ [_ ws-uuid gv-uuid attrs]]
    {:type      :query
     :query     '[:find  ?attr .
