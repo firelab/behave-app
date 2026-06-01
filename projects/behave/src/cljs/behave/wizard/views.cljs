@@ -664,7 +664,7 @@
         show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
         repeat-groups?          @(subscribe [:worksheet/repeat-groups? ws-uuid])
-        show-table-settings?    @(subscribe [:table-settings/show?])
+        show-table-settings?    @(subscribe [:table-settings/modal-visible?])
         multi-value-input-count (count @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
         tabs                    (cond-> []
 

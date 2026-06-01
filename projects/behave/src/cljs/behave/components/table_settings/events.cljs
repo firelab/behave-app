@@ -17,11 +17,11 @@
 (rp/reg-event-fx
  :table-settings/update-attr
  [(rp/inject-cofx :ds)
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid attr]] [:table-settings/axis-group-variable-uuid ws-uuid attr]))
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid _ value]] [:table-settings/axis-attr-in ws-uuid value matrix-table-attrs]))]
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid attr]] [:table-settings/gv-uuid-for-attr ws-uuid attr]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid _ value]] [:table-settings/attr-holding-gv-uuid ws-uuid value matrix-table-attrs]))]
  (fn [{ds               :ds
-       original-gv-uuid :table-settings/axis-group-variable-uuid
-       attr-to-swap     :table-settings/axis-attr-in} [_ ws-uuid attr value]]
+       original-gv-uuid :table-settings/gv-uuid-for-attr
+       attr-to-swap     :table-settings/attr-holding-gv-uuid} [_ ws-uuid attr value]]
    (when-let [t (first (d/q '[:find [?t]
                               :in $ ?uuid
                               :where
