@@ -64,6 +64,13 @@
        :doc      "Given a Behave6 Variable code (e.g. `vSurfaceFuelCode`), returns the matching variable entity ID."}
   bp6-code->variable-eid c/bp6-code->variable-eid)
 
+(def ^{:arglists '([conn src-t-key dst-t-key])
+       :doc      "Find the link entity connecting two group-variables by
+                  translation key. Returns the :db/id or nil. Links may also
+                  carry conditional attrs (:conditional/type, :operator,
+                  :values)."}
+  find-link c/find-link)
+
 (def ^{:arglists '([conn attr])
        :doc      "Sets :db/isComponent true for a given schema attribute.
                   Takes a datahike conn."}
