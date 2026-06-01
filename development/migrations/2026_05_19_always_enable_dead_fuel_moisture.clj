@@ -1,4 +1,4 @@
-(ns migrations.2026-05-19-always-enable-dead-fuel-moisture
+(ns ^{:migrate/ignore? true} migrations.2026-05-19-always-enable-dead-fuel-moisture
   (:require [datomic.api :as d]
             [schema-migrate.interface :as sm]))
 
@@ -31,30 +31,31 @@
   "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire")
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(defn payload-fn [db]
-  (let [group-eid (d/q '[:find ?g .
-                         :in $ ?tk
-                         :where [?g :group/translation-key ?tk]]
-                       db group-t-key)
-        old-cond  (d/q '[:find ?c .
-                         :in $ ?group ?wd-tk
-                         :where
-                         [?group :group/conditionals ?c]
-                         [?wd :group-variable/translation-key ?wd-tk]
-                         [?wd :bp/uuid ?wd-uuid]
-                         [?c :conditional/group-variable-uuid ?wd-uuid]]
-                       db group-eid wind-driven-fuel-model-gv-t-key)
-        wdsf-uuid (d/q '[:find ?u .
-                         :in $ ?tk
-                         :where
-                         [?gv :group-variable/translation-key ?tk]
-                         [?gv :bp/uuid ?u]]
-                       db wdsf-output-gv-t-key)]
+(defn payload-fn [conn]
+  (let [db          (d/db conn)
+        group-eid   (d/q '[:find ?g .
+                           :in $ ?tk
+                           :where [?g :group/translation-key ?tk]]
+                         db group-t-key)
+        old-cond    (d/q '[:find ?c .
+                           :in $ ?group ?wd-tk
+                           :where
+                           [?group :group/conditionals ?c]
+                           [?wd :group-variable/translation-key ?wd-tk]
+                           [?wd :bp/uuid ?wd-uuid]
+                           [?c :conditional/group-variable-uuid ?wd-uuid]]
+                         db group-eid wind-driven-fuel-model-gv-t-key)
+        wdsf-uuid   (d/q '[:find ?u .
+                           :in $ ?tk
+                           :where
+                           [?gv :group-variable/translation-key ?tk]
+                           [?gv :bp/uuid ?u]]
+                         db wdsf-output-gv-t-key)]
     (cond-> []
       old-cond  (conj [:db/retractEntity old-cond])
       wdsf-uuid (into (let [tempid   -1
                             new-cond (-> (sm/->conditional
-                                          db
+                                          conn
                                           {:ttype               :group-variable
                                            :operator            :equal
                                            :values              ["true"]
@@ -77,7 +78,7 @@
   (def conn (store/default-conn))
 
   #_{:clj-kondo/ignore [:missing-docstring]}
-  (try (def tx-data @(d/transact conn (payload-fn (d/db conn))))
+  (try (def tx-data @(d/transact conn (payload-fn conn)))
        (catch Exception e (str "caught exception: " (.getMessage e)))))
 
 ;; ===========================================================================================================
