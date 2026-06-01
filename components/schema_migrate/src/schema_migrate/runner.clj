@@ -8,11 +8,11 @@
 
 (defn migration-applied?
   "Check if a migration has already been applied."
-  [conn migration-id]
+  [db migration-id]
   (some? (d/q '[:find ?e .
                 :in $ ?id
                 :where [?e :bp/migration-id ?id]]
-              (d/db conn) migration-id)))
+              db migration-id)))
 
 (defn- clj-file? [^java.io.File f]
   (and (.isFile f)
@@ -63,9 +63,9 @@
    effects in ignored migrations never fire.
 
    Each migration must export one of:
-   - `payload-fn`    — a function of `conn` returning transaction data
+   - `payload-fn`    — a function of `db` returning transaction data
    - `payload`       — a def containing transaction data
-   - `payload-steps` — a vector of `(fn [conn db] tx-data)` functions executed
+   - `payload-steps` — a vector of `(fn [db] tx-data)` functions executed
                        in order; each receives a fresh `db` snapshot reflecting
                        all prior steps in the same migration"
   [dir]
@@ -89,8 +89,8 @@
 
 (defn- resolve-payload
   "Resolve a payload value — call it if it's a function, otherwise return as-is."
-  [p conn]
-  (if (fn? p) (p conn) p))
+  [p db]
+  (if (fn? p) (p db) p))
 
 (defn- run-single-step!
   "Transact a single payload with a migration marker. Returns the tx result."
@@ -98,7 +98,7 @@
   (ds/transact conn (concat payload [marker])))
 
 (defn- run-multi-step!
-  "Transact each step in order. Each step must be `(fn [conn db] tx-data)`;
+  "Transact each step in order. Each step must be `(fn [db] tx-data)`;
    `db` is a fresh snapshot taken after the prior step commits, so step N
    sees all writes from step N-1. If any step fails, roll back all previously
    completed steps in reverse order, then re-throw."
@@ -106,9 +106,9 @@
   (let [completed (atom [])]
     (try
       (doseq [step steps]
-        (assert (fn? step) "payload-steps entries must be (fn [conn db] tx-data)")
+        (assert (fn? step) "payload-steps entries must be (fn [db] tx-data)")
         (let [db        (d/db conn)
-              payload   (step conn db)
+              payload   (step db)
               tx-result (ds/transact conn payload)]
           (swap! completed conj tx-result)))
       ;; All steps succeeded — record the migration marker
@@ -128,18 +128,19 @@
   [conn dir]
   (let [migrations (discover-migrations dir)]
     (doseq [{:keys [id payload-var steps-var]} migrations]
-      (cond
-        (migration-applied? conn id)
-        nil
+      (let [db (d/db conn)]
+        (cond
+          (migration-applied? db id)
+          nil
 
-        (and (nil? payload-var) (nil? steps-var))
-        (println "Skipping" id "— no payload-fn, payload, or payload-steps defined")
+          (and (nil? payload-var) (nil? steps-var))
+          (println "Skipping" id "— no payload-fn, payload, or payload-steps defined")
 
-        :else
-        (do (println "Running migration:" id)
-            (let [marker (core/->migration id)]
-              (if steps-var
-                (run-multi-step! conn @steps-var marker)
-                (let [payload (resolve-payload @payload-var conn)]
-                  (run-single-step! conn payload marker))))
-            (println "  Applied:" id))))))
+          :else
+          (do (println "Running migration:" id)
+              (let [marker (core/->migration id)]
+                (if steps-var
+                  (run-multi-step! conn @steps-var marker)
+                  (let [payload (resolve-payload @payload-var db)]
+                    (run-single-step! conn payload marker))))
+              (println "  Applied:" id)))))))
