@@ -831,6 +831,10 @@ body {
 
 /* -- End Wizard Standard -- */
 
+.wizard-results__graph {
+  padding-top: 10px;
+}
+
 .wizard-results__table-settings__header,
 .wizard-results__graph-settings__header {
   padding: 5px 18px;
