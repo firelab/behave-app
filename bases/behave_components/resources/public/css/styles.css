@@ -2188,7 +2188,7 @@ p {
 }
 
 .modal__body {
-  padding: i0px;
+  padding: 10px;
   background: var(--white);
 }
 
