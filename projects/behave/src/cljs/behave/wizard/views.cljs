@@ -747,7 +747,7 @@
             (when (not repeat-groups?)
               (search-tables ws-uuid))
             [pivot-tables ws-uuid]
-            (when (>= multi-value-input-count 2)
+            (when (>= multi-value-input-count 1)
               [:div.wizard-results__table-settings-button
                [c/button {:label     "Table Settings"
                           :variant   "secondary"
