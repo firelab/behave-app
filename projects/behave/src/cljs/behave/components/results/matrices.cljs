@@ -298,6 +298,8 @@
          multi-var-units
          multi-var-gv-uuid
          multi-var-values]           (first multi-valued-inputs)
+        table-settings               @(subscribe [:worksheet/table-settings ws-uuid])
+        outputs-on-rows?             (= (:table-settings/col-group-variable-uuid table-settings) multi-var-gv-uuid)
         input-fmt-fn                 (get @(subscribe [:worksheet/result-table-formatters [multi-var-gv-uuid]]) multi-var-gv-uuid)
         matrix-data-raw              @(subscribe [:worksheet/matrix-table-data-single-multi-valued-input
                                                   ws-uuid
@@ -307,37 +309,62 @@
         color-map                    (compute-color-map-1d cell-color-gv-uuid matrix-data-raw input-fmt-fn)
         {:keys [units rep-fraction]} (fetch-map-units-settings ws-uuid)
         [regular-column-headers
-         map-units-column-headers]   (reduce (fn [[reg mu] {output-gv-uuid :bp/uuid output-units :units}]
-                                               (let [output-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])]
-                                                 [(conj reg {:name (header-label output-name output-units)
-                                                             :key  output-gv-uuid})
-                                                  (if (process-map-units? output-gv-uuid)
-                                                    (conj mu {:name (header-label output-name units)
-                                                              :key  (map-units-column-key output-gv-uuid)})
-                                                    mu)]))
-                                             [[] []]
-                                             output-entities)
-        [matrix-data-formatted
-         map-units-data]             (reduce-kv (fn [[reg mu] [row col-uuid] v]
-                                                  (let [fmt-fn  (get formatters col-uuid identity)
-                                                        shaded? (contains? shade-set row)]
-                                                    [(assoc reg [(input-fmt-fn row) col-uuid]
-                                                            (format-matrix-cell
-                                                             v
-                                                             fmt-fn
-                                                             (when any-filters-enabled? shaded?)))
-                                                     (if (process-map-units? col-uuid)
-                                                       (assoc mu [(input-fmt-fn row) (map-units-column-key col-uuid)]
-                                                              (format-matrix-cell
-                                                               (convert-to-map-units v (get units-lookup col-uuid) units rep-fraction)
-                                                               fmt-fn
-                                                               (when any-filters-enabled? shaded?)))
-                                                       mu)]))
-                                                [{} {}]
-                                                matrix-data-raw)
-        row-headers                  (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
-        common-matrix-props          {:rows-label  (header-label multi-var-name multi-var-units)
-                                      :cols-label  @(<t (bp "outputs"))
+         map-units-column-headers
+         matrix-data-formatted
+         map-units-data
+         row-headers
+         rows-label
+         cols-label]                 (if outputs-on-rows?
+                                       ;; MVI on columns, outputs on rows
+                                       (let [col-headers     (mapv (fn [v] {:name (input-fmt-fn v) :key (input-fmt-fn v)}) multi-var-values)
+                                             flipped-data    (reduce-kv (fn [acc [mvi-val output-uuid] v]
+                                                                          (let [fmt-fn  (get formatters output-uuid identity)
+                                                                                shaded? (contains? shade-set mvi-val)]
+                                                                            (assoc acc [output-uuid (input-fmt-fn mvi-val)]
+                                                                                   (format-matrix-cell v fmt-fn (when any-filters-enabled? shaded?)))))
+                                                                        {}
+                                                                        matrix-data-raw)
+                                             output-row-hdrs (mapv (fn [{output-gv-uuid :bp/uuid output-units :units}]
+                                                                     (let [output-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])]
+                                                                       {:name (header-label output-name output-units)
+                                                                        :key  output-gv-uuid}))
+                                                                   output-entities)]
+                                         [col-headers [] flipped-data {} output-row-hdrs
+                                          @(<t (bp "outputs"))
+                                          (header-label multi-var-name multi-var-units)])
+                                       ;; MVI on rows, outputs on columns (default)
+                                       (let [[reg-cols mu-cols] (reduce (fn [[reg mu] {output-gv-uuid :bp/uuid output-units :units}]
+                                                                          (let [output-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])]
+                                                                            [(conj reg {:name (header-label output-name output-units)
+                                                                                        :key  output-gv-uuid})
+                                                                             (if (process-map-units? output-gv-uuid)
+                                                                               (conj mu {:name (header-label output-name units)
+                                                                                         :key  (map-units-column-key output-gv-uuid)})
+                                                                               mu)]))
+                                                                        [[] []]
+                                                                        output-entities)
+                                             [reg-data mu-data] (reduce-kv (fn [[reg mu] [row col-uuid] v]
+                                                                             (let [fmt-fn  (get formatters col-uuid identity)
+                                                                                   shaded? (contains? shade-set row)]
+                                                                               [(assoc reg [(input-fmt-fn row) col-uuid]
+                                                                                       (format-matrix-cell v fmt-fn (when any-filters-enabled? shaded?)))
+                                                                                (if (process-map-units? col-uuid)
+                                                                                  (assoc mu [(input-fmt-fn row) (map-units-column-key col-uuid)]
+                                                                                         (format-matrix-cell
+                                                                                          (convert-to-map-units v (get units-lookup col-uuid) units rep-fraction)
+                                                                                          fmt-fn
+                                                                                          (when any-filters-enabled? shaded?)))
+                                                                                  mu)]))
+                                                                           [{} {}]
+                                                                           matrix-data-raw)
+                                             mvi-row-hdrs       (map (fn [v] {:name (input-fmt-fn v) :key (input-fmt-fn v)}) multi-var-values)]
+                                         [reg-cols mu-cols reg-data mu-data mvi-row-hdrs
+                                          (header-label multi-var-name multi-var-units)
+                                          @(<t (bp "outputs"))]))
+        flipped-color-map            (when (and outputs-on-rows? color-map)
+                                       (into {} (map (fn [[[fmt-mvi output-uuid] color]] [[output-uuid fmt-mvi] color]) color-map)))
+        common-matrix-props          {:rows-label  rows-label
+                                      :cols-label  cols-label
                                       :row-headers row-headers}]
     [:div.print__result-table
      (c/matrix-table (merge common-matrix-props
@@ -345,7 +372,7 @@
                              :header-color   header-color
                              :column-headers regular-column-headers
                              :data           matrix-data-formatted
-                             :cell-colors    color-map}))
+                             :cell-colors    (if outputs-on-rows? flipped-color-map color-map)}))
      (when (seq map-units-column-headers)
        [:div.result-matrix__map-units-table
         (c/matrix-table (merge common-matrix-props
