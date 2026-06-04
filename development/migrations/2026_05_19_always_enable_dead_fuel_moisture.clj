@@ -1,6 +1,6 @@
-(ns migrations.2026-05-19-always-enable-dead-fuel-moisture
-  (:require [schema-migrate.interface :as sm]
-            [datomic.api :as d]))
+(ns ^{:migrate/ignore? true} migrations.2026-05-19-always-enable-dead-fuel-moisture
+  (:require [datomic.api :as d]
+            [schema-migrate.interface :as sm]))
 
 ;; ===========================================================================================================
 ;; Overview
