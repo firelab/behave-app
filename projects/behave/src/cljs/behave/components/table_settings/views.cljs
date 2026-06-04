@@ -53,7 +53,7 @@
      [c/modal
       {:title          @(<t (bp "table-settings"))
        :close-on-click close-fn
-       :content        [:<>
+       :content        [:div.table-settings
                         (when (= multi-valued-input-count 1)
                           (let [{mvi-uuid :gv-uuid mvi-name :var-name} (first group-vars)]
                             [:<>

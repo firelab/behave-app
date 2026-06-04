@@ -1611,6 +1611,13 @@ body {
   margin-bottom: 12px;
 }
 
+.table-settings,
+.graph-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .result-matrices__color-legend {
   display: flex;
   flex-wrap: wrap;

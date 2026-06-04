@@ -106,7 +106,7 @@
                 :close-on-click #(dispatch [:graph-settings/toggle])
                 :content        [:<>
                                  (when enabled?
-                                   (cond-> [:<>]
+                                   (cond-> [:div.graph-settings]
                                      (>= multi-valued-input-count 1)
                                      (conj [radio-group {:label     (str @(<t (bp "select_x_axis_variable")) ":")
                                                          :attr      :graph-settings/x-axis-group-variable-uuid
