@@ -443,9 +443,12 @@
                       (nth multi-value-input-uuids 2 nil)
                       (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]
                     ;; default table-settings row/col (col = x = first, row = z = second)
-                   (when (and table-settings-id (second multi-value-input-uuids))
+                   (when table-settings-id
                      [(cond-> {:db/id table-settings-id}
-                        true
+                        (not (second multi-value-input-uuids))
+                        (assoc :table-settings/row-group-variable-uuid (first gv-uuids)
+                               :table-settings/col-group-variable-uuid "outputs")
+                        (second multi-value-input-uuids)
                         (assoc :table-settings/col-group-variable-uuid (first gv-uuids)
                                :table-settings/row-group-variable-uuid (second gv-uuids))
                         (nth multi-value-input-uuids 2 nil)

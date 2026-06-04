@@ -1,17 +1,17 @@
 (ns behave.events
-  (:require [browser-utils.core            :refer [add-script
+  (:require [ajax.core                     :as ajax]
+            [behave.components.sidebar.events]
+            [behave.help.events]
+            [behave.tool.events]
+            [browser-utils.core            :refer [add-script
                                                    script-exist?
                                                    scroll-top!
                                                    set-local-storage!
                                                    clear-local-storage!
                                                    assoc-in-local-storage!
                                                    create-local-storage!]]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [ajax.core                     :as ajax]
             [re-frame.core                 :as rf]
-            [behave.components.sidebar.events]
-            [behave.help.events]
-            [behave.tool.events]))
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Initialization
 
@@ -103,14 +103,16 @@
       :browser/scroll-top {}
       :help/scroll-top    {}
       :history/push-state {:position new-position
-                           :route    new-route}})))
+                           :route    new-route}
+      :fx                 [[:dispatch [:table-settings/close]]]})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :popstate
  (rf/path :router)
- (fn [router [_ e]]
+ (fn [{router :db} [_ e]]
    (let [new-position (.-state e)]
-     (assoc router :curr-position (or new-position 0)))))
+     {:db (assoc router :curr-position (or new-position 0))
+      :fx [[:dispatch [:table-settings/close]]]})))
 
 ;;; Local Storage
 

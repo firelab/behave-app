@@ -9,6 +9,11 @@
  (fn [db _]
    (update-in db [:state :wizard :show-table-settings?] not)))
 
+(rf/reg-event-db
+ :table-settings/close
+ (fn [db _]
+   (assoc-in db [:state :wizard :show-table-settings?] false)))
+
 (def ^:private matrix-table-attrs
   [:table-settings/row-group-variable-uuid
    :table-settings/col-group-variable-uuid
