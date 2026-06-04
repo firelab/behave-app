@@ -46,35 +46,39 @@
         sub-table-selected       (or (first @(subscribe [:table-settings/attr-values ws-uuid :table-settings/submatrix-group-variable-uuid]))
                                      (first @(subscribe [:worksheet/get-graph-settings-attr ws-uuid :graph-settings/z2-axis-group-variable-uuid])))
         row-attr-val             (first @(subscribe [:table-settings/attr-values ws-uuid :table-settings/row-group-variable-uuid]))
-        col-attr-val             (first @(subscribe [:table-settings/attr-values ws-uuid :table-settings/col-group-variable-uuid]))]
-    [c/modal {:title          @(<t (bp "table-settings"))
-              :close-on-click #(dispatch [:table-settings/toggle])
-              :content        [:<>
-                               (when (= multi-valued-input-count 1)
-                                 (let [{mvi-uuid :gv-uuid mvi-name :var-name} (first group-vars)]
-                                   [:<>
-                                    [single-mvi-radio-group {:label     (str @(<t (bp "row-variable")) ":")
-                                                             :selected  row-attr-val
-                                                             :mvi-uuid  mvi-uuid
-                                                             :mvi-name  mvi-name
-                                                             :on-select #(dispatch [:table-settings/update-attr ws-uuid :table-settings/row-group-variable-uuid %])}]
-                                    [single-mvi-radio-group {:label     (str @(<t (bp "column-variable")) ":")
-                                                             :selected  col-attr-val
-                                                             :mvi-uuid  mvi-uuid
-                                                             :mvi-name  mvi-name
-                                                             :on-select #(dispatch [:table-settings/update-attr ws-uuid :table-settings/col-group-variable-uuid %])}]]))
-                               (when (>= multi-valued-input-count 2)
-                                 [multi-mvi-radio-group {:label      (str @(<t (bp "row-variable")) ":")
-                                                         :selected   row-selected
-                                                         :on-select  #(dispatch [:table-settings/update-attr ws-uuid :table-settings/row-group-variable-uuid %])
-                                                         :group-vars group-vars}])
-                               (when (>= multi-valued-input-count 2)
-                                 [multi-mvi-radio-group {:label      (str @(<t (bp "column-variable")) ":")
-                                                         :selected   col-selected
-                                                         :on-select  #(dispatch [:table-settings/update-attr ws-uuid :table-settings/col-group-variable-uuid %])
-                                                         :group-vars group-vars}])
-                               (when (>= multi-valued-input-count 3)
-                                 [multi-mvi-radio-group {:label      (str @(<t (bp "sub-table-variable")) ":")
-                                                         :selected   sub-table-selected
-                                                         :on-select  #(dispatch [:table-settings/update-attr ws-uuid :table-settings/submatrix-group-variable-uuid %])
-                                                         :group-vars group-vars}])]}]))
+        col-attr-val             (first @(subscribe [:table-settings/attr-values ws-uuid :table-settings/col-group-variable-uuid]))
+        close-fn                 #(dispatch [:table-settings/close])]
+    [:<>
+     [:div.modal__background {:on-click close-fn}]
+     [c/modal
+      {:title          @(<t (bp "table-settings"))
+       :close-on-click close-fn
+       :content        [:<>
+                        (when (= multi-valued-input-count 1)
+                          (let [{mvi-uuid :gv-uuid mvi-name :var-name} (first group-vars)]
+                            [:<>
+                             [single-mvi-radio-group {:label     (str @(<t (bp "row-variable")) ":")
+                                                      :selected  row-attr-val
+                                                      :mvi-uuid  mvi-uuid
+                                                      :mvi-name  mvi-name
+                                                      :on-select #(dispatch [:table-settings/update-attr ws-uuid :table-settings/row-group-variable-uuid %])}]
+                             [single-mvi-radio-group {:label     (str @(<t (bp "column-variable")) ":")
+                                                      :selected  col-attr-val
+                                                      :mvi-uuid  mvi-uuid
+                                                      :mvi-name  mvi-name
+                                                      :on-select #(dispatch [:table-settings/update-attr ws-uuid :table-settings/col-group-variable-uuid %])}]]))
+                        (when (>= multi-valued-input-count 2)
+                          [multi-mvi-radio-group {:label      (str @(<t (bp "row-variable")) ":")
+                                                  :selected   row-selected
+                                                  :on-select  #(dispatch [:table-settings/update-attr ws-uuid :table-settings/row-group-variable-uuid %])
+                                                  :group-vars group-vars}])
+                        (when (>= multi-valued-input-count 2)
+                          [multi-mvi-radio-group {:label      (str @(<t (bp "column-variable")) ":")
+                                                  :selected   col-selected
+                                                  :on-select  #(dispatch [:table-settings/update-attr ws-uuid :table-settings/col-group-variable-uuid %])
+                                                  :group-vars group-vars}])
+                        (when (>= multi-valued-input-count 3)
+                          [multi-mvi-radio-group {:label      (str @(<t (bp "sub-table-variable")) ":")
+                                                  :selected   sub-table-selected
+                                                  :on-select  #(dispatch [:table-settings/update-attr ws-uuid :table-settings/submatrix-group-variable-uuid %])
+                                                  :group-vars group-vars}])]}]]))
