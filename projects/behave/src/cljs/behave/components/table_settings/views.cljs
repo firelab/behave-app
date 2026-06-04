@@ -23,37 +23,31 @@
                                                              group-var-uuid])
                                       :checked?  (= selected? group-var-uuid)}))
                                  group-variables)}]))
-            (single-mvi-radio-group [{:keys [label this-attr opposite-attr mvi-gv-uuid]}]
-              (let [this-attr-val     (first @(subscribe [:table-settings/attr-values ws-uuid this-attr]))
-                    opposite-attr-val (first @(subscribe [:table-settings/attr-values ws-uuid opposite-attr]))
-                    mvi-name          @(subscribe [:wizard/gv-uuid->resolve-result-variable-name mvi-gv-uuid])
-                    neither-set?      (and (nil? this-attr-val) (nil? opposite-attr-val))]
+            (single-mvi-radio-group [{:keys [label this-attr mvi-gv-uuid]}]
+              (let [this-attr-val (first @(subscribe [:table-settings/attr-values ws-uuid this-attr]))
+                    mvi-name      @(subscribe [:wizard/gv-uuid->resolve-result-variable-name mvi-gv-uuid])]
                 [c/radio-group
                  {:label   label
                   :options [{:value     mvi-name
                              :label     mvi-name
                              :on-change #(dispatch [:table-settings/update-attr ws-uuid this-attr mvi-gv-uuid])
-                             :checked?  (or (= this-attr-val mvi-gv-uuid)
-                                            (and neither-set? (= this-attr :table-settings/row-group-variable-uuid)))}
+                             :checked?  (= this-attr-val mvi-gv-uuid)}
                             {:value     "Outputs"
                              :label     "Outputs"
-                             :on-change #(dispatch [:table-settings/update-attr ws-uuid opposite-attr mvi-gv-uuid])
-                             :checked?  (or (= opposite-attr-val mvi-gv-uuid)
-                                            (and neither-set? (= this-attr :table-settings/col-group-variable-uuid)))}]}]))]
+                             :on-change #(dispatch [:table-settings/update-attr ws-uuid this-attr "outputs"])
+                             :checked?  (= this-attr-val "outputs")}]}]))]
       [c/modal {:title          "Table Settings"
                 :close-on-click #(dispatch [:table-settings/toggle])
                 :content        [:<>
                                  (when (= multi-valued-input-count 1)
                                    (let [mvi-gv-uuid (:bp/uuid (first group-variables))]
                                      [:<>
-                                      [single-mvi-radio-group {:label         "Row variable:"
-                                                               :this-attr     :table-settings/row-group-variable-uuid
-                                                               :opposite-attr :table-settings/col-group-variable-uuid
-                                                               :mvi-gv-uuid   mvi-gv-uuid}]
-                                      [single-mvi-radio-group {:label         "Column variable:"
-                                                               :this-attr     :table-settings/col-group-variable-uuid
-                                                               :opposite-attr :table-settings/row-group-variable-uuid
-                                                               :mvi-gv-uuid   mvi-gv-uuid}]]))
+                                      [single-mvi-radio-group {:label       "Row variable:"
+                                                               :this-attr   :table-settings/row-group-variable-uuid
+                                                               :mvi-gv-uuid mvi-gv-uuid}]
+                                      [single-mvi-radio-group {:label       "Column variable:"
+                                                               :this-attr   :table-settings/col-group-variable-uuid
+                                                               :mvi-gv-uuid mvi-gv-uuid}]]))
                                  (when (>= multi-valued-input-count 2)
                                    [radio-group {:label         "Row variable:"
                                                  :attr          :table-settings/row-group-variable-uuid
