@@ -127,7 +127,7 @@
 (defmethod wizard-input :discrete [variable {:keys [ws-uuid]} group-uuid repeat-id repeat-group?]
   (r/with-let [{gv-uuid  :bp/uuid
                 help-key :group-variable/help-key
-                list     :variable/list} variable
+                v-list    :variable/list} variable
                selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                default-option            (rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
                disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid gv-uuid])
@@ -135,7 +135,7 @@
                on-change                 #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                _                         (when (and (nil? @selected) @default-option)
                                            (upsert-input ws-uuid group-uuid repeat-id gv-uuid @default-option))
-               options                   (sort-by :list-option/order (filter #(not (:list-option/hide? %)) (:list/options list)))
+               options                   (sort-by :list-option/order (filter #(not (:list-option/hide? %)) (:list/options v-list)))
                num-options               (count options)
                ->option                  (fn [{value :list-option/value t-key :list-option/translation-key default? :list-option/default}]
                                            {:value     value
