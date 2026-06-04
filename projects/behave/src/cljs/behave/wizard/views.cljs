@@ -736,15 +736,14 @@
          [inputs-table ws-uuid]
          (when (seq @*cell-data)
            [:div.wizard-results__table {:id "outputs"}
+            [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
+            [result-table-download-link ws-uuid]
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
             (when (not repeat-groups?)
               (search-tables ws-uuid))
             [pivot-tables ws-uuid]
-            [result-matrices ws-uuid]
-            [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
-            ;; [raw-result-table ws-uuid]
-            [result-table-download-link ws-uuid]])
+            [result-matrices ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
        [:div.wizard-navigation
