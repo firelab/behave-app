@@ -103,16 +103,14 @@
       :browser/scroll-top {}
       :help/scroll-top    {}
       :history/push-state {:position new-position
-                           :route    new-route}
-      :fx                 [[:dispatch [:table-settings/close]]]})))
+                           :route    new-route}})))
 
-(rf/reg-event-fx
+(rf/reg-event-db
  :popstate
  (rf/path :router)
- (fn [{router :db} [_ e]]
+ (fn [router [_ e]]
    (let [new-position (.-state e)]
-     {:db (assoc router :curr-position (or new-position 0))
-      :fx [[:dispatch [:table-settings/close]]]})))
+     (assoc router :curr-position (or new-position 0)))))
 
 ;;; Local Storage
 

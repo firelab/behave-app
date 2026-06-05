@@ -110,54 +110,55 @@
                                                                     (when on-change (on-change group-var-uuid)))
                                                     :checked?  (= selected? group-var-uuid)}))
                                                variables)}]))]
-      [c/modal {:title          "Graph Settings"
-                :close-on-click #(dispatch [:graph-settings/toggle])
-                :content        [:<>
-                                 (when enabled?
-                                   (cond-> [:div.graph-settings]
-                                     (>= multi-valued-input-count 1)
-                                     (conj [radio-group {:label     (str @(<t (bp "select_x_axis_variable")) ":")
-                                                         :attr      :graph-settings/x-axis-group-variable-uuid
-                                                         :variables group-variables
-                                                         :on-change #(dispatch [:worksheet/upsert-x-axis-limit ws-uuid %])}])
+      (let [close-fn #(dispatch [:graph-settings/toggle])]
+        [c/modal {:title          "Graph Settings"
+                  :close-on-click close-fn
+                  :content        [:<>
+                                   (when enabled?
+                                     (cond-> [:div.graph-settings]
+                                       (>= multi-valued-input-count 1)
+                                       (conj [radio-group {:label     (str @(<t (bp "select_x_axis_variable")) ":")
+                                                           :attr      :graph-settings/x-axis-group-variable-uuid
+                                                           :variables group-variables
+                                                           :on-change #(dispatch [:worksheet/upsert-x-axis-limit ws-uuid %])}])
 
-                                     (>= multi-valued-input-count 2)
-                                     (conj [radio-group {:label     (str @(<t (bp "select_z_axis_variable")) ":")
-                                                         :attr      :graph-settings/z-axis-group-variable-uuid
-                                                         :variables group-variables}])
+                                       (>= multi-valued-input-count 2)
+                                       (conj [radio-group {:label     (str @(<t (bp "select_z_axis_variable")) ":")
+                                                           :attr      :graph-settings/z-axis-group-variable-uuid
+                                                           :variables group-variables}])
 
-                                     (>= multi-valued-input-count 3)
-                                     (conj [radio-group {:label     (str @(<t (bp "select_z2_axis_variable")) ":")
-                                                         :attr      :graph-settings/z2-axis-group-variable-uuid
-                                                         :variables group-variables}])
+                                       (>= multi-valued-input-count 3)
+                                       (conj [radio-group {:label     (str @(<t (bp "select_z2_axis_variable")) ":")
+                                                           :attr      :graph-settings/z2-axis-group-variable-uuid
+                                                           :variables group-variables}])
 
-                                     (and (>= multi-valued-input-count 1) (not @(subscribe [:wizard/discrete-group-variable? x-axis-gv-uuid])))
-                                     (conj [settings-form {:ws-uuid            ws-uuid
-                                                           :title              @(<t (bp "x_graph_and_axis_limits"))
-                                                           :headers            (->> [@(<t (bp "input_variable"))
-                                                                                     @(<t (bp "range"))
-                                                                                     @(<t (bp "minimum"))
-                                                                                     @(<t (bp "maximum"))]
-                                                                                    (mapv #(str/upper-case %)))
-                                                           :rf-event-id        :worksheet/update-x-axis-limit-attr
-                                                           :rf-sub-id          :worksheet/graph-settings-x-axis-limits
-                                                           :min-attr-id        :x-axis-limit/min
-                                                           :max-attr-id        :x-axis-limit/max
-                                                           :default-min-values {x-axis-gv-uuid x-default-min}
-                                                           :default-max-values {x-axis-gv-uuid x-default-max}
-                                                           :enabled?           enabled?}])
+                                       (and (>= multi-valued-input-count 1) (not @(subscribe [:wizard/discrete-group-variable? x-axis-gv-uuid])))
+                                       (conj [settings-form {:ws-uuid            ws-uuid
+                                                             :title              @(<t (bp "x_graph_and_axis_limits"))
+                                                             :headers            (->> [@(<t (bp "input_variable"))
+                                                                                       @(<t (bp "range"))
+                                                                                       @(<t (bp "minimum"))
+                                                                                       @(<t (bp "maximum"))]
+                                                                                      (mapv #(str/upper-case %)))
+                                                             :rf-event-id        :worksheet/update-x-axis-limit-attr
+                                                             :rf-sub-id          :worksheet/graph-settings-x-axis-limits
+                                                             :min-attr-id        :x-axis-limit/min
+                                                             :max-attr-id        :x-axis-limit/max
+                                                             :default-min-values {x-axis-gv-uuid x-default-min}
+                                                             :default-max-values {x-axis-gv-uuid x-default-max}
+                                                             :enabled?           enabled?}])
 
-                                     (>= multi-valued-input-count 1)
-                                     (conj [settings-form {:ws-uuid            ws-uuid
-                                                           :title              @(<t (bp "y_graph_and_axis_limits"))
-                                                           :headers            (->> [@(<t (bp "output_variable"))
-                                                                                     @(<t (bp "range"))
-                                                                                     @(<t (bp "minimum"))
-                                                                                     @(<t (bp "maximum"))]
-                                                                                    (mapv #(str/upper-case %)))
-                                                           :rf-event-id        :worksheet/update-y-axis-limit-attr
-                                                           :rf-sub-id          :worksheet/graph-settings-y-axis-limits-filtered
-                                                           :min-attr-id        :y-axis-limit/min
-                                                           :max-attr-id        :y-axis-limit/max
-                                                           :default-min-values y-default-min-values
-                                                           :default-max-values y-default-max-values}])))]}])))
+                                       (>= multi-valued-input-count 1)
+                                       (conj [settings-form {:ws-uuid            ws-uuid
+                                                             :title              @(<t (bp "y_graph_and_axis_limits"))
+                                                             :headers            (->> [@(<t (bp "output_variable"))
+                                                                                       @(<t (bp "range"))
+                                                                                       @(<t (bp "minimum"))
+                                                                                       @(<t (bp "maximum"))]
+                                                                                      (mapv #(str/upper-case %)))
+                                                             :rf-event-id        :worksheet/update-y-axis-limit-attr
+                                                             :rf-sub-id          :worksheet/graph-settings-y-axis-limits-filtered
+                                                             :min-attr-id        :y-axis-limit/min
+                                                             :max-attr-id        :y-axis-limit/max
+                                                             :default-min-values y-default-min-values
+                                                             :default-max-values y-default-max-values}])))]}]))))
