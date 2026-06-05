@@ -1,9 +1,9 @@
 (ns behave-cms.pages.applications
-  (:require [behave-cms.components.common      :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]
-            [behave-cms.components.sidebar     :refer [sidebar sidebar-width]]
-            [re-frame.core                     :as rf]
-            [reagent.core                      :as r]))
+  (:require [behave-cms.components.common        :refer [simple-table]]
+            [behave-cms.components.entity-form   :refer [entity-form]]
+            [behave-cms.components.sidebar.views :refer [sidebar sidebar-width]]
+            [re-frame.core                       :as rf]
+            [reagent.core                        :as r]))
 
 (def columns [:application_name :version])
 
@@ -26,9 +26,9 @@
      on-select
      on-delete]))
 
-(defn application-form [uuid]
+(defn application-form [entity-uuid]
   [entity-form {:entity :applications
-                :uuid   uuid
+                :uuid   entity-uuid
                 :fields [{:label     "Name"
                           :required? true
                           :field-key :application_name}
@@ -42,20 +42,20 @@
                           :field-key :version_patch
                           :required? true}]}])
 
-(defn module-form [application-uuid & [uuid]]
+(defn module-form [application-uuid & [module-uuid]]
   [entity-form {:entity        :modules
                 :parent-entity :applications
                 :parent-uuid   application-uuid
-                :uuid          uuid
+                :uuid          module-uuid
                 :fields        [{:label     "Name"
                                  :required? true
                                  :field-key :module-name}]}])
 
-(defn application-view [{:keys [uuid]}]
-  (rf/dispatch [:state/set-state [:sidebar :application] uuid])
-  (rf/dispatch [:api/entity :applications {:uuid uuid}])
-  (rf/dispatch [:api/entities :modules {:application-uuid uuid}])
-  (r/with-let [application (rf/subscribe [:entity :applications uuid])
+(defn application-view [{app-uuid :uuid}]
+  (rf/dispatch [:state/set-state [:sidebar :application] app-uuid])
+  (rf/dispatch [:api/entity :applications {:uuid app-uuid}])
+  (rf/dispatch [:api/entities :modules {:application-uuid app-uuid}])
+  (r/with-let [application (rf/subscribe [:entity :applications app-uuid])
                module      (rf/subscribe [:state :module])
                modules     (rf/subscribe [:entities :modules])]
     [:<>
@@ -71,12 +71,12 @@
           #(rf/dispatch [:state/set-state :module (:uuid %)])]]
         [:div.col-6
          [:h3 "Manage"
-          [module-form uuid @module]]]]]]]))
+          [module-form app-uuid @module]]]]]]]))
 
-(defn root-component [{:keys [uuid]}]
+(defn root-component [{app-uuid :uuid}]
   (let [application (rf/subscribe [:state :application])]
     (when (nil? @application)
-      (rf/dispatch [:state/set-state :application uuid]))
+      (rf/dispatch [:state/set-state :application app-uuid]))
     (rf/dispatch [:api/entities :applications])
     [:<>
      [sidebar]

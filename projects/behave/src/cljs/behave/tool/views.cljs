@@ -137,9 +137,9 @@
         resolved-english-uuid                          (or (:domain/english-unit-uuid domain) english-unit-uuid)
         resolved-metric-uuid                           (or (:domain/metric-unit-uuid domain) metric-unit-uuid)
         unit-uuid                                      @(rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
-        units-system                                   @(rf/subscribe [:settings/tool-units-system])
+        units-system                                   (rf/subscribe [:settings/tool-units-system])
         effective-unit-uuid                            (or unit-uuid
-                                                           (case units-system
+                                                           (case @units-system
                                                              :english resolved-english-uuid
                                                              :metric  resolved-metric-uuid
                                                              resolved-native-uuid))
@@ -289,13 +289,13 @@
 
 (defmethod tool-output :discrete
   [{:keys [variable tool-uuid subtool-uuid]}]
-  (let [{sv-uuid  :bp/uuid
-         var-name :variable/name
-         list     :variable/list
-         help-key :subtool-variable/help-key} variable
-        translated-name                       @(rf/subscribe [:tool/sv->translated-name sv-uuid])
-        value                                 @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
-        list-options                          (index-by :list-option/value (:list/options list))
+  (let [{sv-uuid   :bp/uuid
+         var-name  :variable/name
+         vlist     :variable/list
+         help-key  :subtool-variable/help-key} variable
+        translated-name                        @(rf/subscribe [:tool/sv->translated-name sv-uuid])
+        value                                  @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
+        list-options                           (index-by :list-option/value (:list/options vlist))
         matching-option                       (get list-options (str value))
         background                            (get-in matching-option [:list-option/color-tag-ref :tag/color] "#FFFFFF")
         lum-bg                                (apply luminance (hex-to-rgb background))

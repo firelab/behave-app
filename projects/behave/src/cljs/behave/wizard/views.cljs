@@ -178,6 +178,28 @@
                 ^{:key id}
                 [wizard-note {:note n} @*note-categories]))])))
 
+(defn- add-note-section [ws-uuid modules]
+  (let [*notes               (subscribe [:wizard/notes ws-uuid])
+        *show-add-note-form? (subscribe [:wizard/show-add-note-form?])
+        *note-categories     (subscribe [:wizard/note-categories modules])]
+    [:<>
+     [:div.wizard-add-notes
+      (if @*show-add-note-form?
+        [c/note {:title-label             "Category"
+                 :title-value             ""
+                 :body-value              ""
+                 :categories              @*note-categories
+                 :cancel-label            @(<t (bp "cancel"))
+                 :discard-confirm-message @(<t (bp "confirm_discard_note"))
+                 :on-cancel               #(dispatch [:wizard/toggle-show-add-note-form])
+                 :on-save                 #(dispatch [:wizard/create-note ws-uuid %])}]
+        [c/button {:label         @(<t (bp "add_notes"))
+                   :variant       "outline-primary"
+                   :icon-name     :plus
+                   :icon-position "left"
+                   :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}])]
+     [wizard-notes @*notes modules]]))
+
 (defn wizard-expand []
   (let [working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
     (if working-area-expanded?
@@ -196,14 +218,11 @@
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
-        *notes                   (subscribe [:wizard/notes ws-uuid])
         *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
-        *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
-        *note-categories         (subscribe [:wizard/note-categories modules])
         on-back                  #(dispatch [:wizard/back])
         on-next                  #(dispatch [:wizard/next {:ws-uuid    ws-uuid
                                                            :workflow   workflow
@@ -215,23 +234,7 @@
       [wizard-header params modules]
       [:div.wizard-page__body
        (when @*show-notes?
-         [:<>
-          [:div.wizard-add-notes
-           (if @*show-add-note-form?
-             [c/note {:title-label             "Category"
-                      :title-value             ""
-                      :body-value              ""
-                      :categories              @*note-categories
-                      :cancel-label            @(<t (bp "cancel"))
-                      :discard-confirm-message @(<t (bp "confirm_discard_note"))
-                      :on-cancel               #(dispatch [:wizard/toggle-show-add-note-form])
-                      :on-save                 #(dispatch [:wizard/create-note ws-uuid %])}]
-             [c/button {:label         @(<t (bp "add_notes"))
-                        :variant       "outline-primary"
-                        :icon-name     :plus
-                        :icon-position "left"
-                        :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}])]
-          [wizard-notes @*notes modules]])
+         [add-note-section ws-uuid modules])
        [:div
         {:data-theme-color module}
         [submodule-page params io @*groups]]
@@ -654,7 +657,6 @@
   (let [*worksheet          (subscribe [:worksheet ws-uuid])
         modules             @(subscribe [:worksheet/modules ws-uuid])
         *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        *notes              (subscribe [:wizard/notes ws-uuid])
         *tab-selected       (subscribe [:wizard/results-tab-selected])
         *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
         show-tool-selector? @(subscribe [:tool/show-tool-selector?])
@@ -662,7 +664,7 @@
         repeat-groups?      @(subscribe [:worksheet/repeat-groups? ws-uuid])
         tabs                (cond-> []
 
-                              (seq @*notes)
+                              :always
                               (conj {:label     (-> @(<t (bp "notes"))
                                                     s/capitalize-words)
                                      :tab       :notes
@@ -727,7 +729,7 @@
                         :tabs     tabs}]]]
         [:div.review-wizard-page__body
          [:div.wizard-results__notes {:id "notes"}
-          (wizard-notes @*notes modules)]
+          [add-note-section ws-uuid modules]]
          [:div.wizard-notes__header {:id "inputs"}
           (-> @(<t (bp "inputs"))
               s/capitalize-words)]
@@ -762,10 +764,7 @@
         *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
-        *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
-        *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
-        *note-categories         (subscribe [:wizard/note-categories modules])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
         computing?               @(subscribe [:state :worksheet-computing?])
@@ -807,23 +806,7 @@
                @(<t (bp "module_input_selections")))]
             (show-or-close-notes-button @*show-notes?)]
            (when @*show-notes?
-             [:<>
-              [:div.wizard-add-notes
-               (if @*show-add-note-form?
-                 [c/note {:title-label             "Category"
-                          :title-value             ""
-                          :body-value              ""
-                          :categories              @*note-categories
-                          :cancel-label            @(<t (bp "cancel"))
-                          :discard-confirm-message @(<t (bp "confirm_discard_note"))
-                          :on-cancel               #(dispatch [:wizard/toggle-show-add-note-form])
-                          :on-save                 #(dispatch [:wizard/create-note ws-uuid %])}]
-                 [c/button {:label         @(<t (bp "add_notes"))
-                            :variant       "outline-primary"
-                            :icon-name     :plus
-                            :icon-position "left"
-                            :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}])]
-              [wizard-notes @*notes modules]])
+             [add-note-section ws-uuid modules])
            [:div.wizard-header__submodule-navigator
             [:div.wizard-header__submodule-navigator__label
              (if (= (count modules) 1)

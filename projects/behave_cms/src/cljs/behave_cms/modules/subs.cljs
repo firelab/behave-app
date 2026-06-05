@@ -1,7 +1,7 @@
 (ns behave-cms.modules.subs
-  (:require [datascript.core    :as d]
+  (:require [behave-cms.queries :refer [rules]]
             [behave-cms.store   :refer [conn]]
-            [behave-cms.queries :refer [rules]]
+            [datascript.core    :as d]
             [re-frame.core      :refer [reg-sub subscribe]]))
 
 (reg-sub

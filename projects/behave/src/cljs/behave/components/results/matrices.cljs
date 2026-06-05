@@ -2,7 +2,6 @@
   (:require [behave.components.core  :as c]
             [behave.translate        :refer [<t bp]]
             [behave.units-conversion :refer [to-map-units]]
-            [cljs.math               :refer [round]]
             [clojure.string          :as str]
             [goog.string             :as gstring]
             [map-utils.interface     :as map-utils]
@@ -42,12 +41,18 @@
        {}
        entries-by-row))))
 
-(defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
-  (let [[_ mmin mmax enabled?] (first (filter
-                                       (fn [[gv-uuid]]
-                                         (= gv-uuid output-gv-uuid))
-                                       table-setting-filters))]
-    (and enabled? mmin mmax (not (<= mmin (round value) mmax)))))
+(defn- shade-cell-value? [table-setting-filters sig-digits output-gv-uuid value]
+  (let [[_ mmin mmax enabled?] (first (filter (fn [[gv-uuid]] (= gv-uuid output-gv-uuid))
+                                              table-setting-filters))
+        sig                    (get sig-digits output-gv-uuid)
+        rround                 (fn [n]
+                                 (if (and sig (some? n))
+                                   (js/parseFloat (gstring/format (str "%." sig "f") n))
+                                   n))
+        rounded                (rround (js/parseFloat value))
+        rounded-min            (rround mmin)
+        rounded-max            (rround mmax)]
+    (and enabled? mmin mmax (not (<= rounded-min rounded rounded-max)))))
 
 (defn- header-label [label units]
   (if (seq units)
@@ -94,7 +99,7 @@
                   :output-gv-uuid output-gv-uuid}])))
 
 (defn- compute-shade-set-2d
-  [{:keys [ws-uuid row-gv-uuid row-values col-gv-uuid col-values output-entities table-setting-filters submatrix-gv-uuid submatrix-value]}]
+  [{:keys [ws-uuid row-gv-uuid row-values col-gv-uuid col-values output-entities table-setting-filters sig-digits submatrix-gv-uuid submatrix-value]}]
   (reduce (fn [acc {output-gv-uuid :bp/uuid}]
             (let [matrix-data (fetch-matrix-data-2d {:ws-uuid           ws-uuid
                                                      :row-gv-uuid       row-gv-uuid
@@ -108,7 +113,7 @@
                     (reduce-kv
                      (fn [acc [row col] value]
                        (cond-> acc
-                         (shade-cell-value? table-setting-filters output-gv-uuid value)
+                         (shade-cell-value? table-setting-filters sig-digits output-gv-uuid value)
                          (conj [row col])))
                      #{}
                      matrix-data))))
@@ -116,7 +121,7 @@
           output-entities))
 
 (defn- compute-shade-set
-  [{:keys [ws-uuid multi-valued-inputs all-output-gv-uuids all-output-entities graph-settings table-setting-filters]}]
+  [{:keys [ws-uuid multi-valued-inputs all-output-gv-uuids all-output-entities graph-settings table-setting-filters sig-digits]}]
   (case (count multi-valued-inputs)
     1 (let [[_ _ multi-var-gv-uuid multi-var-values] (first multi-valued-inputs)
             all-matrix-data-raw                      @(subscribe [:worksheet/matrix-table-data-single-multi-valued-input
@@ -126,7 +131,7 @@
                                                                   (vec all-output-gv-uuids)])]
         (reduce-kv (fn [acc [row col-uuid] v]
                      (cond-> acc
-                       (shade-cell-value? table-setting-filters col-uuid v)
+                       (shade-cell-value? table-setting-filters sig-digits col-uuid v)
                        (conj row)))
                    #{}
                    all-matrix-data-raw))
@@ -144,7 +149,8 @@
                                :col-gv-uuid           col-gv-uuid
                                :col-values            col-values
                                :output-entities       all-output-entities
-                               :table-setting-filters table-setting-filters}))
+                               :table-setting-filters table-setting-filters
+                               :sig-digits            sig-digits}))
     3 (let [z2-axis-uuid                 (:graph-settings/z2-axis-group-variable-uuid graph-settings)
             [_ _ z2-gv-uuid z2-values]   (->> multi-valued-inputs
                                               (filter (fn [[_ _ gv-uuid]] (= gv-uuid z2-axis-uuid)))
@@ -167,6 +173,7 @@
                                                 :col-values            col-values
                                                 :output-entities       all-output-entities
                                                 :table-setting-filters table-setting-filters
+                                                :sig-digits            sig-digits
                                                 :submatrix-gv-uuid     z2-gv-uuid
                                                 :submatrix-value       value})))
                 {}
@@ -540,12 +547,14 @@
         color-output-state              @(subscribe [:wizard/selected-output-cell-coloring])
         cell-color-gv-uuid              (when-not (= :none color-output-state) color-output-state)
         graph-settings                  @(subscribe [:worksheet/graph-settings ws-uuid])
+        sig-digits                      @(subscribe [:worksheet/result-table-significant-digits all-output-gv-uuids])
         shade-set                       (compute-shade-set {:ws-uuid               ws-uuid
                                                             :multi-valued-inputs   multi-valued-inputs
                                                             :all-output-gv-uuids   all-output-gv-uuids
                                                             :all-output-entities   all-output-entities
                                                             :graph-settings        graph-settings
-                                                            :table-setting-filters table-setting-filters})
+                                                            :table-setting-filters table-setting-filters
+                                                            :sig-digits            sig-digits})
         any-filters-enabled?            (boolean (some (fn [[_ _ _ enabled?]] enabled?) table-setting-filters))]
     (when (and (seq discrete-outputs-with-colors) (nil? color-output-state))
       (dispatch-sync [:wizard/set-discrete-color-output (:bp/uuid (first discrete-outputs-with-colors))]))
