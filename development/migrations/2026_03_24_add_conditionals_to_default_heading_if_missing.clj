@@ -1,4 +1,4 @@
-(ns migrations.2026-03-24-add-conditionals-to-default-heading-if-missing
+(ns ^{:migrate/ignore? true} migrations.2026-03-24-add-conditionals-to-default-heading-if-missing
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datomic.api              :as d]

@@ -1,4 +1,4 @@
-(ns migrations.2025-06-27-add-contain-minimum-fireline-production-rate-search-table
+(ns ^{:migrate/ignore? true} migrations.2025-06-27-add-contain-minimum-fireline-production-rate-search-table
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

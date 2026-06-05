@@ -1,4 +1,4 @@
-(ns migrations.2024-07-30-mortality-scorch-submodule-conditionals
+(ns ^{:migrate/ignore? true} migrations.2024-07-30-mortality-scorch-submodule-conditionals
   (:require
    [schema-migrate.interface :as sm]
    [datomic.api :as d]

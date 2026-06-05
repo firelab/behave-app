@@ -1,4 +1,4 @@
-(ns migrations.2026-04-21-add-note-categories
+(ns ^{:migrate/ignore? true} migrations.2026-04-21-add-note-categories
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

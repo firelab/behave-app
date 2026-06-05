@@ -1,4 +1,4 @@
-(ns migrations.2025-06-11-add-translations
+(ns ^{:migrate/ignore? true} migrations.2025-06-11-add-translations
   (:require [schema-migrate.interface :refer [bp] :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

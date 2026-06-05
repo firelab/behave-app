@@ -1,4 +1,4 @@
-(ns migrations.2025-07-16-add-min-max-air-temperature-variable
+(ns ^{:migrate/ignore? true} migrations.2025-07-16-add-min-max-air-temperature-variable
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

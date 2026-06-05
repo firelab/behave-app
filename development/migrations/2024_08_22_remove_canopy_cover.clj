@@ -1,4 +1,4 @@
-(ns migrations.2024-08-22-remove-canopy-cover)
+(ns ^{:migrate/ignore? true} migrations.2024-08-22-remove-canopy-cover)
 
 ;; Removes Canopy Cover Group & Group Variable
 
