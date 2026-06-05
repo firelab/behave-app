@@ -130,7 +130,7 @@
         direction           (get-in @group-variable [:group-variable/direction-ref :list-option/name])]
     [window
      sidebar-width
-     [:div.container
+     [:div.container-fluid
       [:div.row.mb-3.mt-4
        [:h2 (if direction
               (gstring/format "%s (%s)" (:variable/name variable) direction)

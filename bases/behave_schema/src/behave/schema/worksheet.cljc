@@ -28,6 +28,7 @@
 ;;; Schema
 
 (def schema
+  "Datomic schema for worksheet entities."
   [{:db/ident       :worksheet/version
     :db/doc         "The application's version that was used to generate this worksheet"
     :db/valueType   :db.type/string
@@ -410,11 +411,6 @@
 
    {:db/ident       :worksheet.diagram/units-uuid
     :db/doc         "Diagram's units UUID"
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :worksheet.diagram/title
-    :db/doc         "Diagram's title"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

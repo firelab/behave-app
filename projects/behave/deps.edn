@@ -58,6 +58,7 @@
              sig/server                    {:local/root "../../components/server"}
              sig/string-utils              {:local/root "../../components/string_utils"}
              sig/transport                 {:local/root "../../components/transport"}
+             sig/version-utils             {:local/root "../../components/version_utils"}
              sig/datom-compressor          {:local/root "../../components/datom_compressor"}
 
              ;; Bases
