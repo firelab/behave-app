@@ -1,4 +1,4 @@
-(ns migrations.2026-03-03-add-direction-variables-attr-to-group-variables
+(ns ^{:migrate/ignore? true} migrations.2026-03-03-add-direction-variables-attr-to-group-variables
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datascript.core          :refer [squuid]]

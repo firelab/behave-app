@@ -1,4 +1,4 @@
-(ns migrations.2026-03-21-hide-waf-for-spot-only
+(ns ^{:migrate/ignore? true} migrations.2026-03-21-hide-waf-for-spot-only
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

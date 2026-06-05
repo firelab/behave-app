@@ -1,4 +1,4 @@
-(ns migrations.2024-07-30-add-wind-driven-fuel-codes
+(ns ^{:migrate/ignore? true} migrations.2024-07-30-add-wind-driven-fuel-codes
   (:require
    [schema-migrate.interface :as sm]
    [datomic.api :as d]

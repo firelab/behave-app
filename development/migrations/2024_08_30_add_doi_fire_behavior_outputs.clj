@@ -1,4 +1,4 @@
-(ns migrations.2024-08-30-add-doi-fire-behavior-outputs
+(ns ^{:migrate/ignore? true} migrations.2024-08-30-add-doi-fire-behavior-outputs
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

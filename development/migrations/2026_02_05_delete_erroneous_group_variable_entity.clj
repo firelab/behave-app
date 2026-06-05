@@ -1,4 +1,4 @@
-(ns migrations.2026-02-05-delete-erroneous-group-variable-entity
+(ns ^{:migrate/ignore? true} migrations.2026-02-05-delete-erroneous-group-variable-entity
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

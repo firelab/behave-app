@@ -1,4 +1,4 @@
-(ns migrations.2025-11-12-add-fire-shape-diagram
+(ns ^{:migrate/ignore? true} migrations.2025-11-12-add-fire-shape-diagram
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
