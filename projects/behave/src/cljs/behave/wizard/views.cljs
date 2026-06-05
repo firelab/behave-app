@@ -545,12 +545,12 @@
           (wizard-notes @*notes modules))
         [:div.wizard-page__body
          [:div.wizard-results__table-settings
-          [:div.wizard-results__table-settings__header "Table Settings"]
+          [:div.wizard-results__table-settings__header @(<t (bp "table_settings"))]
           [:div.wizard-results__table-settings__content
            [table-settings ws-uuid]]]
          (when show-graph-settings?
            [:div.wizard-results__graph-settings
-            [:div.wizard-results__graph-settings__header "Graph Settings"]
+            [:div.wizard-results__graph-settings__header @(<t (bp "show_graphs"))]
             [:div.wizard-results__graph-settings__content
              [c/checkbox {:label     @(<t (bp "display_graph_results"))
                           :checked?  graph-enabled?

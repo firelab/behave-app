@@ -109,7 +109,7 @@
         z-axis-selected?         (first @(subscribe [:graph-settings/attr-values ws-uuid :graph-settings/z-axis-group-variable-uuid]))
         z2-axis-selected?        (first @(subscribe [:graph-settings/attr-values ws-uuid :graph-settings/z2-axis-group-variable-uuid]))
         close-fn                 #(dispatch [:graph-settings/toggle])]
-    [c/modal {:title          "Graph Settings"
+    [c/modal {:title          @(<t (bp "graph_settings"))
               :close-on-click close-fn
               :content        [:<>
                                (when enabled?
