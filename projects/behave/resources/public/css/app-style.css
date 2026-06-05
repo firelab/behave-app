@@ -1618,6 +1618,11 @@ body {
   gap: 12px;
 }
 
+.graph-settings .settings-form,
+.graph-settings .settings-form .table {
+  width: 100%;
+}
+
 .result-matrices__color-legend {
   display: flex;
   flex-wrap: wrap;
