@@ -10,3 +10,7 @@
        :doc      "Associate a key with a value in a map. If the key already exists in the map,
                  a vector of values is associated with the key."}
   assoc-conj c/assoc-conj)
+
+(def ^{:argslist '([map value-fn & key-fn])
+       :doc      "Update map keys and/or value"}
+  update-map c/update-map)

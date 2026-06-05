@@ -1,5 +1,6 @@
 (ns behave.components.results.graphs
   (:require [behave.components.vega.result-chart :refer [result-chart]]
+            [number-utils.core                   :refer [parse-float]]
             [re-frame.core                       :refer [subscribe]]))
 
 (defn result-graphs [ws-uuid cell-data]
@@ -12,13 +13,11 @@
                                (reduce (fn [acc [_row-id cell-data]]
                                          (conj acc
                                                (->> (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
-                                                          (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
-                                                                           (get col-uuid identity))]
-                                                            (assoc acc
-                                                                   @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
-                                                                   (fmt-fn value))))
-                                                        {}
-                                                        cell-data)
+                                                              (assoc acc
+                                                                     @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
+                                                                     (parse-float value)))
+                                                            {}
+                                                            cell-data)
                                                     (remove (fn [[_ value]] (= value -1)))
                                                     (into {}))))
                                        []))

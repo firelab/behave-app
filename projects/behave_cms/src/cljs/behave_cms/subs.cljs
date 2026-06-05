@@ -2,6 +2,7 @@
   (:require [austinbirch.reactive-entity :as re]
             [behave-cms.applications.subs]
             [behave-cms.components.conditionals.subs]
+            [behave-cms.components.sidebar.subs]
             [behave-cms.domains.subs]
             [behave-cms.group-variables.subs]
             [behave-cms.groups.subs]
@@ -199,8 +200,8 @@
 
 (rf/reg-sub
  :entity-uuid->name
- (fn [_ [_ uuid]]
-   (let [entity (s/entity-from-uuid s/conn uuid)]
+ (fn [_ [_ entity-uuid]]
+   (let [entity (s/entity-from-uuid s/conn entity-uuid)]
      (->> entity
           (keys)
           (filter #(= (name %) "name"))
@@ -209,7 +210,7 @@
 
 (rf/reg-sub
  :gv-uuid->variable-name
- (fn [_ [_ uuid]]
+ (fn [_ [_ gv-uuid]]
    (d/q '[:find ?name .
           :in  $ ?gv-uuid
           :where
@@ -217,7 +218,7 @@
           [?v :variable/group-variables ?gv]
           [?v :variable/name ?name]]
         @@s/conn
-        uuid)))
+        gv-uuid)))
 
 (rf/reg-sub
  :gv-eid->variable-name

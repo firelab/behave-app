@@ -1,18 +1,21 @@
 (ns behave-cms.group-variables.views
-  (:require [re-frame.core                                 :as rf]
-            [behave-cms.components.common                  :refer [accordion
+  (:require [behave-cms.components.common                  :refer [accordion
                                                                    checkbox
                                                                    dropdown
                                                                    simple-table
                                                                    window]]
-            [behave-cms.components.actions                 :refer [actions-table manage-action]]
-            [behave-cms.components.conditionals.views            :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.conditionals.views      :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.cpp-editor              :refer [cpp-editor-form]]
-            [behave-cms.components.sidebar                 :refer [sidebar sidebar-width]]
+            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
+            [behave-cms.components.sidebar.views           :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form       :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations            :refer [all-translations]]
             [behave-cms.help.views                         :refer [help-editor]]
+            [behave-cms.routes                             :refer [app-routes]]
             [behave-cms.utils                              :as u]
-            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]))
+            [bidi.bidi                                     :refer [path-for]]
+            [goog.string                                   :as gstring]
+            [re-frame.core                                 :as rf]))
 
 ;;; Constants
 
@@ -65,22 +68,21 @@
       #(do (swap! *value? not)
            (update!))]]))
 
-(defn- dropdown-setting [label attr entity]
+(defn- direction-ref-setting [entity]
   (let [{id :db/id} entity
-        selected    (get entity attr)]
+        dir-list    (first (filter #(= (:list/name %) "FireDirection") @(rf/subscribe [:lists])))
+        options     (sort-by :list-option/order (:list/options dir-list))
+        selected    (get-in entity [:group-variable/direction-ref :list-option/name])]
     [:div.mt-1
-     [dropdown {:label     label
+     [dropdown {:label     "Direction"
                 :selected  selected
-                :options   [{:label "Heading"
-                             :value "heading"}
-                            {:label "Backing"
-                             :value "backing"}
-                            {:label "Flanking"
-                             :value "flanking"}]
-                :on-select #(do
-                              (if (= (u/input-keyword %) (keyword "Select Direction..."))
-                                (rf/dispatch [:api/retract-entity-attr entity attr])
-                                (rf/dispatch [:api/update-entity {:db/id id attr (u/input-keyword %)}])))}]]))
+                :options   (map (fn [o] {:label (:list-option/name o) :value (:list-option/name o)}) options)
+                :on-select #(let [v (u/input-value %)]
+                              (if (= v "Select Direction...")
+                                (rf/dispatch [:api/retract-entity-attr entity :group-variable/direction-ref])
+                                (when-let [opt (first (filter (fn [list-option] (= (:list-option/name list-option) v)) options))]
+                                  (rf/dispatch [:api/update-entity {:db/id                        id
+                                                                    :group-variable/direction-ref (:db/id opt)}]))))}]]))
 
 (defn- settings [group-variable]
   [:div.row.mt-2
@@ -90,114 +92,158 @@
    [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]
    [bool-setting "Hide from CSV Export?" :group-variable/hide-csv? group-variable]
    [bool-setting "Hide from Graphs?" :group-variable/hide-graph? group-variable]
-   [dropdown-setting "Direction" :group-variable/direction group-variable]])
+   [direction-ref-setting group-variable]])
 
 ;;; Public Views
+
+(defn- direction-variables-table [gv-id direction-variables]
+  [:div.col-6
+   [simple-table
+    [:variable/name :group-variable/direction]
+    (map (fn [dv]
+           {:db/id                    (:db/id dv)
+            :bp/nid                   (:bp/nid dv)
+            :variable/name            (get-in dv [:variable/_group-variables 0 :variable/name])
+            :group-variable/direction (:group-variable/direction dv)})
+         direction-variables)
+    {:on-select #(rf/dispatch [:navigate (path-for app-routes :get-group-variable :nid (:bp/nid %))])
+     :on-delete #(when (js/confirm "Are you sure you want to remove this direction variable?")
+                   (rf/dispatch [:api/retract-entity-attr-value
+                                 gv-id :group-variable/direction-variables (:db/id %)]))}]])
 
 (defn group-variable-page
   "Renders the group-variable page. Takes in a group-variable UUID."
   [{nid :nid}]
-  (let [group-variable      (rf/subscribe [:entity [:bp/nid nid] '[* {:variable/_group-variables [*]
-                                                                      :group/_group-variables    [*]
-                                                                      :group-variable/actions    [*]}]])
+  (let [group-variable      (rf/subscribe [:entity [:bp/nid nid] '[* {:variable/_group-variables          [*]
+                                                                      :group/_group-variables             [*]
+                                                                      :group-variable/actions             [*]
+                                                                      :group-variable/direction-variables [* {:variable/_group-variables [*]}]
+                                                                      :group-variable/direction-ref       [:list-option/name :db/id]}]])
         gv-id               (:db/id @group-variable)
-        is-output?          (rf/subscribe [:group-variable/output? gv-id])
         actions             (:group-variable/actions @group-variable)
-        action-id           (rf/subscribe [:state :action])
-        group               (:group/_group-variables @group-variable)
         variable            (get-in @group-variable [:variable/_group-variables 0])
-        group-variables     (rf/subscribe [:sidebar/variables (:db/id group)])
+        direction-variables (:group-variable/direction-variables @group-variable)
         link-id             (rf/subscribe [:state :link])
         destination-link-id (-> (rf/subscribe [:entity @link-id])
                                 deref
-                                (get-in [:link/destination :db/id]))]
-    [:<>
-     [sidebar
-      "Variables"
-      @group-variables
-      (:group/name group)
-      (str "/groups/" (:bp/nid group))]
-     [window
-      sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (:variable/name variable)]]
-       [accordion
-        "Translations"
-        [:h5 "Worksheet Translations"]
-        [all-translations (:group-variable/translation-key @group-variable)]
-        [:h5 "Result Translations"]
-        [all-translations (:group-variable/result-translation-key @group-variable)]]
-       [:hr]
-       [accordion
-        "Help Page"
-        [:div.col-12
-         [help-editor (:group-variable/help-key @group-variable)]]]
+                                (get-in [:link/destination :db/id]))
+        direction           (get-in @group-variable [:group-variable/direction-ref :list-option/name])]
+    [window
+     sidebar-width
+     [:div.container
+      [:div.row.mb-3.mt-4
+       [:h2 (if direction
+              (gstring/format "%s (%s)" (:variable/name variable) direction)
+              (:variable/name variable))]]
+      [accordion
+       "Translations"
+       [:h5 "Worksheet Translations"]
+       [all-translations (:group-variable/translation-key @group-variable)]
+       [:h5 "Result Translations"]
+       [all-translations (:group-variable/result-translation-key @group-variable)]]
+      [:hr]
+      [accordion
+       "Help Page"
+       [:div.col-12
+        [help-editor (:group-variable/help-key @group-variable)]]]
 
-       [:hr]
-       [accordion
-        "CPP Functions"
-        [:div.col-6
-         [cpp-editor-form
-          (merge cpp-attrs {:id [:bp/nid nid] :editor-key :group-variables})]]]
+      [:hr]
+      [accordion
+       "CPP Functions"
+       [:div.col-6
+        [cpp-editor-form
+         (merge cpp-attrs {:id [:bp/nid nid] :editor-key :group-variables})]]]
 
-       [:hr]
-       [accordion
-        "Links"
-        [:div.col-12
-         [:div.row
-          [links-table gv-id]
-          [group-variable-selector
-           {:app-id              @(rf/subscribe [:group-variable/_app-module-id gv-id])
-            :gv-id               destination-link-id
-            :title               "Destination Link"
-            :on-submit           #(do
-                                    (rf/dispatch [:api/upsert-entity
-                                                  (cond-> {:link/source gv-id :link/destination %}
-                                                    @link-id
-                                                    (assoc :db/id @link-id))])
-                                    (rf/dispatch [:state/set-state :link nil]))
-            :submodule-filter-fn (let [is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
-                                       opposite-io (fn [{io :submodule/io}] (= io (if is-output? :input :output)))]
-                                   opposite-io)}]]]]
-
-       [:hr]
-       [accordion
-        "Actions"
+      [:hr]
+      [accordion
+       "Links"
+       [:div.col-12
         [:div.row
-         [:div.col-12
-          [actions-table actions]]]
+         [links-table gv-id]
+         [group-variable-selector
+          {:app-id              @(rf/subscribe [:group-variable/_app-module-id gv-id])
+           :gv-id               destination-link-id
+           :title               "Destination Link"
+           :on-submit           #(do
+                                   (rf/dispatch [:api/upsert-entity
+                                                 (cond-> {:link/source gv-id :link/destination %}
+                                                   @link-id
+                                                   (assoc :db/id @link-id))])
+                                   (rf/dispatch [:state/set-state :link nil]))
+           :submodule-filter-fn (let [is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
+                                      opposite-io (fn [{io :submodule/io}] (= io (if is-output? :input :output)))]
+                                  opposite-io)}]]]]
+
+      [:hr]
+      [accordion
+       "Direction Variables"
+       [:div.col-12
         [:div.row
-         [:div.col-12
-          [manage-action [:bp/nid nid] @action-id @is-output?]]]]
+         [direction-variables-table gv-id direction-variables]
+         [group-variable-selector
+          {:app-id     @(rf/subscribe [:group-variable/_app-module-id gv-id])
+           :state-path [:editors :direction-variable-lookup]
+           :title      "Direction Variable"
+           :on-submit  #(rf/dispatch [:api/update-entity
+                                      {:db/id                              gv-id
+                                       :group-variable/direction-variables %}])}]]]]
 
-       [:hr]
-       [accordion
-        "Hide from Results Conditionals"
-        [:div.col-9
-         [conditionals-graph
-          gv-id
-          gv-id
-          :group-variable/hide-result-conditionals
-          :group-variable/hide-result-conditional-operator]]
-        [:div.col-3
-         [manage-conditionals gv-id :group-variable/hide-result-conditionals]]]
-
-       [:hr]
-       [accordion
-        "Hide Range Selector Conditionals"
-        [:div.col-9
-         [conditionals-graph
-          gv-id
-          gv-id
-          :group-variable/disable-multi-valued-input-conditionals
-          :group-variable/disable-multi-valued-input-conditional-operator]]
-        [:div.col-3
-         [manage-conditionals gv-id :group-variable/disable-multi-valued-input-conditionals]]]
-
-       [:hr]
-       [accordion
-        "Settings"
+      [:hr]
+      [accordion
+       "Actions"
+       [:div.row
         [:div.col-12
-         [:div.row
-          [settings @group-variable]]]]]]]))
+         [table-entity-form
+          {:entity             :action
+           :form-state-path    [:editors :action]
+           :entities           (sort-by :action/name actions)
+           :on-select          (table-entity-form-on-select [:editors :action])
+           :parent-id          gv-id
+           :parent-field       :group-variable/_actions
+           :table-header-attrs [:action/name]
+           :form-below?        true
+           :entity-form-fields [{:label     "Name"
+                                 :required? true
+                                 :field-key :action/name}
+
+                                {:label     "Action Type"
+                                 :required? true
+                                 :type      :radio
+                                 :field-key :action/type
+                                 :options   [{:label "Select" :value :select}
+                                             {:label "Disable" :value :disable}]}
+
+                                {:label        "Conditionals"
+                                 :type         :conditionals
+                                 :field-key    :action/conditionals
+                                 :cond-op-attr :action/conditionals-operator}]}]]]]
+      [:hr]
+      [accordion
+       "Hide from Results Conditionals"
+       [:div.col-9
+        [conditionals-graph
+         gv-id
+         gv-id
+         :group-variable/hide-result-conditionals
+         :group-variable/hide-result-conditional-operator]]
+       [:div.col-3
+        [manage-conditionals gv-id :group-variable/hide-result-conditionals]]]
+
+      [:hr]
+      [accordion
+       "Hide Range Selector Conditionals"
+       [:div.col-9
+        [conditionals-graph
+         gv-id
+         gv-id
+         :group-variable/disable-multi-valued-input-conditionals
+         :group-variable/disable-multi-valued-input-conditional-operator]]
+       [:div.col-3
+        [manage-conditionals gv-id :group-variable/disable-multi-valued-input-conditionals]]]
+
+      [:hr]
+      [accordion
+       "Settings"
+       [:div.col-12
+        [:div.row
+         [settings @group-variable]]]]]]))

@@ -20,6 +20,8 @@
             babashka
             clojure
             corretto21
+            nodejs
+            yarn
           ] ++ [ conveyor ];
 
           shellHook = ''

@@ -4,8 +4,8 @@
    [behave.settings.events]
    [behave.translate       :refer [<t bp]]
    [dom-utils.interface    :refer [input-value]]
-   [reagent.core           :as r]
-   [re-frame.core          :as rf]))
+   [re-frame.core          :as rf]
+   [reagent.core           :as r]))
 
 ;;==============================================================================
 ;; Fuel Model Set Selection Tab
@@ -70,11 +70,11 @@
                        units on-click])
                     [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
         :decimals (when (not= domain-decimals "N/A")
-                    (let [decimal-atom (r/atom domain-decimals)]
-                      [c/number-input {:value-atom decimal-atom
-                                       :on-change  #(reset! decimal-atom (input-value %))
-                                       :on-blur    #(rf/dispatch-sync [:settings/cache-decimal-preference
-                                                                       domain-set domain-uuid @decimal-atom])}]))})
+                    ^{:key [domain-uuid domain-decimals]}
+                    [c/number-input {:default-value domain-decimals
+                                     :on-blur       #(rf/dispatch-sync
+                                                      [:settings/cache-decimal-preference
+                                                       domain-set domain-uuid (input-value %)])}])})
      domain-unit-settings)))
 
 (defn- general-units-tab [{:keys [ws-uuid]}]

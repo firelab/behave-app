@@ -1,9 +1,60 @@
 (ns behave.tool.subs
-  (:require [behave.vms.store       :as s]
-            [clojure.set            :refer [rename-keys]]
+  (:require [behave.lib.units       :refer [convert]]
             [behave.translate       :refer [<t]]
+            [behave.vms.store             :as s]
+            [clojure.set                  :refer [rename-keys]]
             [absurder-sql.datascript.core :as d]
-            [re-frame.core          :refer [reg-sub path] :as rf]))
+            [goog.string                  :as gstring]
+            [number-utils.interface       :refer [parse-float]]
+            [re-frame.core                :refer [reg-sub] :as rf]))
+
+;;; Helpers
+
+(defn- in-range?
+  "True when v falls within [v-min v-max]. Nil bounds are open."
+  [v-min v-max v]
+  (cond
+    (and (some? v-min) (some? v-max)) (<= v-min v v-max)
+    (some? v-min)                     (<= v-min v)
+    (some? v-max)                     (<= v v-max)
+    :else                             true))
+
+(defn- converted-bounds
+  "Converts var-min/var-max from native to selected units (floored)."
+  [native-unit-uuid selected-unit-uuid var-min var-max]
+  (let [from-sc (when native-unit-uuid
+                  (:unit/short-code (d/entity @@s/vms-conn [:bp/uuid native-unit-uuid])))
+        to-sc   (when selected-unit-uuid
+                  (:unit/short-code (d/entity @@s/vms-conn [:bp/uuid selected-unit-uuid])))]
+    (if (and from-sc to-sc (not= from-sc to-sc))
+      [(when var-min (convert var-min from-sc to-sc 0))
+       (when var-max (convert var-max from-sc to-sc 0))]
+      [var-min var-max])))
+
+(defn- outside-range?
+  [native-unit-uuid selected-unit-uuid var-min var-max value]
+  (when (and (or var-min var-max) value (seq (str value)))
+    (when-let [v (parse-float (str value))]
+      (let [[adj-min adj-max] (converted-bounds native-unit-uuid selected-unit-uuid var-min var-max)]
+        (not (in-range? adj-min adj-max v))))))
+
+(defn- range-placeholder
+  "Returns a range string like '1 - 60' with bounds converted to selected units."
+  [native-unit-uuid selected-unit-uuid var-min var-max]
+  (when (and var-min var-max)
+    (let [[adj-min adj-max] (converted-bounds native-unit-uuid selected-unit-uuid var-min var-max)]
+      (str (int adj-min) " - " (int adj-max)))))
+
+(defn- outside-range-error-msg
+  "Returns an error message when value is outside the converted range."
+  [native-unit-uuid selected-unit-uuid var-min var-max value]
+  (when (and (or var-min var-max) value (seq (str value)))
+    (when-let [v (parse-float (str value))]
+      (let [[adj-min adj-max] (converted-bounds native-unit-uuid selected-unit-uuid var-min var-max)]
+        (when-not (in-range? adj-min adj-max v)
+          (gstring/format "Error: Not within range (min: %2f, max: %2f)" adj-min adj-max))))))
+
+;;; Subscriptions
 
 (reg-sub
  :tool/show-tool-selector?
@@ -146,9 +197,54 @@
                                    :subtool-variable/translation-key)]
      @(<t translation-key))))
 
-(comment
-  (rf/subscribe [:tool/all-inputs
-                 "64e5023e-1b70-4b55-8312-6578fc9c64a9"
-                 "64e5024c-1841-4fd6-ba62-e6f983608793"])
+(reg-sub
+ :tool/input-range-placeholder
+ (fn [_ [_ native-unit-uuid var-min var-max effective-unit-uuid]]
+   (range-placeholder native-unit-uuid effective-unit-uuid var-min var-max)))
 
-  (rf/subscribe [:tool/all-output-uuids "64e5024c-1841-4fd6-ba62-e6f983608793"]))
+(reg-sub
+ :tool/input-error-msg
+ (fn [_ [_ _ _ _ native-unit-uuid var-min var-max effective-unit-uuid value]]
+   (outside-range-error-msg native-unit-uuid effective-unit-uuid var-min var-max value)))
+
+(reg-sub
+ :tool/all-inputs-filled?
+ (fn [[_ tool-uuid subtool-uuid]]
+   [(rf/subscribe [:subtool/input-variables subtool-uuid])
+    (rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])])
+ (fn [[input-variables all-inputs] _]
+   (every? (fn [{sv-uuid :bp/uuid}]
+             (some? (:input/value (get all-inputs sv-uuid))))
+           input-variables)))
+
+(reg-sub
+ :tool/any-input-outside-range?
+ (fn [[_ tool-uuid subtool-uuid]]
+   [(rf/subscribe [:subtool/input-variables subtool-uuid])
+    (rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
+    (rf/subscribe [:settings/tool-units-system])])
+ (fn [[input-variables all-inputs units-system] _]
+   (boolean
+    (some (fn [{var-min      :variable/minimum
+                var-max      :variable/maximum
+                sv-uuid      :bp/uuid
+                kind         :variable/kind
+                nat-uuid     :variable/native-unit-uuid
+                eng-uuid     :variable/english-unit-uuid
+                met-uuid     :variable/metric-unit-uuid
+                domain-uuid  :variable/domain-uuid}]
+            (when (= kind :continuous)
+              (let [domain         (when domain-uuid (d/entity @@s/vms-conn [:bp/uuid domain-uuid]))
+                    native-uuid    (or (:domain/native-unit-uuid domain) nat-uuid)
+                    english-uuid   (or (:domain/english-unit-uuid domain) eng-uuid)
+                    metric-uuid    (or (:domain/metric-unit-uuid domain) met-uuid)
+                    input          (get all-inputs sv-uuid)
+                    value          (:input/value input)
+                    per-input-uuid (:input/units-uuid input)
+                    effective-uuid (or per-input-uuid
+                                       (case units-system
+                                         :english english-uuid
+                                         :metric  metric-uuid
+                                         native-uuid))]
+                (outside-range? native-uuid effective-uuid var-min var-max value))))
+          input-variables))))

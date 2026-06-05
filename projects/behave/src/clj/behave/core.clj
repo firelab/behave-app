@@ -6,7 +6,7 @@
   (:require [clojure.java.io      :as io]
             [clojure.string       :as str]
             [behave.handlers      :refer [create-cef-handler-stack register-close-fn!]]
-            [behave.server        :refer [init-config!]]
+            [behave.server        :as server]
             [behave.windows       :as windows]
             [file-utils.interface :refer [os-type app-data-dir]]
             [config.interface     :refer [get-config]]
@@ -121,11 +121,19 @@
        (fn [{:keys [frame]}]
          (on-before-launch frame (get-config :site :title)))}))))
 
-(defn -main
-  "CEF client start method."
-  [& _args]
+;;; Runtime Detection
+
+(defn- conveyor?
+  "True when running inside a Conveyor-packaged app (app.dir is set)."
+  []
+  (some? (System/getProperty "app.dir")))
+
+;;; Entry Points
+
+(defn- start-cef!
+  "Start the app in JCEF desktop mode with multi-window support."
+  []
   (UIManager/setLookAndFeel (UIManager/getSystemLookAndFeelClassName))
-  (init-config!)
   (let [loader     (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
         mode       (get-config :server :mode)
         log-config (if (= "prod" mode)
@@ -139,11 +147,28 @@
                                                ".cache"))})]
     (start-logging! log-config)
     (register-close-fn! windows/deregister-window!)
-    #_(start-server :port 5055)
     (reset! *cef-app cef-app)
     (SwingUtilities/invokeLater #(let [res (open-app-window! loader)]
                                    (.openDevTools (:browser res))
                                    (reset! *win-res res)))))
+
+(defn -main
+  "Unified entry point. Detects runtime environment and starts
+   in CEF desktop mode or HTTP server mode."
+  [& _args]
+  (if (conveyor?)
+    (do
+      (server/init-config!)
+      (server/enrich-config!)
+      (start-cef!))
+    (do
+      (server/start-server!)
+      ;; `server.core/start-server!` runs Jetty with `:join? false`, and
+      ;; neither `vms-sync!` nor `watch-kill-signal!` blocks — so without
+      ;; parking here the main thread would return and the JVM would exit
+      ;; before any request could be served. Block until the process is
+      ;; killed (Ctrl-C / SIGTERM).
+      @(promise))))
 
 (comment
   (-main)

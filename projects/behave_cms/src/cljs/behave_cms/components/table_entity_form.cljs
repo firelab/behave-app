@@ -60,15 +60,19 @@
   maps. When an existing entity is selected, renders an [all-translations] table for
   each attr that has a non-nil value on the entity.
 
+  `form-below?` - (optional) when true, renders the entity-form below the table instead
+  of to the right. Defaults to false.
+
   "
-  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr form-state-path on-select translation-config translation-attrs modify?]
+  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr form-state-path on-select translation-config translation-attrs modify? form-below?]
     :or   {modify? true}}]
   (r/with-let [entity-id-atom    (r/atom nil)
                show-entity-form? (r/atom false)]
-    [:div {:style {:display "flex"
-                   :height  "100%"
-                   :padding "30px"}}
-     [:div {:style {:padding-right "10px"
+    [:div {:style {:display        "flex"
+                   :flex-direction (if form-below? "column" "row")
+                   :height         "100%"
+                   :padding        "30px"}}
+     [:div {:style {:padding-right (when-not form-below? "10px")
                     :width         "100%"}}
       [simple-table
        (if (seq table-header-attrs)
@@ -83,7 +87,8 @@
                 :on-delete     (when modify?
                                  #(when (js/confirm (str "Are you sure you want to delete this "
                                                          (name entity)))
-                                    (rf/dispatch-sync [:api/delete-entity (:db/id %)])))
+                                    (rf/dispatch-sync [:api/delete-entity (:db/id %)
+                                                       (when order-attr {:order-attr order-attr :siblings entities})])))
                 :on-select     (when modify?
                                  #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
                                     (do (reset! entity-id-atom nil)
@@ -115,7 +120,9 @@
                                        (swap! show-entity-form? not)
                                        (cond-> %
                                          translation-config (create-translation! entity translation-config)
-                                         order-attr         (assoc order-attr (count entities))))}]
+                                         order-attr         (assoc order-attr (if (seq entities)
+                                                                                (inc (apply max (keep order-attr entities)))
+                                                                                0))))}]
         (when (and (seq translation-attrs) @entity-id-atom)
           (let [entity-data @(rf/subscribe [:re-entity @entity-id-atom])]
             [:<>

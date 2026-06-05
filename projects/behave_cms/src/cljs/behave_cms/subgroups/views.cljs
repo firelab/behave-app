@@ -1,7 +1,7 @@
 (ns behave-cms.subgroups.views
   (:require [behave-cms.components.common             :refer [accordion checkbox simple-table window]]
             [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.sidebar            :refer [sidebar sidebar-width]]
+            [behave-cms.components.sidebar.views      :refer [sidebar-width]]
             [behave-cms.components.table-entity-form  :refer [table-entity-form table-entity-form-on-select]]
             [behave-cms.components.translations       :refer [all-translations]]
             [behave-cms.components.variable-search    :refer [variable-search]]
@@ -34,12 +34,17 @@
                              :field-key :group/name}]}]]))
 
 (defn- variables-table [group-id]
-  (let [group-variables (rf/subscribe [:group/variables group-id])]
+  (let [group-variables (rf/subscribe [:group/variables group-id])
+        rows            (mapv (fn [gv]
+                                (assoc gv :group-variable/direction
+                                       (or (get-in gv [:group-variable/direction-ref :list-option/name])
+                                           (some-> (:group-variable/direction gv) name))))
+                              (sort-by :group-variable/order @group-variables))]
     [simple-table
-     [:variable/name]
-     (sort-by :group-variable/order @group-variables)
-     {:on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
-      :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
+     [:variable/name :group-variable/direction :group-variable/conditionally-set?]
+     rows
+     {:on-increase #(rf/dispatch [:api/reorder % rows :group-variable/order :inc])
+      :on-decrease #(rf/dispatch [:api/reorder % rows :group-variable/order :dec])
       :on-select   #(rf/dispatch [:subgroups/edit-variables (first (:variable/_group-variables %))])}]))
 
 (defn- add-variable [group-id]
@@ -63,8 +68,8 @@
                                     :group-variable/translation-key        (str @translation-key ":" (->kebab (:variable/name variable)))
                                     :group-variable/result-translation-key (-> (str/replace @translation-key #":input:|:output:" ":result:")
                                                                                (str ":" (->kebab (:variable/name variable))))
-                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
-                                    :group-variable/order                  (count @group-variables)}]))
+                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")}
+                                   {:order-attr :group-variable/order :siblings @group-variables}]))
        :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]]))
 
 ;;; Settings
@@ -93,27 +98,10 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [nid]}]
-  (let [group               (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
-        id                  (:db/id @group)
-        parent-group        (rf/subscribe [:subgroup/parent id])
-        parent-submodule    (:submodule/_groups @group)
-        group-variables     (rf/subscribe [:sidebar/variables id])
-        subgroups           (rf/subscribe [:sidebar/subgroups id])
-        var-conditionals    (rf/subscribe [:group/variable-conditionals id])
-        module-conditionals (rf/subscribe [:group/module-conditionals id])]
+  (let [group (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
+        id    (:db/id @group)]
     [:div
      {:id (str id)}
-     [sidebar
-      "Variables"
-      @group-variables
-      (if @parent-group
-        (:group/name @parent-group)
-        (str (:submodule/name parent-submodule) " Groups"))
-      (if @parent-group
-        (str "/groups/" (:bp/nid @parent-group))
-        (str "/submodules/" (:bp/nid parent-submodule)))
-      "Subgroups"
-      (when (seq @subgroups) @subgroups)]
      [window
       sidebar-width
       [:div.container
@@ -122,7 +110,7 @@
         [:h2 (:group/name @group)]]
        ^{:key "variables"}
        [accordion
-        "Variables"
+        "Group Variables"
         [:div.col-6
          [variables-table id]]
         [:div.col-6
