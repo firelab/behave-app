@@ -1,4 +1,4 @@
-(ns ^{:migrate/ignore? true} migrations.205-10-10-add-english-metric-translation-keys
+(ns ^{:migrate/ignore? true} migrations.2025-10-10-add-english-metric-list-option-translation-keys
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

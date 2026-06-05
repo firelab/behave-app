@@ -142,8 +142,8 @@
        :doc      "Payload for a new Link."}
   ->link c/->link)
 
-(def ^{:arglists    '([migration-name])
-       :->actiondoc "Payload for a new migration."}
+(def ^{:arglists '([migration-name])
+       :doc      "Payload for a new migration."}
   ->migration c/->migration)
 
 (def ^{:arglists '([s])

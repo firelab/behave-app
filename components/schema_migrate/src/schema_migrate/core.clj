@@ -246,6 +246,7 @@
      :db/isComponent true}))
 
 (defn make-attr-is-component!
+  "Transacts the payload that marks `attr` as `:db/isComponent true`."
   [conn attr]
   (ds/transact conn [(make-attr-is-component-payload (d/db conn) attr)]))
 
@@ -415,6 +416,7 @@
       (spec/explain :behave/action payload))))
 
 (defn ->variable
+  "Payload for a new Variable."
   [_db {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?
                dimension-uuid native-unit-uuid metric-unit-uuid english-unit-uuid]                                :as params}]
   (let [payload (cond-> {}

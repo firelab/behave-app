@@ -9,7 +9,8 @@
 ;;; Test Helpers
 ;;; =========================================================================
 
-(def test-schema
+(def ^{:doc "Minimal schema used by the in-memory test database."}
+  test-schema
   [{:db/ident       :bp/uuid
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one
@@ -30,7 +31,8 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}])
 
-(def ^:dynamic *conn* nil)
+(def ^{:dynamic true :doc "Per-test datomic connection rebound by `:each` fixture."}
+  *conn* nil)
 
 (defn- create-test-db []
   (let [uri  (str "datomic:mem://runner-test-" (random-uuid))
@@ -150,20 +152,19 @@
 
 (deftest ordering-test
   (testing "Migrations run in filename-sorted order"
-    (let [order (atom [])]
-      (with-temp-migrations
-        [{:filename "2026_01_02_second.clj"
-          :content  (str "(ns migrations.2026-01-02-second)\n"
-                         "(defn payload-fn [db]\n"
-                         "  [{:test/name \"second\" :test/value 2}])\n")}
-         {:filename "2026_01_01_first.clj"
-          :content  (str "(ns migrations.2026-01-01-first)\n"
-                         "(defn payload-fn [db]\n"
-                         "  [{:test/name \"first\" :test/value 1}])\n")}]
-        (fn [dir]
-          (runner/run-pending-migrations! *conn* (str dir))
-          (is (runner/migration-applied? (d/db *conn*) "migrations.2026-01-01-first"))
-          (is (runner/migration-applied? (d/db *conn*) "migrations.2026-01-02-second")))))))
+    (with-temp-migrations
+      [{:filename "2026_01_02_second.clj"
+        :content  (str "(ns migrations.2026-01-02-second)\n"
+                       "(defn payload-fn [db]\n"
+                       "  [{:test/name \"second\" :test/value 2}])\n")}
+       {:filename "2026_01_01_first.clj"
+        :content  (str "(ns migrations.2026-01-01-first)\n"
+                       "(defn payload-fn [db]\n"
+                       "  [{:test/name \"first\" :test/value 1}])\n")}]
+      (fn [dir]
+        (runner/run-pending-migrations! *conn* (str dir))
+        (is (runner/migration-applied? (d/db *conn*) "migrations.2026-01-01-first"))
+        (is (runner/migration-applied? (d/db *conn*) "migrations.2026-01-02-second"))))))
 
 (deftest multi-step-success-test
   (testing "payload-steps migrations run all steps and record marker"

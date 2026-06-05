@@ -16,7 +16,7 @@
 ;; The runner calls (payload-fn db) at startup.
 ;; Return a vector of transaction data.
 
-#_{:clj-kondo/ignore [:missing-docstring]}
+#_{:clj-kondo/ignore [:missing-docstring :unused-binding]}
 (defn payload-fn [db]
   [])
 
@@ -34,14 +34,13 @@
 ;; Manual REPL usage
 ;; ===========================================================================================================
 
+#_{:clj-kondo/ignore [:duplicate-require :missing-docstring :unresolved-namespace]}
 (comment
   (require '[behave-cms.server :as cms])
   (cms/init-db!)
 
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (def conn (behave-cms.store/default-conn))
 
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (try (def tx-data @(d/transact conn (payload-fn (d/db conn))))
        (catch Exception e (str "caught exception: " (.getMessage e)))))
 

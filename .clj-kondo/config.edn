@@ -1,6 +1,24 @@
 {:linters {:shadowed-var      {:level :warning}
            :single-key-in     {:level :warning}
            :missing-docstring {:level :info}}
+
+ ;; Legacy data migrations (`development/migrations/`) are write-once,
+ ;; historical scripts. Suppress lint noise unique to that style so the
+ ;; rest of the codebase keeps clean signal.
+ :ns-groups    [{:pattern "migrations\\..*" :name data-migrations}]
+ :config-in-ns {data-migrations
+                {:linters {:missing-docstring        {:level :off}
+                           :redundant-ignore         {:level :off}
+                           :shadowed-var             {:level :off}
+                           :duplicate-require        {:level :off}
+                           :unused-binding           {:level :off}
+                           :unused-namespace         {:level :off}
+                           :unused-referred-var      {:level :off}
+                           :unresolved-namespace     {:level :off}
+                           :unresolved-symbol        {:level :off}
+                           :unresolved-var           {:level :off}
+                           :underscore-in-namespace  {:level :off}}}}
+
  :lint-as {;; Herb
            herb.core/defglobal                clojure.core/def
 
