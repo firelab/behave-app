@@ -78,6 +78,45 @@
                :columns column-keys
                :rows    row-data})]))
 
+(defn- x-graph-axis-limits-table
+  [{:keys [ws-uuid x-axis-limits enabled?]}]
+  (let [[gv-uuid
+         min-val
+         max-val]                 x-axis-limits
+        v-name                    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
+        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])
+        units-lookup              @(subscribe [:worksheet/result-table-units ws-uuid])]
+    [:div.settings-form
+     (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
+               :headers (->> [@(<t (bp "input_variable"))
+                              @(<t (bp "range"))
+                              @(<t (bp "minimum"))
+                              @(<t (bp "maximum"))]
+                             (mapv #(str/upper-case %)))
+               :columns [:v-name :input-range :min :max]
+               :rows    [{:v-name      (gstring/format "%s (%s)"
+                                                       v-name
+                                                       (get units-lookup gv-uuid))
+                          :input-range (str default-min "-" default-max)
+                          :min         (let [value-atom (r/atom min-val)]
+                                         [c/number-input {:enabled?   enabled?
+                                                          :on-change  #(let [v (input-int-value %)]
+                                                                         (reset! value-atom v))
+                                                          :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
+                                                                                  ws-uuid
+                                                                                  :x-axis-limit/min
+                                                                                  @value-atom])
+                                                          :value-atom value-atom}])
+                          :max         (let [value-atom (r/atom max-val)]
+                                         [c/number-input {:enabled?   enabled?
+                                                          :on-change  #(let [v (input-int-value %)]
+                                                                         (reset! value-atom v))
+                                                          :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
+                                                                                  ws-uuid
+                                                                                  :x-axis-limit/max
+                                                                                  @value-atom])
+                                                          :value-atom value-atom}])}]})]))
+
 (defn graph-settings-modal [ws-uuid]
   (let [*multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         group-variables          (->> @*multi-value-input-uuids
@@ -85,7 +124,6 @@
         multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         multi-valued-input-count (count multi-valued-input-uuids)
         x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
-        units-lookup             @(subscribe [:worksheet/result-table-units ws-uuid])
         enabled?                 @(subscribe [:wizard/enable-graph-settings? ws-uuid])]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:graph-settings/attr-values ws-uuid attr])
@@ -124,41 +162,9 @@
                                                          :variables group-variables}])
 
                                      (and (>= multi-valued-input-count 1) (not @(subscribe [:wizard/discrete-group-variable? (first x-axis-limits)])))
-                                     (conj (let [[gv-uuid
-                                                  min-val
-                                                  max-val]                 x-axis-limits
-                                                 v-name                    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
-                                                 [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
-                                             [:div.settings-form
-                                              (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
-                                                        :headers (->> [@(<t (bp "input_variable"))
-                                                                       @(<t (bp "range"))
-                                                                       @(<t (bp "minimum"))
-                                                                       @(<t (bp "maximum"))]
-                                                                      (mapv #(str/upper-case %)))
-                                                        :columns [:v-name :input-range :min :max]
-                                                        :rows    [{:v-name      (gstring/format "%s (%s)"
-                                                                                                v-name
-                                                                                                (get units-lookup gv-uuid))
-                                                                   :input-range (str default-min "-" default-max)
-                                                                   :min         (let [value-atom (r/atom min-val)]
-                                                                                  [c/number-input {:enabled?   enabled?
-                                                                                                   :on-change  #(let [v (input-int-value %)]
-                                                                                                                  (reset! value-atom v))
-                                                                                                   :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
-                                                                                                                           ws-uuid
-                                                                                                                           :x-axis-limit/min
-                                                                                                                           @value-atom])
-                                                                                                   :value-atom value-atom}])
-                                                                   :max         (let [value-atom (r/atom max-val)]
-                                                                                  [c/number-input {:enabled?   enabled?
-                                                                                                   :on-change  #(let [v (input-int-value %)]
-                                                                                                                  (reset! value-atom v))
-                                                                                                   :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
-                                                                                                                           ws-uuid
-                                                                                                                           :x-axis-limit/max
-                                                                                                                           @value-atom])
-                                                                                                   :value-atom value-atom}])}]})]))
+                                     (conj [x-graph-axis-limits-table {:ws-uuid       ws-uuid
+                                                                       :x-axis-limits x-axis-limits
+                                                                       :enabled?      enabled?}])
 
                                      (>= multi-valued-input-count 1)
                                      (conj [settings-form {:ws-uuid     ws-uuid
