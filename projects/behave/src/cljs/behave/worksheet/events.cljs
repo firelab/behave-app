@@ -567,7 +567,7 @@
 (rp/reg-event-fx
  :worksheet/update-x-axis-limit-attr
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid attr value]]
+ (fn [{:keys [ds]} [_ ws-uuid _gv-uuid attr value]]
    (when-let [eid (d/q '[:find ?y .
                          :in $ ?ws-uuid
                          :where
