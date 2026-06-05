@@ -1,4 +1,4 @@
-(ns migrations.2026-05-28-add-diagram-legend-id-translations
+(ns ^{:migrate/ignore? true} migrations.2026-05-28-add-diagram-legend-id-translations
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datomic.api              :as d]

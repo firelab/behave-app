@@ -1,4 +1,4 @@
-(ns migrations.2026-05-11-add-optimized-contain-diagram
+(ns ^{:migrate/ignore? true} migrations.2026-05-11-add-optimized-contain-diagram
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datomic.api              :as d]
