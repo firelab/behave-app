@@ -64,11 +64,11 @@
        :doc      "Given a Behave6 Variable code (e.g. `vSurfaceFuelCode`), returns the matching variable entity ID. Accepts a Datomic conn or db."}
   bp6-code->variable-eid c/bp6-code->variable-eid)
 
-(def ^{:arglists '([conn src-t-key dst-t-key])
+(def ^{:arglists '([db src-t-key dst-t-key])
        :doc      "Find the link entity connecting two group-variables by
                   translation key. Returns the :db/id or nil. Links may also
                   carry conditional attrs (:conditional/type, :operator,
-                  :values)."}
+                  :values). Accepts a Datomic conn or db."}
   find-link c/find-link)
 
 (def ^{:arglists '([conn attr])
