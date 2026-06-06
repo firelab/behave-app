@@ -222,8 +222,9 @@
 (defn find-link
   "Find the link entity connecting two group-variables by translation key.
    Returns the `:db/id` or `nil`. Links may also carry conditional attrs
-   (`:conditional/type`, `:conditional/operator`, `:conditional/values`)."
-  [conn src-t-key dst-t-key]
+   (`:conditional/type`, `:conditional/operator`, `:conditional/values`).
+   Accepts a Datomic conn or db."
+  [db src-t-key dst-t-key]
   (d/q '[:find ?c .
          :in $ ?src ?dst
          :where
@@ -231,7 +232,7 @@
          [?d :group-variable/translation-key ?dst]
          [?c :link/source ?s]
          [?c :link/destination ?d]]
-       (d/db conn) src-t-key dst-t-key))
+       (ds/unwrap-db db) src-t-key dst-t-key))
 
 (defn make-attr-is-component-payload
   "Returns a payload for updating a given attribute to include :db/isComponent true.
