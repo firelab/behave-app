@@ -1,15 +1,18 @@
 (ns behave-cms.components.group-variable-selector
-  (:require [clojure.set                  :refer [rename-keys]]
-            [behave-cms.components.common :refer [dropdown]]
-            [reagent.core                 :as r]
+  (:require [behave-cms.components.common :refer [dropdown]]
+            [behave-cms.utils             :as u]
+            [goog.string                  :as gstring]
             [re-frame.core                :as rf]
-            [behave-cms.utils             :as u]))
+            [reagent.core                 :as r]))
 
 (defn- ->option [name-key]
   (fn [m]
-    (-> m
-        (select-keys [:db/id name-key])
-        (rename-keys {:db/id :value name-key :label}))))
+    {:value (:db/id m)
+     :label (let [direction (or (get-in m [:group-variable/direction-ref :list-option/value])
+                                (some-> (:group-variable/direction m) name))]
+              (if direction
+                (gstring/format "%s (%s)" (name-key m) direction)
+                (name-key m)))}))
 
 (defn group-variable-selector
   "Displays a Group Variable selector.
@@ -48,7 +51,7 @@
           groups     (rf/subscribe [:group-variable/submodule-groups-and-subgroups @(get-field (p :submodule))])
           variables  (rf/subscribe [:group/variables @(get-field (p :group))])
           disabled?  (r/track #(some nil? (map (fn [k] @(get-field (p k))) [:module :submodule :group :group-variable])))]
-      [:div.col-6
+      [:div
        [:h4 (str (if gv-id "Update " "Add ") title)]
 
        [:form
@@ -84,8 +87,8 @@
                                    (map (->option :group/name)))
                    :on-select #(do (set-field (p :group) (u/input-int-value %))
                                    (clear-field (p :group-variable)))}]
-        [dropdown {:label     "Variable:"
+        [dropdown {:label     "Group Variable:"
                    :selected  @(get-field (p :group-variable))
                    :options   (map (->option :variable/name) @variables)
                    :on-select #(set-field (p :group-variable) (u/input-int-value %))}]
-        [:button.btn.btn-sm.btn-outline-primary {:type "submit" :disabled @disabled?} "Save"]]])))
+        [:button.btn.btn-sm.btn-outline-primary {:type "submit" :disabled @disabled?} "Select"]]])))

@@ -1,12 +1,12 @@
 (ns behave-cms.components.common
-  (:require [clojure.string         :as str]
-            [herb.core              :refer [<class]]
-            [reagent.core           :as r]
-            [re-frame.core          :as rf]
-            [string-utils.interface :refer [->str ->kebab]]
-            [behave-cms.styles      :as $]
+  (:require [behave-cms.styles      :as $]
             [behave-cms.utils       :as u]
-            [nano-id.core           :refer [nano-id]]))
+            [clojure.string         :as str]
+            [herb.core              :refer [<class]]
+            [nano-id.core           :refer [nano-id]]
+            [re-frame.core          :as rf]
+            [reagent.core           :as r]
+            [string-utils.interface :refer [->str ->kebab]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI Styles
@@ -14,10 +14,10 @@
 
 (defn- $accordion [expanded?]
   (merge
-    ^{:combinators {[:> :.accordion__content] {:max-height (if expanded? "auto" "0px")
-                                          :visibility (if expanded? "visible" "hidden")
-                                          :transition "max-height 300ms ease-in-out"}}}
-    {:transition "max-height 300ms ease-in-out"}))
+   ^{:combinators {[:> :.accordion__content] {:max-height (if expanded? "auto" "0px")
+                                              :visibility (if expanded? "visible" "hidden")
+                                              :transition "max-height 300ms ease-in-out"}}}
+   {:transition "max-height 300ms ease-in-out"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI Components
@@ -32,7 +32,8 @@
      [:div.accordion__title  {:style {:display "flex" :flex-direction "row" :width "100%" :justify-content "space-between"}}
       [:h4 title]
       [:button.btn.btn-sm.btn-outline-secondary {:on-click #(swap! expanded? not)} (if @expanded? "Collapse" "Expand")]]
-     [:div.row.accordion__content content]]))
+     (when @expanded?
+       [:div.row.accordion__content content])]))
 
 (defn dropdown
   "A component for dropdowns."
@@ -40,7 +41,7 @@
   (let [selected  (if (u/atom? selected) @selected selected)
         selected? (if (or multiple? (coll? selected))
                     #(not (nil? ((set selected) %)))
-                    #(= % (if (keyword? selected) (name selected) selected)))]
+                    #(= % selected))]
     [:div.mb-3
      [:label.form-label label]
      [:select.form-select
@@ -114,17 +115,17 @@
 
 (defn labeled-input
   "Input and label pair component. Takes as `opts`:
-   - `:type`         - Input type (e.g. `\"text\"`)
+   - `:input-type`   - Input type (e.g. `\"text\"`)
    - `:on-change`    - On change event handler.
    - `:disabled?`    - Disable input.
    - `:autofocus?`   - Autofocus input.
    - `:required?`    - Whether input is required.
    - `:zero-margin?` - Enable zero margin."
-  [label state & {:keys [type autocomplete disabled? on-change autofocus? required? placeholder zero-margin?]
-                   :as opts
-                   :or {type "text" disabled? false on-change #(reset! state (u/input-value %)) required? false}}]
-  (let [state (if (u/atom? state) @state state)
-        id    (nano-id)]
+  [label state & {:keys [input-type autocomplete disabled? on-change autofocus? required? placeholder zero-margin?]
+                  :or   {input-type "text" disabled? false required? false}}]
+  (let [on-change (or on-change #(reset! state (u/input-value %)))
+        state     (if (u/atom? state) @state state)
+        id        (nano-id)]
     [:div
      {:class [(if zero-margin? "" "my-3")]}
      [:label.form-label {:for id} label]
@@ -135,7 +136,7 @@
        :required      required?
        :placeholder   placeholder
        :id            id
-       :type          type
+       :type          input-type
        :value         state
        :on-change     on-change}]]))
 
@@ -161,7 +162,7 @@
   (labeled-input
    label
    state
-   (merge opts {:type "text" :on-change #(on-change (u/input-value %))})))
+   (merge opts {:input-type "text" :on-change #(on-change (u/input-value %))})))
 
 (defn labeled-file-input
   "File input."
@@ -169,7 +170,7 @@
   (labeled-input
    label
    state
-   (merge opts {:type "file" :on-change #(on-change (u/input-file %))})))
+   (merge opts {:input-type "file" :on-change #(on-change (u/input-file %))})))
 
 (defn limited-date-picker
   "Creates a date input with limited dates."
@@ -219,9 +220,9 @@
      [:div {:style ($/combine {:overflow "auto"})}
       [:div
        [:div {:style ($/combine [$/margin "1.5rem"])}
-        (doall (map-indexed (fn [i [label state type autocomplete]]
+        (doall (map-indexed (fn [i [label state input-type autocomplete]]
                               ^{:key i} [labeled-input label state {:autocomplete autocomplete
-                                                                    :type         type
+                                                                    :input-type   input-type
                                                                     :autofocus?   (= 0 i)
                                                                     :required?    true}])
                             fields))
@@ -263,52 +264,72 @@
   - `opt-fns` - An optional hash-map of functions
 
   `opt-fns` can contain the following K/V pairs:
-  - `:on-select`   - Fn callled a table row is selected.
-  - `:on-delete`   - Fn callled a table row is deleted.
-  - `:on-decrease` - Fn callled a table row position is increased.
-  - `:on-decrease` - Fn callled a table row position is decreased."
-  [columns rows & [{:keys [on-select on-delete on-increase on-decrease]}]]
-  [:div
-   {:style {:width      "100%"
-            :height     "100%"
-            :margin     "0 auto";
-            :overflow-y "scroll"}}
-   [:table.table.table-hover
-    {:style {:border-collapse "collapse"}}
-    [:thead
-     {:style {:background "white"
-              :position   "sticky"
-              :top        "0"}}
-     [:tr
-      (for [column (map #(-> %
-                             (name)
-                             (str/replace #"[_-]" " ")
-                             (str/replace #"uuid" "")
-                             (str/capitalize))
-                        columns)]
-        [:th {:key column}
-         column])
-      (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
-      (when (or on-increase on-decrease) [:th {:style {:whitespace "nowrap"}} "Reorder"])]]
+  - `:on-select`   - Fn called a table row is selected.
+  - `:on-delete`   - Fn called a table row is deleted.
+  - `:on-increase` - Fn called a table row position is increased.
+  - `:on-decrease` - Fn called a table row position is decreased."
+  [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption add-entity-fn]}]]
+  [:div {:style {:width  "100%"
+                 :height "100%"}}
+   [:div.table-header {:style {:display         "flex"
+                               :flex-direction  "row"
+                               :align-items     "center"
+                               :justify-content "space-between"
+                               :border-bottom   "3px solid black"
+                               :padding         "5px"}}
+    [:div {:style {:font-size "1.5rem"}} caption]
+    (when add-entity-fn
+      [:div [btn-sm
+             :primary
+             "Add Entry"
+             add-entity-fn]])]
+   [:div.table-wrapper {:style {:height             "100%"
+                                :overflow-y         "auto"
+                                :scroll-snap-type   "y mandatory"
+                                :scroll-padding-top "41px"}}
+    [:table.table.table-hover
+     {:style {:border-collapse "collapse"
+              :width           "100%"}}
+     [:thead
+      {:style {:background-color "white"
+               :position         "sticky"
+               :top              0}}
+      [:tr {:style {:width "100%"}}
+       (for [column (map #(-> %
+                              (name)
+                              (str/replace #"[_-]" " ")
+                              (str/replace #"uuid" "")
+                              (str/capitalize))
+                         columns)]
+         [:th {:key column}
+          column])
+       (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
+       (when (or on-increase on-decrease) [:th {:style {:whitespace "nowrap"}} "Reorder"])]]
 
-    [:tbody
-     {:style {:width "100%"}}
-     (for [row rows]
-       ^{:key (:db/id row)}
-       [:tr
-        (for [column columns
-              :let   [value (get row column "")]]
-          [:td {:key column} (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
-                               nname
-                               (->str value))])
-        (when (or on-select on-delete)
-          [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
-           (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
-           (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
-        [:td
-         {:key "order"}
-         (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}])
-         (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}])]])]]])
+     [:tbody
+      {:style {:overflow-y   "auto"
+               :width        "100%"
+               :table-layout "fixed"}}
+      (for [row rows]
+        ^{:key (:db/id row)}
+        [:tr {:id    (str "row-" (:db/id row))
+              :style {:scroll-snap-align "start"}}
+         (for [column columns
+               :let   [value (get row column "")]]
+           [:td {:key   column
+                 :style {:word-break "break-all"}}
+            (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
+              nname
+              (->str value))])
+         (when (or on-select on-delete)
+           [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
+            (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
+            (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
+         (when (and on-decrease on-increase)
+           [:td
+            {:key "order"}
+            [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}]
+            [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}]])])]]]])
 
 (defn window
   "Window container to ensure a fixed window."

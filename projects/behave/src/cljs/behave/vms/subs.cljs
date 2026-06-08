@@ -1,14 +1,31 @@
 (ns behave.vms.subs
-  (:require [behave.schema.core :refer [rules]]
-            [behave.vms.store   :refer [entity-from-eid
-                                        entity-from-nid
-                                        entity-from-uuid
-                                        pull
-                                        pull-many
-                                        q
-                                        vms-conn]]
-            [datascript.core    :as d]
-            [re-frame.core      :refer [reg-sub subscribe]]))
+  (:require [behave.schema.core  :refer [rules]]
+            [behave.translate    :refer [<t]]
+            [behave.vms.store    :refer [entity-from-eid
+                                         entity-from-nid
+                                         entity-from-uuid
+                                         pull
+                                         pull-many
+                                         q
+                                         vms-conn]]
+            [datascript.core     :as d]
+            [map-utils.interface :refer [index-by]]
+            [re-frame.core       :refer [reg-sub subscribe]]))
+
+(defonce ^:private bp-app-id (atom nil))
+
+;;; Helpers
+
+(defn- get-app-id []
+  (if @bp-app-id
+    @bp-app-id
+    (reset! bp-app-id @(q '[:find ?app-id .
+                            :in $ ?app-name
+                            :where
+                            [?app-id :application/name ?app-name]]
+                          "BehavePlus"))))
+
+;;; Subscriptions
 
 (reg-sub
  :vms/query
@@ -139,6 +156,12 @@
      (distinct (concat prioritized-results normal-order)))))
 
 (reg-sub
+ :vms/note-categories
+ (fn [_]
+   (let [app-id (get-app-id)]
+     (d/pull @@vms-conn '[{:application/note-categories [*]}] app-id))))
+
+(reg-sub
  :vms/units-uuid->short-code
  (fn [_ [_ units-uuid]]
    (:unit/short-code (entity-from-uuid units-uuid))))
@@ -155,11 +178,10 @@
           [?v :variable/native-unit-uuid ?unit-uuid]]
         @@vms-conn rules gv-uuid)))
 
-
 (reg-sub
  :entity-uuid->name
- (fn [_ [_ uuid]]
-   (let [entity (entity-from-uuid uuid)]
+ (fn [_ [_ entity-uuid]]
+   (let [entity (entity-from-uuid entity-uuid)]
      (->> entity
           (keys)
           (filter #(= (name %) "name"))
@@ -188,3 +210,196 @@
           [?gv :bp/uuid ?gv-uuid]
           [?gv :group-variable/discrete-multiple? ?discrete-multiple]]
         @@vms-conn gv-uuid)))
+
+(reg-sub
+ :vms/gv-uuid->list-eid
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find ?l .
+          :in $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?v :variable/group-variables ?gv]
+          [?v :variable/list ?l]]
+        @@vms-conn gv-uuid)))
+
+(reg-sub
+ :vms/group-variable-eid->variable-name
+ (fn [_ [_ group-variable-eid]]
+   (d/q '[:find ?v-name .
+          :in $ ?gv
+          :where
+          [?v :variable/group-variables ?gv]
+          [?v :variable/name ?v-name]]
+        @@vms-conn group-variable-eid)))
+
+(reg-sub
+ :vms/group-variable-is-output?
+ (fn [_ [_ group-variable-id]]
+   (d/q '[:find ?is-output .
+          :in $ % ?gv
+          :where
+          [?g :group/group-variables ?gv]
+          (submodule-root ?sm ?g)
+          [?sm :submodule/io ?io]
+          [(= ?io :output) ?is-output]]
+        @@vms-conn rules group-variable-id)))
+
+(reg-sub
+ :vms/directional-group-variable-uuids
+ (fn [_]
+   (d/q '[:find  [?gv-uuid ...]
+          :in $
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?gv :group-variable/direction-ref ?dir-eid]
+          [?dir-eid :list-option/value _]]
+        @@vms-conn)))
+
+(reg-sub
+ :vms/group-variable-is-directional?
+ (fn [_ [_ gv-uuid direction]]
+   (= (d/q '[:find  ?dir-id .
+             :in $ ?gv-uuid
+             :where
+             [?gv :bp/uuid ?gv-uuid]
+             [?gv :group-variable/direction-ref ?dir-eid]
+             [?dir-eid :list-option/name ?dir-id]]
+           @@vms-conn
+           gv-uuid)
+      direction)))
+
+(reg-sub
+ :vms/direction-color
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?color .
+          :in $ ?name
+          :where
+          [?l :list/name "FireDirection"]
+          [?l :list/options ?lo]
+          [?lo :list-option/name ?name]
+          [?lo :list-option/color-tag-ref ?tag]
+          [?tag :tag/color ?color]]
+        @@vms-conn
+        direction-id)))
+
+(reg-sub
+ :vms/direction-translation-key
+ (fn [_ [_ direction-id]]
+   (d/q '[:find ?t-key .
+          :in $ ?name
+          :where
+          [?l :list/name "FireDirection"]
+          [?l :list/options ?lo]
+          [?lo :list-option/name ?name]
+          [?lo :list-option/translation-key ?t-key]]
+        @@vms-conn
+        direction-id)))
+
+(reg-sub
+ :vms/resolve-enum-translation
+ (fn [_ [_ gv-uuid value]]
+   (let [result                  (d/pull @@vms-conn '[{:variable/_group-variables
+                                                       [{:variable/list [* {:list/options [*]}]}]}]
+                                         [:bp/uuid gv-uuid])
+         variable                (first (:variable/_group-variables result))
+         {v-list :variable/list} variable
+         {options :list/options} v-list
+         options                 (index-by :list-option/value options)]
+     (if-let [option (get options value)]
+       (or @(<t (:list-option/result-translation-key option))
+           @(<t (:list-option/translation-key option)))
+       value))))
+
+(defn- get-group-hierarchy
+  "Returns a sequence of datomic entities from submodule down to group.
+
+  Uses datomic rules from behave.schema.rules for cleaner queries:
+  - lookup: Find entity by UUID
+  - group-variable: Link group-variable to its parent group
+  - submodule-root: Recursively find the submodule for any (sub)group
+  - subgroup: Recursively find all ancestor groups
+
+  Returns: [{:db/id submodule} {:db/id parent-1} ... {:db/id immediate-group}]
+
+  Arguments:
+    db - Datomic database value
+    group-uuid - UUID of the group
+
+  Returns:
+    Sequence of entities (i.e. [{:db/id 1} {:db/id 2}]) from submodule to immediate group,
+    or nil if group not found"
+  [db group-uuid]
+  ;; Use rules to find the immediate group and submodule
+  (when-let [[submodule-eid immediate-group-eid]
+             (d/q '[:find [?submodule ?group]
+                    :in $ % ?group-uuid
+                    :where
+                    (lookup ?group-uuid ?group)
+                    (submodule-root ?submodule ?group)]
+                  db
+                  rules
+                  group-uuid)]
+
+    ;; Use the subgroup rule to find all ancestor groups
+    ;; The subgroup rule: (subgroup ?parent ?child) means ?child is a subgroup of ?parent
+    (let [ancestor-eids       (d/q '[:find [?ancestor ...]
+                                     :in $ % ?child
+                                     :where
+                                     (subgroup ?ancestor ?child)]
+                                   db
+                                   rules
+                                   immediate-group-eid)
+
+          ;; Pull all groups with their parent references to sort them
+          all-groups          (cons immediate-group-eid ancestor-eids)
+          groups-with-parents (map #(d/pull db '[:db/id {:group/_children [:db/id]}] %)
+                                   all-groups)
+
+          ;; Build a map of child -> parent for quick lookup
+          parent-map          (into {} (map (fn [g]
+                                              [(:db/id g)
+                                               (when-let [parent (:group/_children g)]
+                                                 (:db/id parent))])
+                                            groups-with-parents))
+
+          ;; Sort groups from root to leaf by following parent chain
+          sort-groups         (fn [group-eid]
+                                (loop [current group-eid
+                                       path    []]
+                                  (if-let [parent (get parent-map current)]
+                                    (recur parent (conj path current))
+                                    (reverse (conj path current)))))
+
+          sorted-group-eids   (sort-groups immediate-group-eid)
+          submodule           {:db/id submodule-eid}]
+
+      ;; Return: [submodule parent-groups... immediate-group]
+      (cons submodule (map #(hash-map :db/id %) sorted-group-eids)))))
+
+(reg-sub
+ :vms/group-variable-heirarchy
+ (fn [_ [_ gv-uuid]]
+   (get-group-hierarchy @@vms-conn gv-uuid)))
+
+(defn direction-variables
+  "Get `:group-variable/direction-variables` for the given group variable uuid"
+  [gv-uuid]
+  (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
+    (seq (:group-variable/direction-variables entity))))
+
+(reg-sub
+ :vms/directional-children
+ (fn [_ [_ gv-uuid]]
+   (direction-variables gv-uuid)))
+
+(defn directional-parent-entity
+  "Given a group variable uuid resolve parent ref of the :group-variable/_direction-variables attribute"
+  [gv-uuid]
+  (let [entity (d/entity @@vms-conn [:bp/uuid gv-uuid])]
+    (first (:group-variable/_direction-variables entity))))
+
+(reg-sub
+ :vms/directional-parent
+ (fn [_ [_ gv-uuid]]
+   (directional-parent-entity gv-uuid)))
+

@@ -1,4 +1,4 @@
-(ns migrations.2024-12-04-add-new-fuel-model-codes
+(ns ^{:migrate/ignore? true} migrations.2024-12-04-add-new-fuel-model-codes
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

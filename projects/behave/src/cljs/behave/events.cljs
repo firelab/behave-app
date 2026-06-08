@@ -1,14 +1,15 @@
 (ns behave.events
-  (:require [browser-utils.core :refer [add-script
-                                        script-exist?
-                                        scroll-top!
-                                        set-local-storage!
-                                        clear-local-storage!
-                                        assoc-in-local-storage!
-                                        create-local-storage!]]
+  (:require [browser-utils.core            :refer [add-script
+                                                   script-exist?
+                                                   scroll-top!
+                                                   set-local-storage!
+                                                   clear-local-storage!
+                                                   assoc-in-local-storage!
+                                                   create-local-storage!]]
             [vimsical.re-frame.cofx.inject :as inject]
-            [ajax.core :as ajax]
-            [re-frame.core :as rf]
+            [ajax.core                     :as ajax]
+            [re-frame.core                 :as rf]
+            [behave.components.sidebar.events]
             [behave.help.events]
             [behave.tool.events]))
 
@@ -73,7 +74,6 @@
      (update db path #(apply f % args))
 
      :else db)))
-
 
 ;;; Datascript
 
@@ -146,14 +146,14 @@
  :system/close
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/close"
+                 :uri             "/api/close"
                  :response-format (ajax/text-response-format)}}))
 
 (rf/reg-event-fx
  :system/cancel-close
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/close?cancel=true"
+                 :uri             "/api/close?cancel=true"
                  :response-format (ajax/text-response-format)}}))
 
 ;; Browser behavior
@@ -184,7 +184,7 @@
  :dev/export-from-vms
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/vms-sync"
+                 :uri             "/api/vms-sync"
                  :response-format (ajax/text-response-format)
                  :on-success      [:state/set :vms-export-http-results]
                  :on-failure      [:state/set :vms-export-http-results]}}))

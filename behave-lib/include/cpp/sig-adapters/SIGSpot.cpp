@@ -36,12 +36,13 @@ void SIGSpot::calculateAll() {
   Spot::calculateSpottingDistanceFromBurningPile();
   Spot::calculateSpottingDistanceFromSurfaceFire();
   Spot::calculateSpottingDistanceFromTorchingTrees();
+  Spot::calculateSpottingDistanceFromActiveCrown();
 }
 
 void SIGSpot::setActiveCrownFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)
 {
   if (flameLength > 0.0) {
-    setFlameLength(flameLength, flameLengthUnits);
+    Spot::setActiveCrownFlameLength(flameLength, flameLengthUnits);
   }
 }
 
@@ -75,17 +76,26 @@ void SIGSpot::setFireType(FireType::FireTypeEnum fireType) {
 }
 
 double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
-    if (fireType_ == FireType::Crowning) {
-        return -1;
-    } else {
+    if (fireType_ == FireType::Torching) {
         return Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(spottingDistanceUnits);
+    } else {
+        return -1;
     }
 }
 
 double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromActiveCrown(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
-    if (fireType_ == FireType::Surface or fireType_ == FireType::Torching or fireType_ ==  FireType::ConditionalCrownFire) {
-        return -1;
+    if (fireType_ == FireType::Crowning) {
+        return Spot::getMaxMountainousTerrainSpottingDistanceFromActiveCrown(spottingDistanceUnits);
     } else {
-        return Spot::getMaxMountainousTerrainSpottingDistanceFromSurfaceFire(spottingDistanceUnits);
+        return -1;
     }
+}
+void SIGSpot::setDownwindCoverHeight(double downwindCoverHeight, LengthUnits::LengthUnitsEnum downwindCoverHeightUnits) {
+
+  Spot::setDownwindCoverHeight(downwindCoverHeight, downwindCoverHeightUnits);
+
+  if (std::abs(spotInputs_.getTreeHeight(LengthUnits::Feet)) < 0.01) {
+    setTreeHeight(downwindCoverHeight, downwindCoverHeightUnits);
+  }
+
 }

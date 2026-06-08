@@ -1,25 +1,25 @@
 (ns behave.components.results.graphs
   (:require [behave.components.vega.result-chart :refer [result-chart]]
+            [number-utils.core                   :refer [parse-float]]
             [re-frame.core                       :refer [subscribe]]))
 
 (defn result-graphs [ws-uuid cell-data]
-  (let [worksheet      @(subscribe [:worksheet ws-uuid])
-        graph-enabled? (get-in worksheet [:worksheet/graph-settings :graph-settings/enabled?])
+  (let [graph-enabled? @(subscribe [:wizard/enable-graph-settings? ws-uuid])
         graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
     (when (and graph-enabled? graph-settings)
-      (let [*output-uuids (subscribe [:worksheet/output-uuids-filtered ws-uuid])
+      (let [*output-uuids (subscribe [:worksheet/graphed-output-uuids ws-uuid])
             graph-data    (->> cell-data
                                (group-by first)
                                (reduce (fn [acc [_row-id cell-data]]
                                          (conj acc
-                                               (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
-                                                         (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
-                                                                          (get col-uuid identity))]
-                                                           (assoc acc
-                                                                  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
-                                                                  (fmt-fn value))))
-                                                       {}
-                                                       cell-data)))
+                                               (->> (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
+                                                              (assoc acc
+                                                                     @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
+                                                                     (parse-float value)))
+                                                            {}
+                                                            cell-data)
+                                                    (remove (fn [[_ value]] (= value -1)))
+                                                    (into {}))))
                                        []))
             x-axis-limit  (:graph-settings/x-axis-limits graph-settings)
             x-min         (:x-axis-limit/min x-axis-limit)
@@ -33,7 +33,7 @@
                                               (first))
                             y-min (:y-axis-limit/min y-axis-limit)
                             y-max (:y-axis-limit/max y-axis-limit)]]
-           [:<>
+           [:div.wizard-results__graph
             [:div.wizard-graph__output-header
              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])]
             [:div.wizard-results__graph

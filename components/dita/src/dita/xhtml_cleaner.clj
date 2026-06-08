@@ -61,7 +61,8 @@
       (update-in [1 :src]
                  #(-> %
                       (str/replace "../" "")
-                      (str/replace "Resources/Images/" "/help/images/"))))
+                      (str/replace "Resources/Images/" "/help/images/")
+                      (str/replace #".(png)?(jpg)?(jpeg)?$" ".webp"))))
 
     :else
     node))

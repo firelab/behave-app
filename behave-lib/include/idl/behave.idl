@@ -289,18 +289,27 @@ enum ContainFlank_ContainFlankEnum {
   "ContainFlank::NeitherFlank"
 };
 
+enum ContainMode {
+    "ContainMode::Default",
+    "ContainMode::ComputeWithOptimalResource"
+};
+
 // Adapter to the ContainAdapter
 interface SIGContainAdapter {
   void SIGContainAdapter();
   ContainStatus_ContainStatusEnum getContainmentStatus();
   [Value] DoubleVector getFirePerimeterX();
   [Value] DoubleVector getFirePerimeterY();
+  [Value] DoubleVector getOptimizedContainProductionRates();
+  [Value] DoubleVector getOptimizedContainAreas();
+  long getOptimizedContainPointCount();
   [Const] double getAttackDistance(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalContainmentArea(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalCost();
   double getFinalFireLineLength(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalFireSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalTimeSinceReport(TimeUnits_TimeUnitsEnum timeUnits);
+  double getFinalProductionRate(SpeedUnits_SpeedUnitsEnum speedUnits);
   double getFireBackAtAttack();
   double getFireBackAtReport();
   double getFireHeadAtAttack();
@@ -311,6 +320,7 @@ interface SIGContainAdapter {
   double getPerimeterAtInitialAttack(LengthUnits_LengthUnitsEnum lengthUnits);
   double getReportSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getReportRate(SpeedUnits_SpeedUnitsEnum speedUnits);
+  double getAutoComputedResourceProductionRate(SpeedUnits_SpeedUnitsEnum speedUnits);
   long getTactic();
   long getFirePerimeterPointCount();
   long removeAllResourcesWithThisDesc([Const] DOMString desc);
@@ -320,6 +330,7 @@ interface SIGContainAdapter {
   void doContainRun();
   void removeAllResources();
   void setAttackDistance(double attackDistance, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setContainMode(ContainMode containmode);
   void setFireStartTime(long fireStartTime);
   void setLwRatio(double lwRatio);
   void setMaxFireSize(long maxFireSize);
@@ -328,6 +339,8 @@ interface SIGContainAdapter {
   void setMinSteps(long minSteps);
   void setReportRate(double reportRate, SpeedUnits_SpeedUnitsEnum speedUnits);
   void setReportSize(double reportSize, AreaUnits_AreaUnitsEnum areaUnits);
+  void setResourceArrivalTime(double arrivalTime, TimeUnits_TimeUnitsEnum timeUnits);
+  void setResourceDuration(double duration, TimeUnits_TimeUnitsEnum timeUnits);
   void setRetry(boolean retry);
   void setTactic(ContainTactic_ContainTacticEnum tactic);
 };
@@ -472,6 +485,7 @@ interface SIGSpot {
   void setDownwindCoverHeight(double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits);
   void setFireType (FireType_FireTypeEnum fireType);
   void setFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
+  void setFirelineIntensity(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setLocation(SpotFireLocation_SpotFireLocationEnum location);
   void setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits);
   void setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits);
@@ -629,7 +643,6 @@ enum SurfaceRunInDirectionOf {
   "SurfaceRunInDirectionOf::DirectionOfInterest",
   "SurfaceRunInDirectionOf::HeadingBackingFlanking"
 };
-
 
 interface SIGSurface {
   void SIGSurface([Ref] SIGFuelModels fuelModels);
@@ -1417,4 +1430,70 @@ interface VaporPressureDeficitCalculator {
   void setTemperature(double temperature, TemperatureUnits_TemperatureUnitsEnum units);
   void setRelativeHumidity(double relativeHumidity, FractionUnits_FractionUnitsEnum units);
   double getVaporPressureDeficit(PressureUnits_PressureUnitsEnum units);
+};
+
+interface RelativeHumidityTool {
+  void RelativeHumidityTool();
+
+  // Calculate
+  void calculate();
+
+  // Getters
+  double getDryBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  double getSiteElevation(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getWetBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  double getDewPointTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  double getRelativeHumidity(FractionUnits_FractionUnitsEnum fractionUnits);
+  double getWetBulbDepression(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+
+  // Setters
+  void setDryBulbTemperature(double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  void setSiteElevation(double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setWetBulbTemperature(double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+};
+
+enum BurningCondition_BurningConditionEnum {
+  "BurningCondition::Low",
+  "BurningCondition::Moderate",
+  "BurningCondition::Extreme"
+};
+
+enum SlopeClass_SlopeClassEnum {
+  "SlopeClass::Flat",
+  "SlopeClass::Moderate",
+  "SlopeClass::Steep"
+};
+
+enum SpeedClass_SpeedClassEnum {
+  "SpeedClass::Light",
+  "SpeedClass::Moderate",
+  "SpeedClass::High"
+};
+
+enum SafetyCondition_SafetyConditionEnum {
+  "SafetyCondition::Low",
+  "SafetyCondition::Moderate",
+  "SafetyCondition::Extreme"
+};
+
+interface SafeSeparationDistanceCalculator {
+  void SafeSeparationDistanceCalculator();
+
+  // Calculate
+  void calculate();
+  BurningCondition_BurningConditionEnum getBurningCondition();
+  SlopeClass_SlopeClassEnum getSlopeClass();
+  SpeedClass_SpeedClassEnum getSpeedClass();
+
+  // Getters
+  double getSafeSeparationDistance(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getSafetyZoneSize(AreaUnits_AreaUnitsEnum areaUnits);
+  double getVegetationHeight(LengthUnits_LengthUnitsEnum lengthUnits);
+  SafetyCondition_SafetyConditionEnum getSafetyCondition();
+
+  // Setters
+  void setBurningCondition(BurningCondition_BurningConditionEnum condition);
+  void setSlopeClass(SlopeClass_SlopeClassEnum slope);
+  void setSpeedClass(SpeedClass_SpeedClassEnum speed);
+  void setVegetationHeight(double height, LengthUnits_LengthUnitsEnum lengthUnits);
 };

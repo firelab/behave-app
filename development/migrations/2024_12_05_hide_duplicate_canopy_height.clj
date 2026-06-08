@@ -1,4 +1,4 @@
-(ns migrations.2024-12-05-hide-duplicate-canopy-height
+(ns ^{:migrate/ignore? true} migrations.2024-12-05-hide-duplicate-canopy-height
   (:require
    [schema-migrate.interface :as sm]
    [datomic.api :as d]

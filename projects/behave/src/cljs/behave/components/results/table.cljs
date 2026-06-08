@@ -5,6 +5,7 @@
             [clojure.string          :as str]
             [goog.string             :as gstring]
             [re-frame.core           :refer [subscribe]]
+            [behave.wizard.subs      :refer [all-conditionals-pass?]]
             [string-utils.core       :as s]))
 
 (defn- procces-map-units?
@@ -24,10 +25,15 @@
           i        (js/Math.floor (/ (js/Math.log bbytes) (js/Math.log k)))]
       (gstring/format "%s %s" (.toFixed (js/parseFloat (/ bbytes (js/Math.pow k i))) dm) (nth sizes i)))))
 
+(defn- wrap-quotes
+  "Wraps string in quotes."
+  [s]
+  (gstring/format "\"%s\"" s))
+
 (defn table-exporter
   "Displays a link to download a CSV copy of the table."
   [{:keys [title headers columns rows]}]
-  (let [print-row  (fn [row] (str/join "," (map #(get row %) columns)))
+  (let [print-row  (fn [row] (str/join "," (map (comp wrap-quotes #(get row %)) columns)))
         csv-header (str/join "," headers)
         csv-rows   (str/join "\n" (map print-row rows))
         csv        (str csv-header "\n" csv-rows)
@@ -44,11 +50,11 @@
                       @(<t (bp "csv_file")))]]))
 
 (defn- build-result-table-data
-  [{:keys [ws-uuid headers title]
-    :or   {headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
-           title  "Results Table"}}]
+  [{:keys [ws-uuid headers title cell-data]
+    :or   {headers   @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
+           title     "Results Table"
+           cell-data @(subscribe [:worksheet/result-table-cell-data ws-uuid])}}]
   (let [headers-set               (set (map first headers))
-        *cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
@@ -58,12 +64,12 @@
         formatters                @(subscribe [:worksheet/result-table-formatters (map first headers)])]
     {:title   title
      :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
-                        (let [var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
+                        (let [header-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
                           (cond-> acc
-                            :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
+                            :always (conj (str header-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
                             (procces-map-units? map-units-enabled? gv-uuid)
-                            (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
+                            (conj (str  "Map Units - " header-name (gstring/format " (%s)" map-units))))))
                       []
                       headers)
      :columns (reduce (fn [acc [gv-uuid repeat-id _units]]
@@ -76,7 +82,7 @@
                       headers)
      :rows (let [filtered-data (->> (filter (fn [[_k col-uuid]]
                                               (contains? headers-set col-uuid))
-                                            @*cell-data)
+                                            cell-data)
                                     (group-by first)
                                     (sort-by key))]
              (map (fn [[_ data]]
@@ -92,7 +98,7 @@
                                   (assoc :shaded? true)
 
                                   :always
-                                  (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value)))
+                                  (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value {:export? export?})))
 
                                   (procces-map-units? map-units-enabled? uuid)
                                   (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
@@ -101,12 +107,14 @@
                                               (get map-units-variables uuid)
                                               map-units
                                               map-rep-frac)
-                                             fmt-fn)))))
+                                             (fmt-fn))))))
                             {}
                             data))
                   filtered-data))}))
 
-(defn result-table-download-link [ws-uuid]
+(defn result-table-download-link
+  "Creates a link to download the table as a CSV export."
+  [ws-uuid]
   [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid
                                                   :headers @(subscribe [:worksheet/csv-export-headers
                                                                         ws-uuid])})]])
@@ -164,12 +172,89 @@
                             :rows
                             #(pivot-table-data pivot-rows pivot-values %)))))])))
 
-(defn directional-result-tables [ws-uuid]
-  (let [directions @(subscribe [:worksheet/output-directions ws-uuid])]
-    (when (seq directions)
-      [:div.wizard-results__directional-tables
-       (for [direction directions]
-         (c/table (build-result-table-data
-                   {:ws-uuid ws-uuid
-                    :headers @(subscribe [:worksheet/result-table-headers-sorted-direction ws-uuid direction])
-                    :title   (str/capitalize (name direction))})))])))
+(defn search-tables
+  "A Component for rendering a serch table defined in the VMS.
+  A search table has these components
+  - group-variable: the group variable in which to apply the search-operation
+  - search-operation: operation #{:min :max}
+  - filters: filters the result data for only rows that meet the criteria.
+  - columns: the columns to show in the search table
+
+  The Table is built following these processing steps:
+  1. Filter the cell data for only rows that meet all the filter criterias
+  2. Apply either a minimum or maximum function on the desired cell column on the filtered data
+  3. Build a table with a single row with the data found in step 2, but only show the columns as specified in the vms"
+  [ws-uuid]
+  (let [tables                      @(subscribe [:worksheet/search-tables ws-uuid])
+        *cell-data                  @(subscribe [:worksheet/result-table-cell-data ws-uuid])
+        result-table-headers-sorted @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
+        gv-uuid->units              (reduce (fn [acc [gv-uuid _repeat-id units]]
+                                              (assoc acc gv-uuid units))
+                                            {}
+                                            result-table-headers-sorted)
+        formatters                  @(subscribe [:worksheet/result-table-formatters (map first result-table-headers-sorted)])]
+    (when (seq tables)
+      [:div.wizard-results__search-tables
+       (for [{search-table-group-variable        :search-table/group-variable
+              search-table-operator              :search-table/operator
+              search-table-columns               :search-table/columns
+              search-filters                     :search-table/filters
+              search-table-translation-key       :search-table/translation-key
+              search-table-error-translation-key :search-table/error-translation-key
+              search-table-conditionals          :search-table/show-conditionals
+              search-table-conditional-operator  :search-table/conditoinals-operator} tables
+             :when                                                                   (if (seq search-table-conditionals)
+                                                                                       (all-conditionals-pass? @(subscribe [:worksheet ws-uuid])
+                                                                                                               search-table-conditional-operator
+                                                                                                               search-table-conditionals)
+                                                                                       true)]
+         (let [search-table-group-variable-uuid (:bp/uuid search-table-group-variable)
+               filter-fns                       (map (fn [search-filter]
+                                                       (let [filter-gv-uuid (:bp/uuid (:search-table-filter/group-variable search-filter))
+                                                             operator       (:search-table-filter/operator search-filter)
+                                                             filter-value   (:search-table-filter/value search-filter)]
+                                                         (fn [[_row gv-uuid _repeat-id value]]
+                                                           (and (= gv-uuid filter-gv-uuid)
+                                                                (if (= operator :equal)
+                                                                  (= value filter-value)
+                                                                  (not= value filter-value))))))
+                                                     search-filters)
+               filtered-rows-set                (->> *cell-data
+                                                     (filter (apply every-pred filter-fns))
+                                                     (map first)
+                                                     set)
+               cell-data-after-filter           (filter (fn [[row _gv-uuid _repeat-id _value]] (contains? (set filtered-rows-set) row)) *cell-data)
+               row-with-applied-search          (first (apply (if (= search-table-operator :min) min-key max-key)
+                                                              (fn [x]
+                                                                (js/parseFloat (last x)))
+                                                              (filter (fn [[_row gv-uuid _repeat-id _value]]
+                                                                        (= gv-uuid search-table-group-variable-uuid))
+                                                                      cell-data-after-filter)))
+               cell-data-at-row-searched        (filter (fn [[row _gv-uuid _repeat-id _value]] (= row row-with-applied-search)) *cell-data)
+               table-row                        (reduce (fn [ acc [_row gv-uuid _repeat-id value]]
+                                                          (let [fmt-fn (get formatters gv-uuid identity)]
+                                                            (assoc acc
+                                                                   (keyword gv-uuid)
+                                                                   (-> value
+                                                                       fmt-fn))))
+                                                        {}
+                                                        cell-data-at-row-searched)
+               search-table-columns-sorted      (->> search-table-columns
+                                                     (sort-by :search-table-column/order)
+                                                     (remove (fn [search-table-column] (nil? (get table-row (keyword (:bp/uuid (:search-table-column/group-variable search-table-column))))))))
+               table-headers                    (mapv (fn [{search-table-column-group-variable  :search-table-column/group-variable
+                                                            search-table-column-translation-key :search-table-column/translation-key}]
+                                                        (let [gv-uuid     (:bp/uuid search-table-column-group-variable)
+                                                              units       (get gv-uuid->units gv-uuid)
+                                                              header-name @(<t search-table-column-translation-key)]
+                                                          (str header-name (when-not (empty? units) (gstring/format " (%s)" units)))))
+                                                      search-table-columns-sorted)
+               table-columns                    (mapv (fn [column]
+                                                        (keyword (:bp/uuid (:search-table-column/group-variable column))))
+                                                      search-table-columns-sorted)]
+           (if (seq filtered-rows-set)
+             (c/table {:title   @(<t search-table-translation-key)
+                       :headers table-headers
+                       :columns table-columns
+                       :rows    [table-row]})
+             [:div @(<t search-table-error-translation-key)])))])))

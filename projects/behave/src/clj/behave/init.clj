@@ -10,8 +10,25 @@
             [transport.interface        :refer [clj-> mime->type]])
   (:import (java.io ByteArrayInputStream)))
 
+;;; Client Tracking
+
+(def active-clients
+  "Number of connected browser windows/tabs."
+  (atom 0))
+
+(defn register-client!
+  "Increments the active client count. Call on each /api/init."
+  []
+  (let [n (swap! active-clients inc)]
+    (log-str [:CLIENTS :register n])))
+
+;;; Helpers
+
+(defn- resource [s]
+  (.getResource (ClassLoader/getSystemClassLoader) s))
+
 (defn init! []
-  (load-config (io/resource "config.edn"))
+  (load-config (resource "config.edn"))
   (let [config (update-in (get-config :database :config)
                           [:store :path]
                           os-path)]
@@ -23,6 +40,7 @@
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
   (let [res-type (or (mime->type accept) :edn)]
     (when (= request-method :get)
+      (register-client!)
       (s/release-conn!)
       (reset! current-worksheet-atom nil)
       (init!)

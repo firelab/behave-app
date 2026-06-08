@@ -40,6 +40,7 @@
   [{:short "#"}
    {:short "%" :system "english" :enum enum/cover-units :dimension :fraction :unit "Percent"}
    {:short "deg" :system "english" :enum enum/slope-units :dimension :slope :unit "Degrees"}
+   {:short "% (slope)" :system "english" :enum enum/slope-units :dimension :slope :unit "Percent"}
    {:short "fraction" :system "english" :enum enum/cover-units :dimension :fraction :unit "Fraction"}
    {:short "points"} ; FIXME Contain Fire Points
    {:short "ratio"}])
@@ -66,7 +67,7 @@
    {:short "mi"          :system "english" :enum enum/length-units                  :dimension :length                  :unit "Miles"}
    {:short "mi/h"        :system "english" :enum enum/speed-units                   :dimension :speed                   :unit "MilesPerHour"}
    {:short "ms"} ; FIXME
-   {:short "oF"          :system "english" :enum enum/temperature-units             :dimension :temperature-units       :unit "Fahrenheit"}
+   {:short "oF"          :system "english" :enum enum/temperature-units             :dimension :temperature             :unit "Fahrenheit"}
    {:short "per ac"} ; FIXME Tree Count
    {:short "ton/ac"      :system "english" :enum enum/loading-units                 :dimension :loading-units           :unit "TonnesPerAcre"}
    {:short "psi"         :system "english" :enum enum/pressure-units                :dimension :pressure-units          :unit "PoundPerSquareInch"}])
@@ -134,7 +135,16 @@
   ([value from to]
    (convert value from to nil))
   ([value from to decimals]
-   (let [dimension (get-in all-units [from :dimension])
+   (let [dimension               (if (or (= from "deg") (= to "deg"))
+                                   :slope
+                                   (get-in all-units [from :dimension]))
+         ;;handle special case since % is used for the `:slope` and `:fraction` dimension
+         from                    (if (and (= dimension :slope) (= from "%"))
+                                   "% (slope)"
+                                   from)
+         to                      (if (and (= dimension :slope) (= to "%"))
+                                   "% (slope)"
+                                   to)
          {:keys [to-fn from-fn]} (get dimension-conversions dimension)
          to                      (if (string? to) (get-unit to) to)
          from                    (if (string? from) (get-unit from) from)

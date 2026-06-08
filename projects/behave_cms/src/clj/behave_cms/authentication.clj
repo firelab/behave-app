@@ -1,10 +1,10 @@
 (ns behave-cms.authentication
-  (:require [datomic-store.main    :as s]
-            [behave-cms.utils.mail :refer [get-site-url email? send-mail]]
-            [behave-cms.views      :refer [data-response]])
-  (:import [org.mindrot.jbcrypt BCrypt]
+  (:require [behave-cms.utils.mail :refer [get-site-url email? send-mail]]
+            [behave-cms.views      :refer [data-response]]
+            [datomic-store.main    :as s])
+  (:import [java.net URLEncoder]
            [java.util Random]
-           [java.net URLEncoder]))
+           [org.mindrot.jbcrypt BCrypt]))
 
 ;;; Password hashing
 
@@ -33,11 +33,11 @@
 ;; https://stackoverflow.com/questions/64034761/fast-random-string-generator-in-clojure
 (defn- rand-string
   ^String [^Long len]
-  (let [leftLimit 97
-        rightLimit 122
-        random (Random.)
+  (let [leftLimit     97
+        rightLimit    122
+        random        (Random.)
         stringBuilder (StringBuilder. len)
-        diff (- rightLimit leftLimit)]
+        diff          (- rightLimit leftLimit)]
     (dotimes [_ len]
       (let [ch (char (.intValue ^Double (+ leftLimit (* (.nextFloat ^Random random) (+ diff 1)))))]
         (.append ^StringBuilder stringBuilder ch)))

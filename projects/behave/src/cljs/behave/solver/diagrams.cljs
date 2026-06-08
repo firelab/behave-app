@@ -5,7 +5,9 @@
             [clojure.string     :as str]
             [re-frame.core      :as rf]))
 
-(defmulti build-event-vector (fn [{:keys [diagram]}] (:diagram/type diagram)))
+(defmulti build-event-vector
+  "Builds an re-frame event vector to store a diagram's solver outputs, dispatched on `:diagram/type`."
+  (fn [{:keys [diagram]}] (:diagram/type diagram)))
 
 (defmethod build-event-vector :contain
   [{:keys [ws-uuid row-id diagram module]}]
@@ -14,7 +16,6 @@
         y-points (contain/getFirePerimeterY module)]
     [:worksheet/add-contain-diagram
      ws-uuid
-     "Containment"
      gv-uuid
      row-id
      (->> (map #(.get x-points %) (range (.size x-points)))
@@ -27,14 +28,28 @@
      (contain/getFireBackAtReport module)
      (contain/getFireHeadAtReport module)
      (contain/getFireBackAtAttack module)
-     (contain/getFireHeadAtAttack module)]))
+     (contain/getFireHeadAtAttack module)
+     (contain/getContainmentStatus module)]))
+
+(defmethod build-event-vector :optimized-contain
+  [{:keys [ws-uuid row-id diagram module]}]
+  (let [gv-uuid     (get-in diagram [:diagram/group-variable :bp/uuid])
+        pr-points   (contain/getOptimizedContainProductionRates module)
+        area-points (contain/getOptimizedContainAreas module)]
+    [:worksheet/add-optimized-contain-diagram
+     ws-uuid
+     gv-uuid
+     row-id
+     (->> (map #(.get pr-points %) (range (.size pr-points)))
+          (str/join ","))
+     (->> (map #(.get area-points %) (range (.size area-points)))
+          (str/join ","))]))
 
 (defmethod build-event-vector :fire-shape
   [{:keys [ws-uuid row-id diagram module]}]
   (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
     [:worksheet/add-surface-fire-shape-diagram
      ws-uuid
-     "Fire Shape"
      gv-uuid
      row-id
      (surface/getEllipticalA module (enums/length-units "Chains"))
@@ -44,6 +59,7 @@
      (surface/getWindSpeed module
                            (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))
+     (surface/getSlope module (enums/slope-units "Percent"))
      (surface/getElapsedTime module (enums/time-units "Hours"))]))
 
 (defmethod build-event-vector :wind-slope-spread-direction
@@ -51,7 +67,6 @@
   (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
     [:worksheet/add-wind-slope-spread-direction-diagram
      ws-uuid
-     "Wind/Slope/Spread Direction"
      gv-uuid
      row-id
      (surface/getDirectionOfMaxSpread module)
@@ -67,12 +82,14 @@
      (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))]))
 
-(defn store-all-diagrams! [{:keys [ws-uuid row-id module diagrams]}]
+(defn store-all-diagrams!
+  "Dispatches store events for every diagram whose group-variable is an active worksheet output."
+  [{:keys [ws-uuid row-id module diagrams]}]
   (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
-   (doseq [diagram diagrams]
-     (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
-       (when (some #{group-variable-uuid} all-outputs)
-         (rf/dispatch (build-event-vector {:ws-uuid ws-uuid
-                                           :diagram diagram
-                                           :row-id  row-id
-                                           :module  module})))))))
+    (doseq [diagram diagrams]
+      (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
+        (when (some #{group-variable-uuid} all-outputs)
+          (rf/dispatch (build-event-vector {:ws-uuid ws-uuid
+                                            :diagram diagram
+                                            :row-id  row-id
+                                            :module  module})))))))

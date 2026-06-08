@@ -5,7 +5,7 @@
                         "projects/behave/test/cljs"
                         "bases/behave_components/src"]
   :ring-server-options {:port 8081 :join? false}
-  :ring-handler        behave.core/development-app
+  :ring-handler        behave.handlers/development-app
   :open-url            "http://localhost:8081/worksheets"
   :clean-outputs       true}
 {:main          "behave.client"

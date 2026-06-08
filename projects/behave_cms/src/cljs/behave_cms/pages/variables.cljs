@@ -1,7 +1,7 @@
 (ns behave-cms.pages.variables
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.common :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]))
+  (:require [behave-cms.components.common      :refer [simple-table]]
+            [behave-cms.components.entity-form :refer [entity-form]]
+            [re-frame.core                     :as rf]))
 
 (def columns [:variable_name])
 
@@ -16,17 +16,17 @@
      on-select
      on-delete]))
 
-(defn variable-form [uuid]
+(defn variable-form [variable-uuid]
   [entity-form {:entity :variables
-                :uuid   uuid
+                :uuid   variable-uuid
                 :fields [{:label     "Name"
                           :required? true
                           :field-key :variable_name}]}])
 
-(defn root-component [{:keys [uuid]}]
+(defn root-component [{variable-uuid :uuid}]
   (let [variable (rf/subscribe [:state :variable])]
     (when (nil? @variable)
-      (rf/dispatch [:state/set-state :variable uuid]))
+      (rf/dispatch [:state/set-state :variable variable-uuid]))
     (rf/dispatch [:api/entities :variables])
     [:div.container
      [:div.row

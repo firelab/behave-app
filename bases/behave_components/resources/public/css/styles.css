@@ -825,8 +825,10 @@ p {
 /* -- Button Icon -- */
 
 .button__icon {
+  display: flex;
+  flex-direction: row;
   position: relative;
-  top: 2px;
+  align-items: center;
   fill: currentColor;
 }
 
@@ -1171,42 +1173,8 @@ p {
   cursor: pointer;
 }
 
-.input-dropdown__select-wrapper::before {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  z-index: 1;
-  width: 20px;
-  border: 1px solid var(--gray-5);
-  border-radius: 0px 4px 4px 0px;
-  background: var(--gray-3);
-  content: ' ';
-  cursor: pointer;
-}
-
-/* To modify fill in SVG elements in :after, we use the SVG as a mask
- * More info: https://stackoverflow.com/questions/21509982/change-svg-fill-color-in-before-or-after-css
- */
-.input-dropdown__select-wrapper::after {
-  mask: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"><path d="M5.3,7.43a1,1,0,0,1-1.36.39,1,1,0,0,1-.39-.39L.25,1.49A1,1,0,0,1,.64.13.91.91,0,0,1,1.12,0h6.6a1,1,0,0,1,1,1,1,1,0,0,1-.12.49Z" transform="translate(-0.12 0) scale(0.4)"/></svg>');
-  -webkit-mask: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"><path d="M5.3,7.43a1,1,0,0,1-1.36.39,1,1,0,0,1-.39-.39L.25,1.49A1,1,0,0,1,.64.13.91.91,0,0,1,1.12,0h6.6a1,1,0,0,1,1,1,1,1,0,0,1-.12.49Z" transform="translate(-0.12 0) scale(0.4)"/></svg>');
-  position: absolute;
-  top: 12px;
-  right: -2px;
-  bottom: 0px;
-  z-index: 2;
-  width: 16px;
-  height: 16px;
-  background-color: var(--gray-5);
-  content: ' ';
-  cursor: pointer;
-}
-
 .input-dropdown__select-wrapper__select {
-  appearance: none;
   position: relative;
-  width: 100%;
   margin: 0;
   padding: 6px 10px;
   border: 1px solid var(--gray-5);
@@ -1283,7 +1251,11 @@ p {
 /* -- End Dropdown Input -- */
 
 /* -- Text Input -- */
-.input-text {}
+.input-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center
+}
 
 .input-text__input {
   border:      1px solid var(--gray-3);
@@ -1294,6 +1266,7 @@ p {
   background:  var(--gray-1);
   outline:     none;
   box-shadow:  0px 1px 1px var(--gray-10);
+  width: 100%;
 }
 
 .input-text__label {
@@ -1372,6 +1345,7 @@ p {
 .input-number__error {
   color: var(--error);
   font-size: var(--font-size-10);
+  margin-top: 3px;
 }
 
 .input-number--disabled .input-number__input,
@@ -1466,6 +1440,112 @@ p {
 }
 
 /* -- End Radio Group -- */
+
+/* -- Toggle Switch -- */
+.input-toggle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.input-toggle__label {
+  font-family: var(--font-family-roboto);
+  font-weight: var(--font-weight-500);
+  color: var(--black);
+}
+
+.input-toggle__container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.input-toggle__side-label {
+  font-family: var(--font-family-roboto);
+  font-weight: var(--font-weight-400);
+  font-size: var(--font-size-14);
+  color: var(--black);
+}
+
+.input-toggle__switch {
+  position: relative;
+  display: inline-block;
+  height: 32px;
+}
+
+.input-toggle__input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.input-toggle__slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--gray-4);
+  transition: 0.3s;
+  border-radius: 32px;
+}
+
+.input-toggle__slider__text {
+  position: absolute;
+  font-family: var(--font-family-roboto);
+  font-weight: var(--font-weight-500);
+  font-size: var(--font-size-12);
+  color: var(--white);
+  user-select: none;
+  transition: 0.3s;
+  left: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.input-toggle__slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--white);
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.input-toggle__input:checked + .input-toggle__slider {
+  background-color: var(--darkblue-4);
+}
+
+.input-toggle__input:checked + .input-toggle__slider:before {
+  transform: translateX(var(--slider-translate));
+}
+
+.input-toggle__input:checked + .input-toggle__slider .input-toggle__slider__text {
+  left: 8px;
+  right: auto;
+}
+
+.input-toggle__input:focus + .input-toggle__slider {
+  box-shadow: 0 0 1px var(--darkblue-4);
+}
+
+.input-toggle--disabled .input-toggle__label,
+.input-toggle--disabled .input-toggle__side-label {
+  color: var(--gray-4);
+}
+
+.input-toggle--disabled .input-toggle__slider {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+/* -- End Toggle Switch -- */
 
 /* - End Inputs - */
 
@@ -1884,6 +1964,25 @@ p {
 }
 /* -- End Calculator Variant -- */
 
+/* --  checklist Variant -- */
+
+.card:not(.card--disabled, .card--error):hover .ring-icon--checklist .ring-icon__outer-ring,
+.ring-icon--checklist:not(.ring-icon--disabled, .ring-icon--error):hover .ring-icon__outer-ring,
+.ring-icon--checklist.ring-icon--selected .ring-icon__outer-ring,
+.ring-icon--checklist .ring-icon__background {
+  fill: var(--medblue-3);
+}
+
+.ring-icon--checklist .ring-icon__outer-ring {
+  fill: var(--lightblue-3);
+}
+
+.ring-icon--checklist .ring-icon__icon {
+  fill: var(--white);
+}
+
+/* -- End Calculator Variant -- */
+
 /* -- Disabled -- */
 
 .ring-icon--disabled .ring-icon__outer-ring,
@@ -1976,6 +2075,18 @@ p {
   text-align: center;
   color: var(--white);
   background-color: var(--medblue-3);
+}
+
+.table__sub-title {
+  border: 1px solid var(--lightblue-5);
+  text-align: center;
+  color: var(--white);
+  background-color: var(--medblue-2);
+}
+
+.table__title th,
+.table__sub-title th {
+  padding: 10px;
 }
 
 .table-cell {
@@ -2141,15 +2252,40 @@ p {
 
 /* - End Compute - */
 
+/* -- Note -- */
+
 .note {
   flex-direction: column;
   display: flex;
   position: relative;
 }
 
-.note > .note__input-title {
-  padding: 34px 0px;
-  font-size: var(--font-size-16);
+.note__category-select {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.note__category-select .input-dropdown {
+  flex-direction: row;
+  align-items: center;
+}
+
+.note__category-select .input-dropdown__label {
+  padding-right: 12px;
+}
+
+.note__category-select .input-dropdown__select-wrapper {
+  margin-top: 0;
+}
+
+.note__category-select .input-dropdown__label,
+.note__category-select .input-text__label {
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
 }
 
 .note > textarea {
@@ -2161,6 +2297,8 @@ p {
 .note__footer {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 8px;
   position: relative;
   padding-top: 5px;
   font-size: var(--font-size-14);
@@ -2169,13 +2307,21 @@ p {
 
 .note__footer > button {
   margin-top: 14px;
+}
+
+.note__footer > button:first-of-type {
   margin-left: auto;
 }
 
+/* -- End Note -- */
 
 /* - Start Multi Select - */
 
 .multi-select {
+  width: 100%;
+}
+
+.multi-select--search {
   width: 100%;
 }
 
@@ -2188,6 +2334,7 @@ p {
 .multi-select__options {
   overflow-y: scroll;
   height:  230px;
+  margin-top: 10px;
   margin-bottom: 7px;
   padding: 0px 12px 0px 12px;
 }
@@ -2207,6 +2354,10 @@ p {
   background-color: var(--gray-2);
 }
 
+.multi-select-search {
+  margin-right: 10px;
+}
+
 .multi-select__option__icon--minus,
 .multi-select__option__icon--plus {
   position: relative;
@@ -2219,6 +2370,7 @@ p {
   top: -2px;
 }
 
+.multi-select--search .multi-select__option:first-child,
 .multi-select__option--selected,
 .multi-select__option:hover {
   width: max-content;
@@ -2231,6 +2383,7 @@ p {
   background-color: var(--medblue-3);
 }
 
+.multi-select--search .multi-select__option:first-child,
 .multi-select__option--selected:hover,
 .multi-select__option:hover {
   background-color: var(--medblue-2);
@@ -2261,6 +2414,13 @@ p {
 }
 
 .multi-select__selections__body {
+  padding: 10px 0px 0px 0px;
+}
+
+.multi-select-search__selections__body {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   padding: 10px 0px 0px 0px;
 }
 

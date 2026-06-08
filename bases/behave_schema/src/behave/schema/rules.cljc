@@ -267,9 +267,9 @@
 
     ;; -- Finds all input variables for module
     [(module-input-vars ?m ?gv)
-     [?m :module/submodules ?s]
+     [?m :module/submodules ?sm]
      [?s :submodule/io :input]
-     [?s :submodule/groups ?g]
+     (group ?s ?g)
      [?g :group/group-variables ?gv]]
 
     ;; -- Finds all input variables and related CPP functions for module

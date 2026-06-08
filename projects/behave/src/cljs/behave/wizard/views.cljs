@@ -1,38 +1,41 @@
 (ns behave.wizard.views
-  (:require [behave.components.core               :as c]
-            [behave.components.input-group        :refer [input-group]]
-            [behave.components.review-input-group :as review]
-            [behave.components.navigation         :refer [wizard-navigation]]
-            [behave.components.output-group       :refer [output-group]]
-            [behave.components.results.diagrams   :refer [result-diagrams]]
-            [behave.components.results.matrices   :refer [result-matrices]]
-            [behave.components.results.graphs     :refer [result-graphs]]
+  (:require [behave-routing.main                    :refer [routes current-route-order]]
+            [behave.components.core                 :as c]
+            [behave.components.input-group          :refer [input-group]]
+            [behave.components.navigation           :refer [wizard-navigation]]
+            [behave.components.output-group         :refer [output-group]]
+            [behave.components.results.diagrams     :refer [result-diagrams]]
+            [behave.components.results.graphs       :refer [result-graphs]]
+            [behave.components.results.inputs.subs]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table      :refer [result-table-download-link
-                                                          directional-result-tables
-                                                          pivot-tables]]
-            [behave.tool.views                    :refer [tool tool-selector]]
-            [behave-routing.main                  :refer [routes current-route-order]]
-            [behave.translate                     :refer [<t bp]]
+            [behave.components.results.matrices     :refer [result-matrices]]
+            [behave.components.results.table        :refer [result-table-download-link
+                                                            pivot-tables
+                                                            search-tables]]
+            [behave.components.review-input-group   :as review]
+            [behave.tool.views                      :refer [tool tool-selector]]
+            [behave.translate                       :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
-            [behave.components.results.inputs.subs]
-            [bidi.bidi                            :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [dom-utils.interface                  :refer [input-int-value
-                                                          input-float-value
-                                                          input-value]]
-            [goog.string                          :as gstring]
+            [bidi.bidi                              :refer [path-for]]
+            [clojure.string                         :as str]
+            [dom-utils.interface                    :refer [input-int-value
+                                                            input-float-value
+                                                            input-value]]
+            [goog.string                            :as gstring]
             [goog.string.format]
-            [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
-            [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]
-            [string-utils.core :as s]
-            [clojure.string :as str]))
+            [re-frame.core                          :refer [dispatch dispatch-sync subscribe]]
+            [reagent.core                           :as r]
+            [string-utils.core                      :as s]
+            [string-utils.interface                 :refer [->kebab]]))
+
+;; TODO Might want to set this in a config file to the application
+(def ^:const multi-value-input-limit 3)
 
 ;;; Components
-(defn build-groups [ws-uuid groups component-fn & [level]]
+(defn build-groups [{:keys [ws-uuid] :as params} groups component-fn & [level]]
   (let [level (if (nil? level) 0 level)]
     (when groups
       [:<>
@@ -46,47 +49,37 @@
                                   (:group/conditionals-operator group)]))
             (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
               [:<>
-               [component-fn ws-uuid group variables level]
+               [component-fn params group variables level]
                [:div.wizard-subgroup__indent
-                (build-groups ws-uuid (sort-by :group/order (:group/children group)) component-fn (inc level))]]))))])))
+                [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
 
-(defmulti submodule-page (fn [io _ _] io))
+(defmulti submodule-page (fn [_ io _ _] io))
 
-(defmethod submodule-page :input [_ ws-uuid groups]
-  [:<> (build-groups ws-uuid groups input-group)])
+(defmethod submodule-page :input [params _ groups]
+  [:<> [build-groups params groups input-group]])
 
-(defmethod submodule-page :output [_ ws-uuid groups]
-  [:<> (build-groups ws-uuid groups output-group)])
+(defmethod submodule-page :output [params _ groups]
+  [:<> [build-groups params groups output-group]])
 
-(defn- io-tabs [{:keys [ws-uuid io] :as params}]
-  (let [on-click #(when (not= io (:tab %))
-                    (let [next-io                      (:tab %)
-                          [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
-                                                                    ws-uuid
-                                                                    next-io])]
-                      (when (and module-slug submodule-slug)
-                        (dispatch [:wizard/select-tab (merge params
-                                                             {:module    module-slug
-                                                              :io        next-io
-                                                              :submodule submodule-slug})]))))]
-    [:div.wizard-header__io-tabs
-     [c/tab-group {:variant   "secondary"
-                   :flat-edge "top"
-                   :align     "right"
-                   :on-click  on-click
-                   :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
-                               {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
+(defn- io-tabs [{:keys [io] :as _params} on-click]
+  [:div.wizard-header__io-tabs
+   [c/tab-group {:variant   "secondary"
+                 :flat-edge "top"
+                 :align     "right"
+                 :on-click  on-click
+                 :tabs      [{:label @(<t (bp "outputs")) :tab :output :selected? (= io :output)}
+                             {:label @(<t (bp "inputs")) :tab :input :selected? (= io :input)}]}]])
 
 (defn- show-or-close-notes-button [show-notes?]
   (if show-notes?
     [:div.wizard-header__banner__notes-button--minus
-     [c/button {:label         "Close Notes"
+     [c/button {:label         @(<t (bp "close_notes"))
                 :variant       "secondary"
                 :icon-name     :minus
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]
     [:div.wizard-header__banner__notes-button--plus
-     [c/button {:label         "Show Notes"
+     [c/button {:label         @(<t (bp "show_notes"))
                 :variant       "primary"
                 :icon-name     :plus
                 :icon-position "left"
@@ -95,7 +88,17 @@
 (defn- wizard-header [{:keys [ws-uuid io submodule module] :as params} modules]
   (let [*show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs params]
+     [io-tabs params #(when (not= io (:tab %))
+                        (let [next-io                      (:tab %)
+                              [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
+                                                                        ws-uuid
+                                                                        next-io])]
+                          (when (and module-slug submodule-slug)
+                            (dispatch [:wizard/select-tab (merge params
+                                                                 {:module     module-slug
+                                                                  :current-io io
+                                                                  :io         next-io
+                                                                  :submodule  submodule-slug})]))))]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -133,51 +136,69 @@
                                       submodules)}]])]]))
 
 (defn wizard-note
-  [{:keys [note display-submodule-headers?]}]
+  [{:keys [note]} note-categories]
   (r/with-let [[note-id
-                note-name
-                note-content
-                submodule-name
-                submodule-io] note
+                note-category
+                note-content] note
                content-atom   (r/atom note-content)
-               title-atom     (r/atom note-name)]
+               category-atom  (r/atom note-category)]
     (if @(subscribe [:wizard/edit-note? note-id])
       [:div.wizard-note
        [:div.wizard-note__content
-        (when display-submodule-headers?
-          [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
-        [c/note {:title-label       "Note's Name / Category"
-                 :title-placeholder "Enter note's name or category"
-                 :title-value       @title-atom
-                 :body-value        @content-atom
-                 :on-save           #((reset! content-atom (:body %))
-                                      (reset! title-atom (:title %))
-                                      (dispatch [:wizard/update-note note-id %]))}]]]
+        [c/note {:title-label "Category"
+                 :title-value @category-atom
+                 :categories  note-categories
+                 :body-value  @content-atom
+                 :on-save     #(do (reset! content-atom (:body %))
+                                   (reset! category-atom (:title %))
+                                   (dispatch [:wizard/update-note note-id %]))}]]]
       [:div.wizard-note
-       (when display-submodule-headers?
-         [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
-       [:div.wizard-note__name @title-atom]
-       [:div.wizard-note__content @content-atom]
-       [:div.wizard-note__manage
-        [c/button {:variant   "primary"
-                   :label     @(<t (bp "delete"))
-                   :size      "small"
-                   :icon-name "delete"
-                   :on-click  #(dispatch [:worksheet/delete-note note-id])}]
-        [c/button {:variant   "secondary"
-                   :label     @(<t (bp "edit"))
-                   :size      "small"
-                   :icon-name "edit"
-                   :on-click  #(dispatch [:wizard/edit-note note-id])}]]])))
+       [:div.wizard-note__header
+        [:div.wizard-note__name @category-atom]
+        [:div.wizard-note__manage
+         [c/button {:variant   "secondary"
+                    :label     @(<t (bp "edit"))
+                    :size      "small"
+                    :icon-name "edit"
+                    :on-click  #(dispatch [:wizard/edit-note note-id])}]
+         [c/button {:variant   "primary"
+                    :label     @(<t (bp "delete"))
+                    :size      "small"
+                    :icon-name "delete"
+                    :on-click  #(when (js/confirm @(<t (bp "confirm_delete_note")))
+                                  (dispatch [:worksheet/delete-note note-id]))}]]]
+       [:div.wizard-note__content @content-atom]])))
 
-(defn wizard-notes [notes]
+(defn wizard-notes [notes modules]
   (when (seq notes)
-    [:div.wizard-notes
-     [:div.wizard-notes__header "Run's Notes"]
-     (doall (for [[id & _rest :as n] notes]
-              ^{:key id}
-              [wizard-note {:note                       n
-                            :display-submodule-headers? false}]))]))
+    (let [*note-categories (subscribe [:wizard/note-categories modules])]
+      [:div.wizard-notes
+       [:div.wizard-notes__header "Run's Notes"]
+       (doall (for [[id & _rest :as n] notes]
+                ^{:key id}
+                [wizard-note {:note n} @*note-categories]))])))
+
+(defn- add-note-section [ws-uuid modules]
+  (let [*notes               (subscribe [:wizard/notes ws-uuid])
+        *show-add-note-form? (subscribe [:wizard/show-add-note-form?])
+        *note-categories     (subscribe [:wizard/note-categories modules])]
+    [:<>
+     [:div.wizard-add-notes
+      (if @*show-add-note-form?
+        [c/note {:title-label             "Category"
+                 :title-value             ""
+                 :body-value              ""
+                 :categories              @*note-categories
+                 :cancel-label            @(<t (bp "cancel"))
+                 :discard-confirm-message @(<t (bp "confirm_discard_note"))
+                 :on-cancel               #(dispatch [:wizard/toggle-show-add-note-form])
+                 :on-save                 #(dispatch [:wizard/create-note ws-uuid %])}]
+        [c/button {:label         @(<t (bp "add_notes"))
+                   :variant       "outline-primary"
+                   :icon-name     :plus
+                   :icon-position "left"
+                   :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}])]
+     [wizard-notes @*notes modules]]))
 
 (defn wizard-expand []
   (let [working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
@@ -191,22 +212,21 @@
                   :on-click  #(dispatch [:wizard/toggle-expand])
                   :variant   "primary"}]])))
 
-(defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
+(defn wizard-page [{:keys [module io submodule route-handler ws-uuid workflow] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
-        submodule-uuid           (:bp/uuid @*submodule)
-        *notes                   (subscribe [:wizard/notes ws-uuid submodule-uuid])
         *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
-        *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/back])
-        on-next                  #(dispatch [:wizard/next])
+        on-next                  #(dispatch [:wizard/next {:ws-uuid    ws-uuid
+                                                           :workflow   workflow
+                                                           :current-io io}])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ]
     [:div.wizard-page
@@ -214,28 +234,10 @@
       [wizard-header params modules]
       [:div.wizard-page__body
        (when @*show-notes?
-         [:<>
-          [:div.wizard-add-notes
-           [c/button {:label         "Add Notes"
-                      :variant       "outline-primary"
-                      :icon-name     :plus
-                      :icon-position "left"
-                      :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
-           (when @*show-add-note-form?
-             [c/note {:title-label       "Note's Name / Category"
-                      :title-placeholder "Enter note's name or category"
-                      :title-value       ""
-                      :body-value        ""
-                      :on-save           #(dispatch [:wizard/create-note
-                                                     ws-uuid
-                                                     submodule-uuid
-                                                     (:submodule/name @*submodule)
-                                                     (name (:submodule/io @*submodule))
-                                                     %])}])]
-          [wizard-notes @*notes]])
+         [add-note-section ws-uuid modules])
        [:div
         {:data-theme-color module}
-        [submodule-page io ws-uuid @*groups]]
+        [submodule-page params io @*groups]]
        (when (true? @*warn-limit?)
          [:div.wizard-warning
           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]]
@@ -247,13 +249,34 @@
                          ;; :next-disabled? next-disabled?
                          }]]))
 
-(defn run-description [ws-uuid]
+;;; Public Components
+(defn root-component [{:keys [ws-uuid workflow] :as params}]
+  (let [loaded?             (subscribe [:app/loaded?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+    (when ws-uuid
+      (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
+    [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (some? selected-tool-uuid)
+       [tool selected-tool-uuid])
+     [:div.accordion
+      [:div.accordion__header @(<t "behaveplus:working_area")]
+      [:div.wizard
+       (if @loaded?
+         [wizard-page params]
+         [:div.wizard__loading
+          [:h2 (str @(<t (bp "loading")) "...")]])]
+      [wizard-expand]]]))
+
+;; Review page
+
+(defn- run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
         description (:worksheet/run-description @*worksheet)
         value-atom  (r/atom (or description ""))]
     [:div.wizard-review__run-desciption
-     [:div.wizard-review__run-description__header
-      @(<t "behaveplus:run_description")]
      [:div.wizard-review-group__inputs
       [:div.wizard-review__run-description__input
        [c/text-input {:label       @(<t (bp "run_description"))
@@ -279,7 +302,6 @@
         *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
-        *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
@@ -304,52 +326,43 @@
             [:div.wizard-header__banner__title @(<t (bp "worksheet_review"))]
             (show-or-close-notes-button @*show-notes?)]]
           [:div.wizard-review
-           [run-description ws-uuid]
            (when @*show-notes?
-             (wizard-notes @*notes))
+             [add-note-section ws-uuid modules])
            (for [module modules
                  :let   [module-name (:module/name module)]]
-             [:div
+             [:div {:data-theme-color module-name}
               [:div.wizard-review__module
-               {:data-theme-color module-name}
                (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
               [:div.wizard-review__submodule
                (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
                                             ws-uuid
                                             (:db/id module)
                                             :input])
-                     :let      [edit-route (path-for routes
-                                                     :ws/wizard
-                                                     :ws-uuid   ws-uuid
-                                                     :module    (str/lower-case module-name)
-                                                     :io        :input
-                                                     :submodule (:slug submodule))]]
+                     :let      [edit-route (path-for routes :ws/wizard-guided
+                                                     {:ws-uuid   ws-uuid
+                                                      :workflow  :guided
+                                                      :module    (str/lower-case module-name)
+                                                      :io        :input
+                                                      :submodule (:slug submodule)})]]
                  [:<>
                   [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                  (build-groups  ws-uuid
-                                 (:submodule/groups submodule)
-                                 (partial review/input-group edit-route))])]])]
+                  [build-groups (assoc params :edit-route edit-route) (:submodule/groups submodule) review/input-group]])]])]
           (when (true? @*warn-limit?)
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
           [:div.wizard-navigation
-           [c/button {:label    "Back"
+           [c/button {:label    @(<t (bp "back"))
                       :variant  "secondary"
                       :on-click #(dispatch [:wizard/back])}]
-           [c/button {:label         "Run"
+           [c/button {:label         @(<t (bp "run"))
                       :disabled?     (or @*warn-limit?
                                          @*missing-inputs?)
                       :variant       "highlight"
                       :icon-name     "arrow2"
                       :icon-position "right"
-                      :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                          (js/setTimeout
-                                           (fn []
-                                             (dispatch-sync [:wizard/solve params])
-                                             (dispatch-sync [:wizard/after-solve params]))
-                                           300))}]]]]])]))
+                      :on-click      #(dispatch [:wizard/run-solve params])}]]]]])]))
 
-;; Wizard Results Settings
+;; Wizard Results Settings Page
 
 (defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
   (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
@@ -378,10 +391,10 @@
         *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
         gv-uuid+min+max-entries-sorted (->> @*gv-uuid+min+max-entries
                                             (sort-by #(.indexOf @*gv-order (first %))))
-        *default-max-values            (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
-        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
+        *default-max-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
+        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :min])
         units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
-        maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
+        maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val [[gv-uuid _min-val max-val enabled?]]
                                                                               [gv-uuid max-val enabled?])
                                                                             gv-uuid+min+max-entries-sorted)
                                                        :on-change      #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)
@@ -403,7 +416,10 @@
         names                          (map (fn get-variable-name [[gv-uuid _min _max]]
                                               (gstring/format "%s (%s)"
                                                               @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
-                                                              (get units-lookup gv-uuid)))
+                                                              (get units-lookup
+                                                                   (if-let [direcitonal-children (seq @(subscribe [:vms/directional-children gv-uuid]))]
+                                                                     (:bp/uuid (first direcitonal-children))
+                                                                     gv-uuid))))
                                             gv-uuid+min+max-entries-sorted)
         enabled-check-boxes            (when (= rf-event-id :worksheet/update-table-filter-attr)
                                          (map (fn [[gv-uuid _min _max enabled?]]
@@ -439,13 +455,11 @@
   (let [*multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         group-variables          (->> @*multi-value-input-uuids
                                       (map #(deref (subscribe [:wizard/group-variable %]))))
-        enabled?                 (first @(subscribe [:worksheet/get-graph-settings-attr
-                                                     ws-uuid
-                                                     :graph-settings/enabled?]))
         multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         multi-valued-input-count (count multi-valued-input-uuids)
         x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
-        units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])]
+        units-lookup             @(subscribe [:worksheet/result-table-units ws-uuid])
+        enabled?                 @(subscribe [:wizard/enable-graph-settings? ws-uuid])]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
@@ -585,12 +599,16 @@
                      :min-attr-id :table-filter/min
                      :max-attr-id :table-filter/max}]]))
 
-(defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
-  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*notes               (subscribe [:wizard/notes ws-uuid])
+(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow]}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
+  (when ws-uuid
+    (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
+  (let [modules              @(subscribe [:worksheet/modules ws-uuid])
         *show-notes?         (subscribe [:wizard/show-notes?])
         on-back              #(dispatch [:wizard/back])
-        on-next              #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
+        on-next              #(dispatch [:navigate (path-for routes :ws/results
+                                                             {:ws-uuid  ws-uuid
+                                                              :workflow workflow})])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
         show-graph-settings? @(subscribe [:wizard/show-graph-settings? ws-uuid])]
@@ -612,69 +630,71 @@
            @(<t (bp "result_settings"))]
           (show-or-close-notes-button @*show-notes?)]]
         (when @*show-notes?
-          (wizard-notes @*notes))
+          [add-note-section ws-uuid modules])
         [:div.wizard-page__body
          [:div.wizard-results__table-settings
           [:div.wizard-results__table-settings__header "Table Settings"]
           [:div.wizard-results__table-settings__content
            [table-settings ws-uuid]]]
          (when show-graph-settings?
-          [:div.wizard-results__graph-settings
-           [:div.wizard-results__graph-settings__header "Graph Settings"]
-           [:div.wizard-results__graph-settings__content
-            [graph-settings ws-uuid]]])]]]
+           [:div.wizard-results__graph-settings
+            [:div.wizard-results__graph-settings__header "Graph Settings"]
+            [:div.wizard-results__graph-settings__content
+             [graph-settings ws-uuid]]])]]]
       [wizard-navigation {:next-label @(<t (bp "next"))
                           :on-next    on-next
                           :back-label @(<t (bp "back"))
                           :on-back    on-back}]]]))
 
-;; Wizard Results
+;; Wizard Results Page
 
-(defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
-  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*worksheet           (subscribe [:worksheet ws-uuid])
-        *ws-date             (subscribe [:wizard/worksheet-date ws-uuid])
-        *notes               (subscribe [:wizard/notes ws-uuid])
-        *tab-selected        (subscribe [:wizard/results-tab-selected])
-        *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
-        show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
-        tabs                 (cond-> []
+(defn wizard-results-page [{:keys [route-handler ws-uuid workflow]}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
+  (when ws-uuid
+    (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
+  (let [*worksheet          (subscribe [:worksheet ws-uuid])
+        modules             @(subscribe [:worksheet/modules ws-uuid])
+        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
+        *tab-selected       (subscribe [:wizard/results-tab-selected])
+        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])
+        repeat-groups?      @(subscribe [:worksheet/repeat-groups? ws-uuid])
+        tabs                (cond-> []
 
-                               (seq @*notes)
-                               (conj {:label     (-> @(<t (bp "notes"))
+                              :always
+                              (conj {:label     (-> @(<t (bp "notes"))
+                                                    s/capitalize-words)
+                                     :tab       :notes
+                                     :icon-name :notes
+                                     :selected? (= @*tab-selected :notes)})
+
+                              :always
+                              (into [{:label     (-> @(<t (bp "inputs"))
                                                      s/capitalize-words)
-                                      :tab       :notes
-                                      :icon-name :notes
-                                      :selected? (= @*tab-selected :notes)})
+                                      :tab       :inputs
+                                      :icon-name :tables
+                                      :selected? (= @*tab-selected :inputs)}
 
-                               :always
-                               (into [{:label     (-> @(<t (bp "input_tables"))
-                                                      s/capitalize-words)
-                                       :tab       :inputs
-                                       :icon-name :tables
-                                       :selected? (= @*tab-selected :inputs)}
-
-                                      {:label     (-> @(<t (bp "output_tables"))
-                                                      s/capitalize-words)
-                                       :tab       :outputs
-                                       :icon-name :tables
-                                       :selected? (= @*tab-selected :outputs)}])
-
-                               (get-in @*worksheet [:worksheet/graph-settings :graph-settings/enabled?])
-                               (conj {:label     (-> @(<t (bp "output_graphs"))
+                                     {:label     (-> @(<t (bp "output_tables"))
                                                      s/capitalize-words)
-                                      :tab       :graph
-                                      :icon-name :graphs
-                                      :selected? (= @*tab-selected :graph)})
+                                      :tab       :outputs
+                                      :icon-name :tables
+                                      :selected? (= @*tab-selected :outputs)}])
 
-                               (seq (:worksheet/diagrams @*worksheet))
-                               (conj {:label     (-> @(<t (bp "output_diagrams"))
-                                                     s/capitalize-words)
-                                      :tab       :diagram
-                                      :icon-name :graphs
-                                      :selected? (= @*tab-selected :diagram)} ))]
+                              @(subscribe [:wizard/enable-graph-settings? ws-uuid])
+                              (conj {:label     (-> @(<t (bp "output_graphs"))
+                                                    s/capitalize-words)
+                                     :tab       :graph
+                                     :icon-name :graphs
+                                     :selected? (= @*tab-selected :graph)})
+
+                              (seq (:worksheet/diagrams @*worksheet))
+                              (conj {:label     (-> @(<t (bp "output_diagrams"))
+                                                    s/capitalize-words)
+                                     :tab       :diagram
+                                     :icon-name :graphs
+                                     :selected? (= @*tab-selected :diagram)}))]
     (when (not @*tab-selected)
       (dispatch-sync [:wizard/results-select-tab (first tabs)]))
     [:<>
@@ -700,55 +720,153 @@
           [:div.wizard-header__results-toolbar__date
            [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
            [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
+         [run-description ws-uuid]
          [:div.wizard-header__results-tabs
           [c/tab-group {:variant  "highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
                         :tabs     tabs}]]]
         [:div.review-wizard-page__body
          [:div.wizard-results__notes {:id "notes"}
-          (wizard-notes @*notes)]
+          [add-note-section ws-uuid modules]]
          [:div.wizard-notes__header {:id "inputs"}
-          (-> @(<t (bp "input_tables"))
+          (-> @(<t (bp "inputs"))
               s/capitalize-words)]
          [inputs-table ws-uuid]
          (when (seq @*cell-data)
            [:div.wizard-results__table {:id "outputs"}
+            [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
+            [result-table-download-link ws-uuid]
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
+            (when (not repeat-groups?)
+              (search-tables ws-uuid))
             [pivot-tables ws-uuid]
-            (if @*directional-tables?
-              [directional-result-tables ws-uuid]
-              [result-matrices ws-uuid])
-            [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
-            ;; [raw-result-table ws-uuid]
-            [result-table-download-link ws-uuid]])
+            [result-matrices ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
        [:div.wizard-navigation
-        [c/button {:label    "Back"
+        [c/button {:label    @(<t (bp "back"))
                    :variant  "secondary"
                    :on-click #(dispatch [:wizard/back])}]]]]]))
 
-;; TODO Might want to set this in a config file to the application
-(def ^:const multi-value-input-limit 3)
+;; Standard Wizard Workflow Page
 
-;;; Public Components
-(defn root-component [{:keys [ws-uuid] :as params}]
-  (let [loaded?             (subscribe [:app/loaded?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
-    (when ws-uuid
-      (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid])))
+(defn wizard-standard-page
+  [{:keys [route-handler ws-uuid io workflow] :as params}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+  (when ws-uuid
+    (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
+  (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
+        *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
+        *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
+        *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
+        *show-notes?             (subscribe [:wizard/show-notes?])
+        show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
+        computing?               @(subscribe [:state :worksheet-computing?])
+        all-submodules           (mapcat (fn [module]
+                                           (map (fn [submodule module]
+                                                  [(:module/name module) submodule])
+                                                (let [submodules (if (= io :input)
+                                                                   (subscribe [:wizard/submodules-io-input-only (:db/id module)])
+                                                                   (subscribe [:wizard/submodules-io-output-only (:db/id module)]))]
+                                                  (doall (for [submodule @submodules
+                                                               :let      [{id :db/id
+                                                                           op :submodule/conditionals-operator} submodule]
+                                                               :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                                                           submodule)))
+                                                (repeat module)))
+                                         modules)]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
-     [:div.accordion
-      [:div.accordion__header @(<t "behaveplus:working_area")]
-      [:div.wizard
-       (if @loaded?
-         [wizard-page params]
-         [:div.wizard__loading
-          [:h2 "Loading..."]])]
-      [wizard-expand]]]))
+     (when computing?
+       [:h2 (str @(<t (bp "computing")) "...")])
+     (when (not computing?)
+       [:div.accordion
+        [:div.accordion__header @(<t "behaveplus:working_area")]
+        [wizard-expand]
+        [:div.wizard
+         [:div.wizard-page
+          [:div.wizard-header
+           [io-tabs params #(when (not= io (:tab %))
+                              (dispatch [:wizard/standard-navigate-io-tab ws-uuid (:tab %)]))]
+           [:div.wizard-header__banner
+            [:div.wizard-header__banner__icon
+             [c/icon :modules]]
+            [:div.wizard-header__banner__title
+             (if (= io :output)
+               @(<t (bp "module_output_selections"))
+               @(<t (bp "module_input_selections")))]
+            (show-or-close-notes-button @*show-notes?)]
+           (when @*show-notes?
+             [add-note-section ws-uuid modules])
+           [:div.wizard-header__submodule-navigator
+            [:div.wizard-header__submodule-navigator__label
+             (if (= (count modules) 1)
+               (gstring/format "%s %s" (:module/name (first modules)) (str (str/capitalize (name io)) "s"))
+               (apply gstring/format "%s & %s %s" (conj (mapv :module/name modules) (str (str/capitalize (name io)) "s"))))]
+            (let [->option (fn [[module-name {submodule-name :submodule/name}]]
+                             {:value submodule-name
+                              :label (str module-name " - " submodule-name)})]
+              [c/dropdown
+               {:on-change #(dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
+                :options   (map ->option all-submodules)}])]]
+          [:div.wizard-page__body
+           (doall
+            (for [module modules
+                  :let   [module-name (:module/name module)]]
+              [:div {:data-theme-color module-name}
+               (if (= io :input)
+                 (let [submodules (subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+                   (doall
+                    (for [submodule @submodules
+                          :let      [{id :db/id
+                                      op :submodule/conditionals-operator} submodule]
+                          :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                      ^{:key (:submodule/name submodule)}
+                      [:div
+                       {:id (:submodule/name submodule)}
+                       [:div.wizard-standard__submodule-header
+                        (:submodule/name submodule)]
+                       [build-groups params (:submodule/groups submodule) input-group]])))
+                 ;; io is :output
+                 (doall
+                  (let [submodules (subscribe [:wizard/submodules-io-output-only (:db/id module)])]
+                    (for [submodule @submodules
+                          :let      [{id :db/id
+                                      op :submodule/conditionals-operator} submodule]
+                          :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                      ^{:key (:submodule/name submodule)}
+                      [:div
+                       {:id (:submodule/name submodule)}
+                       [:div.wizard-standard__submodule-header
+                        (:submodule/name submodule)]
+                       [build-groups params (:submodule/groups submodule) output-group]]))))]))]
+          (when (true? @*warn-limit?)
+            [:div.wizard-warning
+             (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
+          [:div.wizard-navigation
+           [c/button {:label    @(<t (bp "back"))
+                      :variant  "secondary"
+                      :on-click #(dispatch [:wizard/back])}]
+           (if (= io :input)
+             [c/button {:label         @(<t (bp "run"))
+                        :disabled?     (or @*warn-limit?
+                                           @*missing-inputs?)
+                        :variant       "highlight"
+                        :icon-name     "arrow2"
+                        :icon-position "right"
+                        :on-click      #(dispatch [:wizard/run-solve params])}]
+             [c/button {:label         @(<t (bp "next"))
+                        :variant       "highlight"
+                        :icon-name     "arrow2"
+                        :icon-position "right"
+                        :on-click      #(dispatch [:navigate
+                                                   (path-for routes :ws/wizard-standard
+                                                             {:ws-uuid  ws-uuid
+                                                              :workflow :standard
+                                                              :io       :input})])}])]]]])]))

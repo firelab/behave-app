@@ -36,6 +36,12 @@
         ["BasalAreaUnits::SquareFeetPerAcre"
          "BasalAreaUnits::SquareMetersPerHectare"]))
 
+(def burning-condition
+  (enum "BurningCondition_BurningConditionEnum"
+        ["BurningCondition::Low"
+         "BurningCondition::Moderate"
+         "BurningCondition::Extreme"]))
+
 (def beetle-damage
   (enum "BeetleDamage"
         ["BeetleDamage::not_set"
@@ -300,10 +306,28 @@
          "GACC::SouthernArea"
          "GACC::Southwest"]))
 
+(def safety-condition
+  (enum "SafetyCondition_SafetyConditionEnum"
+        ["SafetyCondition::Low"
+         "SafetyCondition::Moderate"
+         "SafetyCondition::Extreme"]))
+
+(def slope-class
+  (enum "SlopeClass_SlopeClassEnum"
+        ["SlopeClass::Flat"
+         "SlopeClass::Moderate"
+         "SlopeClass::Steep"]))
+
 (def slope-units
   (enum "SlopeUnits_SlopeUnitsEnum"
         ["SlopeUnits::Degrees"
          "SlopeUnits::Percent"]))
+
+(def speed-class
+  (enum "SpeedClass_SpeedClassEnum" 
+        ["SpeedClass::Light"
+         "SpeedClass::Moderate"
+         "SpeedClass::High"]))
 
 (def speed-units
   (enum "SpeedUnits_SpeedUnitsEnum"

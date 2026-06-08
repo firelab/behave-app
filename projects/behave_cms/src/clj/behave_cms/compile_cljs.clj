@@ -1,7 +1,7 @@
 (ns behave-cms.compile-cljs
-  (:require [clojure.java.io :as io]
+  (:require [cljs.main       :as compiler]
             [clojure.edn     :as edn]
-            [cljs.main       :as compiler]))
+            [clojure.java.io :as io]))
 
 (defn- delete-folder
   "Delete a folder and all of its contents recursively."

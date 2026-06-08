@@ -1,54 +1,50 @@
 (ns behave-cms.subgroups.views
-  (:require [clojure.set   :refer [difference]]
-            [clojure.string :as str]
-            [re-frame.core :as rf]
-            [string-utils.interface :refer [->kebab]]
-            [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
-            [behave-cms.components.conditionals    :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.entity-form     :refer [entity-form]]
-            [behave-cms.help.views                 :refer [help-editor]]
-            [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations    :refer [all-translations]]
-            [behave-cms.components.variable-search :refer [variable-search]]
-            [behave-cms.utils :as u]
+  (:require [behave-cms.components.common             :refer [accordion checkbox simple-table window]]
+            [behave-cms.components.conditionals.views :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.sidebar.views      :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form  :refer [table-entity-form table-entity-form-on-select]]
+            [behave-cms.components.translations       :refer [all-translations]]
+            [behave-cms.components.variable-search    :refer [variable-search]]
+            [behave-cms.events]
+            [behave-cms.help.views                    :refer [help-editor]]
             [behave-cms.subs]
-            [behave-cms.events]))
+            [behave-cms.utils                         :as u]
+            [clojure.set                              :refer [difference]]
+            [clojure.string                           :as str]
+            [re-frame.core                            :as rf]
+            [string-utils.interface                   :refer [->kebab]]))
 
 ;;; Private Views
-
-(defn- subgroup-form [group-id subgroup-id]
-  [entity-form {:entity       :group
-                :parent-field :group/_children
-                :parent-id    group-id
-                :id           subgroup-id
-                :fields       [{:label     "Name"
-                                :required? true
-                                :field-key :group/name}]}])
-
-(defn- manage-subgroup [group-id]
-  (let [subgroup (rf/subscribe [:state :subgroup])]
-    [subgroup-form group-id @subgroup]))
-
 (defn- subgroups-table [group-id]
-  (let [subgroups (rf/subscribe [:group/subgroups group-id])]
-    [simple-table
-     [:group/name]
-     (sort-by :group/order @subgroups)
-     {:on-select   #(rf/dispatch [:state/set-state :subgroup (:db/id %)])
-      :on-delete   #(when (js/confirm (str "Are you sure you want to delete the subgroup " (:group/name %) "?"))
-                      (rf/dispatch [:api/delete-entity %]))
-      :on-increase #(rf/dispatch [:api/reorder % @subgroups :group/order :inc])
-      :on-decrease #(rf/dispatch [:api/reorder % @subgroups :group/order :dec])}]))
+  (let [selected-state-path [:selected :group]
+        editor-state-path   [:editors :group]
+        groups              (rf/subscribe [:group/subgroups group-id])]
+    [:div.col-12
+     [table-entity-form
+      {:entity             :group
+       :form-state-path    editor-state-path
+       :entities           (sort-by :group/order @groups)
+       :on-select          (table-entity-form-on-select selected-state-path)
+       :parent-id          group-id
+       :parent-field       :group/_children
+       :table-header-attrs [:group/name]
+       :order-attr         :group/order
+       :entity-form-fields [{:label     "Name"
+                             :required? true
+                             :field-key :group/name}]}]]))
 
 (defn- variables-table [group-id]
-  (let [group-variables (rf/subscribe [:group/variables group-id])]
+  (let [group-variables (rf/subscribe [:group/variables group-id])
+        rows            (mapv (fn [gv]
+                                (assoc gv :group-variable/direction
+                                       (or (get-in gv [:group-variable/direction-ref :list-option/name])
+                                           (some-> (:group-variable/direction gv) name))))
+                              (sort-by :group-variable/order @group-variables))]
     [simple-table
-     [:variable/name :variable/domain-uuid :group-variable/conditionally-set?]
-     (sort-by :group-variable/order @group-variables)
-     {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))
-      :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
-      :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
+     [:variable/name :group-variable/direction :group-variable/conditionally-set?]
+     rows
+     {:on-increase #(rf/dispatch [:api/reorder % rows :group-variable/order :inc])
+      :on-decrease #(rf/dispatch [:api/reorder % rows :group-variable/order :dec])
       :on-select   #(rf/dispatch [:subgroups/edit-variables (first (:variable/_group-variables %))])}]))
 
 (defn- add-variable [group-id]
@@ -72,8 +68,8 @@
                                     :group-variable/translation-key        (str @translation-key ":" (->kebab (:variable/name variable)))
                                     :group-variable/result-translation-key (-> (str/replace @translation-key #":input:|:output:" ":result:")
                                                                                (str ":" (->kebab (:variable/name variable))))
-                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
-                                    :group-variable/order                  (count @group-variables)}]))
+                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")}
+                                   {:order-attr :group-variable/order :siblings @group-variables}]))
        :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]]))
 
 ;;; Settings
@@ -94,6 +90,7 @@
   [:div.row.mt-2
    [bool-setting "Repeat Group?" :group/repeat? group]
    [bool-setting "Research Group?" :group/research? group]
+   [bool-setting "Hide Group?" :group/hidden? group]
    [bool-setting "Single Select Group?" :group/single-select? group]])
 
 ;;; Public Views
@@ -101,36 +98,19 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [nid]}]
-  (let [group               (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
-        id                  (:db/id @group)
-        parent-group        (rf/subscribe [:subgroup/parent id])
-        parent-submodule    (:submodule/_groups @group)
-        group-variables     (rf/subscribe [:sidebar/variables id])
-        subgroups           (rf/subscribe [:sidebar/subgroups id])
-        var-conditionals    (rf/subscribe [:group/variable-conditionals id])
-        module-conditionals (rf/subscribe [:group/module-conditionals id])]
+  (let [group (rf/subscribe [:entity [:bp/nid nid] '[* {:submodule/_groups [:db/id :submodule/name :bp/nid]}]])
+        id    (:db/id @group)]
     [:div
      {:id (str id)}
-     [sidebar
-      "Variables"
-      @group-variables
-      (if @parent-group
-        (:group/name @parent-group)
-        (str (:submodule/name parent-submodule) " Groups"))
-      (if @parent-group
-        (str "/groups/" (:bp/nid @parent-group))
-        (str "/submodules/" (:bp/nid parent-submodule)))
-      "Subgroups"
-      (when (seq @subgroups) @subgroups)]
      [window
       sidebar-width
-      [:div.container
+      [:div.container-fluid
        ^{:key "name"}
        [:div.row.mb-3.mt-4
         [:h2 (:group/name @group)]]
        ^{:key "variables"}
        [accordion
-        "Variables"
+        "Group Variables"
         [:div.col-6
          [variables-table id]]
         [:div.col-6
@@ -139,16 +119,13 @@
        ^{:key "subgroups"}
        [accordion
         "Subgroups"
-        [:div.col-6
-         [subgroups-table id]]
-        [:div.col-6
-         [manage-subgroup id]]]
+        [subgroups-table id]]
        [:hr]
        ^{:key "conditionals"}
        [accordion
         "Conditionals"
         [:div.col-9
-         [conditionals-graph id id (concat @var-conditionals @module-conditionals) :group/conditionals :group/conditionals-operator]]
+         [conditionals-graph id id :group/conditionals :group/conditionals-operator]]
         [:div.col-3
          [manage-conditionals id :group/conditionals]]]
        [:hr]

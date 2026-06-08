@@ -1,35 +1,35 @@
 (ns ^:figwheel-hooks behave-cms.client
-  (:require [bidi.bidi                          :refer [match-route]]
-            [reagent.core                       :as r]
-            [reagent.dom                        :refer [render]]
-            [re-frame.core                      :as rf]
-            [re-frisk.core                      :as re-frisk]
-            [behave-cms.store                   :as s]
-            [behave-cms.config                  :refer [update-config]]
+  (:require [behave-cms.applications.views       :refer [list-applications-page]]
+            [behave-cms.authentication.views     :refer [invite-user-page
+                                                         login-page
+                                                         reset-password-page
+                                                         verify-email-page]]
+            [behave-cms.components.menu          :refer [menu]]
+            [behave-cms.components.sidebar.views :refer [sidebar]]
+            [behave-cms.config                   :refer [update-config]]
+            [behave-cms.domains.views            :refer [domains-page]]
             [behave-cms.events]
+            [behave-cms.group-variables.views    :refer [group-variable-page]]
+            [behave-cms.groups.views             :refer [list-groups-page]]
+            [behave-cms.languages.views          :refer [list-languages-page]]
+            [behave-cms.lists.views              :refer [list-lists-page]]
+            [behave-cms.modules.views            :refer [list-modules-page]]
+            [behave-cms.pages.dashboard          :as dashboard]
+            [behave-cms.routes                   :refer [app-routes]]
+            [behave-cms.store                    :as s]
+            [behave-cms.subgroups.views          :refer [list-subgroups-page]]
+            [behave-cms.submodules.views         :refer [submodules-page]]
             [behave-cms.subs]
-            [behave-cms.routes                  :refer [app-routes]]
-            [behave-cms.components.menu         :refer [menu]]
-            [behave-cms.pages.dashboard         :as dashboard]
-            [behave-cms.applications.views      :refer [list-applications-page]]
-            [behave-cms.authentication.views    :refer [invite-user-page
-                                                        login-page
-                                                        reset-password-page
-                                                        verify-email-page]]
-            [behave-cms.domains.views           :refer [domains-page]]
-            [behave-cms.groups.views            :refer [list-groups-page]]
-            [behave-cms.group-variables.views   :refer [group-variable-page]]
-            [behave-cms.languages.views         :refer [list-languages-page]]
-            [behave-cms.lists.views             :refer [list-lists-page]]
-            [behave-cms.modules.views           :refer [list-modules-page]]
-            [behave-cms.tags.views              :refer [tags-page]]
-            [behave-cms.tools.views             :refer [tools-page]]
-            [behave-cms.units.views             :refer [units-page]]
-            [behave-cms.subtools.views          :refer [subtools-page]]
-            [behave-cms.subtool-variables.views :refer [subtool-variable-page]]
-            [behave-cms.subgroups.views         :refer [list-subgroups-page]]
-            [behave-cms.submodules.views        :refer [submodules-page]]
-            [behave-cms.variables.views         :refer [list-variables-page]]))
+            [behave-cms.subtool-variables.views  :refer [subtool-variable-page]]
+            [behave-cms.subtools.views           :refer [subtools-page]]
+            [behave-cms.tags.views               :refer [tags-page]]
+            [behave-cms.tools.views              :refer [tools-page]]
+            [behave-cms.units.views              :refer [units-page]]
+            [behave-cms.variables.views          :refer [list-variables-page]]
+            [bidi.bidi                           :refer [match-route]]
+            [re-frame.core                       :as rf]
+            [reagent.core                        :as r]
+            [reagent.dom                         :refer [render]]))
 
 (declare render-page!)
 
@@ -38,14 +38,14 @@
 (defonce *current-path   (atom nil))
 
 (def menu-pages
-  [{:page "Applications"         :path "/applications"}
-   {:page "Variables"            :path "/variables"}
-   {:page "Variable  Domains"    :path "/domains"}
-   {:page "Lists"                :path "/lists"}
-   {:page "Tags"                 :path "/tags"}
-   {:page "Units"                :path "/units"}
-   {:page "Languages"            :path "/languages"}
-   {:page "Invite User"          :path "/invite-user"}])
+  [{:page "Applications" :path "/applications"}
+   {:page "Variables" :path "/variables"}
+   {:page "Variable  Domains" :path "/domains"}
+   {:page "Lists" :path "/lists"}
+   {:page "Tags" :path "/tags"}
+   {:page "Units" :path "/units"}
+   {:page "Languages" :path "/languages"}
+   {:page "Invite User" :path "/invite-user"}])
 
 (def app-pages {:applications         list-applications-page
                 :dashboard            dashboard/root-component
@@ -84,7 +84,7 @@
     [:h1 {:style {:text-align "center"}}
      "404 - Page Not Found"]]])
 
-(defn page-component [params]
+(defn page-component [_params]
   (fn [params]
     (let [current-route                  (rf/subscribe [:route])
           {:keys [handler route-params]} (match-route app-routes @current-route)
@@ -94,6 +94,13 @@
       (if (not @loaded?)
         [:div "Loading..."]
         [:div [component (merge params route-params)]]))))
+
+(defn- app-sidebar []
+  (let [current-route (rf/subscribe [:route])
+        loaded?       (rf/subscribe [:state :loaded?])
+        handler       (:handler (match-route app-routes @current-route))]
+    (when (and @loaded? (not (system-page-handlers handler)))
+      [sidebar])))
 
 (defn render-page! [path & [params]]
   (let [dirty-state? (rf/subscribe [:dirty-state?])]
@@ -109,6 +116,7 @@
                      (rf/dispatch [:state/update :selected {}])
                      (rf/dispatch [:state/update :editors {}]))
                    (rf/dispatch [:navigate %]))]
+               [app-sidebar]
                [page-component (or params @original-params)]]
 
               :else
@@ -134,10 +142,9 @@
                      @original-params)]
     (update-config (:client-config clj-params))
     (render-root cur-params)
-    (rf/dispatch-sync [:initialize])
-    (re-frisk/enable)))
+    (rf/dispatch-sync [:initialize])))
 
-(defn- ^:after-load mount-root!
+(defn ^:after-load mount-root!
   "A hook for figwheel to call the init function again."
   []
   (init {}))

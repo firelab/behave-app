@@ -1,6 +1,5 @@
 (ns behave.views
   (:require [clojure.data.json  :as json]
-            [clojure.java.io    :as io]
             [clojure.string     :as str]
             [clojure.edn        :as edn]
             [config.interface   :refer [get-config]]
@@ -9,10 +8,15 @@
 
 ;;; Macros
 
+(defn resource
+  "Retrieve resource from SystemClassLoader."
+  [path]
+  (.getResource (ClassLoader/getSystemClassLoader) path))
+
 (defmacro inline-resource
   "Inlines a file from the /resources directory."
   [resource-path]
-  (slurp (io/resource resource-path)))
+  (slurp (resource resource-path)))
 
 ;;; State
 
@@ -41,7 +45,7 @@
   (apply p/include-js (add-v-query paths)))
 
 (defn- find-app-js []
-  (if-let [manifest (io/resource "public/cljs/manifest.edn")]
+  (if-let [manifest (resource "public/cljs/manifest.edn")]
     (as-> (slurp manifest) app
       (edn/read-string app)
       (get app "resources/public/cljs/app.js" "resources/public/cljs/app.js")
@@ -59,13 +63,16 @@
             (get-config :site :title))]
    [:meta {:name    "description"
            :content (get-config :site :description)}]
+   [:meta {:name "apple-mobile-web-app-title" :content (get-config :site :title)}]
    [:meta {:name "robots" :content "index, follow"}]
    [:meta {:charset "utf-8"}]
    [:meta {:name    "viewport"
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
+   [:link {:rel "icon" :type "image/png" :href "/images/favicon-96x96.png" :sizes "96x96"}]
+   [:link {:rel "icon" :type "image/svg+xml" :href "/images/favicon.svg"}]
+   [:link {:rel "shortcut icon" :type "image/png" :href "/images/favicon.ico"}]
+   [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png" :sizes "180x180"}]
    [:link {:rel "manifest" :href "/manifest.json"}]
-   [:link {:rel "icon" :type "image/png" :href "/images/favicon.ico"}]
-   [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png"}]
    (include-css "/css/roboto-font.css" "/css/component-style.css" "/css/app-style.css")])
 
 (defn- cljs-init
@@ -74,7 +81,10 @@
   [params & [figwheel?]]
   (if figwheel?
     [:script {:type "text/javascript"}
-     (str "window.onload = function () {behave.client.init(" (json/write-str params) "); };")]
+     (str/join "\n" ["createModule().then(instance => { window.Module = instance; });"
+                     (str "window.onAppLoaded = function () { behave.client.init(" (json/write-str params) "); };")
+                     "function waitForClient() { console.log('waiting for behave...', window.behave); (typeof behave !== 'undefined' && behave.client && behave.client.init) ? window.onAppLoaded() : setTimeout(waitForClient, 500); };"
+                     "waitForClient();"])]
     (let [app-js (find-app-js)]
       [:script {:type "text/javascript"}
        (->> [(str "window.onWASMModuleLoadedPath =\"" app-js "\";")
@@ -83,7 +93,7 @@
             (str/join "\n"))])))
 
 (defn- announcement-banner []
-  (let [a11t-file    (io/resource "public/announcement.txt")
+  (let [a11t-file    (resource "public/announcement.txt")
         announcement (if (nil? a11t-file)
                          []
                          (-> a11t-file
@@ -135,13 +145,13 @@
 (defn reset-vms-version!
   "Resets the VMS version based on the file hash."
   []
-  (reset! *vms-version (digest/md5 (slurp (io/resource "public/layout.msgpack")))))
+  (reset! *vms-version (digest/md5 (slurp (resource "public/layout.msgpack")))))
 
 (defn reset-app-version!
   "Resets the App version based on the file hash."
   []
   (reset! *app-version (some->> "version.edn"
-                                io/resource
+                                resource
                                 slurp
                                 edn/read-string
                                 :version)))
@@ -176,6 +186,7 @@
                   [:body
                    (when (not (:ws-uuid route-params)) (announcement-banner))
                    [:div#app]
+                   (include-js "/js/behave-min.js")
                    (cljs-init init-params figwheel?)
-                   (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
+                   (include-js "/js/katex.min.js" "/js/bodymovin.js")
                    (when figwheel? (include-js (find-app-js)))])})))

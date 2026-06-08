@@ -46,7 +46,7 @@
     (println ok body)))
 
 (defn load-store! []
-  (ajax-request {:uri             "/sync"
+  (ajax-request {:uri             "/api/sync"
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}
                  :response-format {:description  "ArrayBuffer"
@@ -56,7 +56,7 @@
 
 (defn- batch-sync-tx-data []
   (when-not (empty? @batch)
-    (ajax-request {:uri             "/sync"
+    (ajax-request {:uri             "/api/sync"
                    :params          {:tx-data @batch}
                    :method          :post
                    :handler         sync-tx-data-handler
@@ -85,8 +85,8 @@
         (swap! sync-txs union (txs datoms))
         (d/transact @conn datoms)))))
 
-(defn sync-latest-datoms! []
-  (ajax-request {:uri             "/sync"
+(defn- sync-latest-datoms! []
+  (ajax-request {:uri             "/api/sync"
                  :params          {:tx (:max-tx @@conn)}
                  :method          :get
                  :handler         apply-latest-datoms
@@ -101,7 +101,7 @@
     (download body file-name "application/x-sqlite3")))
 
 (defn save-worksheet! [{:keys [ws-uuid file-name]}]
-  (ajax-request {:uri             "/save"
+  (ajax-request {:uri             "/api/save"
                  :params          {:ws-uuid   ws-uuid
                                    :file-name file-name}
                  :method          :post
@@ -112,7 +112,7 @@
                                    :content-type "application/x-sqlite3"
                                    :read         pr/-body}}))
 
-(defn- open-worksheet-handler [[ok body]]
+(defn- open-worksheet-handler [file-name [ok body]]
   (when ok
     (reset! worksheet-from-file? true)
     (reset! conn nil)
@@ -122,22 +122,24 @@
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :sync-loaded? true])
       (rf/dispatch-sync [:state/set :ws-version
-                         @(rf/subscribe [:worksheet/version @(rf/subscribe [:worksheet/latest])])]))))
+                         @(rf/subscribe [:worksheet/version @(rf/subscribe [:worksheet/latest])])])
+      (rf/dispatch-sync [:worksheet/update-worksheet-name-from-import
+                         @(rf/subscribe [:worksheet/latest]) file-name]))))
 
 
 (defn open-worksheet! [{:keys [file]}]
   (let [form-data (js/FormData.)]
     (.append form-data "file" file)
-    (ajax-request {:uri             "/open"
+    (ajax-request {:uri             "/api/open"
                    :body            form-data
                    :method          :post
-                   :handler         open-worksheet-handler
+                   :handler         (partial open-worksheet-handler (.-name file))
                    :response-format {:description  "ArrayBuffer"
                                      :type         :arraybuffer
                                      :content-type "application/msgpack"
                                      :read         pr/-body}})))
 
-(defn new-worksheet-handler [nname modules submodule [ok body]]
+(defn new-worksheet-handler [nname modules submodule workflow [ok body]]
   (when ok
     (reset! worksheet-from-file? false)
     (reset! conn nil)
@@ -151,12 +153,12 @@
                                          :modules (vec modules)
                                          :uuid    ws-uuid
                                          :version @(rf/subscribe [:state :app-version])}])
-      (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
+      (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
       (rf/dispatch-sync [:navigate (first @current-route-order)]))))
 
-(defn new-worksheet! [nname modules submodule]
-  (ajax-request {:uri             "/init"
-                 :handler         (partial new-worksheet-handler nname modules submodule)
+(defn new-worksheet! [nname modules submodule workflow]
+  (ajax-request {:uri             "/api/init"
+                 :handler         (partial new-worksheet-handler nname modules submodule workflow)
                  :method          :get
                  :format          {:content-type "application/text" :write str}
                  :response-format {:description  "ArrayBuffer"
@@ -192,3 +194,8 @@
  :ds/transact
  (fn [_ [_ tx-data]]
    (first tx-data)))
+
+(rp/reg-event-ds
+ :ds/transact-many
+ (fn [_ [_ tx-data]]
+   tx-data))

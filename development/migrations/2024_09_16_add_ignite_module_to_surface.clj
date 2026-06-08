@@ -1,4 +1,4 @@
-(ns migrations.2024-09-16-add-ignite-module-to-surface
+(ns ^{:migrate/ignore? true} migrations.2024-09-16-add-ignite-module-to-surface
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

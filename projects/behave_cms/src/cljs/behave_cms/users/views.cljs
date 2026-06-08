@@ -1,12 +1,12 @@
 (ns behave-cms.users.views
-  (:require [re-frame.core :as rf]
-            [behave-cms.components.common :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]))
+  (:require [behave-cms.components.common      :refer [simple-table]]
+            [behave-cms.components.entity-form :refer [entity-form]]
+            [re-frame.core                     :as rf]))
 
 (def columns [:email :name])
 
 (defn users-table []
-  (let [users (rf/subscribe [:entities :users])
+  (let [users     (rf/subscribe [:entities :users])
         on-select #(rf/dispatch [:state/set-state :user (:uuid %)])
         on-delete #(when (js/confirm (str "Are you sure you want to delete the user " (:user %) "?"))
                      (rf/dispatch [:api/delete-entity :users %]))]

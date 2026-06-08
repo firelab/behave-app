@@ -1,0 +1,14 @@
+;; .cljfmt.edn
+;; --
+;; 1. Place in $HOME and Project directory (e.g. `$PROJECT_DIR/.cljfmt.edn`)
+;; 2. Use `cljfmt fix <src-path>` to fix all files the src directory
+
+{:indentation?                          true
+ :remove-trailing-whitespace?           true
+ :remove-surrounding-whitespace?        true
+ :insert-missing-whitespace?            true
+ :remove-consecutive-blank-lines?       true
+ :align-map-columns?                    true
+ :align-form-columns?                   true
+ :sort-ns-references?                   true
+ :remove-multiple-non-indenting-spaces? false}

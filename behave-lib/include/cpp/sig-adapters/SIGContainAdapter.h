@@ -32,6 +32,13 @@
 
 #include "ContainAdapter.h"
 #include "SIGCollections.h"
+#include <memory>
+#include <vector>
+
+enum class ContainMode {
+    Default,
+    ComputeWithOptimalResource
+};
 
 class SIGContainAdapter : public ContainAdapter
 {
@@ -56,6 +63,9 @@ public:
   DoubleVector getFirePerimeterX( void ) const;
   DoubleVector getFirePerimeterY( void ) const;
   int getFirePerimeterPointCount( void ) const;
+  DoubleVector getOptimizedContainProductionRates( void ) const;
+  DoubleVector getOptimizedContainAreas( void ) const;
+  int getOptimizedContainPointCount( void ) const;
 
   double getFireBackAtReport( void ) const;
   double getFireHeadAtReport( void ) const;
@@ -66,6 +76,28 @@ public:
   double getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const;
   double getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const;
   int    getTactic( void ) const;
+  double getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum speedUnits);
+  void   doContainRun();
+  void   doContainRunWithOptimalResource();
+  void   setContainMode(ContainMode containMode);
+  void   setResourceArrivalTime(double arrivalTime, TimeUnits::TimeUnitsEnum timeUnits);
+  void   setResourceDuration(double duration, TimeUnits::TimeUnitsEnum timeUnits);
+  void   setAutoComputedResourceProductionRate(double resourceProductionRate, SpeedUnits::SpeedUnitsEnum speedUnits);
+
+protected:
+  double autoComputedResourceProductionRate_;
+  ContainMode containMode_ = ContainMode::Default;
+  double  resourceArrivalTime_; //min
+  double  resourceDuration_; //min
+  std::vector<double> optimizedContainProductionRates_;
+  std::vector<double> optimizedContainAreas_;
+
+private:
+  std::unique_ptr<Sem::ContainSim> runSimAtProductionRate(double productionRate,
+                                                          double resourceArrival,
+                                                          double resourceDuration,
+                                                          const char* desc);
+  void storeSimResults(Sem::ContainSim* sim);
 };
 
 #endif //CONTAINADAPTER_H

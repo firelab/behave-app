@@ -1,6 +1,6 @@
 (ns behave.schema.worksheet
-  (:require [clojure.spec.alpha :as s]
-            [behave.schema.utils :refer [many-ref? single-ref? uuid-string?]]))
+  (:require [behave.schema.utils :refer [many-ref? single-ref? uuid-string?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
@@ -28,6 +28,7 @@
 ;;; Schema
 
 (def schema
+  "Datomic schema for worksheet entities."
   [{:db/ident       :worksheet/version
     :db/doc         "The application's version that was used to generate this worksheet"
     :db/valueType   :db.type/string
@@ -54,7 +55,18 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   ;; Deprecated
    {:db/ident       :worksheet/furthest-visited-step
+    :db/doc         "Worksheet's furthest completed step."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/furthest-visited-route-handler
+    :db/doc         "Worksheet's furthest completed step."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/furthest-visited-io
     :db/doc         "Worksheet's furthest completed step."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
@@ -124,6 +136,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :note/category
+    :db/doc         "Note's category name."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :note/submodule
     :db/doc         "Note's reference to a submodule's UUID"
     :db/valueType   :db.type/string
@@ -165,6 +182,11 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :input/units
+    :db/doc         "Deprecated use `:input/units-uuid`"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :input/units-uuid
     :db/doc         "Input's units."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -190,6 +212,11 @@
    ;; Outputs
    {:db/ident       :output/group-variable-uuid
     :db/doc         "Output's reference to Variable's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :output/units-uuid
+    :db/doc         "outputs's units uuid."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -228,7 +255,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :result-header/units
-    :db/doc         "Result header's units."
+    :db/doc         "Result header's units shortcode."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -382,8 +409,8 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :worksheet.diagram/title
-    :db/doc         "Diagram's title"
+   {:db/ident       :worksheet.diagram/units-uuid
+    :db/doc         "Diagram's units UUID"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

@@ -1,4 +1,4 @@
-(ns migrations.2024-07-15-mortality-in-all-directions
+(ns ^{:migrate/ignore? true} migrations.2024-07-15-mortality-in-all-directions
   (:require [schema-migrate.interface :as sm]
             [behave.schema.rules :refer [vms-rules]]
             [datomic.api :as d]

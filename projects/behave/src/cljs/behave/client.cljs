@@ -1,24 +1,24 @@
 (ns ^:figwheel-hooks behave.client
-  (:require [clojure.string            :as str]
-            [reagent.dom               :refer [render]]
-            [re-frame.core             :as rf]
-            [behave.components.core    :as c]
-            [behave.components.sidebar :refer [sidebar]]
-            [behave.components.toolbar :refer [toolbar]]
-            [behave.components.modal   :refer [modal]]
-            [behave.help.views         :refer [help-area]]
-            [behave.settings.views     :as settings]
-            [behave.store              :refer [load-store!]]
-            [behave.tools              :as tools]
-            [behave.translate          :refer [<t bp]]
-            [behave.vms.store          :refer [load-vms!]]
-            [behave.wizard.views       :as wizard]
-            [behave.print.views        :refer [print-page]]
-            [behave.demo.views         :refer [demo-output-diagram-page]]
-            [behave.worksheet.views    :refer [new-worksheet-page
-                                               import-worksheet-page
-                                               guided-worksheet-page
-                                               independent-worksheet-page]]
+  (:require [clojure.string                  :as str]
+            [reagent.dom                     :refer [render]]
+            [re-frame.core                   :as rf]
+            [behave.components.core          :as c]
+            [behave.components.sidebar.views :refer [sidebar]]
+            [behave.components.toolbar       :refer [toolbar]]
+            [behave.components.modal         :refer [modal]]
+            [behave.help.views               :refer [help-area]]
+            [behave.settings.views           :as settings]
+            [behave.store                    :refer [load-store!]]
+            [behave.tools                    :as tools]
+            [behave.translate                :refer [<t bp]]
+            [behave.vms.store                :refer [load-vms!]]
+            [behave.wizard.views             :as wizard]
+            [behave.print.views              :refer [print-page]]
+            [behave.demo.views               :refer [demo-output-diagram-page]]
+            [behave.worksheet.views          :refer [home-page
+                                                     import-worksheet-page
+                                                     module-selection-page
+                                                     workflow-selection-page]]
             [behave.events]
             [behave.subs]
             [day8.re-frame.http-fx]))
@@ -29,28 +29,28 @@
   [:div
    [:h1 (str @(<t "notfound") " :(")]])
 
-(def handler->page {:home                new-worksheet-page
-                    :demo/diagram        demo-output-diagram-page
-                    :ws/all              new-worksheet-page
-                    :ws/import           import-worksheet-page
-                    :ws/guided           guided-worksheet-page
-                    :ws/independent      independent-worksheet-page
-                    :ws/wizard           wizard/root-component
-                    :ws/review           wizard/wizard-review-page
-                    :ws/results-settings wizard/wizard-results-settings-page
-                    :ws/results          wizard/wizard-results-page
-                    :ws/print            print-page
-                    :settings/all        settings/settings-page
-                    :settings/page       settings/settings-page
-                    :tools/all           tools/root-component
-                    :tools/page          tools/root-component})
+(def handler->page {:home                  home-page
+                    :demo/diagram          demo-output-diagram-page
+                    :ws/home                home-page
+                    :ws/import             import-worksheet-page
+                    :ws/module-selection   module-selection-page
+                    :ws/workflow-selection workflow-selection-page
+                    :ws/wizard-standard    wizard/wizard-standard-page
+                    :ws/wizard-guided      wizard/root-component
+                    :ws/review             wizard/wizard-review-page
+                    :ws/results-settings   wizard/wizard-results-settings-page
+                    :ws/results            wizard/wizard-results-page
+                    :ws/print              print-page
+                    :settings/all          settings/settings-page
+                    :settings/page         settings/settings-page
+                    :tools/all             tools/root-component
+                    :tools/page            tools/root-component})
 
 (defn load-scripts! [{:keys [issue-collector sentry]}]
   (when issue-collector
     (rf/dispatch [:system/add-script issue-collector]))
   (when sentry
     (rf/dispatch [:system/add-script sentry])))
-
 
 (defn- before-unload-fn [e]
   (when-not (str/includes? (.-pathname (.-location js/window)) "print")
@@ -146,7 +146,6 @@
            {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
            "Disclaimer"]]]])]))
 
-
 (def ^:private route-params-atom (atom nil))
 
 (defn- ^:export init
@@ -154,8 +153,8 @@
   [params]
   (let [params (js->clj params :keywordize-keys true)]
     (reset! route-params-atom params)
-    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:initialize])
+    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
     (load-vms! (:vms-version params))

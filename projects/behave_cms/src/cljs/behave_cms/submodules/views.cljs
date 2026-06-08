@@ -1,126 +1,209 @@
 (ns behave-cms.submodules.views
-  (:require [behave-cms.components.common       :refer [accordion btn-sm simple-table window]]
-            [behave-cms.components.entity-form  :refer [entity-form]]
-            [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations :refer [all-translations]]
-            [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
+  (:require [behave-cms.components.common            :refer [accordion btn-sm window]]
+            [behave-cms.components.entity-form       :refer [entity-form]]
+            [behave-cms.components.search-table      :refer [search-tables]]
+            [behave-cms.components.sidebar.views     :refer [sidebar-width]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
+            [behave-cms.components.translations      :refer [all-translations]]
+            [behave-cms.help.views                   :refer [help-editor]]
             [behave-cms.submodules.subs]
-            [re-frame.core                      :as rf]
-            [reagent.core                       :as r]))
+            [re-frame.core                           :as rf]
+            [reagent.core                            :as r]))
 
-(defn- submodule-form [module-id id num-submodules]
-  [entity-form {:entity       :submodule
-                :parent-field :module/_submodules
-                :parent-id    module-id
-                :id           id
-                :fields       [{:label     "Name"
-                                :required? true
-                                :field-key :submodule/name}
-                               {:label     "I/O"
-                                :field-key :submodule/io
-                                :type      :radio
-                                :options   [{:label "Input" :value :input}
-                                            {:label "Output" :value :output}]}]
-                :on-create    #(assoc % :submodule/order num-submodules)}])
+(defn- pivot-table [pivot-table-id application-id]
+  (let [selected-state-path [:selected :pivot-table pivot-table-id :pivot-column]
+        editor-path         [:editors :pivot-table pivot-table-id :pivot-column]
+        selected-entity     (rf/subscribe [:state selected-state-path])
+        entities            (rf/subscribe [:pivot-table/columns pivot-table-id])]
+    [table-entity-form
+     {:title              "Pivot Table Columns"
+      :form-state-path    selected-state-path
+      :entity             :pivot-table/columns
+      :entities           (sort-by :pivot-column/order @entities)
+      :parent-id          pivot-table-id
+      :parent-field       :pivot-table/_columns
+      :on-select          (table-entity-form-on-select selected-state-path)
+      :order-attr         :pivot-column/order
+      :table-header-attrs [:variable/name :pivot-column/type :pivot-column/function]
+      :entity-form-fields (cond-> [{:label     "Column Type"
+                                    :type      :radio
+                                    :required? true
+                                    :field-key :pivot-column/type
+                                    :options   [{:label "Field" :value :field}
+                                                {:label "Value" :value :value}]}
+                                   {:label          "Group Variable"
+                                    :field-key      :pivot-column/group-variable-uuid
+                                    :field-key-type :db.type/string
+                                    :app-id         application-id
+                                    :required?      true
+                                    :type           :group-variable}]
+                            (or (= (:pivot-column/type @selected-entity) :value)
+                                (= (:pivot-column/type @(rf/subscribe [:state editor-path])) :value))
+                            (conj {:label     "Function"
+                                   :type      :keyword-select
+                                   :field-key :pivot-column/function
+                                   :required  true
+                                   :options   [{:value :sum :label "sum"}
+                                               {:value :min :label "min"}
+                                               {:value :max :label "max"}
+                                               {:value :count :label "count"}]}))}]))
 
-(defn- manage-submodule [module-id *submodule num-submodules]
-  [:div.col-6
-   [:h5 (if (nil? module-id) "Add" "Edit") " Submodule"
-    [submodule-form module-id *submodule num-submodules]]])
+(defn- diagrams-table [module-id app-id]
+  (let [selected-state-path [:selected :diagram]
+        editor-state-path   [:editors :diagram]
+        diagrams            (rf/subscribe [:diagrams module-id])]
+    [table-entity-form
+     {:entity             :diagram
+      :form-state-path    editor-state-path
+      :entities           (sort-by :diagram/type @diagrams)
+      :on-select          (table-entity-form-on-select selected-state-path)
+      :parent-id          module-id
+      :parent-field       :module/_diagrams
+      :table-header-attrs [:diagram/type :diagram/title]
+      :entity-form-fields [{:label     "Type"
+                            :required? true
+                            :field-key :diagram/type
+                            :type      :keyword-select
+                            :options   [{:value :contain :label "Contain"}
+                                        {:value :optimized-contain :label "Optimized Contain"}
+                                        {:value :fire-shape :label "Fire Shape"}
+                                        {:value :wind-slope-spread-direction :label "Wind/Slope/Spread Direction"}]}
+                           {:label     "Title"
+                            :required? true
+                            :field-key :diagram/title}
+                           {:label     "Anchor Group Variable"
+                            :field-key :diagram/group-variable
+                            :required? true
+                            :type      :group-variable
+                            :app-id    app-id}
+                           {:label     "X-Axis Title"
+                            :field-key :diagram/x-axis-title}
+                           {:label     "Y-Axis Title"
+                            :field-key :diagram/y-axis-title}
+                           {:label     "X-Axis Units"
+                            :field-key :diagram/x-units-uuid
+                            :type      :unit}
+                           {:label     "Y-Axis Units"
+                            :field-key :diagram/y-units-uuid
+                            :type      :unit}
+                           {:label     "Show Quadrant 1?"
+                            :field-key :diagram/show-quadrant-1?
+                            :type      :boolean}
+                           {:label     "Show Quadrant 2?"
+                            :field-key :diagram/show-quadrant-2?
+                            :type      :boolean}
+                           {:label     "Show Quadrant 3?"
+                            :field-key :diagram/show-quadrant-3?
+                            :type      :boolean}
+                           {:label     "Show Quadrant 4?"
+                            :field-key :diagram/show-quadrant-4?
+                            :type      :boolean}
+                           {:label     "Connect Points?"
+                            :field-key :diagram/connect-points?
+                            :type      :boolean}]
+      :translation-attrs  [{:label "Title Translation" :attr :diagram/title-translation-key}
+                           {:label "X-Axis Title Translation" :attr :diagram/x-axis-title-translation-key}
+                           {:label "Y-Axis Title Translation" :attr :diagram/y-axis-title-translation-key}]}]))
 
-(defn- submodules-table [label submodules]
-  [:<>
-   [:h5 label]
-   [simple-table
-    [:submodule/name]
-    (->> submodules (sort-by :submodule/order))
-    {:on-select   #(rf/dispatch [:state/set-state :submodule (:db/id %)])
-     :on-delete   #(when (js/confirm (str "Are you sure you want to delete the submodule "
-                                          (:submodule/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))
-     :on-increase #(rf/dispatch [:api/reorder % submodules :submodule/order :inc])
-     :on-decrease #(rf/dispatch [:api/reorder % submodules :submodule/order :dec])}]])
+(defn- submodules-table [module-id]
+  (let [selected-state-path [:selected :submodule]
+        editor-state-path   [:editors :submodule]
+        submodule           (rf/subscribe [:submodules module-id])]
+    [table-entity-form
+     {:entity             :submodule
+      :form-state-path    editor-state-path
+      :entities           (sort-by :submodule/order @submodule)
+      :on-select          (table-entity-form-on-select selected-state-path)
+      :parent-id          module-id
+      :parent-field       :module/_submodules
+      :table-header-attrs [:submodule/name :submodule/io]
+      :order-attr         :submodule/order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :submodule/name}
+                           {:label     "I/O"
+                            :field-key :submodule/io
+                            :type      :radio
+                            :options   [{:label "Input" :value :input}
+                                        {:label "Output" :value :output}]}]}]))
 
-(defn- all-submodule-tables [module-id]
-  (let [submodules (rf/subscribe [:submodules module-id])
-        inputs     (filter #(= :input (:submodule/io %)) @submodules)
-        outputs    (filter #(= :output (:submodule/io %)) @submodules)]
-    [:div.col-6
-     [:row
-      [submodules-table "Output Submodules" outputs]
-      [submodules-table "Input Submodules" inputs]]]))
+(defn- submodules-results-order-table [module-id]
+  (let [submodule (rf/subscribe [:submodules module-id])]
+    [table-entity-form
+     {:entity             :submodule
+      :entities           (sort-by :submodule/results-order @submodule)
+      :modify?            false
+      :parent-id          module-id
+      :parent-field       :module/_submodules
+      :table-header-attrs [:submodule/name :submodule/io]
+      :order-attr         :submodule/results-order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :submodule/name}]}]))
 
 (defn submodules-page
   "Display submodules page. Takes a map with:
    - id [int]: Submodule entity ID."
   [{:keys [nid]}]
-  (let [module      (rf/subscribe [:entity [:bp/nid nid] '[* {:application/_modules [:db/id :application/name :bp/nid]}]])
-        id          (:db/id @module)
-        application (get-in @module [:application/_modules 0])
-        submodules  (rf/subscribe [:sidebar/submodules id])
-        submodule   (rf/subscribe [:state :submodule])]
-    [:<>
-     [sidebar
-      "Submodules"
-      @submodules
-      (str (:application/name application) " Modules")
-      (str "/applications/" (:bp/nid application))]
-     [window sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (:module/name @module)]]
-       [accordion
-        "Submodules"
-        [all-submodule-tables id]
-        [manage-submodule id @submodule (count @submodules)]]
-       [:hr]
-       [accordion
-        "Translations"
-        [:div.col-12
-         [all-translations (:module/translation-key @module)]]]
-       [:hr]
-       [accordion
-        "Help Page"
-        [:div.col-12
-         [help-editor (:module/help-key @module)]]]
-       [:hr]
-       [accordion
-        "Pivot Tables"
-        [:div.col-12
-         [entity-form {:entity       :pivot-table
-                       :parent-field :module/_pivot-tables
-                       :parent-id    (:db/id @module)
-                       :fields       [{:label     "Tittle"
-                                       :required? true
-                                       :field-key :pivot-table/title}]}]
-         (doall
-          (map
-           (fn [pivot-table]
-             (let [pivot-table-id       (:db/id pivot-table)
-                   pivot-table-fields   @(rf/subscribe [:pivot-table/fields pivot-table-id])
-                   pivot-table-values   @(rf/subscribe [:pivot-table/values pivot-table-id])
-                   pivot-column-id-atom (r/atom nil)]
+  (r/with-let [show-add-pivot-table? (r/atom false)]
+    (let [module      (rf/subscribe [:entity [:bp/nid nid]
+                                     '[* {:application/_modules [:db/id :application/name :bp/nid]}]])
+          module-id   (:db/id @module)
+          application (get-in @module [:application/_modules 0])]
+      [window sidebar-width
+       [:div.container-fluid
+        [:div.row.mb-3.mt-4
+         [:h2 (:module/name @module)]]
+        [accordion
+         "Submodules"
+         [submodules-table module-id]]
+        [:hr]
+        [accordion
+         "Submodules Results Order"
+         [submodules-results-order-table module-id]]
+        [:hr]
+        [accordion
+         "Diagrams"
+         [diagrams-table (:db/id @module) (:db/id application)]]
+        [:hr]
+        [accordion
+         "Translations"
+         [:div.col-12
+          [all-translations (:module/translation-key @module)]]]
+        [:hr]
+        [accordion
+         "Help Page"
+         [:div.col-12
+          [help-editor (:module/help-key @module)]]]
+        [:hr]
+        [accordion
+         "Pivot Tables"
+         [:<>
+          [:hr]
+          [:div.col-12
+           (doall
+            (map
+             (fn [pivot-table-entity]
                [:<>
                 [accordion
-                 (:pivot-table/title pivot-table)
-                 [:div.col-6
-                  [simple-table
-                   [:variable/name]
-                   pivot-table-fields
-                   {:on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
-                    :on-select #(reset! pivot-column-id-atom (:db/id %))}]
-                  [simple-table
-                   [:variable/name :pivot-column/function]
-                   pivot-table-values
-                   {:on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
-                    :on-select #(reset! pivot-column-id-atom (:db/id %))}]
-                  [btn-sm
-                   :outline-danger
-                   "Delete Pivot Table"
-                   #(when (js/confirm (str "Are you sure you want to delete this pivot table?"))
-                      (rf/dispatch [:api/delete-entity pivot-table-id]))]]
-                 [:div.col-6
-                  [manage-pivot-table-column id pivot-table-id pivot-column-id-atom]]]
-                [:hr]]))
-           (:module/pivot-tables @module)))]]]]]))
+                 (:pivot-table/title pivot-table-entity)
+                 [pivot-table (:db/id pivot-table-entity) (:db/id application)]]
+                [:hr]])
+             (:module/pivot-tables @module)))
+           (if @show-add-pivot-table?
+             [entity-form {:entity       :pivot-table
+                           :parent-field :module/_pivot-tables
+                           :parent-id    (:db/id @module)
+                           :fields       [{:label     "Title"
+                                           :required? true
+                                           :field-key :pivot-table/title}]
+                           :on-create    #(do (swap! show-add-pivot-table? not) %)}]
+             [btn-sm
+              :primary
+              "Add Pivot Table"
+              #(swap! show-add-pivot-table? not)])]]]
+        [:hr]
+        [accordion
+         "Search Tables"
+         [:hr]
+         [search-tables module]]]])))

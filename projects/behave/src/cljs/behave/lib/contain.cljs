@@ -46,6 +46,9 @@
   (.setTactic self tactic))
 
 ;; outputs
+(defn getAutoComputedResourceProductionRate [self speedUnits]
+  (.getAutoComputedResourceProductionRate self speedUnits))
+
 (defn getAttackDistance [self lengthUnits]
   (.getAttackDistance self lengthUnits))
 
@@ -67,6 +70,9 @@
 (defn getFinalTimeSinceReport [self timeUnits]
   (.getFinalTimeSinceReport self timeUnits))
 
+(defn getFinalProductionRate [self productionRateUnits]
+  (.getFinalProductionRate self productionRateUnits))
+
 (defn getFireBackAtAttack [self]
   (.getFireBackAtAttack self))
 
@@ -80,13 +86,22 @@
   (.getFireHeadAtReport self))
 
 (defn getFirePerimeterPointCount [self]
-  (.getFirePoints self))
+  (.getFirePerimeterPointCount self))
 
 (defn getFirePerimeterX [self]
   (.getFirePerimeterX self))
 
 (defn getFirePerimeterY [self]
   (.getFirePerimeterY self))
+
+(defn getOptimizedContainProductionRates [self]
+  (.getOptimizedContainProductionRates self))
+
+(defn getOptimizedContainAreas [self]
+  (.getOptimizedContainAreas self))
+
+(defn getOptimizedContainPointCount [self]
+  (.getOptimizedContainPointCount self))
 
 (defn getFireSizeAtInitialAttack [self areaUnits]
   (.getFireSizeAtInitialAttack self areaUnits))
@@ -123,3 +138,12 @@
 
 (defn removeResourceWithThisDesc [self desc]
   (.removeResourceWithThisDesc self desc))
+
+(defn setResourceArrivalTime [self arrivalTime timeUnits]
+  (.setResourceArrivalTime self arrivalTime timeUnits))
+
+(defn setResourceDuration [self duration timeUnits]
+  (.setResourceDuration self duration timeUnits))
+
+(defn setContainMode [self containMode]
+  (.setContainMode self containMode))

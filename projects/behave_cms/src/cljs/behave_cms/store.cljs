@@ -1,21 +1,21 @@
 (ns behave-cms.store
-  (:require [clojure.set                 :refer [union]]
-            [ajax.core                   :refer [ajax-request]]
+  (:require [ajax.core                   :refer [ajax-request]]
             [ajax.edn                    :refer [edn-request-format
                                                  edn-response-format]]
             [ajax.protocols              :as pr]
+            [austinbirch.reactive-entity :as re]
+            [behave-cms.config           :refer [get-config]]
+            [behave.schema.core          :refer [all-schemas]]
+            [clojure.set                 :refer [union]]
             [datascript.core             :as d]
-            [re-frame.core               :as rf]
-            [re-posh.core                :as rp]
             [datom-compressor.interface  :as c]
             [datom-utils.interface       :refer [db-attrs
                                                  datoms->map
                                                  safe-deref
                                                  split-datom]]
             [ds-schema-utils.interface   :refer [->ds-schema]]
-            [behave.schema.core          :refer [all-schemas]]
-            [behave-cms.config           :refer [get-config]]
-            [austinbirch.reactive-entity :as re]))
+            [re-frame.core               :as rf]
+            [re-posh.core                :as rp]))
 
 ;;; State
 
@@ -58,12 +58,12 @@
   (let [nid-pair (fn [eid] (if-let [nid (get nid-map eid)]
                              [:bp/nid nid]
                              eid))]
-  (cond-> datom
-    :always
-    (update 0 nid-pair)
+    (cond-> datom
+      :always
+      (update 0 nid-pair)
 
-    (@ref-attrs (second datom))
-    (update 2 nid-pair))))
+      (@ref-attrs (second datom))
+      (update 2 nid-pair))))
 
 (defn- record-nid-map! [conn]
   (reset! nid-map (into {} (d/q '[:find ?eid ?nid
@@ -73,9 +73,9 @@
 (defn- update-nid-map! [datoms]
   (let [new-nid-map
         (->> datoms
-                         (filter #(= (second %) :bp/nid))
-                         (map (juxt first third))
-                         (into {}))]
+             (filter #(= (second %) :bp/nid))
+             (map (juxt first third))
+             (into {}))]
     (reset! nid-map (merge @nid-map new-nid-map))))
 
 (defn- sync-tx-data [{:keys [tx-data]}]

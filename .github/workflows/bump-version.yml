@@ -1,0 +1,26 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Update Version"
+        required: true
+        default: "v7.0.0"
+
+jobs:
+   bump-version:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout code
+         uses: actions/checkout@v3
+
+       - name: Write Version to file
+         run: |
+           cd projects/behave
+           echo "{:version ${{ github.event.inputs.version }}}" > resources/version.edn
+           git config --global user.email "kcheung331@gmail.com"
+           git config --global user.name "kcheung42"
+           git add resources/version.edn
+           git commit -m "update version"
+           git push

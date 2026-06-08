@@ -1,14 +1,14 @@
 (ns behave-cms.views
   (:import  [java.io ByteArrayOutputStream ByteArrayInputStream])
-  (:require [clojure.edn       :as edn]
+  (:require [clojure.data.json :as json]
+            [clojure.edn       :as edn]
             [clojure.java.io   :as io]
             [clojure.string    :as str]
-            [clojure.data.json :as json]
             [cognitect.transit :as transit]
-            [msgpack.core      :as msg]
-            [msgpack.extensions]
             [config.interface  :refer [get-config]]
-            [hiccup.page       :refer [html5 include-css include-js]]))
+            [hiccup.page       :refer [html5 include-css include-js]]
+            [msgpack.core      :as msg]
+            [msgpack.extensions]))
 
 (defn- find-app-js []
   (if-let [manifest (io/resource "public/cljs/manifest.edn")]
@@ -18,7 +18,7 @@
       (str/split app #"/")
       (last app)
       (str "/cljs/" app))
-     "/cljs/app.js"))
+    "/cljs/app.js"))
 
 (defn head-meta-css
   "Specifies head tag elements."
@@ -53,10 +53,10 @@
     {:status  (if (some? match) 200 404)
      :headers {"Content-Type" "text/html"}
      :body    (html5
-                (head-meta-css)
-                [:body
-                 [:div#app]
-                 (cljs-init (merge route-params params))])}))
+               (head-meta-css)
+               [:body
+                [:div#app]
+                (cljs-init (merge route-params params))])}))
 
 (defn body->transit [body & [fmt]]
   (let [out    (ByteArrayOutputStream. 4096)

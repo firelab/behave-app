@@ -1,7 +1,4 @@
-(ns behave-cms.queries
-  (:require [clojure.string :as str]
-            #?(:cljs [datascript.core :as d]
-               :clj  [datahike.api :as d])))
+(ns behave-cms.queries)
 
 (def rules
   '[[(module ?a ?m) [?e :application/modules ?m]]
@@ -26,9 +23,20 @@
      (subgroup ?group ?subgroup)
      [?submodule :submodule/groups ?group]]
 
-    ;; Find the root application for a module, submodule, group, or subgroup
+    ;; Find the root application for a module, submodule, group, subgroup, group variable, or search table
     [(app-root ?a ?g)
      [?sm :submodule/groups ?g]
+     [?m :module/submodules ?sm]
+     [?a :application/modules ?m]]
+
+    [(app-root ?a ?s)
+     [?g :group/group-variables ?s]
+     [?sm :submodule/groups ?g]
+     [?m :module/submodules ?sm]
+     [?a :application/modules ?m]]
+
+    [(app-root ?a ?s)
+     [?m :module/search-tables ?s]
      [?m :module/submodules ?sm]
      [?a :application/modules ?m]]
 
@@ -40,4 +48,12 @@
 
     [(app-root ?a ?s)
      [?m :module/submodules ?s]
+     [?a :application/modules ?m]]
+
+    ;; Find app root from an action entity
+    [(app-root ?a ?action)
+     [?gv :group-variable/actions ?action]
+     [?g :group/group-variables ?gv]
+     [?sm :submodule/groups ?g]
+     [?m :module/submodules ?sm]
      [?a :application/modules ?m]]])

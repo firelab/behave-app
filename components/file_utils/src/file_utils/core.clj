@@ -22,18 +22,26 @@
 (defn- write-image-to-file [^BufferedImage image format-name ^File output-file]
   (ImageIO/write image format-name output-file))
 
-(defn resize-image [file image-max-size image-quality & [output-file]]
+(defn resize-image
+  "Resizes image to a maximum size, preserving aspect ratio. Also allows image quality to be adjusted.
+
+   Operates on:
+    - `file`           - Java File instance.
+    - `image-max-size` - Maximum size in pixels.
+    - `image-quality`  - Image quality, between 0.0 to 1.0.
+    - `output-file`    - (Optional) Output image file, as a Java File instance."
+  [file image-max-size image-quality & [output-file]]
   (let [image-quality  (or image-quality 1.0)
         output-stream  (ByteArrayOutputStream.)
-        format         (subs (fs/extension file) 1)
+        fmt            (subs (fs/extension file) 1)
         buffered-image (-> (doto (Thumbnails/fromFilenames [(.getPath file)])
                              (.size image-max-size image-max-size)
                              (.outputQuality image-quality))
                            (.asBufferedImage))]
     (try 
       (if output-file
-        (write-image-to-file buffered-image format output-file)
-        (write-image buffered-image format output-stream))
+        (write-image-to-file buffered-image fmt output-file)
+        (write-image buffered-image fmt output-stream))
       (finally (.close output-stream)))
     output-stream))
 
@@ -86,12 +94,56 @@
   [path]
   (io/file (.getFile (io/resource path))))
 
+(defn os-type
+  "Retrieve the type of OS, one of: `:windows` `:mac` `:linux`."
+  []
+  (let [os-name (System/getProperty "os.name")]
+    (cond
+      (str/starts-with? os-name "Windows")
+      :windows
+
+      (str/starts-with? os-name "Mac")
+      :mac
+
+      :else
+      :linux)))
+
+(defn app-data-dir
+  "Returns the OS-specific location for application data."
+  [org-name app-name]
+  (apply io/file
+   (concat
+    (condp = (os-type)
+      :windows
+      [(System/getenv "LOCALAPPDATA")]
+
+      :mac
+      [(System/getenv "HOME") "Library" "Application Support"]
+
+      :linux
+      [(System/getenv "XDG_STATE_HOME")])
+    [org-name app-name])))
+
 (defn os-path
-  "Translates a path in either Windows/Unix format into a path compatible with the current system."
+  "Translates a path in either Windows/Unix format
+  into a path compatible with the current system."
   [path]
-  (-> path
-      (str/replace "~" (str (fs/home)))
-      (str/replace "$HOME" (str (fs/home)))
-      (str/split #"[/\\]")
-      (->> (apply fs/file))
-      (str)))
+  (let [path (str/split path #"[/\\]")]
+    (str
+     (apply io/file 
+            (map
+             #(cond
+                (str/starts-with? % "~")
+                (fs/home)
+
+                (= "$HOME" %)
+                (fs/home)
+
+                (str/starts-with? % "$")
+                (or (System/getenv (subs % 1)) %)
+
+                (str/starts-with? % "%")
+                (or (System/getenv (str/replace % #"%" "")) %)
+
+                :else
+                %) path)))))

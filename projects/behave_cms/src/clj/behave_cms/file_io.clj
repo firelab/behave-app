@@ -1,12 +1,12 @@
 (ns behave-cms.file-io
   (:import java.util.UUID)
-  (:require [me.raynes.fs       :as fs]
-            [clojure.set        :as set]
-            [clojure.string     :as str]
-            [clojure.java.io    :as io]
-            [logging.interface :refer [log-str]]
+  (:require [behave-cms.views     :refer [data-response]]
+            [clojure.java.io      :as io]
+            [clojure.set          :as set]
+            [clojure.string       :as str]
             [file-utils.interface :refer [resource-file]]
-            [behave-cms.views   :refer [data-response]]))
+            [logging.interface    :refer [log-str]]
+            [me.raynes.fs         :as fs]))
 
 ;;; Constants
 
@@ -51,8 +51,8 @@
 (defn upload-file! [user-uuid {:keys [file] :as params}]
   (println params)
   (let [{:keys [tempfile filename]} file
-        new-filename (str (UUID/randomUUID) (str/lower-case (fs/extension filename)))
-        user-dir     (io/file files-dir user-uuid)]
+        new-filename                (str (UUID/randomUUID) (str/lower-case (fs/extension filename)))
+        user-dir                    (io/file files-dir user-uuid)]
     (println " -- UPLOADING FILE" user-dir new-filename filename tempfile)
     (if (valid-extension? filename)
       (do
@@ -60,7 +60,7 @@
         (fs/copy+ tempfile (io/file user-dir new-filename))
         (data-response {:message (format "Uploaded %s." filename)
                         :results {:filename new-filename
-                                  :path (format "/files/users/%s/%s" user-uuid new-filename)}}))
+                                  :path     (format "/files/users/%s/%s" user-uuid new-filename)}}))
       (data-response {:error "Invalid file type."} {:status 404}))))
 
 (defn download-file [user-uuid filename]
@@ -69,7 +69,7 @@
       (do (log-str "Download of " filename " has started.")
           {:status  200
            :headers {"Access-Control-Expose-Headers" "Content-Disposition"
-                     "Content-Disposition" (str "attachment; filename=" filename)}
+                     "Content-Disposition"           (str "attachment; filename=" filename)}
            :body    file})
       (do (log-str filename " not found")
           (data-response {:error "Could not find file."} {:status 404})))))
@@ -98,5 +98,4 @@
   (fs/rename tmp-file new-file)
   (fs/exists? new-file)
 
-  (first (fs/glob user-dir "*.jpg"))
-  )
+  (first (fs/glob user-dir "*.jpg")))

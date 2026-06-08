@@ -1,6 +1,18 @@
 (ns behave-cms.units.subs
-  (:require [re-frame.core :as rf]
-            [clojure.set :refer [rename-keys]]))
+  (:require [clojure.set   :refer [rename-keys]]
+            [re-frame.core :as rf]))
+
+(rf/reg-sub
+ :units/short-code-options
+ (fn [_ _]
+   (rf/subscribe [:pull-with-attr :unit/short-code]))
+ (fn [units]
+   (sort-by :label
+            (map #(-> %
+                      (select-keys [:unit/short-code :bp/uuid])
+                      (rename-keys {:unit/short-code :label
+                                    :bp/uuid         :value}))
+                 units))))
 
 (rf/reg-sub
  :units/enum-options

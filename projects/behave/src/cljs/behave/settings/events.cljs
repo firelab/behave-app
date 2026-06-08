@@ -1,8 +1,7 @@
 (ns behave.settings.events
-  (:require [re-frame.core :as rf]
-            [re-posh.core     :as rp]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [behave.translate :refer [<t bp]]))
+  (:require [re-frame.core                 :as rf]
+            [re-posh.core                  :as rp]
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 (rp/reg-event-fx
  :settings/clear-inputs-in-domain
@@ -22,8 +21,9 @@
 (rf/reg-event-fx
  :settings/cache-decimal-preference
  (fn [_ [_ domain v-uuid decimal]]
-   {:fx [[:dispatch [:settings/set [:units domain v-uuid :decimals] decimal]]
-         [:dispatch [:local-storage/update-in [:units v-uuid :decimals] decimal]]]}))
+   (let [decimal (js/parseInt decimal 10)]
+     {:fx [[:dispatch [:settings/set [:units domain v-uuid :domain-decimals] decimal]]
+           [:dispatch [:local-storage/update-in [:units v-uuid :decimals] decimal]]]})))
 
 (rf/reg-event-fx
  :settings/load-units-from-local-storage
@@ -32,26 +32,36 @@
 
  (fn [{units-settings :settings/all-units+decimals} _]
    {:fx (into []
-              (for [[domain settings]                                                    units-settings
-                    [_ domain-name domain-uuid domain-dimension-uuid unit-uuid decimals] settings]
+              (for [[domain settings]         units-settings
+                    [_
+                     domain-name
+                     domain-uuid
+                     domain-dimension-uuid
+                     cached-unit-uuid
+                     native-domain-unit-uuid
+                     english-domain-unit-uuid
+                     metric-domain-unit-uuid
+                     decimals]                settings]
                 [:dispatch [:settings/set [:units domain domain-uuid]
-                            {:domain-name             domain-name
-                             :domain-dimension-uuid   domain-dimension-uuid
-                             :domain-native-unit-uuid unit-uuid
-                             :domain-decimals         decimals}]]))}))
+                            {:domain-name              domain-name
+                             :domain-dimension-uuid    domain-dimension-uuid
+                             :domain-cached-unit-uuid  cached-unit-uuid
+                             :domain-native-unit-uuid  native-domain-unit-uuid
+                             :domain-english-unit-uuid english-domain-unit-uuid
+                             :domain-metric-unit-uuid  metric-domain-unit-uuid
+                             :domain-decimals          decimals}]]))}))
 
 (rf/reg-event-fx
  :settings/reset-custom-unit-preferences
  (fn [_]
-   (when (js/confirm @(<t (bp "are_you_sure_you_want_to_reset_your_unit_preferences?")))
-     {:fx [[:dispatch [:local-storage/clear]]
-           [:dispatch [:settings/set :units nil]]
-           [:dispatch [:settings/load-units-from-local-storage]]]})))
+   {:fx [[:dispatch [:local-storage/clear]]
+         [:dispatch [:settings/set :units nil]]
+         [:dispatch [:settings/load-units-from-local-storage]]]}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :settings/close-settings-selector
- (fn [db _]
-   (assoc-in db [:state :sidebar :*tools-or-settings] nil)))
+ (fn [_ _]
+   {:fx [[:dispatch [:sidebar/clear-tools-or-settings]]]}))
 
 (rf/reg-event-db
  :settings/set-current-tab
@@ -68,3 +78,18 @@
 
      (vector? k)
      (assoc-in settings k v))))
+
+(rf/reg-event-fx
+ :settings/set-units-system
+ (fn [_ [_ units-system]]
+   {:fx [[:dispatch [:settings/set [:application-units-system] units-system]]
+         [:dispatch [:local-storage/update-in [:application-units-system] units-system]]
+         [:dispatch [:state/set [:tool :data] nil]]]}))
+
+(rf/reg-event-fx
+ :settings/set-tool-units-system
+ (fn [_ [_ tool-uuid subtool-uuid auto-compute? units-system]]
+   {:fx (cond-> [[:dispatch [:settings/set [:tool-units-system] units-system]]
+                 [:dispatch [:local-storage/update-in [:tool-units-system] units-system]]
+                 [:dispatch [:state/set [:tool :data] nil]]]
+          auto-compute? (conj [:dispatch [:tool/solve tool-uuid subtool-uuid]]))}))

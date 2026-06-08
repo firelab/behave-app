@@ -1,10 +1,10 @@
 (ns behave-cms.groups.subs
-  (:require [clojure.string :as str]
-            [bidi.bidi :refer [path-for]]
-            [datascript.core :as d]
-            [behave-cms.store :refer [conn]]
-            [re-frame.core     :refer [reg-sub subscribe]]
-            [behave-cms.routes :refer [app-routes]]))
+  (:require [behave-cms.routes :refer [app-routes]]
+            [behave-cms.store  :refer [conn]]
+            [bidi.bidi         :refer [path-for]]
+            [clojure.string    :as str]
+            [datascript.core   :as d]
+            [re-frame.core     :refer [reg-sub subscribe]]))
 
 ;;; Conditionals
 
@@ -45,10 +45,10 @@
 ;;; Groups
 
 (reg-sub
-  :groups
-  (fn [[_ submodule-id]]
-    (subscribe [:pull-children :submodule/groups submodule-id]))
-  identity)
+ :groups
+ (fn [[_ submodule-id]]
+   (subscribe [:pull-children :submodule/groups submodule-id]))
+ identity)
 
 ;;; Groups w/ Subgroups
 
@@ -69,25 +69,25 @@
       acc)))
 
 (reg-sub
-  :submodule/groups-w-subgroups
-  (fn [[_ submodule-id]]
-    (subscribe [:pull-children :submodule/groups submodule-id]))
-  (fn [groups]
-    (reduce
-     accumulate-subgroups
-     []
-     groups)))
+ :submodule/groups-w-subgroups
+ (fn [[_ submodule-id]]
+   (subscribe [:pull-children :submodule/groups submodule-id]))
+ (fn [groups]
+   (reduce
+    accumulate-subgroups
+    []
+    groups)))
 
 ;;; Sidebar
 
 (reg-sub
-  :sidebar/groups
-  (fn [[_ submodule-id]]
-    (subscribe [:groups submodule-id]))
+ :sidebar/groups
+ (fn [[_ submodule-id]]
+   (subscribe [:groups submodule-id]))
 
-  (fn [groups]
-    (->> groups
-         (map (fn [{nid :bp/nid name :group/name}]
-                {:label name
-                 :link  (path-for app-routes :get-group :nid nid)}))
-         (sort-by :label))))
+ (fn [groups]
+   (->> groups
+        (map (fn [{nid :bp/nid name :group/name}]
+               {:label name
+                :link  (path-for app-routes :get-group :nid nid)}))
+        (sort-by :label))))

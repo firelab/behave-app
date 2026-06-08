@@ -2,16 +2,15 @@
   (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.lib.units              :refer [convert]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [behave.vms.store              :as vms]
             [behave.store                  :as s]
+            [behave.vms.store              :as vms]
             [bidi.bidi                     :refer [path-for]]
-            [goog.string                   :as gstring]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
-            [re-frame.core                 :as rf]
+            [day8.re-frame.async-flow-fx]
             [number-utils.interface        :refer [is-numeric? parse-float]]
-            [string-utils.interface        :refer [->str]]
+            [re-frame.core                 :as rf]
             [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Helpers
@@ -23,7 +22,7 @@
     nil
     (let [convert-fn #(convert % from to)
           values     (->> (str/split (str v) #"[, ]")
-                      (remove empty?))]
+                          (remove empty?))]
       (when (every? is-numeric? values)
         (->> (map (comp convert-fn parse-float) values)
              (map #(.toFixed % (or precision 2)))
@@ -33,30 +32,41 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
+ (fn [_ [_ {:keys [ws-uuid module current-io io submodule workflow]}]]
    (let [path (path-for routes
-                        :ws/wizard
+                        :ws/wizard-guided
                         :ws-uuid ws-uuid
+                        :workflow workflow
                         :module module
                         :io io
                         :submodule submodule)]
-     {:fx              [[:dispatch [:navigate path]]]
-      :help/scroll-top nil})))
+     (cond-> {:fx              [[:dispatch [:navigate path]]]
+              :help/scroll-top nil}
+       (and (= current-io :output)
+            (= io :input))
+       (-> (dissoc :fx)
+           (assoc :async-flow
+                  {:first-dispatch [:worksheet/proccess-output-group-variables-with-actions ws-uuid]
+                   :rules          [{:when     :seen?
+                                     :events   :worksheet/proccess-output-group-variables-with-actions
+                                     :dispatch [:navigate path]
+                                     :halt?    true}]}))))))
 
 (rf/reg-event-fx
  :wizard/back
- (fn [_]
+ (rf/inject-cofx ::inject/sub (fn [_] [:wizard/get-cached-new-worksheet-or-import]))
+ (fn [{new-or-import :wizard/get-cached-new-worksheet-or-import} _]
    (let [current-path       (str/replace
                              (. (. js/document -location) -href)
                              #"(^.*(?=(/worksheets)))"
                              "")
          current-path-index (.indexOf @current-route-order current-path)
          next-path          (cond
-                              (and (zero? current-path-index) @s/worksheet-from-file?)
+                              (and (zero? current-path-index) (= new-or-import :import))
                               "/worksheets/import"
 
-                              (zero? current-path-index)
-                              "/worksheets/independent"
+                              (and (zero? current-path-index) (= new-or-import :new-worksheet))
+                              "/worksheets/module-selection"
 
                               :else
                               (get @current-route-order (dec current-path-index)))]
@@ -64,19 +74,31 @@
 
 (rf/reg-event-fx
  :wizard/next
- (fn [_]
-   (let [current-path       (str/replace
-                             (. (. js/document -location) -href)
-                             #"(^.*(?=(/worksheets)))"
-                             "")
-         current-path-index (.indexOf @current-route-order current-path)
-         next-path          (get @current-route-order (inc current-path-index))]
-     {:fx [[:dispatch [:navigate next-path]]]})))
+ (fn [_ [_ {:keys [ws-uuid workflow current-io]}]]
+   (let [current-path          (str/replace
+                                (. (. js/document -location) -href)
+                                #"(^.*(?=(/worksheets)))"
+                                "")
+         current-path-index    (.indexOf @current-route-order current-path)
+         next-path             (get @current-route-order (inc current-path-index))
+         next-io               (some-> next-path (str/split #"/") (get 6) keyword)
+         guided-output->input? (and (= workflow :guided)
+                                    (= current-io :output)
+                                    (= next-io :input))]
+     (if guided-output->input?
+       {:async-flow {:first-dispatch [:worksheet/proccess-output-group-variables-with-actions ws-uuid]
+                     :rules          [{:when     :seen?
+                                       :events   :worksheet/proccess-output-group-variables-with-actions
+                                       :dispatch [:navigate next-path]
+                                       :halt?    true}]}}
+       {:fx [[:dispatch [:navigate next-path]]]}))))
 
 (rf/reg-event-fx
  :wizard/before-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
-   {:fx [[:dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]]
+   {:fx [[:dispatch [:worksheet/remove-unused-inputs ws-uuid]]
+         [:dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]]
+         [:dispatch [:worksheet/process-search-table-output-group-variables ws-uuid]]
          [:dispatch [:worksheet/proccess-conditonally-set-input-group-variables ws-uuid]]
          [:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]
          [:dispatch [:worksheet/delete-existing-result-table ws-uuid]]
@@ -90,13 +112,38 @@
 
 (rf/reg-event-fx
  :wizard/after-solve
- (fn [_ [_ {:keys [ws-uuid]}]]
-   (let [path (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
+ (fn [_ [_ {:keys [ws-uuid workflow]}]]
+   (let [path (path-for routes :ws/results-settings
+                        :ws-uuid ws-uuid
+                        :workflow workflow
+                        :results-page :settings)]
      {:fx [[:dispatch [:navigate path]]
            [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
-           [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]
+           [:dispatch [:worksheet/update-all-axis-limits-from-results ws-uuid]]
            [:dispatch [:worksheet/set-default-graph-settings ws-uuid]]
            [:dispatch [:state/set :worksheet-computing? false]]]})))
+
+(defn- solve-flow [params]
+  {:first-dispatch [:wizard/before-solve params]
+   :rules          [{:when     :seen-all-of?
+                     :events   [:worksheet/remove-unused-inputs
+                                :worksheet/proccess-conditonally-set-output-group-variables
+                                :worksheet/process-search-table-output-group-variables
+                                :worksheet/proccess-conditonally-set-input-group-variables
+                                :worksheet/delete-existing-diagrams
+                                :worksheet/delete-existing-result-table]
+                     :dispatch [:wizard/solve params]}
+                    {:when     :seen?
+                     :events   :wizard/solve
+                     :dispatch [:wizard/after-solve params]}
+                    {:when   :seen?
+                     :events :wizard/after-solve
+                     :halt?  true}]})
+
+(rf/reg-event-fx
+ :wizard/run-solve
+ (fn [_ [_ params]]
+   {:async-flow (solve-flow params)}))
 
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
@@ -153,8 +200,8 @@
 
 (rf/reg-event-fx
  :wizard/create-note
- (fn [_cfx [_id ws-uuid submodule-uuid submodule-name submodule-io payload]]
-   {:fx [[:dispatch [:worksheet/create-note ws-uuid submodule-uuid submodule-name submodule-io payload]]
+ (fn [_cfx [_id ws-uuid payload]]
+   {:fx [[:dispatch [:worksheet/create-note ws-uuid payload]]
          [:dispatch [:wizard/toggle-show-add-note-form]]]}))
 
 (rf/reg-event-fx
@@ -173,7 +220,6 @@
  (fn [_cfx _query]
    {:fx [[:dispatch [:state/update [:worksheet :show-add-note-form?] not]]]}))
 
-
 (rf/reg-event-fx
  :wizard/results-select-tab
  (fn [_cfx [_ {:keys [tab]}]]
@@ -181,41 +227,53 @@
          [:dispatch [:wizard/scroll-into-view "review-wizard-page__body" (name tab)]]]}))
 
 (rf/reg-event-fx
+ :wizard/set-discrete-color-output
+ (fn [_cfx [_ gv-uuid]]
+   {:fx [[:dispatch [:state/set [:selected-output-cell-coloring] gv-uuid]]]}))
+
+(rf/reg-event-fx
  :wizard/progress-bar-navigate
  [(rf/inject-cofx ::inject/sub
-                  (fn [_]
-                    [:state [:worksheet :*workflow]]))
-  (rf/inject-cofx ::inject/sub
-                  (fn [[_ ws-uuid [_ io]]]
+                  (fn [[_ ws-uuid _ [_ io]]]
                     (when ws-uuid
                       [:wizard/first-module+submodule ws-uuid io])))]
- (fn [{module                 :state
-       first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
+ (fn [{first-module+submodule :wizard/first-module+submodule} [_ ws-uuid workflow route-handler+io]]
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
-                       (= handler :ws/all)
-                       (str "/worksheets/")
+                       (= handler :ws/home)
+                       "/worksheets/"
 
-                       (= handler :ws/independent)
-                       (str "/worksheets/" (->str module))
+                       (= handler :ws/module-selection)
+                       "/worksheets/module-selection"
 
-                       io
-                       (path-for routes
-                                 :ws/wizard
-                                 :ws-uuid  ws-uuid
-                                 :module ws-module
-                                 :io io
-                                 :submodule submodule)
+                       (and (= handler :ws/wizard-standard) io)
+                       (path-for routes :ws/wizard-standard
+                                 {:ws-uuid  ws-uuid
+                                  :workflow :standard
+                                  :io       io})
 
-                       (= handler :ws/result-settings)
-                       (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
+                       (and (= handler :ws/wizard-guided) io)
+                       (path-for routes :ws/wizard-guided
+                                 {:ws-uuid   ws-uuid
+                                  :workflow  :guided
+                                  :module    ws-module
+                                  :io        io
+                                  :submodule submodule})
+
+                       (= handler :ws/results-settings)
+                       (path-for routes :ws/results-settings
+                                 {:ws-uuid      ws-uuid
+                                  :workflow     workflow
+                                  :results-page :settings})
 
                        :else
-                       (path-for routes handler :ws-uuid ws-uuid))]
+                       (path-for routes handler
+                                 {:ws-uuid  ws-uuid
+                                  :workflow workflow}))]
        {:fx (cond-> [[:dispatch [:navigate path]]]
-              (= handler :ws/all)
-              (into [[:dispatch [:state/set [:sidebar :*modules] nil]]
+              (= handler :ws/home)
+              (into [[:dispatch [:sidebar/set-modules nil]]
                      [:dispatch [:state/set [:worksheet :*modules] nil]]]))}))))
 
 (rf/reg-event-fx
@@ -248,9 +306,8 @@
                                       ws-uuid group-uuid repeat-id group-variable-uuid value]]]
 
                    (not= ws-input-value value)
-                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]]))]
+                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]]))]
      {:fx effects})))
-
 
 ;; Update input variable with units
 ;; If units provided is different from the stored units, set the progress bar's furthest step back to inputs.
@@ -266,7 +323,7 @@
                                                      ws-uuid group-uuid repeat-id gv-uuid new-units-uuid]]]
 
                                   different-unit-chosen?
-                                  (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]])
+                                  (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]])
 
                                   (and (some? new-value) different-unit-chosen?)
                                   (conj [:dispatch [:wizard/upsert-input-variable
@@ -277,28 +334,29 @@
  :wizard/save
  (fn [_ [_ ws-uuid file-name]]
    (s/save-worksheet! {:ws-uuid   ws-uuid
-                       :file-name file-name})))
+                       :file-name file-name})
+   {}))
 
 (rf/reg-event-fx
  :wizard/navigate-to-latest-worksheet
- (fn [_]
+ (fn [_ [_ workflow]]
    (let [ws-uuid (d/q '[:find ?uuid .
                         :in $
                         :where [?e :worksheet/uuid ?uuid]]
                       @@s/conn)]
-     (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
+     (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
      {:fx [[:dispatch [:wizard/next]]]})))
 
 (rf/reg-event-fx
  :wizard/open
  (fn [_ [_ file]]
-   (s/open-worksheet! {:file file})))
-
+   (s/open-worksheet! {:file file})
+   (rf/clear-subscription-cache!)))
 
 (rf/reg-event-fx
  :wizard/new-worksheet
- (fn [_ [_ nname modules submodule]]
-   (s/new-worksheet! nname modules submodule)))
+ (fn [_ [_ nname modules submodule workflow]]
+   (s/new-worksheet! nname modules submodule workflow)))
 
 (rf/reg-event-fx
  :wizard/toggle-expand
@@ -307,14 +365,14 @@
    (let [sidebar-hidden?   (get-in db [:state :sidebar :hidden?])
          help-area-hidden? (get-in db [:state :help-area :hidden?])
          all-hidden?       (and sidebar-hidden? help-area-hidden?)]
-     {:fx [[:dispatch [:state/set [:sidebar :hidden?] (not all-hidden?)]]
+     {:fx [[:dispatch [:sidebar/set-hidden (not all-hidden?)]]
            [:dispatch [:state/set [:help-area :hidden?] (not all-hidden?)]]]})))
 
 (rf/reg-event-fx
  :wizard/navigate-home
  (fn []
    {:fx [[:dispatch [:navigate "/"]]
-         [:dispatch [:state/set [:sidebar :*modules] nil]]
+         [:dispatch [:sidebar/set-modules nil]]
          [:dispatch [:state/set [:worksheet :*modules] nil]]]}))
 
 (rf/reg-event-fx
@@ -327,3 +385,24 @@
                      [:show-disclaimer?]
                      (not (:show-disclaimer? local-storage))]]
          [:dispatch [:state/set :show-disclaimer? (not state)]]]}))
+
+(rf/reg-event-fx
+ :wizard/update-cached-new-worksheet-or-import
+ (fn [_ [_ new-worksheet-or-import]]
+   {:fx [[:dispatch [:local-storage/update-in [:state :*new-or-import] new-worksheet-or-import]]
+         [:dispatch [:state/set :*new-or-import new-worksheet-or-import]]]}))
+
+(rf/reg-event-fx
+ :wizard/update-cached-workflow
+ (fn [_ [_ workflow]]
+   {:fx [[:dispatch [:local-storage/update-in [:state :*workflow] workflow]]
+         [:dispatch [:state/set :*new-or-import workflow]]]}))
+
+(rf/reg-event-fx
+ :wizard/standard-navigate-io-tab
+ (fn [_ [_ ws-uuid io]]
+   {:fx                 [[:dispatch [:navigate (path-for routes :ws/wizard-standard
+                                                         {:ws-uuid  ws-uuid
+                                                          :workflow :standard
+                                                          :io       io})]]]
+    :browser/scroll-top {}}))

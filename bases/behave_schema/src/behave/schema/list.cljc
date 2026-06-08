@@ -1,6 +1,6 @@
 (ns behave.schema.list
-  (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [many-ref? valid-key? uuid-string? zero-pos?]]))
+  (:require [behave.schema.utils :refer [many-ref? valid-key? uuid-string? zero-pos?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
@@ -30,6 +30,7 @@
                                    :opt [:list-option/default
                                          :list-option/hide?]))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def schema
   ;; Lists
   [{:db/ident       :list/uuid
@@ -68,7 +69,8 @@
    {:db/ident       :list/options
     :db/doc         "List's options."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    ;; List Options
    {:db/ident       :list-option/uuid
@@ -125,6 +127,24 @@
 
    {:db/ident       :list-option/result-translation-key
     :db/doc         "List option's translation key on results."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   {:db/ident       :list-option/english-units-translation-key
+    :db/doc         "List option's english units translation"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   {:db/ident       :list-option/metric-units-translation-key
+    :db/doc         "List option's metric units translation"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   {:db/ident       :list-option/export-translation-key
+    :db/doc         "List option's translation key for export."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}
@@ -198,6 +218,7 @@
 
 ;;; Tests
 
+#_{:clj-kondo/ignore [:unresolved-symbol]}
 (comment
   (s/valid? :behave/list {:list/uuid            (str (random-uuid))
                           :list/name            "My List"

@@ -1,4 +1,4 @@
-(ns migrations.2024-07-30-automated-bole-char-height-output
+(ns ^{:migrate/ignore? true} migrations.2024-07-30-automated-bole-char-height-output
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

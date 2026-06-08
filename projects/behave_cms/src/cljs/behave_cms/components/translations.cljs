@@ -1,8 +1,8 @@
 (ns behave-cms.components.translations
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
+  (:require [behave-cms.utils     :as u]
             [data-utils.interface :refer [parse-int]]
-            [behave-cms.utils :as u]))
+            [re-frame.core        :as rf]
+            [reagent.core         :as r]))
 
 (defn- upsert-translation! [data]
   (let [rf-event (cond
@@ -16,7 +16,9 @@
                    :api/update-entity)]
     (rf/dispatch [rf-event data])))
 
-(defn translation-editor [language-id translation-key translation-id state]
+(defn translation-editor
+  "Inline text input that upserts a translation entry on blur."
+  [language-id translation-key translation-id state]
   [:input.form-control {:type      "text"
                         :on-change #(reset! state (u/input-value %))
                         :on-blur   #(upsert-translation!
@@ -27,12 +29,13 @@
                                       (when translation-id {:db/id translation-id})))
                         :value     @state}])
 
-(defn app-translations [translation-prefix]
+(defn app-translations
+  "Component for managing translations filtered to a given key prefix."
+  [translation-prefix]
   (r/with-let [languages       (rf/subscribe [:languages])
                *language       (r/atom nil)
                new-key         (r/atom "")
                new-translation (r/atom "")
-               update-field    (fn [field] #(rf/dispatch [:state/set-state [:editors :translation field] %]))
                translations    (rf/subscribe [:all-translations translation-prefix])
                on-submit       #(do
                                   (rf/dispatch [:api/create-entity
@@ -88,22 +91,24 @@
         [:th "Translation"]]]
       [:tbody
        (for [entry (->> @translations (filter #(= @*language (get-in % [:language/_translation 0 :db/id]))) (sort-by :translation/key))]
-         (let [id            (:db/id entry)
-               language-name (get-in entry [:language/_translation 0 :language/name])
-               translation   (r/atom (:translation/translation entry))
-               key           (:translation/key entry)]
+         (let [id              (:db/id entry)
+               language-name   (get-in entry [:language/_translation 0 :language/name])
+               translation     (r/atom (:translation/translation entry))
+               translation-key (:translation/key entry)]
            ^{:key id}
            [:tr
             [:td language-name]
-            [:td key]
+            [:td translation-key]
             [:td
              [translation-editor
               @*language
-              key
+              translation-key
               id
               translation]]]))]]]))
 
-(defn all-translations [translation-key]
+(defn all-translations
+  "Component showing all translations for a given key, grouped by language."
+  [translation-key]
   (let [languages          (rf/subscribe [:languages])
         translations       (rf/subscribe [:translations translation-key])
         translation-lookup (group-by
@@ -115,8 +120,7 @@
      [:thead
       [:tr
        [:th "Language"]
-       [:th "Key"]
-       [:th "Translation"]]]
+       [:th "Key / Translation"]]]
      [:tbody
       (for [{language-id :db/id language :language/name shortcode :language/shortcode} @languages]
         (let [translation-entry (get-in translation-lookup [[shortcode translation-key] 0] {})
@@ -125,10 +129,6 @@
           ^{:key id}
           [:tr
            [:td language]
-           [:td translation-key]
            [:td
-            [translation-editor
-             language-id
-             translation-key
-             id
-             translation]]]))]]))
+            [:div.mb-1 {:style {:font-weight "bold"}} translation-key]
+            [translation-editor language-id translation-key id translation]]]))]]))
