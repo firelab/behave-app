@@ -1,4 +1,4 @@
-(ns migrations.2025-06-25-default-export-translation-key
+(ns ^{:migrate/ignore? true} migrations.2025-06-25-default-export-translation-key
   (:require [clojure.string :as str]
             [schema-migrate.interface :as sm]
             [datomic.api :as d]

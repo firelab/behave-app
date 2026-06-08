@@ -7,7 +7,9 @@
             [re-frame.core                           :as rf]
             [string-utils.interface                  :refer [->kebab]]))
 
-(defn tags-table [selected-state-path editor-state-path selected-tag-set-path]
+(defn tags-table
+  "Component displaying and managing tags for the selected tag set."
+  [selected-state-path editor-state-path selected-tag-set-path]
   (let [selected-tag-set (rf/subscribe [:state selected-tag-set-path])
         entities         (:tag-set/tags @selected-tag-set)]
     [table-entity-form
@@ -61,7 +63,7 @@
         tag-editor-path             [:editors :tag]
         selected-tag-set            (rf/subscribe [:state selected-tag-set-state-path])]
     [window sidebar-width
-     [:div.container
+     [:div.container-fluid
       [:div {:style {:height "500px"}}
        [tag-sets-table selected-tag-set-state-path tag-set-editor-path selected-tag-state-path]]
       (when @selected-tag-set

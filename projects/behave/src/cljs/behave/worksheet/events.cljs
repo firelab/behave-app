@@ -466,7 +466,9 @@
                                              (not enabled?))}]
       :fx       [[:dispatch [:worksheet/set-default-graph-settings ws-uuid]]]})))
 
-(defn get-graph-axis-limit-eid [db ws-uuid gv-uuid]
+(defn get-graph-axis-limit-eid
+  "Returns the y-axis-limit entity id for the given worksheet and group-variable, or nil."
+  [db ws-uuid gv-uuid]
   (d/q '[:find ?y .
          :in $ ?ws-uuid ?group-var-uuid
          :where
@@ -578,7 +580,9 @@
                        ws-uuid)]
      {:transact [(assoc {:db/id eid} attr value)]})))
 
-(defn get-table-filter-eid [db ws-uuid gv-uuid]
+(defn get-table-filter-eid
+  "Returns the table-filter entity id for the given worksheet and group-variable, or nil."
+  [db ws-uuid gv-uuid]
   (d/q '[:find ?f .
          :in $ ?ws-uuid ?group-var-uuid
          :where
@@ -767,51 +771,65 @@
 (rp/reg-event-fx
  :worksheet/add-contain-diagram
  [(rp/inject-cofx :ds)]
- (fn [_ [_
-         ws-uuid
-         title
-         group-variable-uuid
-         row-id
-         fire-perimeter-points-X
-         fire-perimeter-points-Y
-         length-to-width-ratio
-         fire-back-at-report
-         fire-head-at-report
-         fire-back-at-attack
-         fire-head-at-attack
-         contain-status
-         units-uuid]]
+ (fn [{:keys [db]} [_
+                    ws-uuid
+                    group-variable-uuid
+                    row-id
+                    fire-perimeter-points-X
+                    fire-perimeter-points-Y
+                    length-to-width-ratio
+                    fire-back-at-report
+                    fire-head-at-report
+                    fire-back-at-attack
+                    fire-head-at-attack
+                    contain-status]]
    {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                        :worksheet.diagram/title               title
                         :worksheet.diagram/group-variable-uuid group-variable-uuid
                         :worksheet.diagram/row-id              row-id
-                        :worksheet.diagram/units-uuid          units-uuid
                         :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
                                                                       w (/ l length-to-width-ratio)]
-                                                                  {:ellipse/legend-id       "Fire Perimeter at Report"
+                                                                  {:ellipse/legend-id       "behaveplus:diagram:contain:legend_id:fire_perimeter_at_report"
                                                                    :ellipse/semi-major-axis (/ l 2)
                                                                    :ellipse/semi-minor-axis (/ w 2)
                                                                    :ellipse/rotation        90
                                                                    :ellipse/color           "blue"})
                                                                 (let [l (- fire-head-at-attack fire-back-at-attack)
                                                                       w (/ l length-to-width-ratio)]
-                                                                  {:ellipse/legend-id       "Fire Perimeter at Attack"
+                                                                  {:ellipse/legend-id       "behaveplus:diagram:contain:legend_id:fire_perimeter_at_attack"
                                                                    :ellipse/semi-major-axis (/ l 2)
                                                                    :ellipse/semi-minor-axis (/ w 2)
                                                                    :ellipse/rotation        90
                                                                    :ellipse/color           "red"})]}
                  (= contain-status 3)
-                 (assoc :worksheet.diagram/scatter-plots [{:scatter-plot/legend-id     "Fireline Constructed"
+                 (assoc :worksheet.diagram/scatter-plots [{:scatter-plot/legend-id     "behaveplus:diagram:contain:legend_id:fireline_constructed"
                                                            :scatter-plot/color         "black"
                                                            :scatter-plot/x-coordinates fire-perimeter-points-X
-                                                           :scatter-plot/y-coordinates fire-perimeter-points-Y}]))]}))
+                                                           :scatter-plot/y-coordinates fire-perimeter-points-Y}]))
+               [:db/add [:worksheet/uuid ws-uuid] :worksheet/version (get-in db [:state :app-version])]]}))
+
+(rp/reg-event-fx
+ :worksheet/add-optimized-contain-diagram
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [db]} [_
+                    ws-uuid
+                    group-variable-uuid
+                    row-id
+                    production-rate-points
+                    containment-area-points]]
+   {:transact [{:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                :worksheet.diagram/group-variable-uuid group-variable-uuid
+                :worksheet.diagram/row-id              row-id
+                :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "behaveplus:diagram:optimized_contain:legend_id:production_rate_vs_containment_area"
+                                                         :scatter-plot/color         "blue"
+                                                         :scatter-plot/x-coordinates production-rate-points
+                                                         :scatter-plot/y-coordinates containment-area-points}]}
+               [:db/add [:worksheet/uuid ws-uuid] :worksheet/version (get-in db [:state :app-version])]]}))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_
                     ws-uuid
-                    title
                     group-variable-uuid
                     row-id
                     elliptical-A
@@ -820,8 +838,7 @@
                     wind-direction
                     _wind-speed
                     slope-direction
-                    _elapsed-time
-                    units-uuid]]
+                    _elapsed-time]]
    (let [existing-eid    (d/q '[:find ?d .
                                 :in $ ?uuid ?gv-uuid ?row-id
                                 :where
@@ -834,16 +851,14 @@
          semi-minor-axis (min elliptical-A elliptical-B)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                  :worksheet.diagram/title               title
                   :worksheet.diagram/group-variable-uuid group-variable-uuid
                   :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/units-uuid          units-uuid
-                  :worksheet.diagram/ellipses            [{:ellipse/legend-id       "SurfaceFire"
+                  :worksheet.diagram/ellipses            [{:ellipse/legend-id       "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire"
                                                            :ellipse/semi-major-axis semi-major-axis
                                                            :ellipse/semi-minor-axis semi-minor-axis
                                                            :ellipse/rotation        direction-of-max-spread
                                                            :ellipse/color           "red"}]
-                  :worksheet.diagram/arrows              [{:arrow/legend-id "Wind"
+                  :worksheet.diagram/arrows              [{:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:wind"
                                                            :arrow/length    semi-major-axis
                                                            ;; :arrow/length   (* wind-speed elapsed-time)
                                                            ;; NOTE Using the wind speed converted to the
@@ -854,12 +869,12 @@
                                                            :arrow/color     "blue"
                                                            :arrow/dashed?   true}
 
-                                                          {:arrow/legend-id "Max Spread"
+                                                          {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:max_spread"
                                                            :arrow/length    semi-major-axis
                                                            :arrow/rotation  direction-of-max-spread
                                                            :arrow/color     "black"}
 
-                                                          {:arrow/legend-id "Slope"
+                                                          {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
                                                            :arrow/length    semi-major-axis
                                                            :arrow/rotation  slope-direction
                                                            :arrow/color     "red"
@@ -869,7 +884,6 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_
                     ws-uuid
-                    title
                     group-variable-uuid
                     row-id
                     max-spread-dir
@@ -882,8 +896,7 @@
                     backing-dir
                     backing-spread-rate
                     wind-dir
-                    wind-speed
-                    units-uuid]]
+                    wind-speed]]
    (let [existing-eid (d/q '[:find ?d .
                              :in $ ?uuid ?gv-uuid ?row-id
                              :where
@@ -894,32 +907,30 @@
                            ds ws-uuid group-variable-uuid row-id)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                  :worksheet.diagram/title               title
                   :worksheet.diagram/group-variable-uuid group-variable-uuid
                   :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/units-uuid          units-uuid
-                  :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "MaxSpread"
+                  :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:max_spread"
                                                                    :arrow/length    max-spread-rate
                                                                    :arrow/rotation  max-spread-dir
                                                                    :arrow/color     "red"}
 
-                                                                  {:arrow/legend-id "Flanking1"
+                                                                  {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_1"
                                                                    :arrow/length    flanking-spread-rate
                                                                    :arrow/rotation  flanking-dir
                                                                    :arrow/color     "#81c3cb"}
 
-                                                                  {:arrow/legend-id "Flanking2"
+                                                                  {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_2"
                                                                    :arrow/length    flanking-spread-rate
                                                                    :arrow/rotation  (mod (+ flanking-dir 180) 360)
                                                                    :arrow/color     "#347da0"}
 
-                                                                  {:arrow/legend-id "Backing"
+                                                                  {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"
                                                                    :arrow/length    backing-spread-rate
                                                                    :arrow/rotation  backing-dir
                                                                    :arrow/color     "orange"}
 
                                                                   (let [l (min max-spread-rate wind-speed)]
-                                                                    {:arrow/legend-id "Wind"
+                                                                    {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:wind"
                                                                      ;; NOTE for visual purposes
                                                                      ;; make wind 10% larger than
                                                                      ;; max spread rate.
@@ -932,7 +943,7 @@
                                                                      :arrow/dashed?   true})]
 
                                                            has-direction-of-interest?
-                                                           (conj {:arrow/legend-id "Interest"
+                                                           (conj {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:interest"
                                                                   :arrow/length    interest-spread-rate
                                                                   :arrow/rotation  interest-dir
                                                                   :arrow/color     "black"}))}]})))

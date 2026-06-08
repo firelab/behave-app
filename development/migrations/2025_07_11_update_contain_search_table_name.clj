@@ -1,4 +1,4 @@
-(ns migrations.2025-07-11-update-contain-search-table-name
+(ns ^{:migrate/ignore? true} migrations.2025-07-11-update-contain-search-table-name
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

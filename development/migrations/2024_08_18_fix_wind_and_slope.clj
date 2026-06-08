@@ -1,4 +1,4 @@
-(ns migrations.2024-08-18-fix-wind-and-slope)
+(ns ^{:migrate/ignore? true} migrations.2024-08-18-fix-wind-and-slope)
 
 ;; Adds Size Inputs from Surface and Crown to Wind and Slope
 

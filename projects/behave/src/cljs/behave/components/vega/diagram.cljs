@@ -4,11 +4,12 @@
             [clojure.string              :as str]
             [goog.string                 :as gstring]))
 
-(defn- add-scatter-plot [schema {:keys [legend-id data color]}]
+(defn- add-scatter-plot [schema {:keys [legend-id data color connect?]}]
   (-> schema
       (update :layer
-              #(conj % {:mark     {:type "circle"
-                                   :clip true}
+              #(conj % {:mark     (if connect?
+                                    {:type "line" :clip true}
+                                    {:type "circle" :clip true})
                         :data     {:values data}
                         :encoding {:color {:datum legend-id}
                                    :x     {:field "x"

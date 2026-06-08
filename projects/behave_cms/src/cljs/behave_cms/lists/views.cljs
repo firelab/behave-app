@@ -97,7 +97,7 @@
           list-option-editor-path         [:editors :list-option]
           selected-list                   (rf/subscribe [:state selected-list-state-path])]
       [window sidebar-width
-       [:div.container
+       [:div.container-fluid
         [:div {:style {:height "500px"}}
          [list-table selected-list-state-path list-editor-path selected-list-option-state-path]]
         (when @selected-list

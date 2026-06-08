@@ -1,4 +1,4 @@
-(ns migrations.2026-04-09-add-fire-type-color-tag-set
+(ns ^{:migrate/ignore? true} migrations.2026-04-09-add-fire-type-color-tag-set
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datomic.api              :as d]

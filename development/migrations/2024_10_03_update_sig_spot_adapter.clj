@@ -1,4 +1,4 @@
-(ns migrations.2024-10-03-update-sig-spot-adapter
+(ns ^{:migrate/ignore? true} migrations.2024-10-03-update-sig-spot-adapter
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

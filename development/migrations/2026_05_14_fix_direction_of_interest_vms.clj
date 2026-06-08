@@ -1,4 +1,4 @@
-(ns migrations.2026-05-14-fix-direction-of-interest-vms
+(ns ^{:migrate/ignore? true} migrations.2026-05-14-fix-direction-of-interest-vms
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datomic.api              :as d]

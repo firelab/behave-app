@@ -41,7 +41,7 @@
   (let [selected  (if (u/atom? selected) @selected selected)
         selected? (if (or multiple? (coll? selected))
                     #(not (nil? ((set selected) %)))
-                    #(= % (if (keyword? selected) (name selected) selected)))]
+                    #(= % selected))]
     [:div.mb-3
      [:label.form-label label]
      [:select.form-select
@@ -115,17 +115,17 @@
 
 (defn labeled-input
   "Input and label pair component. Takes as `opts`:
-   - `:type`         - Input type (e.g. `\"text\"`)
+   - `:input-type`   - Input type (e.g. `\"text\"`)
    - `:on-change`    - On change event handler.
    - `:disabled?`    - Disable input.
    - `:autofocus?`   - Autofocus input.
    - `:required?`    - Whether input is required.
    - `:zero-margin?` - Enable zero margin."
-  [label state & {:keys [type autocomplete disabled? on-change autofocus? required? placeholder zero-margin?]
-                  :as   opts
-                  :or   {type "text" disabled? false on-change #(reset! state (u/input-value %)) required? false}}]
-  (let [state (if (u/atom? state) @state state)
-        id    (nano-id)]
+  [label state & {:keys [input-type autocomplete disabled? on-change autofocus? required? placeholder zero-margin?]
+                  :or   {input-type "text" disabled? false required? false}}]
+  (let [on-change (or on-change #(reset! state (u/input-value %)))
+        state     (if (u/atom? state) @state state)
+        id        (nano-id)]
     [:div
      {:class [(if zero-margin? "" "my-3")]}
      [:label.form-label {:for id} label]
@@ -136,7 +136,7 @@
        :required      required?
        :placeholder   placeholder
        :id            id
-       :type          type
+       :type          input-type
        :value         state
        :on-change     on-change}]]))
 
@@ -162,7 +162,7 @@
   (labeled-input
    label
    state
-   (merge opts {:type "text" :on-change #(on-change (u/input-value %))})))
+   (merge opts {:input-type "text" :on-change #(on-change (u/input-value %))})))
 
 (defn labeled-file-input
   "File input."
@@ -170,7 +170,7 @@
   (labeled-input
    label
    state
-   (merge opts {:type "file" :on-change #(on-change (u/input-file %))})))
+   (merge opts {:input-type "file" :on-change #(on-change (u/input-file %))})))
 
 (defn limited-date-picker
   "Creates a date input with limited dates."
@@ -220,9 +220,9 @@
      [:div {:style ($/combine {:overflow "auto"})}
       [:div
        [:div {:style ($/combine [$/margin "1.5rem"])}
-        (doall (map-indexed (fn [i [label state type autocomplete]]
+        (doall (map-indexed (fn [i [label state input-type autocomplete]]
                               ^{:key i} [labeled-input label state {:autocomplete autocomplete
-                                                                    :type         type
+                                                                    :input-type   input-type
                                                                     :autofocus?   (= 0 i)
                                                                     :required?    true}])
                             fields))

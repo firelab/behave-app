@@ -1,4 +1,4 @@
-(ns migrations.2026-05-05-backfill-missing-order
+(ns ^{:migrate/ignore? true} migrations.2026-05-05-backfill-missing-order
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datomic.api              :as d]

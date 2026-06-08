@@ -1,4 +1,4 @@
-(ns migrations.template
+(ns ^{:migrate/ignore? true} migrations.2025-07-08-add-multi-select-prompt-translations
   (:require [schema-migrate.interface :as sm :refer [bp]]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

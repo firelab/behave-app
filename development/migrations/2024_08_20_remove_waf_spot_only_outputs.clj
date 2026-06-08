@@ -1,4 +1,4 @@
-(ns migrations.2024-08-20-remove-waf-spot-only-outputs)
+(ns ^{:migrate/ignore? true} migrations.2024-08-20-remove-waf-spot-only-outputs)
 
 ;; Removes Wind-Adjustment Factor in Surface + Crown
 ;; when only Spot outputs are selected

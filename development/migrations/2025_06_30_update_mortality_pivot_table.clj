@@ -1,4 +1,4 @@
-(ns migrations.2025-06-30-update-mortality-pivot-table
+(ns ^{:migrate/ignore? true} migrations.2025-06-30-update-mortality-pivot-table
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave.schema.pivot-table :refer [schema]]
