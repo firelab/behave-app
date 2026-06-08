@@ -1,37 +1,45 @@
 (ns migrations.2026-06-04-add-table-settings-translations
-  (:require [behave-cms.server        :as cms]
-            [behave-cms.store         :refer [default-conn]]
-            [datomic.api              :as d]
+  (:require [datomic.api              :as d]
             [schema-migrate.interface :as sm]))
 
 ;; ===========================================================================================================
-;; Initialize
+;; Overview
 ;; ===========================================================================================================
 
-(cms/init-db!)
+;; Seeds English translations for the table-settings UI keys introduced with
+;; the results settings modal (BHP1-1583).
 
-#_{:clj-kondo/ignore [:missing-docstring]}
-(def conn (default-conn))
+;; ===========================================================================================================
+;; Payload
+;; ===========================================================================================================
 
-#_{:clj-kondo/ignore [:missing-docstring]}
-(def payload
+#_{:clj-kondo/ignore [:missing-docstring :unused-binding]}
+(defn payload-fn [db]
   (sm/build-translations-payload
-   conn
+   db
    {"behaveplus:table-settings"     "Table Settings"
     "behaveplus:row-variable"       "Row variable"
     "behaveplus:column-variable"    "Column variable"
     "behaveplus:sub-table-variable" "Sub-table variable"}))
 
 ;; ===========================================================================================================
-;; Transact Payload
+;; Manual REPL usage
 ;; ===========================================================================================================
 
+#_{:clj-kondo/ignore [:duplicate-require :missing-docstring :unresolved-namespace]}
 (comment
-  (def tx-data (d/transact conn payload)))
+  (require '[behave-cms.server        :as cms]
+           '[behave-cms.store         :as store])
+  (cms/init-db!)
+
+  (def conn (store/default-conn))
+
+  (try (def tx-data @(d/transact conn (payload-fn (d/db conn))))
+       (catch Exception e (str "caught exception: " (.getMessage e)))))
 
 ;; ===========================================================================================================
 ;; Rollback
 ;; ===========================================================================================================
 
 (comment
-  (sm/rollback-tx! conn @tx-data))
+  (sm/rollback-tx! conn tx-data))
