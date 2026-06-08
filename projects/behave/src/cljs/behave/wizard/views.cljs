@@ -27,9 +27,7 @@
             [behave.worksheet.subs]
             [bidi.bidi                              :refer [path-for]]
             [clojure.string                         :as str]
-            [dom-utils.interface                    :refer [input-int-value
-                                                            input-float-value
-                                                            input-value]]
+            [dom-utils.interface                    :refer [input-value]]
             [goog.string                            :as gstring]
             [goog.string.format]
             [re-frame.core                          :refer [dispatch dispatch-sync subscribe]]
