@@ -1,0 +1,5 @@
+{:database {:config {:store {:backend :file :path "~/.behave/db"}}}
+ :site     {:title       "BehavePlus 7"
+            :description "Wildfire Analysis toolkit."}
+ :server   {:http-port 4040
+            :mode      "dev"}}

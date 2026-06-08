@@ -1,6 +1,6 @@
 (ns behave.schema.submodule
-  (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
+  (:require [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]
+            [clojure.spec.alpha  :as s]))
 
 ;;; Validation Fns
 
@@ -49,6 +49,11 @@
 
    {:db/ident       :submodule/order
     :db/doc         "Submodule's order."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :submodule/results-order
+    :db/doc         "Submodule's order in Results."
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 

@@ -1,11 +1,12 @@
 (ns behave-cms.subgroups.subs
-  (:require [clojure.string     :as str]
-            [bidi.bidi          :refer [path-for]]
-            [datascript.core    :as d]
+  (:require [behave-cms.queries :refer [rules]]
+            [behave-cms.routes  :refer [app-routes]]
             [behave-cms.store   :refer [conn]]
-            [behave-cms.queries :refer [rules]]
-            [re-frame.core      :refer [reg-sub subscribe]]
-            [behave-cms.routes  :refer [app-routes]]))
+            [bidi.bidi          :refer [path-for]]
+            [clojure.string     :as str]
+            [datascript.core    :as d]
+            [goog.string        :as gstring]
+            [re-frame.core      :refer [reg-sub subscribe]]))
 
 ;;; Applications, Modules, Submodules
 
@@ -45,30 +46,30 @@
 
 (reg-sub
  :group/discrete-variable-options
-  (fn [[_ gv-uuid]]
-    (subscribe [:query
-                   '[:find ?l .
-                     :in $ ?gv-uuid
-                     :where
-                     [?gv :bp/uuid ?gv-uuid]
-                     [?v  :variable/group-variables ?gv]
-                     [?v  :variable/kind :discrete]
-                     [?v  :variable/list ?l]]
-                   [gv-uuid]]))
-  (fn [list-eid]
-    @(subscribe [:pull-children :list/options list-eid])))
+ (fn [[_ gv-uuid]]
+   (subscribe [:query
+               '[:find ?l .
+                 :in $ ?gv-uuid
+                 :where
+                 [?gv :bp/uuid ?gv-uuid]
+                 [?v  :variable/group-variables ?gv]
+                 [?v  :variable/kind :discrete]
+                 [?v  :variable/list ?l]]
+               [gv-uuid]]))
+ (fn [list-eid]
+   @(subscribe [:pull-children :list/options list-eid])))
 
 (reg-sub
  :submodule/is-output?
-  (fn [[_ submodule-id]]
-    (subscribe [:query
-                   '[:find ?io .
-                     :in $ ?sm
-                     :where
-                     [?sm :submodule/io ?io]]
-                   [submodule-id]]))
-  (fn [io]
-    (= io :output)))
+ (fn [[_ submodule-id]]
+   (subscribe [:query
+               '[:find ?io .
+                 :in $ ?sm
+                 :where
+                 [?sm :submodule/io ?io]]
+               [submodule-id]]))
+ (fn [io]
+   (= io :output)))
 
 ;;; Subgroups
 
@@ -103,8 +104,8 @@
 
  (fn [groups _]
    (->> groups
-        (map (fn [{nid :bp/nid name :group/name}]
-               {:label name
+        (map (fn [{nid :bp/nid group-name :group/name}]
+               {:label group-name
                 :link  (path-for app-routes :get-group :nid nid)}))
         (sort-by :label))))
 
@@ -125,9 +126,9 @@
                  [?v :variable/name ?name]]
                [group-id]]))
  (fn [results]
-   (mapv (fn [[id name]]
+   (mapv (fn [[id var-name]]
            (-> @(subscribe [:entity id])
-               (assoc :variable/name name))) results)))
+               (assoc :variable/name var-name))) results)))
 
 (reg-sub
  :group/module-conditionals
@@ -149,7 +150,8 @@
 (reg-sub
  :group/_variables
  (fn [[_ group-id]]
-   (subscribe [:pull-children :group/group-variables group-id '[* {:variable/_group-variables [*]}]]))
+   (subscribe [:pull-children :group/group-variables group-id '[* {:variable/_group-variables    [*]
+                                                                   :group-variable/direction-ref [:list-option/name]}]]))
  identity)
 
 (reg-sub
@@ -171,9 +173,13 @@
  (fn [variables]
    (->> variables
         (map (fn [variable]
-               (let [nid  (:bp/nid variable)
-                     name (get-in variable [:variable/_group-variables 0 :variable/name])]
-                 {:label name
+               (let [nid       (:bp/nid variable)
+                     direction (or (get-in variable [:group-variable/direction-ref :list-option/name])
+                                   (some-> (:group-variable/direction variable) name))
+                     v-name    (get-in variable [:variable/_group-variables 0 :variable/name])]
+                 {:label (if direction
+                           (gstring/format "%s (%s)" v-name direction)
+                           v-name)
                   :link  (path-for app-routes :get-group-variable :nid nid)})))
         (sort-by :label))))
 

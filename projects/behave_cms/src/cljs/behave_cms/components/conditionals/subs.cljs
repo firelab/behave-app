@@ -1,7 +1,7 @@
 (ns behave-cms.components.conditionals.subs
-  (:require [re-frame.core      :refer [reg-sub subscribe]]
-            [datascript.core :as d]
-            [behave-cms.store   :refer [conn]]))
+  (:require [behave-cms.store :refer [conn]]
+            [datascript.core  :as d]
+            [re-frame.core    :refer [reg-sub subscribe]]))
 
 (reg-sub
  :conditionals/all-conditionals
@@ -21,14 +21,14 @@
          module-conditionals         (d/q '[:find ?c
                                             :in $ ?g ?conditional-attr
                                             :where
-                                            [?g ?conditionals-attr ?c]
+                                            [?g ?conditional-attr ?c]
                                             [?c :conditional/type :module]]
                                           @@conn
                                           eid
                                           cond-attr)]
-     (concat (mapv (fn [[id name]]
+     (concat (mapv (fn [[id option-name]]
                      (-> @(subscribe [:entity id])
-                         (assoc :variable/name name))) group-variable-conditionals)
+                         (assoc :variable/name option-name))) group-variable-conditionals)
              (mapv (fn [[id]]
                      (-> @(subscribe [:entity id])
                          (assoc :variable/name "Modules selected"))) module-conditionals)))))

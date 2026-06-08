@@ -1,8 +1,8 @@
 (ns behave-cms.components.translations
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
+  (:require [behave-cms.utils     :as u]
             [data-utils.interface :refer [parse-int]]
-            [behave-cms.utils :as u]))
+            [re-frame.core        :as rf]
+            [reagent.core         :as r]))
 
 (defn- upsert-translation! [data]
   (let [rf-event (cond
@@ -125,7 +125,7 @@
           ^{:key id}
           [:tr
            [:td language]
-           [:td {:style {:width "20%"}}translation-key]
+           [:td {:style {:width "20%"}} translation-key]
            [:td
             [translation-editor
              language-id

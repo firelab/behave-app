@@ -1,6 +1,6 @@
 (ns config.core
-  (:require [clojure.java.io :as io]
-            [clojure.edn     :as edn]))
+  (:require [clojure.edn     :as edn]
+            [clojure.java.io :as io]))
 
 ;;; Private vars
 
@@ -32,6 +32,11 @@
   ([new-config-file]
    (reset! config-file new-config-file)
    (reset! config-cache (read-config @config-file))))
+
+(defn merge-config!
+  "Deep-merges `overrides` into the cached config."
+  [overrides]
+  (swap! config-cache (fn [c] (merge-with merge (or c (read-config @config-file)) overrides))))
 
 (defn get-config
   "Retrieves the key `k` from the config file.

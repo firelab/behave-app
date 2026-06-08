@@ -1,7 +1,7 @@
 (ns behave.components.input-group
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [goog.string                          :as gstring]
+            [goog.string                     :as gstring]
             [behave.translate                :refer [<t bp]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
@@ -18,7 +18,6 @@
 
 (defn- highlight-help-section [help-key]
   (rf/dispatch [:help/highlight-section help-key]))
-
 
 ;;; Components
 
@@ -60,16 +59,15 @@
                                             value          @value]
                                         (rf/dispatch [:wizard/update-input-units
                                                       (vmap ws-uuid group-uuid repeat-id gv-uuid value new-units-uuid old-units-uuid)]))
-        *outside-range?              (rf/subscribe [:wizard/outside-range? native-unit-uuid @*unit-uuid var-min var-max @value])
-        *outside-range-msg           (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid @*unit-uuid var-min var-max])
-        warn-limit?                  (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
         *disable-multi-valued-input? (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid])
         acceptable-char-codes        (set (map #(.charCodeAt % 0)
                                                (if @*disable-multi-valued-input?
-                                                 "0123456789. "
+                                                 "0123456789."
                                                  "0123456789., ")))
         on-focus-click               (partial highlight-help-section help-key)
-        show-range-selector?         (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
+        show-range-selector?         (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])
+        *error?                      (rf/subscribe [:wizard/input-error? ws-uuid gv-uuid native-unit-uuid @*unit-uuid var-min var-max @value])
+        *error-msgs                  (rf/subscribe [:wizard/input-error-msgs ws-uuid gv-uuid native-unit-uuid @*unit-uuid var-min var-max @value])]
     [:div
      [:div.wizard-input
       [:div.wizard-input__input
@@ -82,8 +80,8 @@
                       :placeholder  @*place-holder
                       :value-atom   value-atom
                       :required?    true
-                      :error?       (or warn-limit? @*outside-range?)
-                      :error-msg    @*outside-range-msg
+                      :error?       @*error?
+                      :error-msg    @*error-msgs
                       :on-change    #(reset! value-atom (input-value %))
                       :on-key-press (fn [event]
                                       (when-not (contains? acceptable-char-codes (.-charCode event))
@@ -204,7 +202,6 @@
                  :search                      (= workflow :standard)
                  :options                     (doall (map ->option options))}
 
-
           (= workflow :standard)
           (merge {:search                        true
                   :prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:search:prompt1")) @*variable-name)
@@ -238,9 +235,12 @@
                                group-uuid
                                repeat-id
                                repeat-group?]
-  (let [value          (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
-        on-focus-click (partial highlight-help-section help-key)
-        value-atom     (r/atom @value)]
+  (let [value                     (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+        on-focus-click            (partial highlight-help-section help-key)
+        value-atom                (r/atom @value)
+        not-acceptable-char-codes (set (map #(.charCodeAt % 0) ","))
+        *error?                   (rf/subscribe [:wizard/character-limit-exceeded? @value])
+        *error-msg                (rf/subscribe [:wizard/character-limit-exceeded-msg])]
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
@@ -250,15 +250,22 @@
                                      "Values:")
                     :placeholder   (when repeat-group? "Value")
                     :default-value @value
+                    :error?        @*error?
+                    :error-msg     @*error-msg
                     :on-change     #(reset! value-atom (input-value %))
                     :on-blur       #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
+                    :on-key-press  (fn [event]
+                                     (when (contains? not-acceptable-char-codes (.-charCode event))
+                                       (.preventDefault event)))
                     :required?     true}]]))
 
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
   (let [{group-translation-key :group/translation-key
          group-uuid            :bp/uuid} group
-        *repeat-ids                      (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
-        next-repeat-id                   (or  (some->> @*repeat-ids seq (apply max) inc)
+        repeat-ids                       (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+                                             (deref)
+                                             (sort))
+        next-repeat-id                   (or  (some->> repeat-ids seq (apply max) inc)
                                               0)]
     [:<>
      (map-indexed
@@ -278,7 +285,7 @@
                       :size      "small"
                       :icon-name "delete"
                       :on-click  #(rf/dispatch [:worksheet/delete-repeat-input-group ws-uuid group-uuid repeat-id])}]]]])
-      @*repeat-ids)
+      repeat-ids)
      [:div {:style {:display         "flex"
                     :padding         "20px"
                     :align-items     "center"

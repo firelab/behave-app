@@ -1,7 +1,7 @@
 (ns behave-cms.components.cpp-editor
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
-            [behave-cms.utils :as u]))
+  (:require [behave-cms.utils :as u]
+            [re-frame.core    :as rf]
+            [reagent.core     :as r]))
 
 ;;; Helpers
 
@@ -42,9 +42,9 @@
         on-submit   #(save! editor-key cpp-attrs id)
         editor-path [:editors editor-key]
         get-field   (fn [field]
-                     (r/track #(or @(rf/subscribe [:state (conj editor-path field)]) (get original field ""))))
+                      (r/track #(or @(rf/subscribe [:state (conj editor-path field)]) (get original field ""))))
         set-field   (fn [field]
-                     (fn [new-value] (rf/dispatch [:state/set-state (conj editor-path field) new-value])))
+                      (fn [new-value] (rf/dispatch [:state/set-state (conj editor-path field) new-value])))
         namespaces  (rf/subscribe [:cpp/namespaces])
         classes     (rf/subscribe [:cpp/classes @(get-field cpp-ns)])
         functions   (rf/subscribe [:cpp/functions @(get-field cpp-class)])

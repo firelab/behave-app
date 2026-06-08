@@ -18,5 +18,4 @@
 
 (comment
   (update-config {:secret "HELLO"})
-  (get-config :secret)
-  )
+  (get-config :secret))

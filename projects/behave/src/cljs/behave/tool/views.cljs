@@ -4,7 +4,7 @@
    [behave.translate :refer [<t bp]]
    [dom-utils.interface :refer [input-value]]
    [map-utils.interface :refer [index-by]]
-   [number-utils.interface :refer [parse-float parse-int to-precision]]
+   [number-utils.interface :refer [parse-int to-precision]]
    [re-frame.core :as rf]
    [reagent.core :as r]
    [string-utils.interface :refer [->kebab]]))
@@ -23,8 +23,8 @@
        :options       (->> units
                            (map (fn [unit]
                                   (cond->
-                                      {:label (:unit/name unit)
-                                       :value (:bp/uuid unit)}
+                                   {:label (:unit/name unit)
+                                    :value (:bp/uuid unit)}
                                     (= @*unit-uuid (:bp/uuid unit))
                                     (assoc :selected? true))))
                            (sort-by :label))}]]))
@@ -50,7 +50,8 @@
                               (case units-system
                                 :english english-unit
                                 :metric  metric-unit
-                                native-unit))
+                                native-unit)
+                              native-unit)
         on-click          #(do
                              (on-change-units %)
                              (reset! show-selector? false))
@@ -122,23 +123,45 @@
   (let [{sv-uuid           :bp/uuid
          domain-uuid       :variable/domain-uuid
          var-name          :variable/name
+         var-min           :variable/minimum
+         var-max           :variable/maximum
          dimension-uuid    :variable/dimension-uuid
          native-unit-uuid  :variable/native-unit-uuid
          english-unit-uuid :variable/english-unit-uuid
          metric-unit-uuid  :variable/metric-unit-uuid
          dynamic-units?    :subtool-variable/dynamic-units?
          help-key          :subtool-variable/help-key} variable
+        translated-name                                @(rf/subscribe [:tool/sv->translated-name sv-uuid])
         domain                                         @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
+        resolved-native-uuid                           (or (:domain/native-unit-uuid domain) native-unit-uuid)
+        resolved-english-uuid                          (or (:domain/english-unit-uuid domain) english-unit-uuid)
+        resolved-metric-uuid                           (or (:domain/metric-unit-uuid domain) metric-unit-uuid)
         unit-uuid                                      @(rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
+        units-system                                   (rf/subscribe [:settings/tool-units-system])
+        effective-unit-uuid                            (or unit-uuid
+                                                           (case @units-system
+                                                             :english resolved-english-uuid
+                                                             :metric  resolved-metric-uuid
+                                                             resolved-native-uuid))
         value                                          @(rf/subscribe [:tool/input-value tool-uuid subtool-uuid sv-uuid])
-        value-atom                                     (r/atom value)]
+        value-atom                                     (r/atom value)
+        error-msg                                      @(rf/subscribe [:tool/input-error-msg
+                                                                       tool-uuid subtool-uuid sv-uuid
+                                                                       resolved-native-uuid var-min var-max
+                                                                       effective-unit-uuid value])
+        range-placeholder                              @(rf/subscribe [:tool/input-range-placeholder
+                                                                       resolved-native-uuid var-min var-max
+                                                                       effective-unit-uuid])]
     [:div.tool-input
      [:div.tool-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-      [c/number-input {:id         sv-uuid
-                       :label      var-name
-                       :value-atom value-atom
-                       :required?  true
+      [c/number-input {:id          sv-uuid
+                       :label       (or translated-name var-name)
+                       :value-atom  value-atom
+                       :required?   true
+                       :placeholder range-placeholder
+                       :error?      (some? error-msg)
+                       :error-msg   error-msg
                        :on-change  #(reset! value-atom (input-value %))
                        :on-blur    #(rf/dispatch [:tool/upsert-input-value
                                                   tool-uuid
@@ -170,17 +193,17 @@
          help-key :subtool-variable/help-key
          v-list   :variable/list} variable
         selected                  @(rf/subscribe [:tool/input-value
-                                                tool-uuid
-                                                subtool-uuid
-                                                sv-uuid])
+                                                  tool-uuid
+                                                  subtool-uuid
+                                                  sv-uuid])
         options                   (:list/options v-list)
         default-option            (first (filter #(true? (:list-option/default %)) options))
         on-change                 #(rf/dispatch [:tool/upsert-input-value
-                                               tool-uuid
-                                               subtool-uuid
-                                               sv-uuid
-                                               (input-value %)
-                                               auto-compute?])
+                                                 tool-uuid
+                                                 subtool-uuid
+                                                 sv-uuid
+                                                 (input-value %)
+                                                 auto-compute?])
         num-options               (count options)
         ->option                  (fn [{value               :list-option/value
                                         t-key               :list-option/translation-key
@@ -237,16 +260,17 @@
          metric-unit-uuid  :variable/metric-unit-uuid
          dynamic-units?    :subtool-variable/dynamic-units?
          help-key          :subtool-variable/help-key} variable
+        translated-name                                @(rf/subscribe [:tool/sv->translated-name sv-uuid])
         domain                                         @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
         output-value                                   @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
-        value                                          (when output-value (to-precision (parse-float output-value) (or (:domain/decimals domain) native-decimals)))]
+        value                                          (when output-value (to-precision output-value (or (:domain/decimals domain) native-decimals)))]
     [:div.tool-output
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-output__output
       {:on-mouse-over #(prn [:help/highlight-section help-key])}
       [c/text-input {:id        sv-uuid
                      :disabled? true
-                     :label     var-name
+                     :label     (or translated-name var-name)
                      :value     (or value "")}]]
      [unit-display
       domain-uuid
@@ -265,13 +289,14 @@
 
 (defmethod tool-output :discrete
   [{:keys [variable tool-uuid subtool-uuid]}]
-  (let [{sv-uuid  :bp/uuid
-         var-name :variable/name
-         list     :variable/list
-         help-key :subtool-variable/help-key} variable
-        value                                 @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
-        list-options                          (index-by :list-option/value (:list/options list))
-        matching-option                       (get list-options value)
+  (let [{sv-uuid   :bp/uuid
+         var-name  :variable/name
+         vlist     :variable/list
+         help-key  :subtool-variable/help-key} variable
+        translated-name                        @(rf/subscribe [:tool/sv->translated-name sv-uuid])
+        value                                  @(rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
+        list-options                           (index-by :list-option/value (:list/options vlist))
+        matching-option                       (get list-options (str value))
         background                            (get-in matching-option [:list-option/color-tag-ref :tag/color] "#FFFFFF")
         lum-bg                                (apply luminance (hex-to-rgb background))
         black-contrast                        (/ (+ lum-bg 0.05) 0.05)
@@ -284,7 +309,7 @@
        {:on-mouse-over #(prn [:help/highlight-section help-key])}
        [c/text-input {:id         sv-uuid
                       :disabled?  true
-                      :label      var-name
+                      :label      (or translated-name var-name)
                       :background background
                       :font-color font-color
                       :value      (get matching-option :list-option/name "")}]]]]))
@@ -292,28 +317,33 @@
 (defn- auto-compute-subtool
   "Renders a subtool that automatically computes outputs as inputs change."
   [tool-uuid subtool-uuid]
-  (rf/dispatch [:tool/solve tool-uuid subtool-uuid])
-  (let [variables @(rf/subscribe [:subtool/encriched-subtool-variables subtool-uuid])]
-    [:div
-     (for [{io :subtool-variable/io :as variable} variables
-           :let                                   [params {:variable      variable
-                                                           :tool-uuid     tool-uuid
-                                                           :subtool-uuid  subtool-uuid
-                                                           :auto-compute? true}]]
-       (if (= io :input)
-         [tool-input params]
-         [tool-output params]))
-     [c/button {:label         @(<t (bp "close_calculator"))
-                :variant       "secondary"
-                :icon-name     "close"
-                :icon-position "right"
-                :on-click      #(rf/dispatch [:tool/close-tool])}]]))
+  (let [any-error?  @(rf/subscribe [:tool/any-input-outside-range? tool-uuid subtool-uuid])
+        all-filled? @(rf/subscribe [:tool/all-inputs-filled? tool-uuid subtool-uuid])]
+    (when (and (not any-error?) all-filled?)
+      (rf/dispatch [:tool/solve tool-uuid subtool-uuid]))
+    (let [variables @(rf/subscribe [:subtool/encriched-subtool-variables subtool-uuid])]
+      [:div
+       (for [{io :subtool-variable/io :as variable} variables
+             :let                                   [params {:variable      variable
+                                                             :tool-uuid     tool-uuid
+                                                             :subtool-uuid  subtool-uuid
+                                                             :auto-compute? true}]]
+         (if (= io :input)
+           [tool-input params]
+           [tool-output params]))
+       [c/button {:label         @(<t (bp "close_calculator"))
+                  :variant       "secondary"
+                  :icon-name     "close"
+                  :icon-position "right"
+                  :on-click      #(rf/dispatch [:tool/close-tool])}]])))
 
 (defn- manual-subtool
   "Renders a subtool that requires manual computation via a compute button."
   [tool-uuid subtool-uuid]
   (let [input-variables  @(rf/subscribe [:subtool/input-variables subtool-uuid])
-        output-variables @(rf/subscribe [:subtool/output-variables subtool-uuid])]
+        output-variables @(rf/subscribe [:subtool/output-variables subtool-uuid])
+        any-error?       @(rf/subscribe [:tool/any-input-outside-range? tool-uuid subtool-uuid])
+        all-filled?      @(rf/subscribe [:tool/all-inputs-filled? tool-uuid subtool-uuid])]
     [:div
      (for [variable input-variables]
        [tool-input {:variable     variable
@@ -324,6 +354,7 @@
                  :variant       "highlight"
                  :icon-name     "arrow2"
                  :icon-position "right"
+                 :disabled?     (or any-error? (not all-filled?))
                  :on-click      #(rf/dispatch [:tool/solve tool-uuid subtool-uuid])}]]
      (for [variable output-variables]
        [tool-output

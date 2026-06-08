@@ -1,0 +1,75 @@
+name: Sign Windows Package
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version string for signing (e.g., v7.1.4)'
+        required: false
+        type: string
+    secrets:
+      AZURE_SIGNING_ALIAS:
+        required: true
+      AZURE_SIGNING_REGION:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
+
+jobs:
+  sign-windows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Windows package
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-zip
+          path: windows-package/
+
+      - name: Find Windows zip file
+        id: find-zip
+        run: |
+          ZIP_FILE=$(find windows-package -name "*windows*.zip" -type f | head -1)
+          echo "zip-file=$ZIP_FILE" >> $GITHUB_OUTPUT
+          echo "Found zip file: $ZIP_FILE"
+
+      - name: Sign Windows package
+        id: sign
+        uses: rjsheperd/az-jsign-trusted-signing@main
+        with:
+          file: ${{ steps.find-zip.outputs.zip-file }}
+          version: ${{ inputs.version }}
+          alias: ${{ secrets.AZURE_SIGNING_ALIAS }}
+          region: ${{ secrets.AZURE_SIGNING_REGION }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Find signed file
+        id: find-signed
+        run: |
+          SIGNED_FILENAME="${{ steps.sign.outputs.signed-file }}"
+          echo "Looking for signed file: $SIGNED_FILENAME"
+
+          SIGNED_PATH=$(find "${{ github.workspace }}" -name "$SIGNED_FILENAME" -type f | head -1)
+
+          if [[ -z "$SIGNED_PATH" ]]; then
+            echo "::error::Signed file not found: $SIGNED_FILENAME"
+            echo "Workspace contents:"
+            find "${{ github.workspace }}" -type f -name "*.zip"
+            exit 1
+          fi
+
+          echo "Found signed file: $SIGNED_PATH"
+          echo "signed-path=$SIGNED_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload signed Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip-signed
+          path: ${{ steps.find-signed.outputs.signed-path }}
+          retention-days: 5

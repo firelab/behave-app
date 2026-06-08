@@ -17,6 +17,7 @@
             [behave.schema.link                :as link]
             [behave.schema.list                :as behave-list]
             [behave.schema.module              :as module]
+            [behave.schema.note-category      :as note-category]
             [behave.schema.pivot-table         :as pivot-table]
             [behave.schema.prioritized-results :as prioritized-results]
             [behave.schema.rules               :as r]
@@ -71,6 +72,7 @@
                                 language/schema
                                 link/schema
                                 module/schema
+                                note-category/schema
                                 pivot-table/schema
                                 submodule/schema
                                 subtool-variable/schema

@@ -1,16 +1,17 @@
 (ns behave.components.inputs
   (:require
-   [behave.components.button :refer [button]]
-   [behave.components.a11y :refer [on-space on-enter]]
+   [behave.components.a11y      :refer [on-space on-enter]]
+   [behave.components.button    :refer [button]]
    [behave.components.icon.core :refer [icon]]
-   [reagent.core :as r]
-   [goog.string :as gstring]
-   [clojure.string :as str]))
+   [clojure.string              :as str]
+   [goog.string                 :as gstring]
+   [reagent.core                :as r]))
 
 ;;==============================================================================
 ;; Checkbox
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn checkbox [{:keys [label id name on-change checked? disabled? error?]}]
   [:label {:class ["input-checkbox"
                    (when checked? "input-checkbox--checked")
@@ -60,24 +61,27 @@
 ;; Number
 ;;==============================================================================
 
-(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom step]}]
+#_{:clj-kondo/ignore [:shadowed-var]}
+(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom default-value step placeholder]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
     {:class "input-number__label" :for id}
     label]
    [:input
-    (cond-> {:type "number"
-             :class "input-number__input"
-             :disabled disabled?
-             :id id
-             :name name
+    (cond-> {:type      "number"
+             :class     "input-number__input"
+             :disabled  disabled?
+             :id        id
+             :name      name
              :on-change on-change
-             :on-blur on-blur
-             :min min
-             :max max}
-      step       (assoc :step step)
-      value      (assoc :value value)
-      value-atom (assoc :value @value-atom))]
+             :on-blur   on-blur
+             :min       min
+             :max       max}
+      step          (assoc :step step)
+      placeholder   (assoc :placeholder placeholder)
+      value         (assoc :value value)
+      value-atom    (assoc :value @value-atom)
+      default-value (assoc :default-value default-value))]
    (when error?
      [:div.input-number__error error-msg])])
 
@@ -85,6 +89,7 @@
 ;; Range
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn range-input [{:keys [label id name on-change disabled? error? min max]}]
   [:div {:class ["input-range " (when error? "input-range--error")]}
    [:label
@@ -104,6 +109,7 @@
 ;; Radio Group
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn radio-input [{:keys [label id name value on-change checked? disabled? error?]}]
   [:label {:class ["input-radio"
                    (when checked? "input-radio--checked")
@@ -176,8 +182,7 @@
 
 (defn- option [{:keys [label value selected? disabled?]}]
   [:option
-   {:key      value
-    :class    "input-dropdown__option"
+   {:class    "input-dropdown__option"
     :disabled disabled?
     :selected selected?
     :value    value} label])
@@ -185,7 +190,8 @@
 (defn- option-group [label]
   [:optgroup {:key label :class "input-dropdown__option-group" :label label}])
 
-(defn dropdown [{:keys [label id name on-change disabled? error? options]}]
+#_{:clj-kondo/ignore [:shadowed-var]}
+(defn dropdown [{:keys [label id name value on-change disabled? error? options]}]
   [:div {:class ["input-dropdown"
                  (when error? "input-dropdown--error")
                  (when disabled? "input-dropdown--disabled")]}
@@ -197,16 +203,20 @@
       :disabled  disabled?
       :id        id
       :name      name
+      :value     value
       :on-change on-change}
      (for [{:keys [group] :as opt} options]
        (if (some? group)
+         ^{:key group}
          [option-group group (for [o (:options opt)] [option o])]
+         ^{:key (:value opt)}
          [option opt]))]]])
 
 ;;==============================================================================
 ;; Text
 ;;==============================================================================
 
+#_{:clj-kondo/ignore [:shadowed-var]}
 (defn text-input
   [{:keys [disabled? error? error-msg focused? id label name on-blur on-change on-focus
            placeholder value value-atom default-value on-key-press background font-color]}]
@@ -215,15 +225,15 @@
                  (when disabled? "input-text--disabled")
                  (when focused? "input-text--focused")]}
    [:label {:class "input-text__label" :for id} label]
-   [:input (cond-> {:class "input-text__input"
-                    :disabled disabled?
-                    :id id
-                    :name name
-                    :on-blur on-blur
+   [:input (cond-> {:class        "input-text__input"
+                    :disabled     disabled?
+                    :id           id
+                    :name         name
+                    :on-blur      on-blur
                     :on-key-press on-key-press
-                    :on-focus on-focus
-                    :placeholder placeholder
-                    :type "text"}
+                    :on-focus     on-focus
+                    :placeholder  placeholder
+                    :type         "text"}
              background    (assoc :style {:background background})
              font-color    (assoc-in [:style :color] font-color)
              on-change     (assoc :on-change on-change)
@@ -251,10 +261,10 @@
   (-> event .-target .-value))
 
 (defn- multi-select-option [{:keys [selected? label on-click color-tag]}]
-  [:div (cond-> {:class ["multi-select__option"
-                         (when selected? "multi-select__option--selected")
-                         (when color-tag "multi-select__option__color-tag")]
-                 :style {}
+  [:div (cond-> {:class    ["multi-select__option"
+                            (when selected? "multi-select__option--selected")
+                            (when color-tag "multi-select__option__color-tag")]
+                 :style    {}
                  :on-click on-click}
           color-tag
           (assoc-in [:style :border-color] (:color color-tag)))
@@ -372,9 +382,9 @@
       (when (false? @show-options?)
         [:div.multi-select__selections__body (for [[label value on-deselect color-tag :as selection] @selections]
                                                [:div
-                                                (cond-> {:class ["multi-select__option--selected"
-                                                                 (when color-tag "multi-select__option__color-tag")]
-                                                         :style {}
+                                                (cond-> {:class    ["multi-select__option--selected"
+                                                                    (when color-tag "multi-select__option__color-tag")]
+                                                         :style    {}
                                                          :on-click #(do
                                                                       (reset! selections (disj @selections selection))
                                                                       (when on-deselect (on-deselect value)))}
@@ -423,10 +433,10 @@
       [:div.multi-select-search__selections__body
        (for [[label value on-deselect color-tag :as selection] @selections]
          [:div
-          (cond-> {:class ["multi-select-search"
-                           "multi-select__option--selected"
-                           (when color-tag "multi-select__option__color-tag")]
-                   :style {}
+          (cond-> {:class    ["multi-select-search"
+                              "multi-select__option--selected"
+                              (when color-tag "multi-select__option__color-tag")]
+                   :style    {}
                    :on-click #(do
                                 (reset! selections (disj @selections selection))
                                 (when on-deselect (on-deselect value)))}
@@ -442,8 +452,8 @@
                                                  (multi-select-on-select selections selection disable-multi-valued-input?))
                                                (reset! search nil))))
                    :on-change    #(do (reset! search (input-value %))
-                                      (reset! filtered-options (filter (fn [option]
-                                                                         (str/includes? (str/lower-case (:label option))
+                                      (reset! filtered-options (filter (fn [the-option]
+                                                                         (str/includes? (str/lower-case (:label the-option))
                                                                                         (str/lower-case @search)))
                                                                        options)))
                    :value-atom   search}]]

@@ -28,7 +28,8 @@
      (contain/getFireHeadAtReport module)
      (contain/getFireBackAtAttack module)
      (contain/getFireHeadAtAttack module)
-     (contain/getContainmentStatus module)]))
+     (contain/getContainmentStatus module)
+     (:diagram/units-uuid diagram)]))
 
 (defmethod build-event-vector :fire-shape
   [{:keys [ws-uuid row-id diagram module]}]
@@ -46,7 +47,8 @@
                            (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))
      (surface/getSlope module (enums/slope-units "Percent"))
-     (surface/getElapsedTime module (enums/time-units "Hours"))]))
+     (surface/getElapsedTime module (enums/time-units "Hours"))
+     (:diagram/units-uuid diagram)]))
 
 (defmethod build-event-vector :wind-slope-spread-direction
   [{:keys [ws-uuid row-id diagram module]}]
@@ -67,14 +69,15 @@
      (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
      (surface/getWindDirection module)
      (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
-                           (surface/getWindHeightInputMode module))]))
+                           (surface/getWindHeightInputMode module))
+     (:diagram/units-uuid diagram)]))
 
 (defn store-all-diagrams! [{:keys [ws-uuid row-id module diagrams]}]
   (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
-   (doseq [diagram diagrams]
-     (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
-       (when (some #{group-variable-uuid} all-outputs)
-         (rf/dispatch (build-event-vector {:ws-uuid ws-uuid
-                                           :diagram diagram
-                                           :row-id  row-id
-                                           :module  module})))))))
+    (doseq [diagram diagrams]
+      (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
+        (when (some #{group-variable-uuid} all-outputs)
+          (rf/dispatch (build-event-vector {:ws-uuid ws-uuid
+                                            :diagram diagram
+                                            :row-id  row-id
+                                            :module  module})))))))

@@ -112,7 +112,7 @@
                                    :content-type "application/x-sqlite3"
                                    :read         pr/-body}}))
 
-(defn- open-worksheet-handler [[ok body]]
+(defn- open-worksheet-handler [file-name [ok body]]
   (when ok
     (reset! worksheet-from-file? true)
     (reset! conn nil)
@@ -122,7 +122,9 @@
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :sync-loaded? true])
       (rf/dispatch-sync [:state/set :ws-version
-                         @(rf/subscribe [:worksheet/version @(rf/subscribe [:worksheet/latest])])]))))
+                         @(rf/subscribe [:worksheet/version @(rf/subscribe [:worksheet/latest])])])
+      (rf/dispatch-sync [:worksheet/update-worksheet-name-from-import
+                         @(rf/subscribe [:worksheet/latest]) file-name]))))
 
 
 (defn open-worksheet! [{:keys [file]}]
@@ -131,7 +133,7 @@
     (ajax-request {:uri             "/api/open"
                    :body            form-data
                    :method          :post
-                   :handler         open-worksheet-handler
+                   :handler         (partial open-worksheet-handler (.-name file))
                    :response-format {:description  "ArrayBuffer"
                                      :type         :arraybuffer
                                      :content-type "application/msgpack"

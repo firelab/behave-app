@@ -1,6 +1,6 @@
 (ns behave-cms.sqlite
-  (:require [clojure.string       :as str]
-            [clojure.java.io      :as io]
+  (:require [clojure.java.io      :as io]
+            [clojure.string       :as str]
             [next.jdbc            :as jdbc]
             [next.jdbc.result-set :as rs]))
 
@@ -74,9 +74,9 @@
         columns   (-> (first csv-lines) (str/replace "'" ""))
         fmt-row   (fn [row] (format "(%s)" (str/join "," (map #(if (empty-value? %) "NULL" %) (str/split row #",")))))]
     (exec! (format "INSERT INTO %s (%s) VALUES %s;"
-            table
-            columns
-            (str/join ", " (map fmt-row (next csv-lines)))))))
+                   table
+                   columns
+                   (str/join ", " (map fmt-row (next csv-lines)))))))
 
 ;; https://sqlite.org/foreignkeys.html
 (defn join-table [join-table-name t1 t2]
@@ -118,17 +118,17 @@
                                      :outputs (vec (map #(assoc {:name %} :id (:id (get vars-grouped %))) outputs))))
                             fns-with-ids)]
 
-    (exec! (format "INSERT INTO functions_inputs (functions_rid, variables_rid, position) VALUES %s"
-                   (str/join ", "
-                             (flatten
-                               (map (fn [{:keys [inputs] :as f}]
-                                      (map-indexed (fn [idx io] (format "(%s, %s, %s)" (:id f) (:id io) idx)) inputs)) fns-io-ids)))))
+      (exec! (format "INSERT INTO functions_inputs (functions_rid, variables_rid, position) VALUES %s"
+                     (str/join ", "
+                               (flatten
+                                (map (fn [{:keys [inputs] :as f}]
+                                       (map-indexed (fn [idx io] (format "(%s, %s, %s)" (:id f) (:id io) idx)) inputs)) fns-io-ids)))))
 
-    (exec! (format "INSERT INTO functions_outputs (functions_rid, variables_rid, position) VALUES %s"
-                   (str/join ", "
-                             (flatten
-                               (map (fn [{:keys [outputs] :as f}]
-                                      (map-indexed (fn [idx io] (format "(%s, %s, %s)" (:id f) (:id io) idx)) outputs)) fns-io-ids))))))))
+      (exec! (format "INSERT INTO functions_outputs (functions_rid, variables_rid, position) VALUES %s"
+                     (str/join ", "
+                               (flatten
+                                (map (fn [{:keys [outputs] :as f}]
+                                       (map-indexed (fn [idx io] (format "(%s, %s, %s)" (:id f) (:id io) idx)) outputs)) fns-io-ids))))))))
 
 (defn create-tables! []
   (exec! (csv->table "config/variables.csv"))
@@ -161,6 +161,4 @@
   (map :name *1)
 
   (for [c new-columns]
-    (add-column! "variables" c "VARCHAR"))
-
-)
+    (add-column! "variables" c "VARCHAR")))

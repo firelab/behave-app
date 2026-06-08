@@ -1,5 +1,5 @@
 (ns behave.tool.events
-  (:require [re-frame.core :as rf]
+  (:require [re-frame.core      :as rf]
             [behave.tool.solver :refer [solve-tool]]))
 
 (def db-tool [:state :tool])
@@ -58,10 +58,10 @@
                           unit-uuid)}
      auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :tool/close-tool-selector
- (fn [db _]
-   (assoc-in db [:state :sidebar :*tools-or-settings] nil)))
+ (fn [_ _]
+   {:fx [[:dispatch [:sidebar/clear-tools-or-settings]]]}))
 
 (rf/reg-event-db
  :tool/close-tool

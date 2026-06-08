@@ -1,13 +1,13 @@
 (ns behave-cms.server
-  (:require [clojure.core.server :refer [start-server]]
+  (:require [behave-cms.handler  :refer [create-handler-stack]]
+            [behave-cms.store    :as store]
+            [clojure.core.server :refer [start-server]]
             [clojure.java.io     :as io]
             [clojure.string      :as str]
             [clojure.tools.cli   :refer [parse-opts]]
-            [ring.adapter.jetty  :refer [run-jetty]]
-            [logging.interface   :refer [log-str start-logging!]]
             [config.interface    :refer [load-config get-config]]
-            [behave-cms.store    :as store]
-            [behave-cms.handler  :refer [create-handler-stack]])
+            [logging.interface   :refer [log-str start-logging!]]
+            [ring.adapter.jetty  :refer [run-jetty]])
   (:gen-class))
 
 (defonce server           (atom nil))
@@ -61,9 +61,9 @@
                 :default ""]})
 
 (defn- get-option-default [option]
-  (loop [cur     (first option)
-         tail    (next option)
-         result  []]
+  (loop [cur    (first option)
+         tail   (next option)
+         result []]
     (cond
       (nil? cur)
       {:option result :default nil}
@@ -89,19 +89,19 @@
 ;; Public functions
 
 (defn start-server! [{:keys [http-port https-port mode log-dir repl]}]
-  (let [has-key?   (.exists (io/file "./.key/keystore.pkcs12"))
-        ssl?       (and has-key? https-port)
-        handler    (create-handler-stack ssl? (= mode "dev"))
-        config     (merge
-                     {:port  http-port
-                      :join? false}
-                     (when ssl?
-                       {:ssl?          true
-                        :ssl-port      https-port
-                        :keystore      "./.key/keystore.pkcs12"
-                        :keystore-type "pkcs12"
-                        :keystore-scan-interval keystore-scan-interval
-                        :key-password  "foobar"}))]
+  (let [has-key? (.exists (io/file "./.key/keystore.pkcs12"))
+        ssl?     (and has-key? https-port)
+        handler  (create-handler-stack ssl? (= mode "dev"))
+        config   (merge
+                  {:port  http-port
+                   :join? false}
+                  (when ssl?
+                    {:ssl?                   true
+                     :ssl-port               https-port
+                     :keystore               "./.key/keystore.pkcs12"
+                     :keystore-type          "pkcs12"
+                     :keystore-scan-interval keystore-scan-interval
+                     :key-password           "foobar"}))]
     (if (and (not has-key?) https-port)
       (log-str "ERROR:\n"
                "  An SSL key is required if an HTTPS port is specified.\n"
@@ -116,7 +116,7 @@
         (start-logging! {:log-dir log-dir})))))
 
 (defn -main [& args]
-  (let [{:keys [options defaults]} (separate-options-defaults cli-options)
+  (let [{:keys [options defaults]}       (separate-options-defaults cli-options)
         {:keys [summary errors options]} (->> options
                                               (vals)
                                               (parse-opts args))]
@@ -125,5 +125,4 @@
       (println summary errors))))
 
 (comment
-  (-main nil)
-  )
+  (-main nil))

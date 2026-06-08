@@ -1,5 +1,5 @@
 (ns behave-cms.routes
-  (:require [bidi.bidi :as bidi]
+  (:require [bidi.bidi    :as bidi]
             [clojure.walk :as walk]))
 
 (def admin-routes  #{:users :invite-user})
@@ -46,14 +46,14 @@
 (defn- add-trailing-slashes-to-roots
   [routes]
   (walk/postwalk
-    (fn [x]
-      (if (and (vector? x)
-               (some-> x second map?)
-               (some-> x second (get "")))
-        (update x 1 #(let [root (get % "")]
-                       (assoc % "/" root)))
-        x))
-    routes))
+   (fn [x]
+     (if (and (vector? x)
+              (some-> x second map?)
+              (some-> x second (get "")))
+       (update x 1 #(let [root (get % "")]
+                      (assoc % "/" root)))
+       x))
+   routes))
 
 (defn- ->kw [& s]
   (keyword (apply str s)))
@@ -67,61 +67,61 @@
 
 (def api-routes
   (add-trailing-slashes-to-roots
-    ["/api"
-     [["" :api-index]
-      ["/" [;; System API Methods
-            ["login"          :api/login]
-            ["verify-email"   :api/verify-email]
-            ["set-password"   :api/set-password]
-            ["reset-password" :api/reset-password]
-            ["invite-user"    :api/invite-user]
+   ["/api"
+    [["" :api-index]
+     ["/" [;; System API Methods
+           ["login"          :api/login]
+           ["verify-email"   :api/verify-email]
+           ["set-password"   :api/set-password]
+           ["reset-password" :api/reset-password]
+           ["invite-user"    :api/invite-user]
 
             ;; Custom API routes
-            ["variables/search" :api/search-variables]]]]]))
+           ["variables/search" :api/search-variables]]]]]))
 
 (def app-routes
   (add-trailing-slashes-to-roots
-    ["/"
-     [;; App Routes
-      ["" :dashboard]
+   ["/"
+    [;; App Routes
+     ["" :dashboard]
 
       ;; Users/Auth
-      (entity-route :users)
-      (entity-route :roles)
-      (entity-route :permissions)
+     (entity-route :users)
+     (entity-route :roles)
+     (entity-route :permissions)
 
       ;; I18n
-      (entity-route :languages)
-      (entity-route :translations)
+     (entity-route :languages)
+     (entity-route :translations)
 
       ;; App Entities
-      (entity-route :applications)
-      (entity-route :modules)
-      (entity-route :submodules)
-      (entity-route :groups)
-      (entity-route :subgroups)
-      (entity-route :group-variables)
-      (entity-route :variables)
-      (entity-route :domains)
-      (entity-route :lists)
-      (entity-route :help-pages)
-      (entity-route :tags)
-      (entity-route :tools)
-      (entity-route :subtools)
-      (entity-route :subtool-variables)
-      (entity-route :units)
+     (entity-route :applications)
+     (entity-route :modules)
+     (entity-route :submodules)
+     (entity-route :groups)
+     (entity-route :subgroups)
+     (entity-route :group-variables)
+     (entity-route :variables)
+     (entity-route :domains)
+     (entity-route :lists)
+     (entity-route :help-pages)
+     (entity-route :tags)
+     (entity-route :tools)
+     (entity-route :subtools)
+     (entity-route :subtool-variables)
+     (entity-route :units)
 
       ;; CPP
-      (entity-route :namespaces)
-      (entity-route :classes)
-      (entity-route :enums)
-      (entity-route :enum-members)
-      (entity-route :functions)
-      (entity-route :parameters)
+     (entity-route :namespaces)
+     (entity-route :classes)
+     (entity-route :enums)
+     (entity-route :enum-members)
+     (entity-route :functions)
+     (entity-route :parameters)
 
       ;; System Routes
-      ["login"          :login]
-      ["verify-email"   :verify-email]
-      ["set-password"   :set-password]
-      ["reset-password" :reset-password]
-      ["invite-user"    :invite-user]]]))
+     ["login"          :login]
+     ["verify-email"   :verify-email]
+     ["set-password"   :set-password]
+     ["reset-password" :reset-password]
+     ["invite-user"    :invite-user]]]))
