@@ -37,7 +37,7 @@
   (let [tool     (rf/subscribe [:entity [:bp/nid nid] '[* {:application/_tools [*]}]])
         tool-eid (:db/id @tool)]
     [window sidebar-width
-     [:div.container
+     [:div.container-fluid
       [:div.row.mb-3.mt-4
        [:h2 (:tool/name @tool)]]
       [accordion

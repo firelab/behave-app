@@ -1,4 +1,4 @@
-(ns migrations.2025-10-02-spot-enable-flame-length-only-active-crown
+(ns ^{:migrate/ignore? true} migrations.2025-10-02-spot-enable-flame-length-only-active-crown
   (:require [schema-migrate.interface :refer [bp] :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

@@ -1,4 +1,4 @@
-(ns migrations.2025-06-02-fix-torching-tree-species
+(ns ^{:migrate/ignore? true} migrations.2025-06-02-fix-torching-tree-species
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

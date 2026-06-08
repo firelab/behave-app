@@ -1,4 +1,4 @@
-(ns migrations.2025-01-10-fix-equals-conditionals
+(ns ^{:migrate/ignore? true} migrations.2025-01-10-fix-equals-conditionals
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

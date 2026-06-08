@@ -23,7 +23,7 @@
                                 {:value unit-uuid
                                  :label (str unit-name " (" short-code ")")})]
       [window sidebar-width
-       [:div.container
+       [:div.container-fluid
         {:style {:height "900px"}}
         [table-entity-form
          {:title              "Variables"

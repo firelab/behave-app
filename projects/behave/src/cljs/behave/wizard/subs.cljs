@@ -746,6 +746,14 @@
         (sort-by #(.indexOf gv-order %)))))
 
 (reg-sub
+ :wizard/diagram-by-gv-uuid
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find (pull ?d [*]) .
+          :in    $ ?gv
+          :where [?d :diagram/group-variable ?gv]]
+        @@vms-conn [:bp/uuid gv-uuid])))
+
+(reg-sub
  :wizard/show-range-selector?
  (fn [{:keys [state]} [_ gv-uuid repeat-id]]
    (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))

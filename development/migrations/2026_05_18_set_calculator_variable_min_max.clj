@@ -1,4 +1,4 @@
-(ns migrations.2026-05-18-set-calculator-variable-min-max
+(ns ^{:migrate/ignore? true} migrations.2026-05-18-set-calculator-variable-min-max
   (:require [behave-cms.server :as cms]
             [behave-cms.store :refer [default-conn]]
             [datomic.api :as d]

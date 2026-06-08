@@ -1,4 +1,4 @@
-(ns migrations.2025-05-20-fix-spotting
+(ns ^{:migrate/ignore? true} migrations.2025-05-20-fix-spotting
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

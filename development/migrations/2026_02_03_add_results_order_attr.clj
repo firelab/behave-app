@@ -1,4 +1,4 @@
-(ns migrations.2026-02-03-add-results-order-attr
+(ns ^{:migrate/ignore? true} migrations.2026-02-03-add-results-order-attr
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [datomic.api              :as d]

@@ -495,6 +495,20 @@ DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePeri
   return (temp = self->getFirePerimeterY(), &temp);
 }
 
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getOptimizedContainProductionRates_0(SIGContainAdapter* self) {
+  static DoubleVector temp;
+  return (temp = self->getOptimizedContainProductionRates(), &temp);
+}
+
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getOptimizedContainAreas_0(SIGContainAdapter* self) {
+  static DoubleVector temp;
+  return (temp = self->getOptimizedContainAreas(), &temp);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getOptimizedContainPointCount_0(SIGContainAdapter* self) {
+  return self->getOptimizedContainPointCount();
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getAttackDistance_1(SIGContainAdapter* self, LengthUnits_LengthUnitsEnum lengthUnits) {
   return self->getAttackDistance(lengthUnits);
 }

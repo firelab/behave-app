@@ -65,7 +65,7 @@
   (let [submodule     (rf/subscribe [:entity [:bp/nid nid] '[* {:module/_submodules [*]}]])
         submodule-eid (:db/id @submodule)]
     [window sidebar-width
-     [:div.container
+     [:div.container-fluid
       [:div.row.mb-3.mt-4
        [:h2 (str (:submodule/name @submodule) " (" (->str (:submodule/io @submodule)) ")")]]
 

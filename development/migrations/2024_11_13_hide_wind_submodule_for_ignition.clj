@@ -1,4 +1,4 @@
-(ns migrations.2024-11-13-hide-wind-submodule-for-ignition
+(ns ^{:migrate/ignore? true} migrations.2024-11-13-hide-wind-submodule-for-ignition
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

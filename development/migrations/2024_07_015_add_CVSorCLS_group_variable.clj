@@ -1,4 +1,4 @@
-(ns migrations.2024-07-015-add-CVSorCLS-group-variable
+(ns ^{:migrate/ignore? true} migrations.2024-07-015-add-CVSorCLS-group-variable
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

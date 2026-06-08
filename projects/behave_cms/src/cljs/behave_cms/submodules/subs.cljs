@@ -10,6 +10,12 @@
  identity)
 
 (reg-sub
+ :diagrams
+ (fn [[_ module-id]]
+   (subscribe [:pull-children :module/diagrams module-id]))
+ identity)
+
+(reg-sub
  :sidebar/submodules
  (fn [[_ module-id]]
    (subscribe [:submodules module-id]))
@@ -79,9 +85,9 @@
                  [?v :variable/name ?name]]
                [pivot-table-id]]))
  (fn [results]
-   (mapv (fn [[id name]]
+   (mapv (fn [[id variable-name]]
            (-> @(subscribe [:entity id])
-               (assoc :variable/name name))) results)))
+               (assoc :variable/name variable-name))) results)))
 
 (reg-sub
  :search-table/columns
