@@ -62,7 +62,7 @@
 ;;==============================================================================
 
 #_{:clj-kondo/ignore [:shadowed-var]}
-(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom default-value step]}]
+(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom default-value step placeholder]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
     {:class "input-number__label" :for id}
@@ -78,6 +78,7 @@
              :min       min
              :max       max}
       step          (assoc :step step)
+      placeholder   (assoc :placeholder placeholder)
       value         (assoc :value value)
       value-atom    (assoc :value @value-atom)
       default-value (assoc :default-value default-value))]
