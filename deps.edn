@@ -133,7 +133,6 @@
                        "components/string_utils/test"
                        "components/transport/test"
                        "components/version_utils/test"
-                       >>>>>>> 971280021d924442c5a28c1cfa42c8f8f841aa68
 
                        ;; Bases
                        "bases/behave_routing/test"
