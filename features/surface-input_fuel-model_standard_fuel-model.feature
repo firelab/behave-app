@@ -9,7 +9,7 @@ Feature: Surface Input - Fuel Model -> Standard -> Fuel Model
       | Fire Behavior | Surface Fire | Rate of Spread |
     When these output paths are NOT selected
       | submodule | group                     | value                    |
-      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
     Then the following input paths are displayed:
       | submodule  | group    | value      |
       | Fuel Model | Standard | Fuel Model |

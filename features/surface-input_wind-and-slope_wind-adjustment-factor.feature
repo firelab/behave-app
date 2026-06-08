@@ -17,7 +17,7 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Fire Behavior | Direction Mode            | Heading                    |
       | Fire Behavior | Direction Mode            | Heading, Flanking, Backing |
       | Fire Behavior | Direction Mode            | Direction of Interest      |
-      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire   |
+      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only)   |
 
   @core
   Scenario Outline: Wind Adjustment Factor is displayed
@@ -35,7 +35,7 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Fire Behavior | Direction Mode            | Heading                    |
       | Fire Behavior | Direction Mode            | Heading, Flanking, Backing |
       | Fire Behavior | Direction Mode            | Direction of Interest      |
-      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire   |
+      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only)   |
 
   @core
   Scenario Outline: Wind Adjustment Factor is displayed

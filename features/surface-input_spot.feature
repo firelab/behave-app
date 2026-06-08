@@ -11,4 +11,4 @@ Feature: Surface Input - Spot
     Examples: This scenario is repeated for each of these rows
       | submodule | group                     | value                    |
       | Spot      | Maximum Spotting Distance | Burning Pile             |
-      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |

@@ -10,7 +10,7 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> Live Herbaceous Fuel 
 
     When these output paths are NOT selected
       | submodule | group                     | value                    |
-      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
 
     When this input path is entered <submodule> : <group> : <value>
 
@@ -35,7 +35,7 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> Live Herbaceous Fuel 
 
     When these output paths are NOT selected
       | submodule | group                     | value                    |
-      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
 
     When this input path is entered <submodule> : <group> : <value>
 

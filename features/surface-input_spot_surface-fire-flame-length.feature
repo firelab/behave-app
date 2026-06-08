@@ -2,11 +2,11 @@
 Feature: Surface Input - Spot -> Surface Fire Flame Length
 
   @core
-  Scenario: Surface Fire Flame Length is displayed when Wind-Driven Surface Fire is selected
+  Scenario: Surface Fire Flame Length is displayed when Wind-Driven Surface Fire (Grass Only) is selected
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule | group                     | value                    |
-      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
     When these output paths are NOT selected
       | submodule     | group          | value                      |
       | Fire Behavior | Direction Mode | Heading                    |

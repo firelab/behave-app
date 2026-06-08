@@ -18,7 +18,7 @@ Feature: Surface Input - Wind and Slope
       | Fire Behavior | Surface Fire              | Flame Length               |
       | Fire Behavior | Surface Fire              | Fireline Intensity         |
       | Spot          | Maximum Spotting Distance | Burning Pile               |
-      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire   |
+      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only)   |
       | Size          | Surface - Fire Size       | Fire Area                  |
       | Size          | Surface - Fire Size       | Fire Perimeter             |
       | Size          | Surface - Fire Size       | Length-to-Width Ratio      |
