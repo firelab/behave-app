@@ -487,13 +487,13 @@
  (fn [{ds                   :ds
        directional-children :vms/directional-children} [_ ws-uuid group-var-uuid attr value]]
    (when-let [graph-axis-limit-id (get-graph-axis-limit-eid ds ws-uuid group-var-uuid)]
-     (let [children-payload (map (fn [child]
-                                   (let [child-graph-axis-limit-id
-                                         (get-graph-axis-limit-eid ds ws-uuid (:bp/uuid child))]
-                                     (assoc {:db/id child-graph-axis-limit-id} attr value)))
-                                 directional-children)]
-       {:transact (cond-> [(assoc {:db/id graph-axis-limit-id} attr value)]
-                    (seq children-payload) (concat children-payload))}))))
+     (let [children-payload (for [child directional-children
+                                  :let  [child-graph-axis-limit-id (get-graph-axis-limit-eid ds ws-uuid (:bp/uuid child))]
+                                  :when child-graph-axis-limit-id]
+                              (assoc {:db/id child-graph-axis-limit-id} attr value))
+           final-payload    (cond-> [(assoc {:db/id graph-axis-limit-id} attr value)]
+                              (seq children-payload) (concat children-payload))]
+       {:transact final-payload}))))
 (rp/reg-event-fx
  :worksheet/update-all-axis-limits-from-results
  (fn [_ [_ ws-uuid]]
