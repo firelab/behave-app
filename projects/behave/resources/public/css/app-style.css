@@ -842,6 +842,10 @@ body {
 
 /* -- End Wizard Standard -- */
 
+.wizard-results__graph {
+  padding-top: 10px;
+}
+
 .wizard-results__table-settings__header,
 .wizard-results__graph-settings__header {
   padding: 5px 18px;
@@ -1628,6 +1632,18 @@ body {
   align-items: center;
   gap: 24px;
   margin-bottom: 12px;
+}
+
+.table-settings,
+.graph-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.graph-settings .settings-form,
+.graph-settings .settings-form .table {
+  width: 100%;
 }
 
 .result-matrices__color-legend {
