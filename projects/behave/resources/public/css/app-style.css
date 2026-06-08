@@ -1227,8 +1227,9 @@ body {
 
 .tool-output,
 .tool-input {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
   min-height: 40px;
   padding-bottom: 5px;
 }
@@ -1240,12 +1241,12 @@ body {
   flex-direction: row;
 }
 
+
 .tool-output .input-text__label,
 .tool-input .input-radio-group__label,
 .tool-input__input > .input-dropdown > .input-dropdown__label,
 .tool-input .input-number__label {
   min-width: 250px;
-  padding: 0px;
 }
 
 .tool-input .input-dropdown__select-wrapper {
@@ -1254,12 +1255,18 @@ body {
 
 .tool-input .input-number__label,
 .tool-input .input-text__label,
-.tool-input .input-dropdown__label,
+.tool-input .input-dropdown__label {
+  padding: 7px 10px 0px 0px;
+  font-size: var(--font-size-15);
+  font-weight: 400;
+  color: var(--gray-5);
+}
+
 .tool-input .input-radio-group__label {
   padding: 0px 10px 0px 0px;
-  font-size: var(--font-size-14);
+  font-size: var(--font-size-15);
   font-weight: 400;
-  color: var(--gray-6);
+  color: var(--gray-5);
 }
 
 .tool-input + .tool-input:last-child {
@@ -1306,8 +1313,13 @@ body {
   background-color: var(--white);
 }
 
+.tool-input .wizard-input__units {
+  padding-top: 12px;
+}
+
 .tool__units-system-selector {
   padding-left: 5px;
+  margin-bottom: 15px;
 }
 
 .tool__units-system-selector .input-toggle__label {
