@@ -1,7 +1,5 @@
 (ns migrations.2026-06-05-add-graph-and-results-settings-translations
-  (:require [behave-cms.server        :as cms]
-            [behave-cms.store         :refer [default-conn]]
-            [datomic.api              :as d]
+  (:require [datomic.api              :as d]
             [schema-migrate.interface :refer [bp] :as sm]))
 
 ;; ===========================================================================================================
@@ -12,37 +10,35 @@
 ;; that were previously hard-coded English strings.
 
 ;; ===========================================================================================================
-;; Initialize
-;; ===========================================================================================================
-
-(cms/init-db!)
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(def conn (default-conn))
-
-;; ===========================================================================================================
 ;; Payload
 ;; ===========================================================================================================
 
-#_{:clj-kondo/ignore [:missing-docstring]}
-(def payload
+#_{:clj-kondo/ignore [:missing-docstring :unused-binding]}
+(defn payload-fn [db]
   (sm/build-translations-payload
-   conn
+   db
    {(bp "table_settings") "Table Settings"
     (bp "show_graphs")    "Show Graphs"
     (bp "graph_settings") "Graph Settings"}))
 
 ;; ===========================================================================================================
-;; Transact Payload
+;; Manual REPL usage
+;; ===========================================================================================================
+
+#_{:clj-kondo/ignore [:duplicate-require :missing-docstring :unresolved-namespace]}
+(comment
+  (require '[behave-cms.server        :as cms]
+           '[behave-cms.store         :as store])
+  (cms/init-db!)
+
+  (def conn (store/default-conn))
+
+  (try (def tx-data @(d/transact conn (payload-fn (d/db conn))))
+       (catch Exception e (str "caught exception: " (.getMessage e)))))
+
+;; ===========================================================================================================
+;; Rollback
 ;; ===========================================================================================================
 
 (comment
-  #_{:clj-kondo/ignore [:missing-docstring]}
-  (def tx-data (d/transact conn payload)))
-
-;; ===========================================================================================================
-;; In case we need to rollback.
-;; ===========================================================================================================
-
-(comment
-  (sm/rollback-tx! conn @tx-data))
+  (sm/rollback-tx! conn tx-data))
