@@ -1,4 +1,4 @@
-(ns migrations.2024-08-19-fix-surface-input-downwind-canopy-cover
+(ns ^{:migrate/ignore? true} migrations.2024-08-19-fix-surface-input-downwind-canopy-cover
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

@@ -134,7 +134,7 @@
   (let [application (rf/subscribe [:application [:bp/nid nid]])
         app-id      (:db/id @application)]
     [window sidebar-width
-     [:div.container
+     [:div.container-fluid
       [:div.row.mb-3.mt-4
        [:h2 (:application/name @application)]]
       [accordion

@@ -1,4 +1,4 @@
-(ns migrations.2026-04-28-link-directions-to-fire-direction
+(ns ^{:migrate/ignore? true} migrations.2026-04-28-link-directions-to-fire-direction
   (:require [behave-cms.server        :as cms]
             [behave-cms.store         :refer [default-conn]]
             [clojure.string           :as str]

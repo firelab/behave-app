@@ -1,4 +1,4 @@
-(ns migrations.2025-03-03-add-fuel-load-outputs
+(ns ^{:migrate/ignore? true} migrations.2025-03-03-add-fuel-load-outputs
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]

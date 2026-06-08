@@ -989,6 +989,21 @@ SIGContainAdapter.prototype['getFirePerimeterY'] = SIGContainAdapter.prototype.g
   return wrapPointer(_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0(self), DoubleVector);
 };;
 
+SIGContainAdapter.prototype['getOptimizedContainProductionRates'] = SIGContainAdapter.prototype.getOptimizedContainProductionRates = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_getOptimizedContainProductionRates_0(self), DoubleVector);
+};;
+
+SIGContainAdapter.prototype['getOptimizedContainAreas'] = SIGContainAdapter.prototype.getOptimizedContainAreas = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_getOptimizedContainAreas_0(self), DoubleVector);
+};;
+
+SIGContainAdapter.prototype['getOptimizedContainPointCount'] = SIGContainAdapter.prototype.getOptimizedContainPointCount = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_getOptimizedContainPointCount_0(self);
+};;
+
 SIGContainAdapter.prototype['getAttackDistance'] = SIGContainAdapter.prototype.getAttackDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;

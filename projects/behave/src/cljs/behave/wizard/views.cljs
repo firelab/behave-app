@@ -304,7 +304,6 @@
         *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
-        *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
@@ -330,7 +329,7 @@
             (show-or-close-notes-button @*show-notes?)]]
           [:div.wizard-review
            (when @*show-notes?
-             (wizard-notes @*notes modules))
+             [add-note-section ws-uuid modules])
            (for [module modules
                  :let   [module-name (:module/name module)]]
              [:div {:data-theme-color module-name}
@@ -607,7 +606,6 @@
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
   (let [modules              @(subscribe [:worksheet/modules ws-uuid])
-        *notes               (subscribe [:wizard/notes ws-uuid])
         *show-notes?         (subscribe [:wizard/show-notes?])
         on-back              #(dispatch [:wizard/back])
         on-next              #(dispatch [:navigate (path-for routes :ws/results
@@ -634,7 +632,7 @@
            @(<t (bp "result_settings"))]
           (show-or-close-notes-button @*show-notes?)]]
         (when @*show-notes?
-          (wizard-notes @*notes modules))
+          [add-note-section ws-uuid modules])
         [:div.wizard-page__body
          [:div.wizard-results__table-settings
           [:div.wizard-results__table-settings__header "Table Settings"]
@@ -742,6 +740,8 @@
          [inputs-table ws-uuid]
          (when (seq @*cell-data)
            [:div.wizard-results__table {:id "outputs"}
+            [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
+            [result-table-download-link ws-uuid]
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
             (when (not repeat-groups?)
@@ -753,10 +753,7 @@
                           :variant   "secondary"
                           :icon-name "settings"
                           :on-click  #(dispatch [:table-settings/toggle])}]])
-            [result-matrices ws-uuid]
-            [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
-            ;; [raw-result-table ws-uuid]
-            [result-table-download-link ws-uuid]])
+            [result-matrices ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
        [:div.wizard-navigation

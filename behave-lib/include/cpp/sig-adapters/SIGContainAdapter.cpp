@@ -32,6 +32,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <vector>
 
 void SIGContainAdapter::addResource(double arrival,
                                     TimeUnits::TimeUnitsEnum arrivalTimeUnits,
@@ -72,17 +73,36 @@ double SIGContainAdapter::getPerimeterAtInitialAttack(LengthUnits::LengthUnitsEn
 
 DoubleVector SIGContainAdapter::getFirePerimeterX( void ) const
 {
-    return( DoubleVector(m_x, m_size) );
+    std::vector<double> v(m_x, m_x + m_size);
+    v.insert(v.end(), m_x, m_x + m_size);
+    return( DoubleVector(v) );
 }
 
 DoubleVector SIGContainAdapter::getFirePerimeterY( void ) const
 {
-    return( DoubleVector(m_y, m_size) );
+    std::vector<double> v(m_y, m_y + m_size);
+    for (int i = 0; i < m_size; i++) { v.push_back(-m_y[i]); }
+    return( DoubleVector(v) );
 }
 
 int SIGContainAdapter::getFirePerimeterPointCount( void ) const
 {
-    return( m_size );
+    return( 2 * m_size );
+}
+
+DoubleVector SIGContainAdapter::getOptimizedContainProductionRates( void ) const
+{
+    return( DoubleVector(optimizedContainProductionRates_) );
+}
+
+DoubleVector SIGContainAdapter::getOptimizedContainAreas( void ) const
+{
+    return( DoubleVector(optimizedContainAreas_) );
+}
+
+int SIGContainAdapter::getOptimizedContainPointCount( void ) const
+{
+    return( (int)optimizedContainProductionRates_.size() );
 }
 
 
@@ -157,6 +177,57 @@ void SIGContainAdapter::doContainRun()
 // that will cause the simulation to change from a Non Contained status to Contained. If such a scenario
 // does not exists, then the model stores the simulation at the initial maximum Production Rate of 10000 ch/h.
 
+std::unique_ptr<Sem::ContainSim> SIGContainAdapter::runSimAtProductionRate(double productionRate,
+                                                                            double resourceArrival,
+                                                                            double resourceDuration,
+                                                                            const char* desc)
+{
+    Sem::ContainForce force;
+    force.addResource(resourceArrival,
+                      productionRate,
+                      resourceDuration,
+                      Sem::ContainFlank::LeftFlank,
+                      const_cast<char*>(desc));
+    auto sim = std::unique_ptr<Sem::ContainSim>(
+        new Sem::ContainSim(ContainAdapter::reportSize_,
+                            ContainAdapter::reportRate_,
+                            ContainAdapter::diurnalROS_,
+                            ContainAdapter::fireStartTime_,
+                            ContainAdapter::lwRatio_,
+                            &force,
+                            ContainAdapter::tactic_,
+                            ContainAdapter::attackDistance_,
+                            ContainAdapter::retry_,
+                            ContainAdapter::minSteps_,
+                            ContainAdapter::maxSteps_,
+                            ContainAdapter::maxFireSize_,
+                            ContainAdapter::maxFireTime_));
+    sim->run();
+    return sim;
+}
+
+void SIGContainAdapter::storeSimResults(Sem::ContainSim* sim)
+{
+    ContainAdapter::m_size  = sim->firePoints();
+    ContainAdapter::m_xData = std::vector<double>(sim->firePerimeterX(), sim->firePerimeterX() + ContainAdapter::m_size);
+    ContainAdapter::m_yData = std::vector<double>(sim->firePerimeterY(), sim->firePerimeterY() + ContainAdapter::m_size);
+    ContainAdapter::m_x     = ContainAdapter::m_xData.data();
+    ContainAdapter::m_y     = ContainAdapter::m_yData.data();
+    ContainAdapter::m_reportHead = sim->fireHeadAtReport();
+    ContainAdapter::m_reportBack = sim->fireBackAtReport();
+    ContainAdapter::m_attackHead = sim->fireHeadAtAttack();
+    ContainAdapter::m_attackBack = sim->fireBackAtAttack();
+
+    ContainAdapter::finalCost_              = sim->finalFireCost();
+    ContainAdapter::finalFireLineLength_    = LengthUnits::toBaseUnits(sim->finalFireLine(), LengthUnits::Chains);
+    ContainAdapter::perimeterAtContainment_ = LengthUnits::toBaseUnits(sim->finalFirePerimeter(), LengthUnits::Chains);
+    ContainAdapter::finalFireSize_          = AreaUnits::toBaseUnits(sim->finalFireSize(), AreaUnits::Acres);
+    ContainAdapter::finalContainmentArea_   = AreaUnits::toBaseUnits(sim->finalFireSweep(), AreaUnits::Acres);
+    ContainAdapter::finalTime_              = TimeUnits::toBaseUnits(sim->finalFireTime(), TimeUnits::Minutes);
+    ContainAdapter::containmentStatus_      = static_cast<ContainStatus::ContainStatusEnum>(sim->status());
+    ContainAdapter::finalProductionRate_    = finalFireLineLength_ / finalTime_;
+}
+
 void SIGContainAdapter::doContainRunWithOptimalResource()
 {
     if (ContainAdapter::reportRate_ < 0.00001)
@@ -171,150 +242,42 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
             ContainAdapter::diurnalROS_[i] = ContainAdapter::reportRate_;
         }
 
-        Sem::ContainForce oldForce;
-        Sem::ContainForce* oldForcePointer = &oldForce;
+        const char* desc = "AutoComputed";
+        auto initialSim = runSimAtProductionRate(10000, resourceArrivalTime_, resourceDuration_, desc);
+        ContainStatus::ContainStatusEnum initialStatus = convertSemStatusToAdapterStatus(initialSim->status());
 
-        double resourceArrival = resourceArrivalTime_; // min
-        double resourceDuration = resourceDuration_; // min
-        double resourceProduction = 10000; // ch/h
-
-        char* const desc = (char* const)"AutoComputed";
-        oldForcePointer->addResource(resourceArrival,
-                                     resourceProduction,
-                                     resourceDuration,
-                                     Sem::ContainFlank::LeftFlank,
-                                     desc);
-
-        Sem::ContainSim* initialContainSimPtr;
-        initialContainSimPtr = new Sem::ContainSim(ContainAdapter::reportSize_,
-                                                   ContainAdapter::reportRate_,
-                                                   ContainAdapter::diurnalROS_,
-                                                   ContainAdapter::fireStartTime_,
-                                                   ContainAdapter::lwRatio_,
-                                                   oldForcePointer,
-                                                   ContainAdapter::tactic_,
-                                                   ContainAdapter::attackDistance_,
-                                                   ContainAdapter::retry_,
-                                                   ContainAdapter::minSteps_,
-                                                   ContainAdapter::maxSteps_,
-                                                   ContainAdapter::maxFireSize_,
-                                                   ContainAdapter::maxFireTime_);
-
-        // Do Contain simulation
-        initialContainSimPtr->run();
-
-        int left = 0;
-        int size = 10000; // assumes 10000 chains per hour is the maximum
-        int right = size - 1;
-        ContainStatus::ContainStatusEnum currentContainmentStatus;
-        ContainStatus::ContainStatusEnum previousContainmentStatus;
-        ContainStatus::ContainStatusEnum initialContainmentStatus;
-        Sem::ContainSim* currentContainSimPtr;
-        Sem::ContainSim* containSimPtrAtContainmentPtr;
-
-        initialContainmentStatus = convertSemStatusToAdapterStatus(initialContainSimPtr->status());
-        previousContainmentStatus = initialContainmentStatus;
-
-        if (initialContainmentStatus == ContainStatus::ContainStatusEnum::Contained) {
-            // run Binary Search for a contain simulation that uses the minimum production rate needed for containment.
+        if (initialStatus == ContainStatus::ContainStatusEnum::Contained) {
+            int left = 0;
+            int right = 9999; // assumes 10000 chains per hour is the maximum
+            std::unique_ptr<Sem::ContainSim> bestSim;
             while (left <= right) {
                 int mid = (left + right) / 2;
-                // std::cout << "mid: " << mid << std::endl;
-                int currentProductionRate = mid;
-                Sem::ContainForce oldForce;
-                Sem::ContainForce* oldForcePointer = &oldForce;
-                oldForcePointer->addResource(resourceArrival,
-                                             currentProductionRate,
-                                             resourceDuration,
-                                             Sem::ContainFlank::LeftFlank,
-                                             desc);
-                currentContainSimPtr = new Sem::ContainSim(ContainAdapter::reportSize_,
-                                                           ContainAdapter::reportRate_,
-                                                           ContainAdapter::diurnalROS_,
-                                                           ContainAdapter::fireStartTime_,
-                                                           ContainAdapter::lwRatio_,
-                                                           oldForcePointer,
-                                                           ContainAdapter::tactic_,
-                                                           ContainAdapter::attackDistance_,
-                                                           ContainAdapter::retry_,
-                                                           ContainAdapter::minSteps_,
-                                                           ContainAdapter::maxSteps_,
-                                                           ContainAdapter::maxFireSize_,
-                                                           ContainAdapter::maxFireTime_);
-
-                // Do Contain simulation
-                currentContainSimPtr->run();
-                currentContainmentStatus = convertSemStatusToAdapterStatus(currentContainSimPtr->status());
-                // std::cout << "currentContainmentStatus: " << currentContainmentStatus << std::endl;
-
-                if ((previousContainmentStatus == ContainStatus::ContainStatusEnum::Contained &&
-                     currentContainmentStatus == ContainStatus::ContainStatusEnum::Contained )
-                    ||
-                    (previousContainmentStatus != ContainStatus::ContainStatusEnum::Contained &&
-                     currentContainmentStatus == ContainStatus::ContainStatusEnum::Contained))
-                {
-                    // std::cout << "search left" <<  std::endl;
-                    right = mid - 1; //search left half
-                    setAutoComputedResourceProductionRate(currentProductionRate, SpeedUnits::ChainsPerHour);
-                    containSimPtrAtContainmentPtr = currentContainSimPtr;
-                    previousContainmentStatus = currentContainmentStatus;
-                }
-                else if ((previousContainmentStatus == ContainStatus::ContainStatusEnum::Contained &&
-                          currentContainmentStatus != ContainStatus::ContainStatusEnum::Contained)
-                         ||
-                         (previousContainmentStatus != ContainStatus::ContainStatusEnum::Contained &&
-                          currentContainmentStatus != ContainStatus::ContainStatusEnum::Contained))
-                {
-                    // std::cout << "search right" <<  std::endl;
-                    left = mid + 1; // Search right half
-                    previousContainmentStatus = currentContainmentStatus;
+                auto sim = runSimAtProductionRate(mid, resourceArrivalTime_, resourceDuration_, desc);
+                if (convertSemStatusToAdapterStatus(sim->status()) == ContainStatus::ContainStatusEnum::Contained) {
+                    right = mid - 1;
+                    setAutoComputedResourceProductionRate(mid, SpeedUnits::ChainsPerHour);
+                    bestSim = std::move(sim);
+                } else {
+                    left = mid + 1;
                 }
             }
+            storeSimResults(bestSim.get());
 
-            // Store Values from ContainSim For Access in SIGContainAdapter
-            ContainAdapter::m_size       = containSimPtrAtContainmentPtr->firePoints();
-            ContainAdapter::m_x          = containSimPtrAtContainmentPtr->firePerimeterX();
-            ContainAdapter::m_y          = containSimPtrAtContainmentPtr->firePerimeterY();
-            ContainAdapter::m_reportHead = containSimPtrAtContainmentPtr->fireHeadAtReport();
-            ContainAdapter::m_reportBack = containSimPtrAtContainmentPtr->fireBackAtReport();
-            ContainAdapter::m_attackHead = containSimPtrAtContainmentPtr->fireHeadAtAttack();
-            ContainAdapter::m_attackBack = containSimPtrAtContainmentPtr->fireBackAtAttack();
-
-            // Get results from Contain simulation
-            ContainAdapter::finalCost_ = containSimPtrAtContainmentPtr->finalFireCost();
-            ContainAdapter::finalFireLineLength_ = LengthUnits::toBaseUnits(containSimPtrAtContainmentPtr->finalFireLine(), LengthUnits::Chains);
-            ContainAdapter::perimeterAtContainment_ = LengthUnits::toBaseUnits(containSimPtrAtContainmentPtr->finalFirePerimeter(), LengthUnits::Chains);
-            ContainAdapter::finalFireSize_ = AreaUnits::toBaseUnits(containSimPtrAtContainmentPtr->finalFireSize(), AreaUnits::Acres);
-            ContainAdapter::finalContainmentArea_ = AreaUnits::toBaseUnits(containSimPtrAtContainmentPtr->finalFireSweep(), AreaUnits::Acres);
-            ContainAdapter::finalTime_ = TimeUnits::toBaseUnits(containSimPtrAtContainmentPtr->finalFireTime(), TimeUnits::Minutes);
-            ContainAdapter::containmentStatus_ = convertSemStatusToAdapterStatus(containSimPtrAtContainmentPtr->status());
-            ContainAdapter::containmentStatus_ = static_cast<ContainStatus::ContainStatusEnum>(containSimPtrAtContainmentPtr->status());
-            ContainAdapter::finalProductionRate_ = finalFireLineLength_ / finalTime_;
-
-
-
-        } else { // the Simulation is not cointained even at maximum  resource production rate (10000 ch/h).
-            // Store Values from initialCoontainSim
-            ContainAdapter::m_size       = initialContainSimPtr->firePoints();
-            ContainAdapter::m_x          = initialContainSimPtr->firePerimeterX();
-            ContainAdapter::m_y          = initialContainSimPtr->firePerimeterY();
-            ContainAdapter::m_reportHead = initialContainSimPtr->fireHeadAtReport();
-            ContainAdapter::m_reportBack = initialContainSimPtr->fireBackAtReport();
-            ContainAdapter::m_attackHead = initialContainSimPtr->fireHeadAtAttack();
-            ContainAdapter::m_attackBack = initialContainSimPtr->fireBackAtAttack();
-
-            // Get results from Contain simulation
-            ContainAdapter::finalCost_ = initialContainSimPtr->finalFireCost();
-            ContainAdapter::finalFireLineLength_ = LengthUnits::toBaseUnits(initialContainSimPtr->finalFireLine(), LengthUnits::Chains);
-            ContainAdapter::perimeterAtContainment_ = LengthUnits::toBaseUnits(initialContainSimPtr->finalFirePerimeter(), LengthUnits::Chains);
-            ContainAdapter::finalFireSize_ = AreaUnits::toBaseUnits(initialContainSimPtr->finalFireSize(), AreaUnits::Acres);
-            ContainAdapter::finalContainmentArea_ = AreaUnits::toBaseUnits(initialContainSimPtr->finalFireSweep(), AreaUnits::Acres);
-            ContainAdapter::finalTime_ = TimeUnits::toBaseUnits(initialContainSimPtr->finalFireTime(), TimeUnits::Minutes);
-            ContainAdapter::containmentStatus_ = convertSemStatusToAdapterStatus(initialContainSimPtr->status());
-            ContainAdapter::containmentStatus_ = static_cast<ContainStatus::ContainStatusEnum>(initialContainSimPtr->status());
-            ContainAdapter::finalProductionRate_ = finalFireLineLength_ / finalTime_;
-
-
+            // Sweep 0..floor(1.5 * optimal) to build production-rate vs containment-area curve
+            optimizedContainProductionRates_.clear();
+            optimizedContainAreas_.clear();
+            int optimalChH = static_cast<int>(
+                SpeedUnits::fromBaseUnits(autoComputedResourceProductionRate_, SpeedUnits::ChainsPerHour));
+            int sweepMax = optimalChH + optimalChH / 2;
+            for (int i = 0; i <= sweepMax; i++) {
+                auto sweepSim = runSimAtProductionRate(static_cast<double>(i), resourceArrivalTime_, resourceDuration_, desc);
+                optimizedContainProductionRates_.push_back(static_cast<double>(i));
+                optimizedContainAreas_.push_back(sweepSim->finalFireSweep());
+            }
+        } else { // the Simulation is not contained even at maximum resource production rate (10000 ch/h).
+            optimizedContainProductionRates_.clear();
+            optimizedContainAreas_.clear();
+            storeSimResults(initialSim.get());
         }
 
         // Calculate effective windspeed needed for Size module
@@ -337,7 +300,7 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
         double denominator = M_PI * ellipticalA * ellipticalB; // pi*a*b
 
         // Get the time that the first resource begins to attack the fire
-        double firstArrivalTime = resourceArrival;
+        double firstArrivalTime = resourceArrivalTime_;
         if (firstArrivalTime < 0)
         {
             firstArrivalTime = 0.0; // make sure the time isn't negative for some weird reason

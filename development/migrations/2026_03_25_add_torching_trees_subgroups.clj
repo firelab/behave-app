@@ -1,4 +1,4 @@
-(ns migrations.2026-03-25-add-torching-trees-subgroups
+(ns ^{:migrate/ignore? true} migrations.2026-03-25-add-torching-trees-subgroups
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
