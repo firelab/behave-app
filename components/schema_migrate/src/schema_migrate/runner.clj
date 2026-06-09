@@ -1,9 +1,9 @@
 (ns schema-migrate.runner
   (:require
-   [clojure.java.io :as io]
-   [clojure.string  :as str]
-   [datomic-store.main :as ds]
-   [datomic.api     :as d]
+   [clojure.java.io     :as io]
+   [clojure.string      :as str]
+   [datomic-store.main  :as ds]
+   [datomic.api         :as d]
    [schema-migrate.core :as core]))
 
 (defn migration-applied?
@@ -54,6 +54,20 @@
                 (and (map? attr-map)
                      (:migrate/ignore? attr-map))))))))
 
+(defn- resolve-dir
+  "Resolve `dir` to a File. Tries `io/resource` (classpath) first so that the
+   path works regardless of the JVM's working directory, then falls back to a
+   raw filesystem path (used by tests that pass absolute temp-dir strings).
+   Throws when neither resolves to an existing directory."
+  ^java.io.File [dir]
+  (let [f (if-let [url (io/resource dir)]
+            (io/file (.toURI url))
+            (io/file dir))]
+    (when-not (.isDirectory f)
+      (throw (ex-info (str "Migrations directory not found: " dir)
+                      {:dir dir :resolved (str f)})))
+    f))
+
 (defn discover-migrations
   "Find all migration namespaces in `dir`.
    Returns them sorted by name.
@@ -69,7 +83,7 @@
                        in order; each receives a fresh `db` snapshot reflecting
                        all prior steps in the same migration"
   [dir]
-  (->> (io/file dir)
+  (->> (resolve-dir dir)
        (.listFiles)
        (filter clj-file?)
        (remove ns-ignored?)
