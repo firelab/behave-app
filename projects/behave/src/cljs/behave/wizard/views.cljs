@@ -648,7 +648,7 @@
             [:div.wizard-header__submodule-navigator__label
              (if (= (count modules) 1)
                (gstring/format "%s %s" (:module/name (first modules)) (str (str/capitalize (name io)) "s"))
-               (apply gstring/format "%s & %s %s" (conj (mapv :module/name modules) (str (str/capitalize (name io)) "s"))))]
+               (apply gstring/format "%s & %s %s" (conj (mapv :module/name (sort-by :module/results-order modules)) (str (str/capitalize (name io)) "s"))))]
             (let [->option (fn [[module-name {submodule-name :submodule/name}]]
                              {:value submodule-name
                               :label (str module-name " - " submodule-name)})]
