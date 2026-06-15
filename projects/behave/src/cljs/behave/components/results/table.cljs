@@ -55,11 +55,11 @@
                :on-click      download!}]))
 
 (defn- build-result-table-data
-  [{:keys [ws-uuid headers title cell-data]
-    :or   {headers   @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
-           title     "Results Table"
-           cell-data @(subscribe [:worksheet/result-table-cell-data ws-uuid])}}]
-  (let [headers-set               (set (map first headers))
+  [{:keys [ws-uuid headers title cell-data]}]
+  (let [headers                   (or headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid]))
+        title                     (or title "Results Table")
+        cell-data                 (or cell-data @(subscribe [:worksheet/result-table-cell-data ws-uuid]))
+        headers-set               (set (map first headers))
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
@@ -74,7 +74,7 @@
                             :always (conj (str header-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
                             (procces-map-units? map-units-enabled? gv-uuid)
-                            (conj (str  "Map Units - " header-name (gstring/format " (%s)" map-units))))))
+                            (conj (str "Map Units - " header-name (gstring/format " (%s)" map-units))))))
                       []
                       headers)
      :columns (reduce (fn [acc [gv-uuid repeat-id _units]]
@@ -91,25 +91,25 @@
                                        (group-by first)
                                        (sort-by key))]
                 (map (fn [[_ data]]
-                       (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                 (let [[_ min max enabled?] (first (filter
-                                                                    (fn [[gv-uuid]]
-                                                                      (= gv-uuid uuid))
-                                                                    @table-setting-filters))
-                                       fmt-fn               (get formatters uuid identity)
-                                       uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
+                       (reduce (fn [acc [_row-id col-uuid repeat-id value]]
+                                 (let [[_ filter-min filter-max enabled?] (first (filter
+                                                                                  (fn [[gv-uuid]]
+                                                                                    (= gv-uuid col-uuid))
+                                                                                  @table-setting-filters))
+                                       fmt-fn                             (get formatters col-uuid identity)
+                                       uuid+repeat-id-key                 (keyword (str col-uuid "-" repeat-id))]
                                    (cond-> acc
-                                     (and min max (not (<= min value max)) enabled?)
+                                     (and filter-min filter-max (not (<= filter-min value filter-max)) enabled?)
                                      (assoc :shaded? true)
 
                                      :always
-                                     (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value {:export? export?})))
+                                     (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value {:export? false})))
 
-                                     (procces-map-units? map-units-enabled? uuid)
-                                     (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
+                                     (procces-map-units? map-units-enabled? col-uuid)
+                                     (assoc (keyword (str/join "-" [col-uuid repeat-id "map-units"]))
                                             (-> value
                                                 (to-map-units
-                                                 (get map-units-variables uuid)
+                                                 (get map-units-variables col-uuid)
                                                  map-units
                                                  map-rep-frac)
                                                 (fmt-fn))))))
