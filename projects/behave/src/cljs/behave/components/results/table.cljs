@@ -120,9 +120,10 @@
 (defn result-table-download-link
   "Creates a link to download the table as a CSV export."
   [ws-uuid]
-  [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid
-                                                  :headers @(subscribe [:worksheet/csv-export-headers
-                                                                        ws-uuid])})]])
+  [:div.wizard-results__download-button
+   [table-exporter (build-result-table-data {:ws-uuid ws-uuid
+                                             :headers @(subscribe [:worksheet/csv-export-headers
+                                                                   ws-uuid])})]])
 
 (defn raw-result-table [ws-uuid]
   (c/table (build-result-table-data {:ws-uuid ws-uuid})))

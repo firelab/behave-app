@@ -493,8 +493,11 @@ body {
   font-weight: var(--font-weight-300);
 }
 
-.wizard-add-notes {
-  padding: 5px;
+.wizard-add-notes,
+.wizard-results__download-button,
+.wizard-results__table-settings-button,
+.wizard-results__graph-settings-button {
+  padding-left: 5px;
 }
 
 .wizard-header__results-toolbar {
