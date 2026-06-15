@@ -54,11 +54,13 @@
                           :discrete? @(subscribe [:wizard/discrete-group-variable? x-axis-group-variable-uuid])}
                  :y      {:name  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])
                           :scale (when (and y-min y-max) [y-min y-max])}
-                 :z      {:name      @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
-                                                  z-axis-group-variable-uuid])
-                          :discrete? true}
-                 :z2     {:name    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
-                                                z2-axis-group-variable-uuid])
-                          :columns 2}
+                 :z      (when z-axis-group-variable-uuid
+                           {:name      @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
+                                                    z-axis-group-variable-uuid])
+                            :discrete? true})
+                 :z2     (when z2-axis-group-variable-uuid
+                           {:name    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
+                                                  z2-axis-group-variable-uuid])
+                            :columns 2})
                  :width  250
                  :height 250}))]])]))))
