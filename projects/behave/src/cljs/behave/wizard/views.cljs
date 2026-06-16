@@ -107,7 +107,7 @@
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
       [:div.wizard-header__banner__title
-       (str/join " and " (map :module/name modules))]
+       (str/join " and " (map :module/name (sort-by :module/results-order modules)))]
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodules
