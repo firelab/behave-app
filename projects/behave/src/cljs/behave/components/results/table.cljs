@@ -1,11 +1,11 @@
 (ns behave.components.results.table
   (:require [behave.components.core  :as c]
-            [behave.units-conversion :refer [to-map-units]]
             [behave.translate        :refer [<t bp]]
+            [behave.units-conversion :refer [to-map-units]]
+            [behave.wizard.subs      :refer [all-conditionals-pass?]]
             [clojure.string          :as str]
             [goog.string             :as gstring]
             [re-frame.core           :refer [subscribe]]
-            [behave.wizard.subs      :refer [all-conditionals-pass?]]
             [string-utils.core       :as s]))
 
 (defn- procces-map-units?
@@ -31,30 +31,35 @@
   (gstring/format "\"%s\"" s))
 
 (defn table-exporter
-  "Displays a link to download a CSV copy of the table."
+  "Displays a button to download a CSV copy of the table."
   [{:keys [title headers columns rows]}]
   (let [print-row  (fn [row] (str/join "," (map (comp wrap-quotes #(get row %)) columns)))
         csv-header (str/join "," headers)
         csv-rows   (str/join "\n" (map print-row rows))
         csv        (str csv-header "\n" csv-rows)
-        blob       (js/Blob. [csv] #js {:type "text/csv"})
-        url        (js/window.URL.createObjectURL blob)]
-    [:div
-     {:style {:margin "1em"}}
-     [:a
-      {:href     url
-       :download (gstring/format "%s.csv" title)}
-      (gstring/format "%s (%s)"
-                      (-> @(<t (bp "download_results_table"))
-                          s/capitalize-words)
-                      @(<t (bp "csv_file")))]]))
+        download!  (fn []
+                     (let [blob (js/Blob. [csv] #js {:type "text/csv"})
+                           url  (js/window.URL.createObjectURL blob)
+                           a    (doto (js/document.createElement "a")
+                                  (aset "href" url)
+                                  (aset "download" (gstring/format "%s.csv" title)))]
+                       (.click a)
+                       (js/window.URL.revokeObjectURL url)))]
+    [c/button {:label         (gstring/format "%s (%s)"
+                                              (-> @(<t (bp "download_results_table"))
+                                                  s/capitalize-words)
+                                              @(<t (bp "csv_file")))
+               :variant       "secondary"
+               :icon-name     "save"
+               :icon-position "left"
+               :on-click      download!}]))
 
 (defn- build-result-table-data
-  [{:keys [ws-uuid headers title cell-data]
-    :or   {headers   @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
-           title     "Results Table"
-           cell-data @(subscribe [:worksheet/result-table-cell-data ws-uuid])}}]
-  (let [headers-set               (set (map first headers))
+  [{:keys [ws-uuid headers title cell-data]}]
+  (let [headers                   (or headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid]))
+        title                     (or title "Results Table")
+        cell-data                 (or cell-data @(subscribe [:worksheet/result-table-cell-data ws-uuid]))
+        headers-set               (set (map first headers))
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
@@ -69,7 +74,7 @@
                             :always (conj (str header-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
                             (procces-map-units? map-units-enabled? gv-uuid)
-                            (conj (str  "Map Units - " header-name (gstring/format " (%s)" map-units))))))
+                            (conj (str "Map Units - " header-name (gstring/format " (%s)" map-units))))))
                       []
                       headers)
      :columns (reduce (fn [acc [gv-uuid repeat-id _units]]
@@ -80,44 +85,45 @@
                           (conj (keyword (str/join "-" [gv-uuid repeat-id "map-units"])))))
                       []
                       headers)
-     :rows (let [filtered-data (->> (filter (fn [[_k col-uuid]]
-                                              (contains? headers-set col-uuid))
-                                            cell-data)
-                                    (group-by first)
-                                    (sort-by key))]
-             (map (fn [[_ data]]
-                    (reduce (fn [acc [_row-id uuid repeat-id value]]
-                              (let [[_ min max enabled?] (first (filter
-                                                                 (fn [[gv-uuid]]
-                                                                   (= gv-uuid uuid))
-                                                                 @table-setting-filters))
-                                    fmt-fn               (get formatters uuid identity)
-                                    uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
-                                (cond-> acc
-                                  (and min max (not (<= min value max)) enabled?)
-                                  (assoc :shaded? true)
+     :rows    (let [filtered-data (->> (filter (fn [[_k col-uuid]]
+                                                 (contains? headers-set col-uuid))
+                                               cell-data)
+                                       (group-by first)
+                                       (sort-by key))]
+                (map (fn [[_ data]]
+                       (reduce (fn [acc [_row-id col-uuid repeat-id value]]
+                                 (let [[_ filter-min filter-max enabled?] (first (filter
+                                                                                  (fn [[gv-uuid]]
+                                                                                    (= gv-uuid col-uuid))
+                                                                                  @table-setting-filters))
+                                       fmt-fn                             (get formatters col-uuid identity)
+                                       uuid+repeat-id-key                 (keyword (str col-uuid "-" repeat-id))]
+                                   (cond-> acc
+                                     (and filter-min filter-max (not (<= filter-min value filter-max)) enabled?)
+                                     (assoc :shaded? true)
 
-                                  :always
-                                  (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value {:export? export?})))
+                                     :always
+                                     (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value {:export? false})))
 
-                                  (procces-map-units? map-units-enabled? uuid)
-                                  (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
-                                         (-> value
-                                             (to-map-units
-                                              (get map-units-variables uuid)
-                                              map-units
-                                              map-rep-frac)
-                                             (fmt-fn))))))
-                            {}
-                            data))
-                  filtered-data))}))
+                                     (procces-map-units? map-units-enabled? col-uuid)
+                                     (assoc (keyword (str/join "-" [col-uuid repeat-id "map-units"]))
+                                            (-> value
+                                                (to-map-units
+                                                 (get map-units-variables col-uuid)
+                                                 map-units
+                                                 map-rep-frac)
+                                                (fmt-fn))))))
+                               {}
+                               data))
+                     filtered-data))}))
 
 (defn result-table-download-link
   "Creates a link to download the table as a CSV export."
   [ws-uuid]
-  [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid
-                                                  :headers @(subscribe [:worksheet/csv-export-headers
-                                                                        ws-uuid])})]])
+  [:div.wizard-results__download-button
+   [table-exporter (build-result-table-data {:ws-uuid ws-uuid
+                                             :headers @(subscribe [:worksheet/csv-export-headers
+                                                                   ws-uuid])})]])
 
 (defn raw-result-table [ws-uuid]
   (c/table (build-result-table-data {:ws-uuid ws-uuid})))
@@ -203,11 +209,11 @@
               search-table-error-translation-key :search-table/error-translation-key
               search-table-conditionals          :search-table/show-conditionals
               search-table-conditional-operator  :search-table/conditoinals-operator} tables
-             :when                                                                   (if (seq search-table-conditionals)
-                                                                                       (all-conditionals-pass? @(subscribe [:worksheet ws-uuid])
-                                                                                                               search-table-conditional-operator
-                                                                                                               search-table-conditionals)
-                                                                                       true)]
+             :when                                                                    (if (seq search-table-conditionals)
+                                                                                        (all-conditionals-pass? @(subscribe [:worksheet ws-uuid])
+                                                                                                                search-table-conditional-operator
+                                                                                                                search-table-conditionals)
+                                                                                        true)]
          (let [search-table-group-variable-uuid (:bp/uuid search-table-group-variable)
                filter-fns                       (map (fn [search-filter]
                                                        (let [filter-gv-uuid (:bp/uuid (:search-table-filter/group-variable search-filter))
@@ -231,7 +237,7 @@
                                                                         (= gv-uuid search-table-group-variable-uuid))
                                                                       cell-data-after-filter)))
                cell-data-at-row-searched        (filter (fn [[row _gv-uuid _repeat-id _value]] (= row row-with-applied-search)) *cell-data)
-               table-row                        (reduce (fn [ acc [_row gv-uuid _repeat-id value]]
+               table-row                        (reduce (fn [acc [_row gv-uuid _repeat-id value]]
                                                           (let [fmt-fn (get formatters gv-uuid identity)]
                                                             (assoc acc
                                                                    (keyword gv-uuid)
