@@ -1,5 +1,5 @@
 @core
-Feature: Crown & Surface Input - Spot -> Fire Behavior
+Feature: Surface & Crown Input - Spot -> Fire Behavior
 
   @core
   Scenario: Fire Behavior is displayed when Active Crown Fire is selected
@@ -10,8 +10,8 @@ Feature: Crown & Surface Input - Spot -> Fire Behavior
     When these output paths are NOT selected
       | submodule     | group         | value              |
       | Fire Behavior | Fire Behavior | Rate of Spread     |
-      | Fire Behavior | Fire Behavior | Fireline Intensity |
       | Fire Behavior | Fire Behavior | Flame Length       |
+      | Fire Behavior | Fire Behavior | Fireline Intensity |
     Then the following input paths are displayed:
       | submodule | group         |
       | Spot      | Fire Behavior |

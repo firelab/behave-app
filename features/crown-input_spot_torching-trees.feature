@@ -1,5 +1,5 @@
 @core
-Feature: Crown & Surface Input - Spot -> Torching Trees
+Feature: Surface & Crown Input - Spot -> Torching Trees
 
   @core
   Scenario: Torching Trees is displayed when Torching Trees is selected

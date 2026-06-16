@@ -5,10 +5,10 @@ Feature: Surface Input - Fuel Model -> Standard -> Fuel Model
   Scenario: Fuel Model is displayed
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
-      | submodule     | group        | value          |
-      | Fire Behavior | Surface Fire | Rate of Spread |
+      | submodule     | group        | value        |
+      | Fire Behavior | Surface Fire | Flame Length |
     When these output paths are NOT selected
-      | submodule | group                     | value                    |
+      | submodule | group                     | value                                 |
       | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
     Then the following input paths are displayed:
       | submodule  | group    | value      |

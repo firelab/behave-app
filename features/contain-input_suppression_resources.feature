@@ -1,5 +1,5 @@
 @core
-Feature: Contain & Surface Input - Suppression -> Resources
+Feature: Surface & Contain Input - Suppression -> Resources
 
   @core
   Scenario: Resources is displayed

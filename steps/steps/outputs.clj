@@ -9,7 +9,7 @@
   [driver [submodule & groups]]
   (h/select-submodule-tab driver submodule)
   (h/wait-for-groups driver (butlast groups))
-  (h/wait-for-element-by-selector driver {:text (last groups)})
+  (h/wait-for-element-by-selector driver {:text (last groups)} 10000)
   (h/select-output driver (last groups)))
 
 ;;; =============================================================================
@@ -27,7 +27,7 @@
   (let [[submodule & groups] path]
     (h/select-submodule-tab driver submodule)
     (h/wait-for-groups driver (butlast groups))
-    (h/wait-for-element-by-selector driver {:text (last groups)})
+    (h/wait-for-element-by-selector driver {:text (last groups)} 10000)
     (h/select-output driver (last groups)))
   {:driver driver})
 

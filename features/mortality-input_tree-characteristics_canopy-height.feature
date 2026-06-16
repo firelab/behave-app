@@ -1,8 +1,8 @@
 @core
-Feature: Mortality & Surface Input - Tree Characteristics -> Canopy Height
+Feature: Surface & Mortality Input - Tree Characteristics -> Canopy Height
 
   @core
-  Scenario Outline: Canopy Height is displayed with these Tree Species
+  Scenario Outline: Canopy Height is displayed with these Mortality Tree Species
     Given I have started a new Surface & Mortality Worksheet in Guided Mode
     When this input path is entered <submodule> : <group> : <value>
     Then the following input paths are displayed:
@@ -10,11 +10,11 @@ Feature: Mortality & Surface Input - Tree Characteristics -> Canopy Height
       | Tree Characteristics | Canopy Height |
 
     Examples: This scenario is repeated for each of these rows
-      | submodule            | group                  | value                                                   |
-      | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir)              |
- 
+      | submodule            | group                  | value                                      |
+      | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir) |
+
   @extended
-  Scenario Outline: Canopy Height is displayed with these Tree Species (extended)
+  Scenario Outline: Canopy Height is displayed with these Mortality Tree Species (Extended)
     Given I have started a new Surface & Mortality Worksheet in Guided Mode
     When this input path is entered <submodule> : <group> : <value>
     Then the following input paths are displayed:

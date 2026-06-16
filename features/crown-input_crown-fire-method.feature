@@ -1,5 +1,5 @@
 @core
-Feature: Crown & Surface Input - Crown Fire Method
+Feature: Surface & Crown Input - Crown Fire Method
 
   @core
   Scenario Outline: Crown Fire Method is displayed
@@ -8,6 +8,7 @@ Feature: Crown & Surface Input - Crown Fire Method
     Then the following input paths are displayed:
       | submodule         |
       | Crown Fire Method |
+
     Examples: This scenario is repeated for each of these rows
       | submodule     | group                    | value                               |
       | Fire Behavior | Fire Behavior            | Rate of Spread                      |

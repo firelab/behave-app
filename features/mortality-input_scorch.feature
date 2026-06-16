@@ -1,46 +1,26 @@
 @core
-Feature: Mortality & Surface Input - Scorch
+Feature: Surface & Mortality Input - Scorch
 
   @core
-  Scenario Outline: Scorch is displayed with these Tree Species
+  Scenario Outline: Scorch is displayed with these Mortality Tree Species
     Given I have started a new Surface & Mortality Worksheet in Guided Mode
     When this input path is entered <submodule> : <group> : <value>
     Then the following input paths are displayed:
       | submodule |
       | Scorch    |
+
     Examples: This scenario is repeated for each of these rows
       | submodule            | group                  | value                                      |
       | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir) |
- 
+
   @extended
-  Scenario Outline: Scorch is displayed with these Tree Species
+  Scenario Outline: Scorch is displayed with these Mortality Tree Species (Extended)
     Given I have started a new Surface & Mortality Worksheet in Guided Mode
     When this input path is entered <submodule> : <group> : <value>
     Then the following input paths are displayed:
       | submodule |
       | Scorch    |
-    Examples: This scenario is repeated for each of these rows
-      | submodule            | group                  | value                                      |
-      | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir) |
- 
-  @extended
-  Scenario Outline: Scorch is displayed with these Tree Species (extended)
-    Given I have started a new Surface & Mortality Worksheet in Guided Mode
-    When this input path is entered <submodule> : <group> : <value>
-    Then the following input paths are displayed:
-      | submodule |
-      | Scorch    |
-    Examples: This scenario is repeated for each of these rows
-      | submodule            | group                  | value                                      |
-      | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir) |
- 
-  @extended
-  Scenario Outline: Scorch is displayed with these Tree Species
-    Given I have started a new Surface & Mortality Worksheet in Guided Mode
-    When this input path is entered <submodule> : <group> : <value>
-    Then the following input paths are displayed:
-      | submodule |
-      | Scorch    |
+
     Examples: This scenario is repeated for each of these rows
       | submodule            | group                  | value                                                   |
       | Tree Characteristics | Mortality Tree Species | Abies amabilis / ABAM (Pacific silver fir)              |

@@ -3,9 +3,9 @@
 
    This namespace handles the creation of new worksheets in guided mode,
    including navigating through the workflow wizard and selecting module types."
-  (:require [cucumber.webdriver :as w]
-            [cucumber.element :as e]
-            [steps.helpers :as h]))
+  (:require [cucumber.element   :as e]
+            [cucumber.webdriver :as w]
+            [steps.helpers      :as h]))
 
 ;;; =============================================================================
 ;;; Worksheet Module Mappings
@@ -20,11 +20,11 @@
    - [:surface :crown]     - Surface and crown fire modeling
    - [:surface :mortality] - Surface fire with tree mortality
    - [:mortality]          - Tree mortality only"
-  {[:surface] "Surface Only"
-   [:surface :contain] "Surface & Contain"
-   [:surface :crown] "Surface & Crown"
+  {[:surface]            "Surface Only"
+   [:surface :contain]   "Surface & Contain"
+   [:surface :crown]     "Surface & Crown"
    [:surface :mortality] "Surface & Mortality"
-   [:mortality] "Mortality Only"})
+   [:mortality]          "Mortality Only"})
 
 ;;; =============================================================================
 ;;; Worksheet Creation
@@ -65,24 +65,22 @@
   ;; The key "behave-settings" is defined in behave/events.cljs:30
   ;; The value must be EDN format: {:show-disclaimer? false}
   (w/execute-script! driver
-    "localStorage.setItem('behave-settings', '{:show-disclaimer? false}');")
+                     "localStorage.setItem('behave-settings', '{:show-disclaimer? false}');")
 
   ;; NOTE: Removed the old try-catch disclaimer click workaround
   ;; which was fragile and added 300ms+ to test execution time
 
-  (Thread/sleep 300)
+  ;; Wait for the working area to confirm the page has rendered before proceeding
+  (h/wait-for-working-area driver)
 
-  ;; Click "New Run" button
-  (h/click-button-with-text driver "New Run")
-  (Thread/sleep 100)
+  ;; Click "New Run" button — generous timeout for the initial route load
+  (h/wait-and-click-button-with-text driver "New Run" 10000)
 
   ;; Proceed through initial dialog
-  (h/click-button-with-text driver "Next")
-  (Thread/sleep 100)
+  (h/wait-and-click-button-with-text driver "Next")
 
   ;; Select "Guided Workflow"
-  (h/click-button-with-text driver "Open using Guided Workflow")
-  (Thread/sleep 100)
+  (h/wait-and-click-button-with-text driver "Open using Guided Workflow")
 
   ;; Proceed to module selection
   (h/click-highlighted-button driver)
@@ -97,5 +95,8 @@
 
   (h/click-button-with-text driver "Next")
   (h/scroll-to-top driver)
+
+  ;; Wait for the worksheet wizard to finish rendering before returning
+  (h/wait-for-wizard driver 15000)
 
   {:driver driver})

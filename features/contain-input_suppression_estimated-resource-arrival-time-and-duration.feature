@@ -1,5 +1,5 @@
 @core
-Feature: Contain & Surface Input - Suppression -> Estimated Resource Arrival Time and Duration
+Feature: Surface & Contain Input - Suppression -> Estimated Resource Arrival Time and Duration
 
   @core
   Scenario: Estimated Resource Arrival Time and Duration is displayed

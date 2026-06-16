@@ -160,7 +160,7 @@
                                                               :arrow/rotation  :theta
                                                               :arrow/color     :color
                                                               :arrow/dashed?   :dashed?})
-                                                (update :legend-id (fn [k] @(<t k))))
+                                                (update :legen-id (fn [k] @(<t k))))
                                            arrows)
                       :scatter-plots (mapv (fn [{legend-id     :scatter-plot/legend-id
                                                  x-coordinates :scatter-plot/x-coordinates

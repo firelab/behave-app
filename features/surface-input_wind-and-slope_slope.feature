@@ -18,8 +18,9 @@ Feature: Surface Input - Wind and Slope -> Slope
       | Size          | Surface - Fire Size | Fire Area                  |
       | Size          | Surface - Fire Size | Fire Perimeter             |
       | Size          | Surface - Fire Size | Length-to-Width Ratio      |
- 
- Scenario Outline: Slope is displayed with Crown outputs
+
+  @core
+  Scenario Outline: Slope is displayed with Surface & Crown outputs
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
     Then the following input paths are displayed:
@@ -33,6 +34,7 @@ Feature: Surface Input - Wind and Slope -> Slope
       | Fire Behavior | Fire Behavior            | Fireline Intensity                  |
       | Size          | Crown - Fire Size        | Fire Area                           |
       | Size          | Crown - Fire Size        | Fire Perimeter                      |
+      | Size          | Crown - Fire Size        | Length-to-Width Ratio               |
       | Size          | Crown - Fire Size        | Spread Distance                     |
       | Fire Type     | Transition to Crown Fire | Critical Surface Fireline Intensity |
       | Fire Type     | Transition to Crown Fire | Transition Ratio                    |

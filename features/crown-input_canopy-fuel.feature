@@ -1,6 +1,6 @@
 @core
-Feature: Crown & Surface Input - Canopy Fuel
-  
+Feature: Surface & Crown Input - Canopy Fuel
+
   @core
   Scenario Outline: Canopy Fuel is displayed
     Given I have started a new Surface & Crown Worksheet in Guided Mode
@@ -8,6 +8,7 @@ Feature: Crown & Surface Input - Canopy Fuel
     Then the following input paths are displayed:
       | submodule   |
       | Canopy Fuel |
+
     Examples: This scenario is repeated for each of these rows
       | submodule     | group                    | value                               |
       | Fire Behavior | Fire Behavior            | Rate of Spread                      |

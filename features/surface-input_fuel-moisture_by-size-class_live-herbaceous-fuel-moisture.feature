@@ -1,23 +1,19 @@
 @core
 Feature: Surface Input - Fuel Moisture -> By Size Class -> Live Herbaceous Fuel Moisture
-  
+
   @core
-  Scenario Outline: Live Herbaceous Fuel Moisture is displayed
+  Scenario Outline: Live Herbaceous Fuel Moisture is displayed with these Fuel Model Code
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |
       | Fire Behavior | Surface Fire | Flame Length |
-
     When these output paths are NOT selected
-      | submodule | group                     | value                    |
+      | submodule | group                     | value                                 |
       | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
-
-    When this input path is entered <submodule> : <group> : <value>
-
     When these input paths are entered
       | submodule     | group               | value                 |
       | Fuel Moisture | Moisture Input Mode | Individual Size Class |
-
+    When this input path is entered <submodule> : <group> : <subgroup> : <value>
     Then the following input paths are displayed:
       | submodule     | group         | value                         |
       | Fuel Moisture | By Size Class | Live Herbaceous Fuel Moisture |
@@ -27,22 +23,18 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> Live Herbaceous Fuel 
       | Fuel Model | Standard | Fuel Model | GR1/101 - Short, sparse, dry climate grass (Dynamic) |
 
   @extended
-  Scenario Outline: Live Herbaceous Fuel Moisture is displayed
+  Scenario Outline: Live Herbaceous Fuel Moisture is displayed with these Fuel Model Code (Extended)
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |
       | Fire Behavior | Surface Fire | Flame Length |
-
     When these output paths are NOT selected
-      | submodule | group                     | value                    |
+      | submodule | group                     | value                                 |
       | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
-
-    When this input path is entered <submodule> : <group> : <value>
-
     When these input paths are entered
       | submodule     | group               | value                 |
       | Fuel Moisture | Moisture Input Mode | Individual Size Class |
-
+    When this input path is entered <submodule> : <group> : <subgroup> : <value>
     Then the following input paths are displayed:
       | submodule     | group         | value                         |
       | Fuel Moisture | By Size Class | Live Herbaceous Fuel Moisture |

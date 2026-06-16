@@ -1,5 +1,5 @@
 @core
-Feature: Crown & Surface Input - Spot
+Feature: Surface & Crown Input - Spot
 
   @core
   Scenario Outline: Spot is displayed

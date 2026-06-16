@@ -1,8 +1,8 @@
 (ns steps.helpers
-  (:require [cucumber.by :as by]
-            [cucumber.element :as e]
-            [cucumber.webdriver :as w]
-            [clojure.string :as str]))
+  (:require [clojure.string     :as str]
+            [cucumber.by        :as by]
+            [cucumber.element   :as e]
+            [cucumber.webdriver :as w]))
 
 ;;; =============================================================================
 ;;; Parsing Utilities
@@ -92,20 +92,22 @@
 ;;; =============================================================================
 
 (defn wait-for-element-by-selector
-  "Wait for the wizard interface to be present (up to 300 miliseconds)."
-  [driver selector]
-  (let [wait (w/wait driver 2000)]
-    (.until wait (w/presence-of (selector->by selector)))))
+  "Wait for an element matching selector to be present in the DOM."
+  ([driver selector] (wait-for-element-by-selector driver selector 2000))
+  ([driver selector timeout-ms]
+   (let [wait (w/wait driver timeout-ms)]
+     (.until wait (w/presence-of (selector->by selector))))))
 
 (defn wait-for-wizard
   "Wait for the wizard interface to be present."
-  [driver]
-  (wait-for-element-by-selector driver {:css ".wizard"}))
+  ([driver] (wait-for-wizard driver 10000))
+  ([driver timeout-ms]
+   (wait-for-element-by-selector driver {:css ".wizard"} timeout-ms)))
 
 (defn wait-for-working-area
   "Wait for the working area to be present."
   [driver]
-  (wait-for-element-by-selector driver {:css ".working-area"}))
+  (wait-for-element-by-selector driver {:css ".working-area"} 10000))
 
 (defn wait-for-nested-element
   "Wait for a nested element to appear within a parent element.
@@ -229,6 +231,7 @@
 
    Used primarily in the Outputs tab for selecting submodules."
   [driver submodule]
+  (wait-for-nested-element driver {:css ".wizard-header__submodules"} submodule 10000)
   (-> (find-element driver {:css ".wizard-header__submodules"})
       (find-element {:text submodule})
       (e/click!))
@@ -271,6 +274,18 @@
   (-> (find-element driver {:text text})
       (e/click!)))
 
+(defn wait-and-click-button-with-text
+  "Wait for a button with the given text to appear, then click it.
+
+   Args:
+     driver     - WebDriver instance
+     text       - Text content of the button to click
+     timeout-ms - Max wait in milliseconds (default 2000)"
+  ([driver text] (wait-and-click-button-with-text driver text 2000))
+  ([driver text timeout-ms]
+   (wait-for-element-by-selector driver {:text text} timeout-ms)
+   (click-button-with-text driver text)))
+
 ;;; =============================================================================
 ;;; Input Operations
 ;;; =============================================================================
@@ -293,9 +308,9 @@
   [driver label-text value]
   ;; Use XPath to find input that's near any element containing the label text
   ;; This is more flexible than requiring a <label> tag specifically
-  (let [xpath (str "//*[contains(text(), '" label-text "')]/ancestor::div[contains(@class, 'wizard-input')]//input | "
-                   "//*[contains(text(), '" label-text "')]/following-sibling::*//input[1] | "
-                   "//*[contains(text(), '" label-text "')]/following::input[1]")
+  (let [xpath         (str "//*[contains(text(), '" label-text "')]/ancestor::div[contains(@class, 'wizard-input')]//input | "
+                           "//*[contains(text(), '" label-text "')]/following-sibling::*//input[1] | "
+                           "//*[contains(text(), '" label-text "')]/following::input[1]")
         input-element (find-element driver {:xpath xpath})]
     (e/clear! input-element)
     ;; Call sendKeys directly to avoid the into-array bug in e/send-keys!
@@ -386,10 +401,10 @@
   [element]
   (try
     (loop [current-element element
-           iterations 0]
+           iterations      0]
       (if (and current-element (< iterations 20)) ; Safety limit
         (let [class-attr (.getAttribute current-element "class")
-              classes (when class-attr (str/split class-attr #"\s+"))]
+              classes    (when class-attr (str/split class-attr #"\s+"))]
           (cond
             ;; Found the checked class
             (some #(= "input-checkbox--checked" %) classes)

@@ -1,12 +1,12 @@
 (ns cucumber.webdriver
   (:require [cucumber.remote :as remote])
-  (:import [org.openqa.selenium By WebDriver]
-           [org.openqa.selenium.safari SafariDriver]
+  (:import [java.time Duration]
+           [org.openqa.selenium By WebDriver]
+           [org.openqa.selenium JavascriptExecutor]
            [org.openqa.selenium.chrome ChromeDriver ChromeOptions]
            [org.openqa.selenium.firefox FirefoxDriver]
-           [org.openqa.selenium JavascriptExecutor]
-           [org.openqa.selenium.support.ui WebDriverWait ExpectedConditions]
-           [java.time Duration]))
+           [org.openqa.selenium.safari SafariDriver]
+           [org.openqa.selenium.support.ui WebDriverWait ExpectedConditions]))
 
 (defn goto
   "Navigate to url."
@@ -79,9 +79,9 @@
                                      "--no-sandbox" ; // Bypass OS security model
                                      "--remote-debugging-port=9222"]
                               headless?       (concat ["--headless=new" ; // run in headless mode
-                                                       "start-maximized"
+                                                       "--start-maximized"
                                                        "--window-size=2560,1080"]) ; // set window size for headless
-                              (not headless?) (conj "start-maximized")))) ; // maximize when not headless
+                              (not headless?) (conj "--start-maximized")))) ; // maximize when not headless
     (System/setProperty "webdriver.chrome.driver"
                         (or (System/getenv "CHROMEDRIVER_PATH")
                             "/usr/local/bin/chromedriver"))

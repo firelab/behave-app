@@ -8,7 +8,8 @@ Feature: Surface Input - Spot
     Then the following input paths are displayed:
       | submodule |
       | Spot      |
+
     Examples: This scenario is repeated for each of these rows
-      | submodule | group                     | value                    |
-      | Spot      | Maximum Spotting Distance | Burning Pile             |
+      | submodule | group                     | value                                 |
+      | Spot      | Maximum Spotting Distance | Burning Pile                          |
       | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |

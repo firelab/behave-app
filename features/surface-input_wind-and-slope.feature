@@ -10,22 +10,22 @@ Feature: Surface Input - Wind and Slope
       | Wind and Slope |
 
     Examples: This scenario is repeated for each of these rows
-      | submodule     | group                     | value                      |
-      | Fire Behavior | Direction Mode            | Heading                    |
-      | Fire Behavior | Direction Mode            | Direction of Interest      |
-      | Fire Behavior | Direction Mode            | Heading, Flanking, Backing |
-      | Fire Behavior | Surface Fire              | Rate of Spread             |
-      | Fire Behavior | Surface Fire              | Flame Length               |
-      | Fire Behavior | Surface Fire              | Fireline Intensity         |
-      | Spot          | Maximum Spotting Distance | Burning Pile               |
-      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only)   |
-      | Size          | Surface - Fire Size       | Fire Area                  |
-      | Size          | Surface - Fire Size       | Fire Perimeter             |
-      | Size          | Surface - Fire Size       | Length-to-Width Ratio      |
-      | Size          | Surface - Fire Size       | Spread Distance            |
+      | submodule     | group                     | value                                 |
+      | Fire Behavior | Direction Mode            | Heading                               |
+      | Fire Behavior | Direction Mode            | Direction of Interest                 |
+      | Fire Behavior | Direction Mode            | Heading, Flanking, Backing            |
+      | Fire Behavior | Surface Fire              | Rate of Spread                        |
+      | Fire Behavior | Surface Fire              | Flame Length                          |
+      | Fire Behavior | Surface Fire              | Fireline Intensity                    |
+      | Spot          | Maximum Spotting Distance | Burning Pile                          |
+      | Spot          | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
+      | Size          | Surface - Fire Size       | Fire Area                             |
+      | Size          | Surface - Fire Size       | Fire Perimeter                        |
+      | Size          | Surface - Fire Size       | Length-to-Width Ratio                 |
+      | Size          | Surface - Fire Size       | Spread Distance                       |
 
   @core
-  Scenario Outline: Wind and Slope is displayed with Crown outputs
+  Scenario Outline: Wind and Slope is displayed with Surface & Crown outputs
     Given I have started a new Surface & Crown Worksheet in Guided Mode
     When this output path is selected <submodule> : <group> : <value>
     Then the following input paths are displayed:

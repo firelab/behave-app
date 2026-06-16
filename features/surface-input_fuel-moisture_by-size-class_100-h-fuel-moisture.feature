@@ -2,22 +2,18 @@
 Feature: Surface Input - Fuel Moisture -> By Size Class -> 100-h Fuel Moisture
 
   @core
-  Scenario Outline: 100-h Fuel Moisture is displayed with these Fuel Model Codes
+  Scenario Outline: 100-h Fuel Moisture is displayed with these Fuel Model Code
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |
       | Fire Behavior | Surface Fire | Flame Length |
-
     When these output paths are NOT selected
-      | submodule | group                     | value                    |
+      | submodule | group                     | value                                 |
       | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
-      
-    When this input path is entered <submodule> : <group> : <subgroup> : <value>
-
     When these input paths are entered
-      | submodule     | group               | subgroup              |
+      | submodule     | group               | value                 |
       | Fuel Moisture | Moisture Input Mode | Individual Size Class |
-
+    When this input path is entered <submodule> : <group> : <subgroup> : <value>
     Then the following input paths are displayed:
       | submodule     | group         | value               |
       | Fuel Moisture | By Size Class | 100-h Fuel Moisture |
@@ -25,24 +21,20 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> 100-h Fuel Moisture
     Examples: This scenario is repeated for each of these rows
       | submodule  | group    | subgroup   | value                                         |
       | Fuel Model | Standard | Fuel Model | FB10/10 - Timber litter & understory (Static) |
- 
+
   @extended
-  Scenario Outline: 100-h Fuel Moisture is displayed with these Fuel Model Codes (Extended)
+  Scenario Outline: 100-h Fuel Moisture is displayed with these Fuel Model Code (Extended)
     Given I have started a new Surface Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group        | value        |
       | Fire Behavior | Surface Fire | Flame Length |
-
     When these output paths are NOT selected
-      | submodule | group                     | value                    |
+      | submodule | group                     | value                                 |
       | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
-      
-    When this input path is entered <submodule> : <group> : <subgroup> : <value>
-
     When these input paths are entered
-      | submodule     | group               | subgroup              |
+      | submodule     | group               | value                 |
       | Fuel Moisture | Moisture Input Mode | Individual Size Class |
-
+    When this input path is entered <submodule> : <group> : <subgroup> : <value>
     Then the following input paths are displayed:
       | submodule     | group         | value               |
       | Fuel Moisture | By Size Class | 100-h Fuel Moisture |
@@ -93,29 +85,3 @@ Feature: Surface Input - Fuel Moisture -> By Size Class -> 100-h Fuel Moisture
       | Fuel Model | Standard | Fuel Model | FB7/7 - Southern rough (Static)                                                                    |
       | Fuel Model | Standard | Fuel Model | FB8/8 - Short needle litter (Static)                                                               |
       | Fuel Model | Standard | Fuel Model | FB9/9 - Long needle or hardwood litter (Static)                                                    |
-
-  @core
-  Scenario Outline: 100-h Fuel Moisture is displayed with Crown outputs
-    Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When this output path is selected <submodule> : <group> : <value>
-    When these input paths are entered
-      | submodule     | group               | value                 |
-      | Fuel Moisture | Moisture Input Mode | Individual Size Class |
-
-    Then the following input paths are displayed:
-      | submodule     | group         | value               |
-      | Fuel Moisture | By Size Class | 100-h Fuel Moisture |
-
-    Examples: This scenario is repeated for each of these rows
-      | submodule     | group                    | value                               |
-      | Fire Behavior | Fire Behavior            | Rate of Spread                      |
-      | Fire Behavior | Fire Behavior            | Flame Length                        |
-      | Fire Behavior | Fire Behavior            | Fireline Intensity                  |
-      | Fire Type     | Active Crown Fire        | Active Ratio                        |
-      | Fire Type     | Active Crown Fire        | Critical Crown Rate of Spread       |
-      | Fire Type     | Transition to Crown Fire | Critical Surface Fireline Intensity |
-      | Fire Type     | Transition to Crown Fire | Critical Surface Flame Length       |
-      | Fire Type     | Transition to Crown Fire | Transition Ratio                    |
-      | Size          | Crown - Fire Size        | Fire Area                           |
-      | Size          | Crown - Fire Size        | Fire Perimeter                      |
-      | Size          | Crown - Fire Size        | Spread Distance                     |

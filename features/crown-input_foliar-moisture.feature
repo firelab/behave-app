@@ -1,5 +1,5 @@
 @core
-Feature: Crown & Surface Input - Foliar Moisture
+Feature: Surface & Crown Input - Foliar Moisture
 
   @core
   Scenario Outline: Foliar Moisture is displayed
