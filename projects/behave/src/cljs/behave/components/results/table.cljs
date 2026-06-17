@@ -50,7 +50,7 @@
                                                   s/capitalize-words)
                                               @(<t (bp "csv_file")))
                :variant       "secondary"
-               :icon-name     "save"
+               :icon-name     "download"
                :icon-position "left"
                :on-click      download!}]))
 
