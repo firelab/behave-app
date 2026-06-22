@@ -48,6 +48,29 @@
       (select-single-output driver path))
     {:driver driver}))
 
+(defn verify-outputs-in-results
+  "Navigates to the Results page and verifies each named output appears in the
+  results output table.
+
+  Expects a single-column data table whose header is `output` and whose rows
+  are the fully-qualified result names as they render in the table, e.g.
+
+    | output                  |
+    | Heading Rate of Spread  |
+    | Flanking Rate of Spread |
+
+  Throws ex-info naming the first missing output."
+  [{:keys [driver] :as context}]
+  (h/wait-for-wizard driver)
+  (h/navigate-to-results driver)
+  (let [step-data    (get-in context [:tegere.parser/step :tegere.parser/step-data])
+        output-names (map (comp first vals) step-data)]
+    (doseq [output-name output-names]
+      (when-not (h/output-in-results? driver output-name)
+        (throw (ex-info (str "Expected output was NOT displayed in results: " output-name)
+                        {:output-name output-name}))))
+    {:driver driver}))
+
 (defn verify-outputs-not-selected
   "Expects a data table (as described in the gherkin syntax) to be provided and verifies if
   Data table expects the headers:

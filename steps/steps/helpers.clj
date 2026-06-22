@@ -227,15 +227,26 @@
 ;;; =============================================================================
 
 (defn select-submodule-tab
-  "Select a submodule in the wizard header.
+  "Select a submodule in the wizard header. No-ops if the tab is already active
+  (has class 'tab--selected'), avoiding an unnecessary re-render.
 
    Used primarily in the Outputs tab for selecting submodules."
   [driver submodule]
   (wait-for-nested-element driver {:css ".wizard-header__submodules"} submodule 10000)
-  (-> (find-element driver {:css ".wizard-header__submodules"})
-      (find-element {:text submodule})
-      (e/click!))
-  (wait-for-wizard driver))
+  ;; Check if this submodule's tab is already selected by looking for an element
+  ;; that has both 'tab--selected' and the target text as a descendant.
+  ;; 'tab--selected' is specific enough that contains() is safe here.
+  (let [already-selected? (try
+                            (find-element driver {:xpath (str "//div[contains(@class,'wizard-header__submodules')]"
+                                                              "//div[contains(@class,'tab--selected')"
+                                                              " and .//*[text()=\"" submodule "\"]]")})
+                            true
+                            (catch Exception _ false))]
+    (when-not already-selected?
+      (-> (find-element driver {:css ".wizard-header__submodules"})
+          (find-element {:text submodule})
+          (e/click!))
+      (wait-for-wizard driver))))
 
 ;;; =============================================================================
 ;;; Output Selection
@@ -293,28 +304,35 @@
 (defn enter-text-value
   "Enter a value into a text input field.
 
-   This function finds the input field by searching for text content,
-   then finding the nearest input element.
+   Finds the input by locating the wizard-group whose header exactly matches
+   `label-text`, then targeting the first <input> within its sibling
+   wizard-group__inputs container.  Using the group-header as the anchor (exact
+   match via normalize-space) prevents false positives when the field name is a
+   substring of an earlier element in the page (e.g. \"Slope\" vs.
+   \"Wind and Slope\" submodule tab).
 
    Args:
      driver     - WebDriver instance
-     label-text - The label text of the input field
+     label-text - The wizard-group header text (exact match)
      value      - The value to enter (string, can be comma-separated)
 
    Examples:
      (enter-text-value driver \"1-h Fuel Moisture\" \"1\")
-     (enter-text-value driver \"Air Temperature\" \"77\")
-     (enter-text-value driver \"Wind Speed\" \"5, 10, 15\")"
+     (enter-text-value driver \"Wind Speed\" \"5, 10, 15\")
+     (enter-text-value driver \"Slope\" \"30\")"
   [driver label-text value]
-  ;; Use XPath to find input that's near any element containing the label text
-  ;; This is more flexible than requiring a <label> tag specifically
-  (let [xpath         (str "//*[contains(text(), '" label-text "')]/ancestor::div[contains(@class, 'wizard-input')]//input | "
-                           "//*[contains(text(), '" label-text "')]/following-sibling::*//input[1] | "
-                           "//*[contains(text(), '" label-text "')]/following::input[1]")
-        input-element (find-element driver {:xpath xpath})]
-    (e/clear! input-element)
-    ;; Call sendKeys directly to avoid the into-array bug in e/send-keys!
-    (.sendKeys input-element (into-array String [value]))))
+  (let [xpath         (str "//div[contains(@class, 'wizard-group__header')]"
+                           "[normalize-space(.) = \"" label-text "\"]"
+                           "/following-sibling::div[contains(@class, 'wizard-group__inputs')]"
+                           "//input[1]")
+        input-element (find-element driver {:xpath xpath})
+        set-and-fire  (str "var el = arguments[0];"
+                           "var nativeSetter = Object.getOwnPropertyDescriptor("
+                           "window.HTMLInputElement.prototype,'value').set;"
+                           "nativeSetter.call(el," (pr-str value) ");"
+                           "el.dispatchEvent(new Event('input',{bubbles:true,cancelable:true}));"
+                           "el.dispatchEvent(new FocusEvent('blur',{bubbles:false,cancelable:false}));")]
+    (w/execute-script! driver set-and-fire input-element)))
 
 (defn click-radio-or-dropdown-option
   "Click a radio button or dropdown option by text.
@@ -468,6 +486,139 @@
   [driver]
   (navigate-to-tab driver "Outputs"))
 
+;;; =============================================================================
+;;; Results Page Navigation
+;;; =============================================================================
+
+(defn review-page?
+  "Return true if the browser is currently on the Review page.
+
+   Detects by the presence of .wizard-review — the unique container that only
+   exists on the Review page. (The Review page hand-rolls its nav bar without
+   .wizard-navigation__next, so that selector cannot be used here.)
+
+   Args:
+     driver - WebDriver instance"
+  [driver]
+  (try
+    (find-element driver {:css ".wizard-review"})
+    true
+    (catch Exception _
+      false)))
+
+(defn results-settings-page?
+  "Return true if the browser is currently on the Results Settings page.
+
+   Detects by looking for the .wizard-results__table-settings element.
+
+   Args:
+     driver - WebDriver instance"
+  [driver]
+  (try
+    (find-element driver {:css ".wizard-results__table-settings"})
+    true
+    (catch Exception _
+      false)))
+
+(defn advance-to-review
+  "Click 'Next' through wizard pages until the Review page is reached.
+
+   On the Review page the wizard shows a 'Run' highlight button inside
+   .wizard-review. This function clicks the Next button repeatedly (up to
+   max-attempts times) until the Review page is detected.
+
+   Args:
+     driver       - WebDriver instance
+     max-attempts - Maximum number of Next clicks before giving up (default 10)"
+  ([driver] (advance-to-review driver 10))
+  ([driver max-attempts]
+   (loop [attempts 0]
+     (cond
+       (review-page? driver)
+       :on-review-page
+
+       (>= attempts max-attempts)
+       (throw (ex-info "Could not reach the Review page after clicking Next repeatedly"
+                       {:attempts attempts}))
+
+       :else
+       (do
+         (wait-for-element-by-selector driver {:css ".wizard-navigation__next .button--highlight"} 10000)
+         (-> (find-element driver {:css ".wizard-navigation__next .button--highlight"})
+             (e/click!))
+         (Thread/sleep 500)
+         (recur (inc attempts)))))))
+
+(defn wait-for-results
+  "Wait for the Results page output table to appear in the DOM.
+
+   The output table div.wizard-results__table#outputs is only rendered after a
+   successful solve. Uses a generous timeout since computation can be slow.
+
+   Args:
+     driver     - WebDriver instance
+     timeout-ms - Max wait time in ms (default 60000)"
+  ([driver] (wait-for-results driver 60000))
+  ([driver timeout-ms]
+   (wait-for-element-by-selector driver {:css ".wizard-results__table"} timeout-ms)))
+
+(defn run-worksheet
+  "Click the 'Run' button on the Review page and wait for the solve to finish.
+
+   After clicking Run, the app shows 'Computing...' while solving, then
+   navigates to the Results Settings page. This function waits for the
+   Results Settings page to appear (or times out).
+
+   Args:
+     driver - WebDriver instance"
+  [driver]
+  (wait-for-element-by-selector driver {:css ".wizard-review"} 10000)
+  (let [run-btn (find-element driver {:css ".wizard-navigation .button--highlight"})]
+    (scroll-to-element driver run-btn)
+    (e/click! run-btn))
+  ;; Wait for computing to finish — results-settings page has .wizard-results__table-settings
+  (wait-for-element-by-selector driver {:css ".wizard-results__table-settings"} 120000))
+
+(defn navigate-to-results
+  "Navigate from anywhere in the wizard to the Results page.
+
+   Steps:
+   1. Click Next through wizard pages until the Review page.
+   2. Click Run and wait for the solve to complete (lands on Results Settings).
+   3. Click Next on Results Settings to reach the Results page.
+   4. Wait for the output table to render.
+
+   Args:
+     driver - WebDriver instance"
+  [driver]
+  (advance-to-review driver)
+  (run-worksheet driver)
+  ;; On results-settings, click Next to go to results
+  (wait-for-element-by-selector driver {:css ".wizard-navigation__next .button--highlight"} 10000)
+  (-> (find-element driver {:css ".wizard-navigation__next .button--highlight"})
+      (e/click!))
+  (wait-for-results driver))
+
+(defn output-in-results?
+  "Check if the given output name text appears in the Results page output table.
+
+   Searches for the text within div.wizard-results__table (#outputs).
+
+   Args:
+     driver      - WebDriver instance
+     output-name - The output name string to look for (e.g. 'Flame Length')
+
+   Returns:
+     true if the text is found, false otherwise"
+  [driver output-name]
+  (try
+    (let [results-table (find-element driver {:css ".wizard-results__table"})
+          xpath         (str ".//*[contains(text(), '" output-name "')]")]
+      (e/find-el results-table (by/xpath xpath))
+      true)
+    (catch Exception _
+      false)))
+
 (defn navigate-to-group
   "Navigate through submodule and groups in Outputs wizard, returning driver and last group element.
 
@@ -499,7 +650,6 @@
     (select-submodule-tab driver submodule)
     (if (seq groups)
       (do (wait-for-groups driver groups)
-          (let [last-group-name (last groups)]
-            (find-element driver {:text last-group-name})))
+          (find-element driver {:text (last groups)}))
       (find-element driver {:text submodule}))))
 

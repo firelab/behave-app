@@ -87,6 +87,14 @@
         (map #(deref (rf/subscribe [:wizard/*module (name %)])))
         (sort-by :module/order))))
 
+(rf/reg-sub
+ :worksheet/module-keywords
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+
+ (fn [worksheet _]
+   (:worksheet/modules worksheet)))
+
 ;; Get state of a particular output
 (rf/reg-sub
  :worksheet/output-enabled?

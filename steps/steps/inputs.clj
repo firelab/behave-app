@@ -3,9 +3,9 @@
 
    This namespace handles verifying that expected input groups are displayed
    in the Inputs tab of the worksheet wizard."
-  (:require [steps.helpers :as h]
+  (:require [clojure.string     :as str]
             [cucumber.webdriver :as w]
-            [clojure.string :as str]))
+            [steps.helpers      :as h]))
 
 ;;; =============================================================================
 ;;; Private Helper Functions
@@ -25,8 +25,6 @@
     (catch org.openqa.selenium.NoSuchElementException _
       ;; This is good - the element doesn't exist as expected
       nil)))
-
-
 
 (defn- enter-single-input
   [driver path]

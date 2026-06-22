@@ -56,7 +56,7 @@
             opts)))
 
   ;; Example: run just the Burning Pile feature
-  (run-feature "features/surface-input_spot_burning-pile.feature")
+  (run-feature "features/test_results_page.feature")
 
   (def all-data
     {["Surface" "Fuel Model" :input "Special Case" "Palmetto-Gallberry"]

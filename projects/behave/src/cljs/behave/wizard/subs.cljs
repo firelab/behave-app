@@ -552,66 +552,6 @@
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
 
-(defn- resolve-conditionals [worksheet conditionals]
-  (let [ws-uuid (:worksheet/uuid worksheet)]
-    (map (fn pass?
-           [{group-variable-uuid :conditional/group-variable-uuid
-             ttype               :conditional/type
-             op                  :conditional/operator
-             values              :conditional/values
-             sub-conditionals    :conditional/sub-conditionals
-             sub-conditional-op  :conditional/sub-conditional-operator}]
-           (let [{:keys [group-uuid io]}   @(subscribe [:wizard/conditional-io+group-uuid
-                                                        group-variable-uuid])
-                 conditional-values-set    (set values)
-                 worksheet-value           (cond
-                                             (= ttype :module)
-                                             (map name (:worksheet/modules worksheet))
-
-                                             (= io :output)
-                                             @(subscribe [:worksheet/output-enabled?
-                                                          ws-uuid
-                                                          group-variable-uuid])
-
-                                             (= io :input)
-                                             @(subscribe [:worksheet/input-value
-                                                          ws-uuid
-                                                          group-uuid
-                                                          0
-                                                          group-variable-uuid]))
-                 worksheet-value-set       (cond
-                                             (= ttype :module)      (set worksheet-value)
-                                             (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
-                                             :else                  #{worksheet-value})
-                 sub-resolved-conditionals (when sub-conditionals
-                                             (if (= sub-conditional-op :or)
-                                               (some true? (resolve-conditionals worksheet sub-conditionals))
-                                               (every? true? (resolve-conditionals worksheet sub-conditionals))))
-                 this-conditional          (case op
-                                             :equal     (if (= ttype :module)
-                                                          (= conditional-values-set worksheet-value-set)
-                                                          (= (first conditional-values-set)
-                                                             (if worksheet-value (str worksheet-value) "false")))
-                                             :not-equal (not= (first conditional-values-set) (str worksheet-value))
-                                             :in        (intersect? conditional-values-set worksheet-value-set))]
-             (if sub-conditionals
-               (and this-conditional sub-resolved-conditionals)
-               this-conditional)))
-         conditionals)))
-
-(defn all-conditionals-pass?
-  "Proccess all conditionals to ensure they all pass, defaults to true if no conditionals exist.
-  - worksheet : worksheet entity
-  - conditionals-operator: keyword #{:or :and}
-  - conditionals : sequence of conditionals (see conditionals schema)"
-  [worksheet conditionals-operator conditionals]
-  (if (seq conditionals)
-    (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
-      (if (= conditionals-operator :or)
-        (some true? resolved-conditionals)
-        (every? true? resolved-conditionals)))
-    true))
-
 (defn- find-parent-submodule
   [group]
   (let [submodule (:submodule/_groups group)]
@@ -619,6 +559,172 @@
       submodule submodule
       group     (find-parent-submodule (:group/_children group))
       :else     nil)))
+
+;;; Value-lookup abstraction for resolve-conditionals.
+;;; Instead of passing the full worksheet entity, we pass a lightweight lookup map.
+;;; This lets narrow signal fns subscribe only to the specific input values their
+;;; conditionals reference, so a blur on field X only rerenders groups whose
+;;; conditionals actually mention X — not every visible group.
+
+(def ^:private conditional-io+group-uuid
+  "Returns {:io … :group-uuid …} for a group-variable uuid.
+   Memoized because VMS is immutable for the session."
+  (memoize
+   (fn [gv-uuid]
+     (let [group (-> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                     :group/_group-variables)
+           io    (-> group find-parent-submodule :submodule/io)]
+       {:io         io
+        :group-uuid (:bp/uuid group)}))))
+
+(defn- ws-output-enabled?
+  "Read output enabled? flag directly from the reactive worksheet entity."
+  [worksheet gv-uuid]
+  (->> (:worksheet/outputs worksheet)
+       (filter #(= (:output/group-variable-uuid %) gv-uuid))
+       first
+       :output/enabled?))
+
+(defn- ws-input-value
+  "Read input value directly from the reactive worksheet entity (repeat-id 0)."
+  [worksheet group-uuid gv-uuid]
+  (->> (:worksheet/input-groups worksheet)
+       (filter #(and (= (:input-group/group-uuid %) group-uuid)
+                     (= (:input-group/repeat-id %) 0)))
+       first
+       :input-group/inputs
+       (filter #(= (:input/group-variable-uuid %) gv-uuid))
+       first
+       :input/value))
+
+;;; lookup = {:modules <set-of-module-kws>
+;;;           :input-value (fn [group-uuid gv-uuid] -> value)
+;;;           :output-enabled? (fn [gv-uuid] -> boolean)}
+
+(defn- worksheet->lookup
+  "Build a lookup map from a full reactive worksheet entity.
+   Preserves the public all-conditionals-pass? signature for existing callers."
+  [worksheet]
+  {:modules         (:worksheet/modules worksheet)
+   :input-value     (fn [g gv] (ws-input-value worksheet g gv))
+   :output-enabled? (fn [gv] (ws-output-enabled? worksheet gv))})
+
+(defn- resolve-conditionals [lookup conditionals]
+  (map (fn pass?
+         [{group-variable-uuid :conditional/group-variable-uuid
+           ttype               :conditional/type
+           op                  :conditional/operator
+           values              :conditional/values
+           sub-conditionals    :conditional/sub-conditionals
+           sub-conditional-op  :conditional/sub-conditional-operator}]
+         (let [{:keys [group-uuid io]}   (conditional-io+group-uuid group-variable-uuid)
+               conditional-values-set    (set values)
+               worksheet-value           (cond
+                                           (= ttype :module)
+                                           (map name (:modules lookup))
+
+                                           (= io :output)
+                                           ((:output-enabled? lookup) group-variable-uuid)
+
+                                           (= io :input)
+                                           ((:input-value lookup) group-uuid group-variable-uuid))
+               worksheet-value-set       (cond
+                                           (= ttype :module)      (set worksheet-value)
+                                           (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
+                                           :else                  #{worksheet-value})
+               sub-resolved-conditionals (when sub-conditionals
+                                           (if (= sub-conditional-op :or)
+                                             (some true? (resolve-conditionals lookup sub-conditionals))
+                                             (every? true? (resolve-conditionals lookup sub-conditionals))))
+               this-conditional          (case op
+                                           :equal     (if (= ttype :module)
+                                                        (= conditional-values-set worksheet-value-set)
+                                                        (= (first conditional-values-set)
+                                                           (if worksheet-value (str worksheet-value) "false")))
+                                           :not-equal (not= (first conditional-values-set) (str worksheet-value))
+                                           :in        (intersect? conditional-values-set worksheet-value-set))]
+           (if sub-conditionals
+             (and this-conditional sub-resolved-conditionals)
+             this-conditional)))
+       conditionals))
+
+(defn- all-conditionals-pass?*
+  "Like all-conditionals-pass? but takes a lookup map instead of a full worksheet entity."
+  [lookup conditionals-operator conditionals]
+  (if (seq conditionals)
+    (let [resolved-conditionals (resolve-conditionals lookup conditionals)]
+      (if (= conditionals-operator :or)
+        (some true? resolved-conditionals)
+        (every? true? resolved-conditionals)))
+    true))
+
+(defn all-conditionals-pass?
+  "Proccess all conditionals to ensure they all pass, defaults to true if no conditionals exist.
+  - worksheet : worksheet entity
+  - conditionals-operator: keyword #{:or :and}
+  - conditionals : sequence of conditionals (see conditionals schema)"
+  [worksheet conditionals-operator conditionals]
+  (all-conditionals-pass?* (worksheet->lookup worksheet) conditionals-operator conditionals))
+
+;;; Memoized VMS readers — used in signal fns to know which gv-uuids to subscribe to.
+;;; VMS is immutable for the session so these never go stale.
+
+(def ^:private group-conditionals*
+  "Synchronously return a group's raw conditionals from VMS."
+  (memoize (fn [group-eid] (:group/conditionals (d/entity @@vms-conn group-eid)))))
+
+(def ^:private submodule-conditionals*
+  "Synchronously return a submodule's raw conditionals from VMS."
+  (memoize (fn [submodule-eid] (:submodule/conditionals (d/entity @@vms-conn submodule-eid)))))
+
+(def ^:private select-action-conditionals
+  "Collect all conditionals across all :select actions for a gv-uuid."
+  (memoize (fn [gv-uuid]
+             (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                  :group-variable/actions
+                  (filter #(= (:action/type %) :select))
+                  (mapcat :action/conditionals)))))
+
+(def ^:private disable-action-conditionals
+  "Collect all conditionals across all :disable actions for a gv-uuid."
+  (memoize (fn [gv-uuid]
+             (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                  :group-variable/actions
+                  (filter #(= (:action/type %) :disable))
+                  (mapcat :action/conditionals)))))
+
+(defn- collect-value-refs
+  "Recursively collect gv-uuids referenced by non-module conditionals.
+   Used in signal fns to determine which per-input subs to subscribe to."
+  [conditionals]
+  (distinct
+   (mapcat (fn [c]
+             (let [gv     (:conditional/group-variable-uuid c)
+                   ttype  (:conditional/type c)
+                   sub-cs (:conditional/sub-conditionals c)]
+               (concat (when (and gv (not= ttype :module)) [gv])
+                       (when sub-cs (collect-value-refs sub-cs)))))
+           (or conditionals []))))
+
+(defn- narrow-value-signals
+  "Build a per-gv-uuid signal map for ws-uuid from a sequence of conditionals.
+   Each entry maps gv-uuid -> [:worksheet/input-value …] or [:worksheet/output-enabled? …] sub.
+   Only subscribes to the inputs/outputs actually referenced — not the full worksheet."
+  [ws-uuid conditionals]
+  (into {}
+        (map (fn [gv]
+               (let [{:keys [io group-uuid]} (conditional-io+group-uuid gv)]
+                 [gv (if (= io :output)
+                       (subscribe [:worksheet/output-enabled? ws-uuid gv])
+                       (subscribe [:worksheet/input-value ws-uuid group-uuid 0 gv]))]))
+             (collect-value-refs conditionals))))
+
+(defn- value-map->lookup
+  "Build a lookup map from a flat {gv-uuid -> value} map and a module keyword set."
+  [modules value-map]
+  {:modules         modules
+   :input-value     (fn [_group-uuid gv-uuid] (get value-map gv-uuid))
+   :output-enabled? (fn [gv-uuid] (get value-map gv-uuid))})
 
 (reg-sub
  :wizard/conditional-io+group-uuid
@@ -642,21 +748,24 @@
 (reg-sub
  :wizard/default-option
  (fn [[_ ws-uuid gv-uuid]]
-   [(subscribe [:worksheet ws-uuid])
-    (subscribe [:wizard/_select-actions gv-uuid])])
- (fn [[worksheet actions]]
-   (first
-    (for [action actions
-          :let   [conditionals         (:action/conditionals action)
-                  cond-operator        (:action/conditionals-operator action)
-                  target-value         (when (= (:action/type action) :select)
-                                         (or (:action/target-value action) "true"))
-                  conditionals-passed? (or (nil? conditionals)
-                                           (all-conditionals-pass?
-                                            worksheet cond-operator conditionals))]
-          :when  (and target-value conditionals-passed?)]
-      (when (= (:action/type action) :select)
-        (or (:action/target-value action) "true"))))))
+   (let [all-conditionals (select-action-conditionals gv-uuid)]
+     (into {:actions (subscribe [:wizard/_select-actions gv-uuid])
+            :modules (subscribe [:worksheet/module-keywords ws-uuid])}
+           (narrow-value-signals ws-uuid all-conditionals))))
+ (fn [{:keys [actions modules] :as resolved}]
+   (let [value-map (dissoc resolved :actions :modules)
+         lookup    (value-map->lookup modules value-map)]
+     (first
+      (for [action actions
+            :let   [conditionals         (:action/conditionals action)
+                    cond-operator        (:action/conditionals-operator action)
+                    target-value         (when (= (:action/type action) :select)
+                                           (or (:action/target-value action) "true"))
+                    conditionals-passed? (or (nil? conditionals)
+                                             (all-conditionals-pass?* lookup cond-operator conditionals))]
+            :when  (and target-value conditionals-passed?)]
+        (when (= (:action/type action) :select)
+          (or (:action/target-value action) "true")))))))
 
 (reg-sub
  :wizard/_disabled-actions
@@ -669,56 +778,73 @@
 (reg-sub
  :wizard/disabled-options
  (fn [[_ ws-uuid gv-uuid]]
-   [(subscribe [:worksheet ws-uuid])
-    (subscribe [:wizard/_disabled-actions gv-uuid])])
- (fn [[worksheet actions]]
-   (->> actions
-        (map #(let [conditionals  (:action/conditionals %)
-                    cond-operator (:action/conditionals-operator %)
-                    target-value  (:action/target-value %)
+   (let [all-conditionals (disable-action-conditionals gv-uuid)]
+     (into {:actions (subscribe [:wizard/_disabled-actions gv-uuid])
+            :modules (subscribe [:worksheet/module-keywords ws-uuid])}
+           (narrow-value-signals ws-uuid all-conditionals))))
+ (fn [{:keys [actions modules] :as resolved}]
+   (let [value-map (dissoc resolved :actions :modules)
+         lookup    (value-map->lookup modules value-map)]
+     (->> actions
+          (map #(let [conditionals  (:action/conditionals %)
+                      cond-operator (:action/conditionals-operator %)
+                      target-value  (:action/target-value %)
 
-                    conditionals-passed?
-                    (or (nil? conditionals)
-                        (all-conditionals-pass? worksheet cond-operator conditionals))]
-                (when (and target-value conditionals-passed?)
-                  (:action/target-value %))))
-        (remove nil?)
-        (set))))
+                      conditionals-passed?
+                      (or (nil? conditionals)
+                          (all-conditionals-pass?* lookup cond-operator conditionals))]
+                  (when (and target-value conditionals-passed?)
+                    (:action/target-value %))))
+          (remove nil?)
+          (set)))))
 
 (reg-sub
  :wizard/disabled-output-group-variable?
  (fn [[_ ws-uuid gv-uuid]]
-   [(subscribe [:worksheet ws-uuid])
-    (subscribe [:wizard/_disabled-actions gv-uuid])])
- (fn [[worksheet actions]]
-   (->> actions
-        (some #(let [conditionals  (:action/conditionals %)
-                     cond-operator (:action/conditionals-operator %)]
-                 (or (nil? conditionals)
-                     (all-conditionals-pass? worksheet cond-operator conditionals)))))))
+   (let [all-conditionals (disable-action-conditionals gv-uuid)]
+     (into {:actions (subscribe [:wizard/_disabled-actions gv-uuid])
+            :modules (subscribe [:worksheet/module-keywords ws-uuid])}
+           (narrow-value-signals ws-uuid all-conditionals))))
+ (fn [{:keys [actions modules] :as resolved}]
+   (let [value-map (dissoc resolved :actions :modules)
+         lookup    (value-map->lookup modules value-map)]
+     (->> actions
+          (some #(let [conditionals  (:action/conditionals %)
+                       cond-operator (:action/conditionals-operator %)]
+                   (or (nil? conditionals)
+                       (all-conditionals-pass?* lookup cond-operator conditionals))))))))
 
 (reg-sub
  :wizard/show-group?
  (fn [[_ ws-uuid group-id & _rest]]
-   [(subscribe [:worksheet ws-uuid])
-    (subscribe [:vms/pull-children :group/conditionals group-id])
-    (subscribe [:vms/entity-from-eid group-id])])
+   (let [conditionals (group-conditionals* group-id)]
+     (into {:conditionals (subscribe [:vms/pull-children :group/conditionals group-id])
+            :group-entity (subscribe [:vms/entity-from-eid group-id])
+            :modules      (subscribe [:worksheet/module-keywords ws-uuid])}
+           (narrow-value-signals ws-uuid conditionals))))
 
- (fn [[worksheet conditionals group-entity] [_ _ws-uuid _group-id conditionals-operator]]
-   (and (all-conditionals-pass? worksheet conditionals-operator conditionals)
-        (not (:group/research? group-entity))
-        (not (:group/hidden? group-entity))
-        (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
-            (boolean (seq (:group/children group-entity)))))))
-
+ (fn [{:keys [conditionals group-entity modules] :as resolved}
+      [_ _ws-uuid _group-id conditionals-operator]]
+   (let [value-map (dissoc resolved :conditionals :group-entity :modules)
+         lookup    (value-map->lookup modules value-map)]
+     (and (all-conditionals-pass?* lookup conditionals-operator conditionals)
+          (not (:group/research? group-entity))
+          (not (:group/hidden? group-entity))
+          (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
+              (boolean (seq (:group/children group-entity))))))))
 (reg-sub
  :wizard/show-submodule?
  (fn [[_ ws-uuid submodule-id & _rest]]
-   [(subscribe [:worksheet ws-uuid])
-    (subscribe [:vms/pull-children :submodule/conditionals submodule-id])])
+   (let [conditionals (submodule-conditionals* submodule-id)]
+     (into {:conditionals (subscribe [:vms/pull-children :submodule/conditionals submodule-id])
+            :modules      (subscribe [:worksheet/module-keywords ws-uuid])}
+           (narrow-value-signals ws-uuid conditionals))))
 
- (fn [[worksheet conditionals] [_ _ws-uuid _submodule-id conditionals-operator]]
-   (all-conditionals-pass? worksheet conditionals-operator conditionals)))
+ (fn [{:keys [conditionals modules] :as resolved}
+      [_ _ws-uuid _submodule-id conditionals-operator]]
+   (let [value-map (dissoc resolved :conditionals :modules)
+         lookup    (value-map->lookup modules value-map)]
+     (all-conditionals-pass?* lookup conditionals-operator conditionals))))
 
 (reg-sub
  :wizard/diagram-input-gv-uuids

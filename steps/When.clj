@@ -1,7 +1,7 @@
 (ns When
   (:require [cucumber.steps :refer [When]]
-            [steps.outputs :as outputs]
-            [steps.inputs :as inputs]))
+            [steps.inputs   :as inputs]
+            [steps.outputs  :as outputs]))
 
 (When "these output paths are selected"
       outputs/select-outputs)
@@ -13,6 +13,9 @@
       outputs/verify-outputs-not-selected)
 
 (When "these input paths are entered"
+      inputs/enter-inputs)
+
+(When "these input paths are selected"
       inputs/enter-inputs)
 
 (When "this input path is entered {submodule} : {group} : {value}"
