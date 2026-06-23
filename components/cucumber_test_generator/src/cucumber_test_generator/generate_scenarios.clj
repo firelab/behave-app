@@ -148,7 +148,9 @@
          (throw (ex-info (str "EDN file not found: " edn-path)
                          {:edn-path edn-path})))
        (let [content (slurp edn-path)
-             data    (edn/read-string content)]
+             raw     (edn/read-string content)
+             ;; Support both combined {:input-visibility {...}} and legacy flat format
+             data    (or (:input-visibility raw) raw)]
          (when-not (map? data)
            (throw (ex-info "Malformed EDN: expected a map with path keys"
                            {:edn-path edn-path})))

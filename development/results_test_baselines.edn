@@ -1,0 +1,75 @@
+{;; ============================================================================
+ ;; Surface-only baseline — VMS order: module/subm/grp verified from Datomic
+ ;; Fuel Model subm/order=0, Fuel Moisture subm/order=3, Wind and Slope subm/order=6
+ ;; ============================================================================
+ :surface
+ {:baseline-inputs
+  [{:module "Surface" :submodule "Fuel Model"     :group "Standard"            :subgroup "Fuel Model"        :value "FB1/1 - Short grass (Static)"
+    :submodule/order 0 :group/order 1 :group-variable/order nil}
+   {:module "Surface" :submodule "Fuel Moisture"  :group "Moisture Input Mode" :subgroup nil                 :value "Individual Size Class"
+    :submodule/order 3 :group/order 0 :group-variable/order nil}
+   {:module "Surface" :submodule "Fuel Moisture"  :group "By Size Class"       :subgroup "1-h Fuel Moisture" :value "1"
+    :submodule/order 3 :group/order 1 :group-variable/order 0}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Measured at:"   :subgroup nil                 :value "Midflame (Eye Level)"
+    :submodule/order 6 :group/order 0 :group-variable/order nil}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Speed"          :subgroup nil                 :value "1"
+    :submodule/order 6 :group/order 3 :group-variable/order nil}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are"  :subgroup nil                 :value "Aligned (Wind is ≤30° from upslope)."
+    :submodule/order 6 :group/order 5 :group-variable/order nil}
+   {:module "Surface" :submodule "Wind and Slope" :group "Slope"               :subgroup nil                 :value "0"
+    :submodule/order 6 :group/order 6 :group-variable/order nil}]}
+
+ ;; ============================================================================
+ ;; Surface & Mortality baseline
+ ;; Tree Characteristics subm/order=0, Scorch subm/order=2 (Mortality module)
+ ;; Canopy Height and Crown Ratio are conditionally visible (gated by species).
+ ;; ============================================================================
+ :surface-mortality
+ {:baseline-outputs
+  [{:module "Surface" :submodule "Fire Behavior" :group "Direction Mode" :subgroup nil :value "Heading"
+    :submodule/order 1 :group/order 0 :group-variable/order 0}
+   {:module "Surface" :submodule "Fire Behavior" :group "Surface Fire"   :subgroup nil :value "Rate of Spread"
+    :submodule/order 1 :group/order 1 :group-variable/order 0}]
+  :baseline-inputs
+  [;; Surface inputs
+   {:module "Surface" :submodule "Fuel Model"     :group "Standard"            :subgroup "Fuel Model"        :value "FB1/1 - Short grass (Static)"
+    :submodule/order 0 :group/order 1 :group-variable/order nil}
+   {:module "Surface" :submodule "Fuel Moisture"  :group "Moisture Input Mode" :subgroup nil                 :value "Individual Size Class"
+    :submodule/order 3 :group/order 0 :group-variable/order nil}
+   {:module "Surface" :submodule "Fuel Moisture"  :group "By Size Class"       :subgroup "1-h Fuel Moisture" :value "1"
+    :submodule/order 3 :group/order 1 :group-variable/order 0}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Measured at:"   :subgroup nil                 :value "Midflame (Eye Level)"
+    :submodule/order 6 :group/order 0 :group-variable/order nil}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Speed"          :subgroup nil                 :value "1"
+    :submodule/order 6 :group/order 3 :group-variable/order nil}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are"  :subgroup nil                 :value "Aligned (Wind is ≤30° from upslope)."
+    :submodule/order 6 :group/order 5 :group-variable/order nil}
+   {:module "Surface" :submodule "Wind and Slope" :group "Slope"               :subgroup nil                 :value "0"
+    :submodule/order 6 :group/order 6 :group-variable/order nil}
+   ;; Mortality inputs (module order 2 → all Mortality rows sort after Surface)
+   {:module "Mortality" :submodule "Tree Characteristics" :group "Mortality Tree Species"           :subgroup nil :value "Abies amabilis / ABAM (Pacific silver fir)"
+    :submodule/order 0 :group/order 0 :group-variable/order nil}
+   {:module "Mortality" :submodule "Tree Characteristics" :group "Canopy Height"                    :subgroup nil :value "10"
+    :submodule/order 0 :group/order 1 :group-variable/order nil}
+   {:module "Mortality" :submodule "Tree Characteristics" :group "Crown Ratio"                      :subgroup nil :value "0.5"
+    :submodule/order 0 :group/order 2 :group-variable/order nil}
+   {:module "Mortality" :submodule "Tree Characteristics" :group "DBH (Diameter at Breast Height)" :subgroup nil :value "10"
+    :submodule/order 0 :group/order 3 :group-variable/order nil}
+   {:module "Mortality" :submodule "Scorch"               :group "Air Temperature"                  :subgroup nil :value "70"
+    :submodule/order 2 :group/order 0 :group-variable/order nil}]}
+
+ ;; ============================================================================
+ ;; Surface & Crown baseline
+ ;; TODO: add Crown-specific inputs and outputs once a Crown run is verified.
+ ;; ============================================================================
+ :surface-crown
+ {:baseline-outputs []
+  :baseline-inputs  []}
+
+ ;; ============================================================================
+ ;; Surface & Contain baseline
+ ;; TODO: add Contain-specific inputs once a minimal Contain run is verified.
+ ;; ============================================================================
+ :surface-contain
+ {:baseline-outputs []
+  :baseline-inputs  []}}

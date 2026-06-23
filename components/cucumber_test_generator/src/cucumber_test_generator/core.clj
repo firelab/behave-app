@@ -12,7 +12,8 @@
    Implementation follows patterns from:
    - /home/kcheung/work/code/behave-polylith/development/test_matrix_generator.clj
    - /home/kcheung/work/code/behave-polylith/development/cucumber_test_generator.clj"
-  (:require [clojure.pprint :refer [pprint]]
+  (:require [clojure.edn    :as edn]
+            [clojure.pprint :refer [pprint]]
             [datomic.api    :as d]))
 
 ;; ===========================================================================================================
@@ -248,17 +249,20 @@
             full-path        (if (> (count base-path) 2)
                                (vec (concat (take 2 base-path) [io] (drop 2 base-path)))
                                base-path)]
-        ;; Only return if variable has valid name/code
-        (when (:group-variable/translation-key gv)
-          {:group-variable/translated-name    (get-translation db (:group-variable/translation-key gv))
-           :group-variable/research?          (:group-variable/research? gv)
-           :group-variable/conditionally-set? (:group-variable/conditionally-set? gv)
-           :group-variable/order              (:group-variable/order gv)
-           :io                                io
-           :path                              full-path
-           :submodule/order                   (:submodule/order parent-submodule)
-           :submodule/research?               (:submodule/research? parent-submodule)
-           :group/order                       (:group/order parent-group)})))))
+        ;; Resolve display name — prefer :translation-key, fall back to :result-translation-key
+        ;; (directional output GVs like "Heading Rate of Spread" use the latter)
+        (let [translated-name (or (get-translation db (:group-variable/translation-key gv))
+                                  (get-translation db (:group-variable/result-translation-key gv)))]
+          (when translated-name
+            {:group-variable/translated-name    translated-name
+             :group-variable/research?          (:group-variable/research? gv)
+             :group-variable/conditionally-set? (:group-variable/conditionally-set? gv)
+             :group-variable/order              (:group-variable/order gv)
+             :io                                io
+             :path                              full-path
+             :submodule/order                   (:submodule/order parent-submodule)
+             :submodule/research?               (:submodule/research? parent-submodule)
+             :group/order                       (:group/order parent-group)}))))))
 
 ;; ===========================================================================================================
 ;; Enum Value Resolution (Task 2.8)
@@ -639,10 +643,38 @@
          submodules (find-all-submodules-with-conditionals db)
          edn-data   (generate-edn-data db groups submodules)]
 
-     ;; Write EDN data
-     (spit edn-path (with-out-str (pprint edn-data)))
-     (println (format "✓ EDN data written to: %s" edn-path))
+     ;; Merge :input-visibility into existing file if present (preserves :results-page)
+     (let [existing (when (.exists (java.io.File. edn-path))
+                      (try (edn/read-string (slurp edn-path))
+                           (catch Exception _ nil)))
+           combined (assoc (or existing {}) :input-visibility edn-data)]
+       (spit edn-path (with-out-str (pprint combined))))
+     (println (format "✓ :input-visibility written to: %s" edn-path))
 
      {:edn-path         edn-path
       :groups-count     (count groups)
       :submodules-count (count submodules)})))
+
+(defn generate-all-matrix!
+  "Generate the combined test_matrix_data.edn containing both sections:
+   - :input-visibility  input-visibility test data (path-vector keys)
+   - :results-page      results-page test data (gv-uuid string keys)
+
+   Calls generate-test-matrix! then
+   cucumber-test-generator.conditional-outputs/generate-conditional-outputs-matrix!
+   sequentially on the same file so each section merges cleanly.
+
+   Arguments:
+   - db       — Datomic database value (from d/db)
+   - edn-path — (optional); default 'development/test_matrix_data.edn'
+
+   Returns:
+   Map with :edn-path, :groups-count, :submodules-count, :results-page-count"
+  ([db]
+   (generate-all-matrix! db "development/test_matrix_data.edn"))
+  ([db edn-path]
+   (let [iv-result (generate-test-matrix! db edn-path)
+         rp-result ((requiring-resolve
+                     'cucumber-test-generator.conditional-outputs/generate-conditional-outputs-matrix!)
+                    db edn-path)]
+     (merge iv-result {:results-page-count (:entries-count rp-result)}))))

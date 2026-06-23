@@ -1,21 +1,33 @@
 (ns cucumber-test
-  (:require [behave-cms.store                           :refer [default-conn]]
-            [cucumber-test-generator.core               :as core]
-            [cucumber-test-generator.generate-scenarios :as gs]
-            [cucumber.runner                            :refer [run-cucumber-tests]]
-            [datomic.api                                :as d]))
+  (:require [behave-cms.store                                   :refer [default-conn]]
+            [cucumber-test-generator.conditional-outputs        :as co]
+            [cucumber-test-generator.core                       :as core]
+            [cucumber-test-generator.generate-results-scenarios :as grs]
+            [cucumber-test-generator.generate-scenarios         :as gs]
+            [cucumber.runner                                    :refer [run-cucumber-tests]]
+            [datomic.api                                        :as d]))
 
 (comment
 
-  (require '[cucumber-test-generator.core               :as core] :reload)
+  (require '[cucumber-test-generator.core                       :as core] :reload)
+  (require '[cucumber-test-generator.conditional-outputs        :as co] :reload)
+  (require '[cucumber-test-generator.generate-scenarios         :as gs] :reload)
+  (require '[cucumber-test-generator.generate-results-scenarios :as grs] :reload)
 
-  (require '[cucumber-test-generator.generate-scenarios :as gs] :reload)
+  ;; ── Recommended: generate both sections of the combined matrix in one call ──
+  (core/generate-all-matrix! (d/db (default-conn)))
 
-  ;; Generate test_matrax_data.edn
+  ;; ── Or regenerate sections individually ──
+  ;; :input-visibility section only
   (core/generate-test-matrix! (d/db (default-conn)))
+  ;; :results-page section only
+  (co/generate-conditional-outputs-matrix! (d/db (default-conn)))
 
-  ;; Injest test_matrix_data.edn and produce feature files
+  ;; ── Generate feature files from the combined matrix ──
+  ;; Input-visibility scenarios → features/
   (gs/generate-feature-files!)
+  ;; Results-page scenarios → features/results-page/
+  (grs/generate-results-feature-files!)
 
   ;; Takes 3 hr to complete
   (time
@@ -33,7 +45,7 @@
    (run-cucumber-tests
     {:debug?       false
      :headless?    false
-     :features     "features"
+     :features     "features/results-page"
      :steps        "steps"
      :stop         true
      :query-string '(and "core" (not "extended"))
@@ -57,6 +69,7 @@
 
   ;; Example: run just the Burning Pile feature
   (run-feature "features/test_results_page.feature")
+  (run-feature "/home/kcheung/work/code/behave-polylith/features/results-page/results-page_mortality_equation-type.feature")
 
   (def all-data
     {["Surface" "Fuel Model" :input "Special Case" "Palmetto-Gallberry"]
