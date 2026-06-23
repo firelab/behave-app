@@ -446,8 +446,8 @@
                    (when table-settings-id
                      [(cond-> {:db/id table-settings-id}
                         (not (second multi-value-input-uuids))
-                        (assoc :table-settings/row-group-variable-uuid (first gv-uuids)
-                               :table-settings/col-group-variable-uuid "outputs")
+                        (assoc :table-settings/row-group-variable-uuid "outputs"
+                               :table-settings/col-group-variable-uuid (first gv-uuids))
                         (second multi-value-input-uuids)
                         (assoc :table-settings/col-group-variable-uuid (first gv-uuids)
                                :table-settings/row-group-variable-uuid (second gv-uuids))
