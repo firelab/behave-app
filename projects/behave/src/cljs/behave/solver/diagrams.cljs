@@ -59,7 +59,6 @@
      (surface/getWindSpeed module
                            (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))
-     (surface/getSlope module (enums/slope-units "Percent"))
      (surface/getElapsedTime module (enums/time-units "Hours"))]))
 
 (defmethod build-event-vector :wind-slope-spread-direction

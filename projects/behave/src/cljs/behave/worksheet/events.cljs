@@ -837,7 +837,6 @@
                     direction-of-max-spread
                     wind-direction
                     _wind-speed
-                    slope-direction
                     _elapsed-time]]
    (let [existing-eid    (d/q '[:find ?d .
                                 :in $ ?uuid ?gv-uuid ?row-id
@@ -876,7 +875,7 @@
 
                                                           {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
                                                            :arrow/length    semi-major-axis
-                                                           :arrow/rotation  slope-direction
+                                                           :arrow/rotation  0
                                                            :arrow/color     "red"
                                                            :arrow/dashed?   true}]}]})))
 (rp/reg-event-fx
