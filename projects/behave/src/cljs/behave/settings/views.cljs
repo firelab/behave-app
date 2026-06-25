@@ -32,15 +32,16 @@
       {:id        "unit-selector"
        :on-change #(on-click (input-value %))
        :name      "unit-selector"
-       :options   (distinct
-                   (concat [{:label     @*unit-short-code
-                             :selected? true
-                             :value     cur-selected-unit-uuid}]
-                           (->> units
-                                (map (fn [unit]
-                                       {:label (:unit/short-code unit)
-                                        :value (:bp/uuid unit)}))
-                                (sort-by :label))))}]]))
+       :options   (concat [{:label     @*unit-short-code
+                            :selected? true
+                            :value     cur-selected-unit-uuid}]
+                          (->> units
+                                ;; drop the selected unit so it isn't listed twice
+                               (remove #(= (:bp/uuid %) cur-selected-unit-uuid))
+                               (map (fn [unit]
+                                      {:label (:unit/short-code unit)
+                                       :value (:bp/uuid unit)}))
+                               (sort-by :label)))}]]))
 
 (defn- build-rows [ws-uuid domain-set domain-unit-settings]
   (let [cached-units-system @(rf/subscribe [:settings/application-units-system])]
@@ -54,13 +55,17 @@
                                domain-decimals]}]]
        {:domain   domain-name
         :units    (if (not= domain-dimension-uuid "N/A")
-                    (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
-                          units     (:dimension/units @dimension)
-                          on-click  #(rf/dispatch-sync [:settings/cache-unit-preference
-                                                        domain-set
-                                                        domain-uuid
-                                                        %
-                                                        ws-uuid])]
+                    (let [dimension      (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
+                          domain         (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+                          filtered-units (set (:domain/filtered-unit-uuids @domain))
+                          units          (cond->> (:dimension/units @dimension)
+                                           (seq filtered-units)
+                                           (filter #(filtered-units (:bp/uuid %))))
+                          on-click       #(rf/dispatch-sync [:settings/cache-unit-preference
+                                                             domain-set
+                                                             domain-uuid
+                                                             %
+                                                             ws-uuid])]
                       [unit-selector
                        (or domain-cached-unit-uuid
                            (case cached-units-system
