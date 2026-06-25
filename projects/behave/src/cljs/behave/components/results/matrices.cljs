@@ -41,19 +41,6 @@
        {}
        entries-by-row))))
 
-(defn- shade-cell-value? [table-setting-filters sig-digits output-gv-uuid value]
-  (let [[_ mmin mmax enabled?] (first (filter (fn [[gv-uuid]] (= gv-uuid output-gv-uuid))
-                                              table-setting-filters))
-        sig                    (get sig-digits output-gv-uuid)
-        rround                 (fn [n]
-                                 (if (and sig (some? n))
-                                   (js/parseFloat (gstring/format (str "%." sig "f") n))
-                                   n))
-        rounded                (rround (js/parseFloat value))
-        rounded-min            (rround mmin)
-        rounded-max            (rround mmax)]
-    (and enabled? mmin mmax (not (<= rounded-min rounded rounded-max)))))
-
 (defn- header-label [label units]
   (if (seq units)
     (gstring/format "%s (%s)" label units)
@@ -97,93 +84,6 @@
                   :col-gv-uuid    col-gv-uuid
                   :col-values     col-values
                   :output-gv-uuid output-gv-uuid}])))
-
-(defn- compute-shade-set-2d
-  [{:keys [ws-uuid row-gv-uuid row-values col-gv-uuid col-values output-entities table-setting-filters sig-digits submatrix-gv-uuid submatrix-value]}]
-  (reduce (fn [acc {output-gv-uuid :bp/uuid}]
-            (let [matrix-data (fetch-matrix-data-2d {:ws-uuid           ws-uuid
-                                                     :row-gv-uuid       row-gv-uuid
-                                                     :row-values        row-values
-                                                     :col-gv-uuid       col-gv-uuid
-                                                     :col-values        col-values
-                                                     :output-gv-uuid    output-gv-uuid
-                                                     :submatrix-gv-uuid submatrix-gv-uuid
-                                                     :submatrix-value   submatrix-value})]
-              (into acc
-                    (reduce-kv
-                     (fn [acc [row col] value]
-                       (cond-> acc
-                         (shade-cell-value? table-setting-filters sig-digits output-gv-uuid value)
-                         (conj [row col])))
-                     #{}
-                     matrix-data))))
-          #{}
-          output-entities))
-
-(defn- compute-shade-set
-  [{:keys [ws-uuid multi-valued-inputs all-output-gv-uuids all-output-entities graph-settings table-settings table-setting-filters sig-digits]}]
-  (case (count multi-valued-inputs)
-    1 (let [[_ _ multi-var-gv-uuid multi-var-values] (first multi-valued-inputs)
-            all-matrix-data-raw                      @(subscribe [:worksheet/matrix-table-data-single-multi-valued-input
-                                                                  ws-uuid
-                                                                  multi-var-gv-uuid
-                                                                  multi-var-values
-                                                                  (vec all-output-gv-uuids)])]
-        (reduce-kv (fn [acc [row col-uuid] v]
-                     (cond-> acc
-                       (shade-cell-value? table-setting-filters sig-digits col-uuid v)
-                       (conj row)))
-                   #{}
-                   all-matrix-data-raw))
-    2 (let [row-axis-gv-uuid             (or (:table-settings/row-group-variable-uuid table-settings)
-                                             (:graph-settings/z-axis-group-variable-uuid graph-settings))
-            col-axis-gv-uuid             (or (:table-settings/col-group-variable-uuid table-settings)
-                                             (:graph-settings/x-axis-group-variable-uuid graph-settings))
-            [_ _ row-gv-uuid row-values] (->> multi-valued-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid row-axis-gv-uuid)))
-                                              first)
-            [_ _ col-gv-uuid col-values] (->> multi-valued-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid col-axis-gv-uuid)))
-                                              first)]
-        (compute-shade-set-2d {:ws-uuid               ws-uuid
-                               :row-gv-uuid           row-gv-uuid
-                               :row-values            row-values
-                               :col-gv-uuid           col-gv-uuid
-                               :col-values            col-values
-                               :output-entities       all-output-entities
-                               :table-setting-filters table-setting-filters
-                               :sig-digits            sig-digits}))
-    3 (let [z2-axis-uuid                 (or (:table-settings/submatrix-group-variable-uuid table-settings)
-                                             (:graph-settings/z2-axis-group-variable-uuid graph-settings))
-            [_ _ z2-gv-uuid z2-values]   (->> multi-valued-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid z2-axis-uuid)))
-                                              first)
-            rest-inputs                  (filter (fn [[_ _ gv-uuid]] (not= gv-uuid z2-axis-uuid)) multi-valued-inputs)
-            row-axis-gv-uuid             (or (:table-settings/row-group-variable-uuid table-settings)
-                                             (:graph-settings/z-axis-group-variable-uuid graph-settings))
-            col-axis-gv-uuid             (or (:table-settings/col-group-variable-uuid table-settings)
-                                             (:graph-settings/x-axis-group-variable-uuid graph-settings))
-            [_ _ row-gv-uuid row-values] (->> rest-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid row-axis-gv-uuid)))
-                                              first)
-            [_ _ col-gv-uuid col-values] (->> rest-inputs
-                                              (filter (fn [[_ _ gv-uuid]] (= gv-uuid col-axis-gv-uuid)))
-                                              first)]
-        (reduce (fn [acc value]
-                  (assoc acc value
-                         (compute-shade-set-2d {:ws-uuid               ws-uuid
-                                                :row-gv-uuid           row-gv-uuid
-                                                :row-values            row-values
-                                                :col-gv-uuid           col-gv-uuid
-                                                :col-values            col-values
-                                                :output-entities       all-output-entities
-                                                :table-setting-filters table-setting-filters
-                                                :sig-digits            sig-digits
-                                                :submatrix-gv-uuid     z2-gv-uuid
-                                                :submatrix-value       value})))
-                {}
-                z2-values))
-    nil))
 
 (defn- build-matrix-data
   [matrix-data-raw row-fmt-fn col-fmt-fn output-fmt-fn shade-set any-filters-enabled?]
@@ -583,17 +483,11 @@
         discrete-outputs-with-colors    (find-discrete-outputs-with-colors all-output-entities)
         color-output-state              @(subscribe [:wizard/selected-output-cell-coloring])
         cell-color-gv-uuid              (when-not (= :none color-output-state) color-output-state)
-        graph-settings                  @(subscribe [:worksheet/graph-settings ws-uuid])
-        table-settings                  @(subscribe [:worksheet/table-settings ws-uuid])
-        sig-digits                      @(subscribe [:worksheet/result-table-significant-digits all-output-gv-uuids])
-        shade-set                       (compute-shade-set {:ws-uuid               ws-uuid
-                                                            :multi-valued-inputs   multi-valued-inputs
-                                                            :all-output-gv-uuids   all-output-gv-uuids
-                                                            :all-output-entities   all-output-entities
-                                                            :graph-settings        graph-settings
-                                                            :table-settings        table-settings
-                                                            :table-setting-filters table-setting-filters
-                                                            :sig-digits            sig-digits})
+        ;; Non-directional outputs rely on the Heading direction for shading.
+        heading-direction               (some (fn [d] (when (= "heading" (str/lower-case (name d))) d)) directions)
+        heading-gv-uuids                (when heading-direction
+                                          (filter #(deref (subscribe [:vms/group-variable-is-directional? % heading-direction]))
+                                                  directional-gv-uuids))
         any-filters-enabled?            (boolean (some (fn [[_ _ _ enabled?]] enabled?) table-setting-filters))]
     (when (and (seq discrete-outputs-with-colors) (nil? color-output-state))
       (dispatch-sync [:wizard/set-discrete-color-output (:bp/uuid (first discrete-outputs-with-colors))]))
@@ -622,12 +516,15 @@
                :units-lookup         units-lookup
                :formatters           formatters
                :cell-color-gv-uuid   cell-color-gv-uuid
-               :shade-set            shade-set
+               :shade-set            @(subscribe [:worksheet/shade-set ws-uuid output-gv-uuids])
                :any-filters-enabled? any-filters-enabled?}])))
        (when (seq non-directional-output-gv-uuids)
          (let [group-variables (map (fn [gv-uuid] @(subscribe [:wizard/group-variable gv-uuid])) non-directional-output-gv-uuids)
                output-entities (map (fn [gv] (merge gv {:units (get units-lookup (:bp/uuid gv))})) group-variables)
-               formatters      @(subscribe [:worksheet/result-table-formatters non-directional-output-gv-uuids])]
+               formatters      @(subscribe [:worksheet/result-table-formatters non-directional-output-gv-uuids])
+               ;; Shade non-directional results by their own outputs plus the
+               ;; Heading direction's, so rows align with the Heading table.
+               shade-scope     (concat non-directional-output-gv-uuids heading-gv-uuids)]
            [construct-result-matrices
             {:ws-uuid              ws-uuid
              :title                @(<t (bp "results"))
@@ -638,5 +535,5 @@
              :units-lookup         units-lookup
              :formatters           formatters
              :cell-color-gv-uuid   cell-color-gv-uuid
-             :shade-set            shade-set
+             :shade-set            @(subscribe [:worksheet/shade-set ws-uuid shade-scope])
              :any-filters-enabled? any-filters-enabled?}]))])))

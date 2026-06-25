@@ -1,18 +1,20 @@
 (ns behave.test-runner
-  (:require [behave.events]
-            [behave.help.subs]
-            [behave.subs]
-            [behave.vms.store :refer [load-vms!]]
-            [behave.contain-test]
+  (:require [behave.contain-test]
             [behave.crown-test]
             [behave.diagram-test]
+            [behave.events]
+            [behave.help.subs]
             [behave.mortality-test]
+            [behave.results-table-test]
+            [behave.shading-test]
             [behave.solver-test]
+            [behave.subs]
             [behave.surface-test]
             [behave.test-solver-generators]
             [behave.test-solver-queries]
             [behave.tests-used-in-fixtures]
             [behave.utils-test]
+            [behave.vms.store :refer [load-vms!]]
             [behave.vms.subs]
             [behave.wizard.events]
             [behave.wizard.subs]
@@ -37,6 +39,8 @@
              'behave.crown-test
              'behave.contain-test
              'behave.mortality-test
+             'behave.results-table-test
+             'behave.shading-test
              'behave.diagram-test
              'behave.surface-test
              'behave.solver-test
@@ -45,8 +49,7 @@
              'behave.test-solver-queries
              'behave.utils-test
              'behave.worksheet-events-test
-             'behave.worksheet-subs-test
-             ))
+             'behave.worksheet-subs-test))
 
 (defn ^:after-load init []
   (let [window-keys    (js->clj (.keys js/Object js/window))

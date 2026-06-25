@@ -1,5 +1,6 @@
 (ns behave.worksheet.subs
   (:require [austinbirch.reactive-entity :as re]
+            [behave.results.shading      :as shading]
             [behave.schema.core          :refer [rules]]
             [behave.store                :as s]
             [behave.translate            :refer [<t]]
@@ -691,6 +692,92 @@
             (directional-parent-entity group-var-uuid))))
     table-settings-filters)))
 
+;;==============================================================================
+;; Shade set
+;;
+;; Which result positions fall outside an enabled table-filter range. This sub
+;; centralizes the matrix-data gathering that used to be spread across the
+;; `result-matrices` view helpers and hands the range math to the pure
+;; `behave.results.shading` core. Parameterized by `output-gv-uuids` (the
+;; "scope") so a single direction's outputs can be shaded independently.
+;;==============================================================================
+
+(defn- axis-uuids
+  "Resolve the row/col (and optional submatrix) axis group-variable uuids from
+  table-settings, falling back to graph-settings — mirrors the matrix view."
+  [table-settings graph-settings]
+  {:row       (or (:table-settings/row-group-variable-uuid table-settings)
+                  (:graph-settings/z-axis-group-variable-uuid graph-settings))
+   :col       (or (:table-settings/col-group-variable-uuid table-settings)
+                  (:graph-settings/x-axis-group-variable-uuid graph-settings))
+   :submatrix (or (:table-settings/submatrix-group-variable-uuid table-settings)
+                  (:graph-settings/z2-axis-group-variable-uuid graph-settings))})
+
+(defn- input-by-uuid [multi-valued-inputs gv-uuid]
+  (->> multi-valued-inputs
+       (filter (fn [[_ _ gv]] (= gv gv-uuid)))
+       first))
+
+(defn- cells-2d
+  "Seq of `[[row col] output-gv-uuid value]` tuples across `output-gv-uuids`,
+  optionally constrained to a single `submatrix-value` (the 3-input case)."
+  [{:keys [ws-uuid output-gv-uuids row-gv-uuid row-values col-gv-uuid col-values
+           submatrix-gv-uuid submatrix-value]}]
+  (mapcat
+   (fn [output-gv-uuid]
+     (let [base {:ws-uuid    ws-uuid    :row-gv-uuid    row-gv-uuid
+                 :row-values row-values :col-gv-uuid    col-gv-uuid
+                 :col-values col-values :output-gv-uuid output-gv-uuid}
+           data (if submatrix-value
+                  @(rf/subscribe [:print/matrix-table-three-multi-valued-inputs
+                                  (assoc base :submatrix-gv-uuid submatrix-gv-uuid
+                                         :submatrix-value submatrix-value)])
+                  @(rf/subscribe [:print/matrix-table-two-multi-valued-inputs base]))]
+       (map (fn [[pos v]] [pos output-gv-uuid v]) data)))
+   output-gv-uuids))
+
+(rf/reg-sub
+ :worksheet/shade-set
+ (fn [[_ ws-uuid _output-gv-uuids]]
+   [(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+    (rf/subscribe [:worksheet/table-settings ws-uuid])
+    (rf/subscribe [:worksheet/graph-settings ws-uuid])
+    (rf/subscribe [:worksheet/table-settings-filters ws-uuid])])
+ (fn [[multi-valued-inputs table-settings graph-settings table-setting-filters]
+      [_ ws-uuid output-gv-uuids]]
+   (let [filters    (shading/filters-by-uuid table-setting-filters)
+         sig-digits @(rf/subscribe [:worksheet/result-table-significant-digits output-gv-uuids])
+         shade      (partial shading/shade-set filters sig-digits)]
+     (case (count multi-valued-inputs)
+       1 (let [[_ _ mvi-gv-uuid mvi-values] (first multi-valued-inputs)
+               data                         @(rf/subscribe [:worksheet/matrix-table-data-single-multi-valued-input
+                                                            ws-uuid mvi-gv-uuid mvi-values (vec output-gv-uuids)])]
+           (shade (map (fn [[[row col-uuid] v]] [row col-uuid v]) data)))
+
+       2 (let [{row-axis :row col-axis :col} (axis-uuids table-settings graph-settings)
+               [_ _ row-gv-uuid row-values]  (input-by-uuid multi-valued-inputs row-axis)
+               [_ _ col-gv-uuid col-values]  (input-by-uuid multi-valued-inputs col-axis)]
+           (shade (cells-2d {:ws-uuid     ws-uuid     :output-gv-uuids output-gv-uuids
+                             :row-gv-uuid row-gv-uuid :row-values      row-values
+                             :col-gv-uuid col-gv-uuid :col-values      col-values})))
+
+       3 (let [{row-axis :row col-axis :col sub-axis :submatrix} (axis-uuids table-settings graph-settings)
+               [_ _ sub-gv-uuid sub-values]                      (input-by-uuid multi-valued-inputs sub-axis)
+               rest-inputs                                       (remove (fn [[_ _ gv]] (= gv sub-axis)) multi-valued-inputs)
+               [_ _ row-gv-uuid row-values]                      (input-by-uuid rest-inputs row-axis)
+               [_ _ col-gv-uuid col-values]                      (input-by-uuid rest-inputs col-axis)]
+           ;; map of submatrix-value -> shade set, matching the 3-input view
+           (into {} (map (fn [sub-value]
+                           [sub-value
+                            (shade (cells-2d {:ws-uuid           ws-uuid     :output-gv-uuids output-gv-uuids
+                                              :row-gv-uuid       row-gv-uuid :row-values      row-values
+                                              :col-gv-uuid       col-gv-uuid :col-values      col-values
+                                              :submatrix-gv-uuid sub-gv-uuid
+                                              :submatrix-value   sub-value}))])
+                         sub-values)))
+
+       #{}))))
+
 ;; Results Table formatters
 
 (defn ^:private create-formatter [variable multi-discrete? is-output?]
@@ -801,25 +888,25 @@
 (rp/reg-sub
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
-   {:type     :query
-    :query    '[:find ?row ?col-uuid ?repeat-id ?value
-                :in $ ?ws-uuid
-                :where
-                [?w :worksheet/uuid ?ws-uuid]
-                [?w :worksheet/result-table ?rt]
-                [?rt :result-table/rows ?r]
+   {:type      :query
+    :query     '[:find ?row ?col-uuid ?repeat-id ?value
+                 :in $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/result-table ?rt]
+                 [?rt :result-table/rows ?r]
 
              ;;get row
-                [?r :result-row/id ?row]
+                 [?r :result-row/id ?row]
 
              ;;get-header
-                [?r :result-row/cells ?c]
-                [?c :result-cell/header ?h]
-                [?h :result-header/group-variable-uuid ?col-uuid]
-                [?h :result-header/repeat-id ?repeat-id]
+                 [?r :result-row/cells ?c]
+                 [?c :result-cell/header ?h]
+                 [?h :result-header/group-variable-uuid ?col-uuid]
+                 [?h :result-header/repeat-id ?repeat-id]
 
              ;;get value
-                [?c :result-cell/value ?value]]
+                 [?c :result-cell/value ?value]]
     :variables
     [ws-uuid]}))
 

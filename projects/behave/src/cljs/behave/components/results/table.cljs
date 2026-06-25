@@ -1,5 +1,6 @@
 (ns behave.components.results.table
   (:require [behave.components.core  :as c]
+            [behave.results.shading  :as shading]
             [behave.translate        :refer [<t bp]]
             [behave.units-conversion :refer [to-map-units]]
             [behave.wizard.subs      :refer [all-conditionals-pass?]]
@@ -54,19 +55,37 @@
                :icon-position "left"
                :on-click      download!}]))
 
+(defn shades-row?
+  "Whether `col-uuid` may strike its run's row in the flat results table. A row
+  is direction-aware via the Heading rule: non-directional and Heading columns
+  count; Backing/Flanking columns do not, so the flat table aligns with the
+  Heading matrix rather than shading across all directions."
+  [directional-uuids heading-uuids col-uuid]
+  (or (not (contains? directional-uuids col-uuid))
+      (contains? heading-uuids col-uuid)))
+
 (defn- build-result-table-data
   [{:keys [ws-uuid headers title cell-data]}]
   (let [headers                   (or headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid]))
         title                     (or title "Results Table")
         cell-data                 (or cell-data @(subscribe [:worksheet/result-table-cell-data ws-uuid]))
-        headers-set               (set (map first headers))
-        table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
+        header-uuids              (map first headers)
+        headers-set               (set header-uuids)
+        table-setting-filters     @(subscribe [:worksheet/table-settings-filters ws-uuid])
+        filters-by-uuid           (shading/filters-by-uuid table-setting-filters)
+        sig-digits                @(subscribe [:worksheet/result-table-significant-digits header-uuids])
+        directional-uuids         (set @(subscribe [:vms/directional-group-variable-uuids]))
+        directions                @(subscribe [:worksheet/output-directions ws-uuid])
+        heading-direction         (some (fn [d] (when (= "heading" (str/lower-case (name d))) d)) directions)
+        heading-uuids             (set (when heading-direction
+                                         (filter #(deref (subscribe [:vms/group-variable-is-directional? % heading-direction]))
+                                                 (filter directional-uuids header-uuids))))
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
         map-units                 (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
         map-units-variables       @(subscribe [:worksheet/result-table-units ws-uuid])
-        formatters                @(subscribe [:worksheet/result-table-formatters (map first headers)])]
+        formatters                @(subscribe [:worksheet/result-table-formatters header-uuids])]
     {:title   title
      :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
                         (let [header-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
@@ -92,14 +111,11 @@
                                        (sort-by key))]
                 (map (fn [[_ data]]
                        (reduce (fn [acc [_row-id col-uuid repeat-id value]]
-                                 (let [[_ filter-min filter-max enabled?] (first (filter
-                                                                                  (fn [[gv-uuid]]
-                                                                                    (= gv-uuid col-uuid))
-                                                                                  @table-setting-filters))
-                                       fmt-fn                             (get formatters col-uuid identity)
-                                       uuid+repeat-id-key                 (keyword (str col-uuid "-" repeat-id))]
+                                 (let [fmt-fn             (get formatters col-uuid identity)
+                                       uuid+repeat-id-key (keyword (str col-uuid "-" repeat-id))]
                                    (cond-> acc
-                                     (and filter-min filter-max (not (<= filter-min value filter-max)) enabled?)
+                                     (and (shades-row? directional-uuids heading-uuids col-uuid)
+                                          (shading/out-of-range? filters-by-uuid sig-digits col-uuid value))
                                      (assoc :shaded? true)
 
                                      :always

@@ -1,8 +1,8 @@
 (ns behave.worksheet-subs-test
   (:require
+   [behave.fixtures :as fx]
    [cljs.test :refer [use-fixtures deftest is join-fixtures] :include-macros true]
-   [re-frame.core :as rf]
-   [behave.fixtures :as fx]))
+   [re-frame.core :as rf]))
 
 (use-fixtures :each
   {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet fx/with-dummy-results-table])
@@ -45,3 +45,11 @@
   (is (= @(rf/subscribe [:worksheet/output-min+max-values fx/test-ws-uuid])
          {"output1" [10 30]
           "output2" [100 300]})))
+
+(deftest shade-set-no-multi-valued-inputs-test
+  ;; The dummy results table has no multi-valued inputs, so the sub takes its
+  ;; 0-input branch and produces an empty set (nothing to shade). This exercises
+  ;; the sub's signal graph + registration end-to-end. Cell-level shading logic
+  ;; is covered exhaustively in behave.shading-test.
+  (is (= #{}
+         @(rf/subscribe [:worksheet/shade-set fx/test-ws-uuid ["output1" "output2"]]))))
