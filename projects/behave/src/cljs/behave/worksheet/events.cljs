@@ -626,9 +626,7 @@
                       :table-settings/filters    [filter-entry]}]})))))
 
 (defn- filter-seeded?
-  "True when the table-filter for `gv-uuid` — or, for a directional output, any
-  of its direction children — already has a min. Such filters were auto-seeded
-  on a prior solve or edited by the user, so a re-run must not overwrite them."
+  "True when `gv-uuid` (or any of its direction children) already has a min."
   [ds ws-uuid gv-uuid]
   (let [gv-uuids (cons gv-uuid (map :bp/uuid (direction-variables gv-uuid)))]
     (boolean
@@ -642,9 +640,7 @@
  [(rp/inject-cofx :ds)
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
  (fn [{ds :ds output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
-   ;; Seed a filter's range from the results only when it has not been seeded
-   ;; yet (no min) — so the first solve auto-ranges the slider, but re-runs keep
-   ;; any range the user has set.
+   ;; Seed only unseeded filters, so re-runs keep user-set ranges.
    {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
                   (if (filter-seeded? ds ws-uuid gv-uuid)
                     acc
