@@ -9,15 +9,15 @@
    :after  (join-fixtures [fx/teardown-db])})
 
 (deftest sub-worksheet-test
-  (let [uuid           "test-ws-uuid"
+  (let [ws-uuid        "test-ws-uuid"
         worksheet-name "test"
-        sub-to-test    [:worksheet uuid]
+        sub-to-test    [:worksheet ws-uuid]
         *worksheet     (rf/subscribe sub-to-test)]
     (rf/dispatch-sync [:transact [{:db/id          -1
-                                   :worksheet/uuid uuid
+                                   :worksheet/uuid ws-uuid
                                    :worksheet/name worksheet-name}]])
 
-    (is (= (:worksheet/uuid @*worksheet) uuid))
+    (is (= (:worksheet/uuid @*worksheet) ws-uuid))
 
     (is (= (:worksheet/name @*worksheet) worksheet-name))))
 

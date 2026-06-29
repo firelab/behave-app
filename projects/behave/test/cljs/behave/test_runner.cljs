@@ -63,7 +63,9 @@
 
       (not vms-loaded?)
       (do
-        (load-vms!)
+        ;; `version` is only a cache-buster query param; the test server serves
+        ;; layout.msgpack statically and ignores it.
+        (load-vms! "test")
         (js/setTimeout #(init) 1000))
 
       :else
