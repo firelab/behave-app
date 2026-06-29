@@ -220,6 +220,7 @@
                                                :group/name
                                                :group/translation-key
                                                :group/order
+                                               :group/single-select?
                                                {:group/_children 5}
                                                {:submodule/_groups [:submodule/name
                                                                     :submodule/translation-key
@@ -262,7 +263,8 @@
              :path                              full-path
              :submodule/order                   (:submodule/order parent-submodule)
              :submodule/research?               (:submodule/research? parent-submodule)
-             :group/order                       (:group/order parent-group)}))))))
+             :group/order                       (:group/order parent-group)
+             :group/single-select?              (:group/single-select? parent-group)}))))))
 
 ;; ===========================================================================================================
 ;; Enum Value Resolution (Task 2.8)
@@ -643,11 +645,14 @@
          submodules (find-all-submodules-with-conditionals db)
          edn-data   (generate-edn-data db groups submodules)]
 
-     ;; Merge :input-visibility into existing file if present (preserves :results-page)
+     ;; Merge :input-visibility into existing file if present (preserves :results-visibility).
+     ;; select-keys strips any legacy bare path-vector keys that may have accumulated
+     ;; from the old flat format, keeping only the two canonical keyword sections.
      (let [existing (when (.exists (java.io.File. edn-path))
                       (try (edn/read-string (slurp edn-path))
                            (catch Exception _ nil)))
-           combined (assoc (or existing {}) :input-visibility edn-data)]
+           combined (assoc (select-keys (or existing {}) [:input-visibility :results-visibility])
+                           :input-visibility edn-data)]
        (spit edn-path (with-out-str (pprint combined))))
      (println (format "✓ :input-visibility written to: %s" edn-path))
 
@@ -657,8 +662,8 @@
 
 (defn generate-all-matrix!
   "Generate the combined test_matrix_data.edn containing both sections:
-   - :input-visibility  input-visibility test data (path-vector keys)
-   - :results-page      results-page test data (gv-uuid string keys)
+   - :input-visibility   input-visibility test data (path-vector keys)
+   - :results-visibility results-visibility test data (gv-uuid string keys)
 
    Calls generate-test-matrix! then
    cucumber-test-generator.conditional-outputs/generate-conditional-outputs-matrix!
@@ -669,7 +674,7 @@
    - edn-path — (optional); default 'development/test_matrix_data.edn'
 
    Returns:
-   Map with :edn-path, :groups-count, :submodules-count, :results-page-count"
+   Map with :edn-path, :groups-count, :submodules-count, :results-visibility-count"
   ([db]
    (generate-all-matrix! db "development/test_matrix_data.edn"))
   ([db edn-path]
@@ -677,4 +682,4 @@
          rp-result ((requiring-resolve
                      'cucumber-test-generator.conditional-outputs/generate-conditional-outputs-matrix!)
                     db edn-path)]
-     (merge iv-result {:results-page-count (:entries-count rp-result)}))))
+     (merge iv-result {:results-visibility-count (:entries-count rp-result)}))))

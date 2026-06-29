@@ -91,7 +91,7 @@
 
 (def ^{:arglists '([db] [db edn-path])
        :doc      "Generate the combined test_matrix_data.edn in one call.
-                  Writes both :input-visibility and :results-page sections
+                  Writes both :input-visibility and :results-visibility sections
                   to a single file, eliminating the need to keep two EDN
                   files in sync.
 
@@ -102,5 +102,5 @@
 
                   Returns:
                   Map with :edn-path, :groups-count, :submodules-count,
-                  :results-page-count"}
+                  :results-visibility-count"}
   generate-all-matrix! c/generate-all-matrix!)

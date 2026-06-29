@@ -7,15 +7,18 @@ Feature: Surface Results - Wind/Slope/Spread Direction Diagram
     When these output paths are selected
       | submodule     | group          | value                 |
       | Fire Behavior | Direction Mode | Direction of Interest |
+      | Fire Behavior | Surface Fire   | Rate of Spread        |
     When these input paths are selected
-      | submodule      | group               | subgroup          | value                                    |
-      | Fuel Model     | Standard            | Fuel Model        | FB1/1 - Short grass (Static)             |
-      | Fuel Moisture  | Moisture Input Mode |                   | Individual Size Class                    |
-      | Fuel Moisture  | By Size Class       | 1-h Fuel Moisture | 1                                        |
-      | Wind and Slope | Wind Measured at:   |                   | Midflame (Eye Level)                     |
-      | Wind and Slope | Wind Speed          |                   | 1                                        |
-      | Wind and Slope | Wind and slope are  |                   | Not Aligned (Wind is >30° from upslope). |
-      | Wind and Slope | Slope               |                   | 0                                        |
+      | submodule         | group                 | subgroup                      | value                                    |
+      | Fuel Model        | Standard              | Fuel Model                    | FB1/1 - Short grass (Static)             |
+      | Fuel Moisture     | Moisture Input Mode   |                               | Individual Size Class                    |
+      | Fuel Moisture     | By Size Class         | 1-h Fuel Moisture             | 1                                        |
+      | Spread Directions | Direction of Interest |                               | 90                                       |
+      | Wind and Slope    | Wind Measured at:     |                               | Midflame (Eye Level)                     |
+      | Wind and Slope    | Wind Speed            |                               | 1                                        |
+      | Wind and Slope    | Wind and slope are    |                               | Not Aligned (Wind is >30° from upslope). |
+      | Wind and Slope    | Wind and slope are    | Wind Direction (from upslope) | 45                                       |
+      | Wind and Slope    | Slope                 |                               | 0                                        |
     Then "the following outputs are displayed in the results page"
       | output                              |
       | Wind/Slope/Spread Direction Diagram |

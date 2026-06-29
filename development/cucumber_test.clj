@@ -20,7 +20,7 @@
   ;; ── Or regenerate sections individually ──
   ;; :input-visibility section only
   (core/generate-test-matrix! (d/db (default-conn)))
-  ;; :results-page section only
+  ;; :results-visibility section only
   (co/generate-conditional-outputs-matrix! (d/db (default-conn)))
 
   ;; ── Generate feature files from the combined matrix ──
@@ -69,6 +69,8 @@
 
   ;; Example: run just the Burning Pile feature
   (run-feature "features/test_results_page.feature")
+
+  (run-feature "/home/kcheung/work/code/behave-polylith/features/results-page")
   (run-feature "/home/kcheung/work/code/behave-polylith/features/results-page/results-page_mortality_equation-type.feature")
 
   (def all-data

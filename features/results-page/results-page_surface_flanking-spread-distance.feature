@@ -7,6 +7,7 @@ Feature: Surface Results - Flanking Spread Distance
     When these output paths are selected
       | submodule     | group               | value                      |
       | Fire Behavior | Direction Mode      | Heading, Flanking, Backing |
+      | Fire Behavior | Surface Fire        | Rate of Spread             |
       | Size          | Surface - Fire Size | Spread Distance            |
     When these input paths are selected
       | submodule      | group               | subgroup          | value                                |
@@ -17,6 +18,7 @@ Feature: Surface Results - Flanking Spread Distance
       | Wind and Slope | Wind Speed          |                   | 1                                    |
       | Wind and Slope | Wind and slope are  |                   | Aligned (Wind is ≤30° from upslope). |
       | Wind and Slope | Slope               |                   | 0                                    |
+      | Size           | Elapsed Time        |                   | 1                                    |
     Then "the following outputs are displayed in the results page"
       | output                   |
       | Flanking Spread Distance |

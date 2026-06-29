@@ -114,6 +114,13 @@
 ;;; Requirement extraction
 ;;; ============================================================================
 
+(defn- path->components
+  "Strip module (first) and io keyword from a path vector, returning display
+   :name strings of the remaining elements (submodule, groups...)."
+  [path]
+  (when (seq path)
+    (mapv :name (remove keyword? (rest path)))))
+
 (defn- pick-first-value
   "Return the first satisfying value for :equal/:in operators, nil for :not-equal."
   [processed]
@@ -123,15 +130,22 @@
     nil))
 
 (defn- processed->input-req
-  "Convert a processed conditional into an input requirement map, or nil."
+  "Convert a processed conditional into an input requirement map, or nil.
+   For :in conditionals with ≥2 values the full value list is preserved
+   under :values so downstream generators can emit Scenario Outline / Examples
+   tables.  :value always holds the first (representative) value so that
+   conditional-evaluation and baseline-merge logic is unaffected."
   [processed raw-cond]
   (when (and (= (:type processed) :group-variable)
              (= (get-in processed [:group-variable :io]) :input)
              (not (get-in processed [:group-variable :group-variable/conditionally-set?])))
     (when-let [value (pick-first-value processed)]
-      {:gv-uuid (:conditional/group-variable-uuid raw-cond)
-       :value   value
-       :gv-info (:group-variable processed)})))
+      (cond-> {:gv-uuid (:conditional/group-variable-uuid raw-cond)
+               :value   value
+               :gv-info (:group-variable processed)}
+        (and (= (:operator processed) :in)
+             (>= (count (:values processed)) 2))
+        (assoc :values (:values processed))))))
 
 (defn- processed->output-req
   "Convert a processed conditional referencing a selected output (:values=['true'])
@@ -151,27 +165,31 @@
                  :submodule/order      (:submodule/order gv)
                  :group/order          (:group/order gv)
                  :group-variable/order (:group-variable/order gv)}
-          (>= (count comps) 2) (assoc :group (second comps)))))))
+          (>= (count comps) 2)        (assoc :group (second comps))
+          (:group/single-select? gv)  (assoc :group/single-select? true))))))
 
 (defn- action->requirements
   "Process a raw :select action map into
-   {:modules [...] :input-reqs [...] :output-reqs [...]}."
+   {:modules [...] :input-reqs [...] :output-reqs [...] :output-operator <:and|:or|nil>}.
+   :output-operator carries the action's conditionals operator so downstream generators
+   can tell an :or gate (any one output reveals the target) from an :and gate (all required)."
   [db action]
   (let [raw-conds (:action/conditionals action)]
-    {:modules     (->> raw-conds
-                       (keep #(core/process-conditional db %))
-                       (filter #(= (:type %) :module))
-                       (mapcat :values))
-     :input-reqs  (->> raw-conds
-                       (keep (fn [raw]
-                               (when-let [processed (core/process-conditional db raw)]
-                                 (processed->input-req processed raw))))
-                       (remove #(nil? (:value %))))
-     :output-reqs (->> raw-conds
-                       (keep (fn [raw]
-                               (when-let [processed (core/process-conditional db raw)]
-                                 (processed->output-req processed))))
-                       (remove nil?))}))
+    {:modules         (->> raw-conds
+                           (keep #(core/process-conditional db %))
+                           (filter #(= (:type %) :module))
+                           (mapcat :values))
+     :input-reqs      (->> raw-conds
+                           (keep (fn [raw]
+                                   (when-let [processed (core/process-conditional db raw)]
+                                     (processed->input-req processed raw))))
+                           (remove #(nil? (:value %))))
+     :output-reqs     (->> raw-conds
+                           (keep (fn [raw]
+                                   (when-let [processed (core/process-conditional db raw)]
+                                     (processed->output-req processed))))
+                           (remove nil?))
+     :output-operator (:action/conditionals-operator action)}))
 
 (defn- gating-cond->req
   "Convert a raw gating-conditional entity to an input requirement map, or nil."
@@ -211,17 +229,12 @@
 ;;; Row conversion
 ;;; ============================================================================
 
-(defn- path->components
-  "Strip module (first) and io keyword from a path vector, returning display
-   :name strings of the remaining elements (submodule, groups...)."
-  [path]
-  (when (seq path)
-    (mapv :name (remove keyword? (rest path)))))
-
 (defn- req->row
   "Convert a requirement map to a row with submodule/group/subgroup/value plus
-   VMS order fields (:module :submodule/order :group/order :group-variable/order), or nil."
-  [{:keys [value gv-info]}]
+   VMS order fields (:module :submodule/order :group/order :group-variable/order), or nil.
+   When the requirement carries :values (a full :in list) that field is forwarded
+   onto the row so the feature-file generator can emit an Examples table."
+  [{:keys [value values gv-info]}]
   (when-let [comps (seq (path->components (:path gv-info)))]
     (cond-> {:submodule            (first comps)
              :value                value
@@ -230,7 +243,8 @@
              :group/order          (:group/order gv-info)
              :group-variable/order (:group-variable/order gv-info)}
       (>= (count comps) 2) (assoc :group (second comps))
-      (>= (count comps) 3) (assoc :subgroup (nth comps 2)))))
+      (>= (count comps) 3) (assoc :subgroup (nth comps 2))
+      (seq values)         (assoc :values values))))
 
 ;;; ============================================================================
 ;;; Per-GV test-case builder
@@ -251,7 +265,13 @@
             (let [all-action-reqs (map #(action->requirements db %) actions)
                   modules         (vec (distinct (mapcat :modules all-action-reqs)))
                   initial-reqs    (vec (distinct (mapcat :input-reqs all-action-reqs)))
-                  output-reqs     (vec (distinct (mapcat :output-reqs all-action-reqs)))]
+                  output-reqs     (vec (distinct (mapcat :output-reqs all-action-reqs)))
+                  ;; Operator of the action that actually contributed the output gate
+                  ;; (:or = any one output reveals the target; :and = all required).
+                  out-operator    (->> all-action-reqs
+                                       (filter #(seq (:output-reqs %)))
+                                       first
+                                       :output-operator)]
               ;; Proceed if there are any requirements at all (input OR output)
               (when (or (seq initial-reqs) (seq output-reqs) (seq modules))
                 (let [all-reqs  (if (seq initial-reqs)
@@ -260,24 +280,25 @@
                       rows      (vec (keep req->row all-reqs))
                       module-kw (or (first (map keyword modules))
                                     (some-> gv-info :path first :name str/lower-case keyword))]
-                  {:gv-uuid          gv-uuid
-                   :output-name      (or (:group-variable/translated-name gv-info)
-                                         "Unknown Output")
-                   :module           (some-> module-kw name str/capitalize)
-                   :required-modules modules
-                   :required-outputs output-reqs
-                   :required-inputs  rows})))))))))
+                  {:gv-uuid                   gv-uuid
+                   :output-name               (or (:group-variable/translated-name gv-info)
+                                                  "Unknown Output")
+                   :module                    (some-> module-kw name str/capitalize)
+                   :required-modules          modules
+                   :required-outputs          output-reqs
+                   :required-outputs-operator out-operator
+                   :required-inputs           rows})))))))))
 
 ;;; ============================================================================
 ;;; Main entry point
 ;;; ============================================================================
 
 (defn generate-conditional-outputs-matrix!
-  "Generate the :results-page section of the combined test_matrix_data.edn.
+  "Generate the :results-visibility section of the combined test_matrix_data.edn.
 
    Finds every output group-variable with :group-variable/conditionally-set? true
    and at least one :select action, resolves the full transitive chain of required
-   inputs, and merges the :results-page section into the combined EDN file.
+   inputs, and merges the :results-visibility section into the combined EDN file.
 
    Arguments:
    - db       — Datomic database value (from d/db)
@@ -298,12 +319,15 @@
                                         nil))))
                          (remove nil?)
                          (into {} (map (juxt :gv-uuid #(dissoc % :gv-uuid)))))
-         ;; Merge :results-page into existing combined file (preserves :input-visibility)
+         ;; Merge :results-visibility into existing combined file (preserves :input-visibility).
+         ;; select-keys strips any legacy bare path-vector keys that may have accumulated
+         ;; from the old flat format, keeping only the two canonical keyword sections.
          existing   (when (.exists (java.io.File. edn-path))
                       (try (edn/read-string (slurp edn-path))
                            (catch Exception _ nil)))
-         combined   (assoc (or existing {}) :results-page test-cases)]
+         combined   (assoc (select-keys (or existing {}) [:input-visibility :results-visibility])
+                           :results-visibility test-cases)]
      (spit edn-path (with-out-str (pprint combined)))
-     (println (format "✓ %d :results-page test cases → %s" (count test-cases) edn-path))
+     (println (format "✓ %d :results-visibility test cases → %s" (count test-cases) edn-path))
      {:edn-path      edn-path
       :entries-count (count test-cases)})))

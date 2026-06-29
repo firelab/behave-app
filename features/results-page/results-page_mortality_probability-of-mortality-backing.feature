@@ -6,7 +6,6 @@ Feature: Mortality Results - Probability of Mortality Backing
     Given I have started a new Surface & Mortality Worksheet in Guided Mode
     When these output paths are selected
       | submodule     | group          | value                      |
-      | Fire Behavior | Direction Mode | Heading                    |
       | Fire Behavior | Direction Mode | Heading, Flanking, Backing |
       | Fire Behavior | Surface Fire   | Rate of Spread             |
     When these input paths are selected
