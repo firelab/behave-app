@@ -4,21 +4,26 @@ Feature: Crown Results - Fire Type
   @core
   Scenario Outline: Fire Type is displayed in results when inputs are set
     Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these output paths are selected
-      | submodule     | group          | value          |
-      | Fire Behavior | Direction Mode | Heading        |
-      | Fire Behavior | Surface Fire   | Rate of Spread |
-    When these input paths are selected
-      | submodule      | group               | subgroup          | value                                |
-      | Fuel Model     | Standard            | Fuel Model        | FB1/1 - Short grass (Static)         |
-      | Fuel Moisture  | Moisture Input Mode |                   | Individual Size Class                |
-      | Fuel Moisture  | By Size Class       | 1-h Fuel Moisture | 1                                    |
-      | Wind and Slope | Wind Measured at:   |                   | Midflame (Eye Level)                 |
-      | Wind and Slope | Wind Speed          |                   | 1                                    |
-      | Wind and Slope | Wind and slope are  |                   | Aligned (Wind is ≤30° from upslope). |
-      | Wind and Slope | Slope               |                   | 0                                    |
-      | Size           | Elapsed Time        |                   | 1                                    |
     When this output path is selected <submodule> : <group> : <value>
+    When these input paths are selected
+      | submodule         | group                       | subgroup                            | value                                |
+      | Fuel Model        | Standard                    | Fuel Model                          | FB1/1 - Short grass (Static)         |
+      | Fuel Moisture     | Moisture Input Mode         |                                     | Individual Size Class                |
+      | Fuel Moisture     | By Size Class               | 1-h Fuel Moisture                   | 1                                    |
+      | Fuel Moisture     | By Size Class               | 10-h Fuel Moisture                  | 1                                    |
+      | Fuel Moisture     | By Size Class               | 100-h Fuel Moisture                 | 1                                    |
+      | Fuel Moisture     | By Size Class               | Live Woody Fuel Moisture            | 60                                   |
+      | Wind and Slope    | Wind Measured at:           |                                     | 20-Foot                              |
+      | Wind and Slope    | 20-Foot Wind Speed          |                                     | 1                                    |
+      | Wind and Slope    | Wind Adjustment Factor      |                                     | User Input                           |
+      | Wind and Slope    | Wind Adjustment Factor      | Wind Adjustment Factor - User Input | 1                                    |
+      | Wind and Slope    | Wind and slope are          |                                     | Aligned (Wind is ≤30° from upslope). |
+      | Wind and Slope    | Slope                       |                                     | 0                                    |
+      | Crown Fire Method | Calculate Crown Fire Using: |                                     | Finney                               |
+      | Foliar Moisture   | Foliar Moisture             |                                     | 30                                   |
+      | Canopy Fuel       | Canopy Height               |                                     | 10                                   |
+      | Canopy Fuel       | Canopy Base Height          |                                     | 10                                   |
+      | Canopy Fuel       | Canopy Bulk Density         |                                     | 0.5                                  |
     Then "the following outputs are displayed in the results page"
       | output    |
       | Fire Type |
@@ -30,21 +35,26 @@ Feature: Crown Results - Fire Type
   @extended
   Scenario Outline: Fire Type is displayed in results when inputs are set (Extended)
     Given I have started a new Surface & Crown Worksheet in Guided Mode
-    When these output paths are selected
-      | submodule     | group          | value          |
-      | Fire Behavior | Direction Mode | Heading        |
-      | Fire Behavior | Surface Fire   | Rate of Spread |
-    When these input paths are selected
-      | submodule      | group               | subgroup          | value                                |
-      | Fuel Model     | Standard            | Fuel Model        | FB1/1 - Short grass (Static)         |
-      | Fuel Moisture  | Moisture Input Mode |                   | Individual Size Class                |
-      | Fuel Moisture  | By Size Class       | 1-h Fuel Moisture | 1                                    |
-      | Wind and Slope | Wind Measured at:   |                   | Midflame (Eye Level)                 |
-      | Wind and Slope | Wind Speed          |                   | 1                                    |
-      | Wind and Slope | Wind and slope are  |                   | Aligned (Wind is ≤30° from upslope). |
-      | Wind and Slope | Slope               |                   | 0                                    |
-      | Size           | Elapsed Time        |                   | 1                                    |
     When this output path is selected <submodule> : <group> : <value>
+    When these input paths are selected
+      | submodule         | group                       | subgroup                            | value                                |
+      | Fuel Model        | Standard                    | Fuel Model                          | FB1/1 - Short grass (Static)         |
+      | Fuel Moisture     | Moisture Input Mode         |                                     | Individual Size Class                |
+      | Fuel Moisture     | By Size Class               | 1-h Fuel Moisture                   | 1                                    |
+      | Fuel Moisture     | By Size Class               | 10-h Fuel Moisture                  | 1                                    |
+      | Fuel Moisture     | By Size Class               | 100-h Fuel Moisture                 | 1                                    |
+      | Fuel Moisture     | By Size Class               | Live Woody Fuel Moisture            | 60                                   |
+      | Wind and Slope    | Wind Measured at:           |                                     | 20-Foot                              |
+      | Wind and Slope    | 20-Foot Wind Speed          |                                     | 1                                    |
+      | Wind and Slope    | Wind Adjustment Factor      |                                     | User Input                           |
+      | Wind and Slope    | Wind Adjustment Factor      | Wind Adjustment Factor - User Input | 1                                    |
+      | Wind and Slope    | Wind and slope are          |                                     | Aligned (Wind is ≤30° from upslope). |
+      | Wind and Slope    | Slope                       |                                     | 0                                    |
+      | Crown Fire Method | Calculate Crown Fire Using: |                                     | Finney                               |
+      | Foliar Moisture   | Foliar Moisture             |                                     | 30                                   |
+      | Canopy Fuel       | Canopy Height               |                                     | 10                                   |
+      | Canopy Fuel       | Canopy Base Height          |                                     | 10                                   |
+      | Canopy Fuel       | Canopy Bulk Density         |                                     | 0.5                                  |
     Then "the following outputs are displayed in the results page"
       | output    |
       | Fire Type |

@@ -8549,9 +8549,29 @@
     :conditionals-operator nil}}},
  :results-visibility
  {"64a75ef0-4f4a-47b9-b27d-c353cb648a52"
-  {:output-name "Flanking Flame Length",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Flanking Flame Length",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Flame Length",
@@ -8567,23 +8587,25 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "66aa7ec1-a085-4389-8add-4e77f30533a1"
-  {:output-name "Bark Char Height Flanking",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Bark Char Height Flanking",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs
-   [{:submodule "Fire Behavior",
-     :value "Heading, Flanking, Backing",
-     :module "Surface",
-     :submodule/order 1,
-     :group/order 0,
-     :group-variable/order 1,
-     :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Acer rubrum / ACRU (Red maple)",
@@ -8605,11 +8627,45 @@
       "Quercus kelloggii / QUKE (Califonia black oak)"
       "Quercus marilandica / QUMA3 (Blackjack oak)"
       "Quercus velutina / QUVE (Black oak)"
-      "Sassafras albidum / SAAL5 (Sassafras)"]}]},
+      "Sassafras albidum / SAAL5 (Sassafras)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
+   :required-outputs
+   [{:submodule "Fire Behavior",
+     :value "Heading, Flanking, Backing",
+     :module "Surface",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 1,
+     :group "Direction Mode",
+     :group/single-select? true}]},
   "66a7f28a-2f76-4f2e-8898-74b0738ab725"
-  {:output-name "Probability of Mortality Backing",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Probability of Mortality Backing",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Heading, Flanking, Backing",
@@ -8618,23 +8674,25 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "66a7f9a1-c63a-452b-9816-d31296d11622"
-  {:output-name "Scorch Height Flanking",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Scorch Height Flanking",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs
-   [{:submodule "Fire Behavior",
-     :value "Heading, Flanking, Backing",
-     :module "Surface",
-     :submodule/order 1,
-     :group/order 0,
-     :group-variable/order 1,
-     :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -8818,11 +8876,45 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
+   :required-outputs
+   [{:submodule "Fire Behavior",
+     :value "Heading, Flanking, Backing",
+     :module "Surface",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 1,
+     :group "Direction Mode",
+     :group/single-select? true}]},
   "65205161-258e-4664-83aa-e180083ccbe1"
-  {:output-name "Flanking Fireline Intensity",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Flanking Fireline Intensity",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Fireline Intensity",
@@ -8838,13 +8930,31 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "660c3d6d-d81b-4225-a4bf-3cddfd4961aa"
-  {:output-name "DOI Spread Distance",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "DOI Spread Distance",
+   :required-outputs-operator nil,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Size",
      :value "Spread Distance",
@@ -8860,13 +8970,31 @@
      :group/order 0,
      :group-variable/order 2,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator nil,
-   :required-inputs []},
+     :group/single-select? true}]},
   "64a75ef0-b9eb-4f69-ab96-d8f6050518e9"
-  {:output-name "Backing Flame Length",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Backing Flame Length",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Flame Length",
@@ -8882,20 +9010,49 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "69e250cd-88b1-429c-832e-6bfa5373aa0c"
-  {:output-name "Probability of Mortality",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Probability of Mortality",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs [],
-   :required-outputs-operator nil,
-   :required-inputs []},
+   :required-inputs [],
+   :disabling-outputs [],
+   :required-outputs []},
   "660c397a-2630-48a3-8381-7dee7c5edba1"
-  {:output-name "Heading Spread Distance",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Heading Spread Distance",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Size",
      :value "Spread Distance",
@@ -8919,13 +9076,31 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "660c397f-8eed-4870-ac12-3ae2922d0987"
-  {:output-name "Flanking Spread Distance",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Flanking Spread Distance",
+   :required-outputs-operator nil,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Heading, Flanking, Backing",
@@ -8941,23 +9116,25 @@
      :submodule/order 2,
      :group/order 0,
      :group-variable/order 3,
-     :group "Surface - Fire Size"}],
-   :required-outputs-operator nil,
-   :required-inputs []},
+     :group "Surface - Fire Size"}]},
   "66a7f9e4-85be-4b53-81c4-932048bdf5ea"
-  {:output-name "Crown Length Scorched Backing",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Crown Length Scorched Backing",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs
-   [{:submodule "Fire Behavior",
-     :value "Heading, Flanking, Backing",
-     :module "Surface",
-     :submodule/order 1,
-     :group/order 0,
-     :group-variable/order 1,
-     :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -9141,21 +9318,39 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
+   :required-outputs
+   [{:submodule "Fire Behavior",
+     :value "Heading, Flanking, Backing",
+     :module "Surface",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 1,
+     :group "Direction Mode",
+     :group/single-select? true}]},
   "66aa7ec1-a052-412b-88e3-b731871a4701"
-  {:output-name "Bark Char Height Backing",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Bark Char Height Backing",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs
-   [{:submodule "Fire Behavior",
-     :value "Heading, Flanking, Backing",
-     :module "Surface",
-     :submodule/order 1,
-     :group/order 0,
-     :group-variable/order 1,
-     :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Acer rubrum / ACRU (Red maple)",
@@ -9177,21 +9372,39 @@
       "Quercus kelloggii / QUKE (Califonia black oak)"
       "Quercus marilandica / QUMA3 (Blackjack oak)"
       "Quercus velutina / QUVE (Black oak)"
-      "Sassafras albidum / SAAL5 (Sassafras)"]}]},
+      "Sassafras albidum / SAAL5 (Sassafras)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
+   :required-outputs
+   [{:submodule "Fire Behavior",
+     :value "Heading, Flanking, Backing",
+     :module "Surface",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 1,
+     :group "Direction Mode",
+     :group/single-select? true}]},
   "66a7f9e4-b140-4c8a-a7a5-6ce005b0e43c"
-  {:output-name "Crown Volume Scorched Backing",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Crown Volume Scorched Backing",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs
-   [{:submodule "Fire Behavior",
-     :value "Heading, Flanking, Backing",
-     :module "Surface",
-     :submodule/order 1,
-     :group/order 0,
-     :group-variable/order 1,
-     :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -9375,13 +9588,36 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
+   :required-outputs
+   [{:submodule "Fire Behavior",
+     :value "Heading, Flanking, Backing",
+     :module "Surface",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 1,
+     :group "Direction Mode",
+     :group/single-select? true}]},
   "66a7f9a1-1013-4c52-a7e7-ed4918206dbd"
-  {:output-name "Scorch Height",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Scorch Height",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules [],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -9565,11 +9801,216 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "66a7f9e4-1f07-465f-84d2-cf98fca430af"
-  {:output-name "Crown Volume Scorched Flanking",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Crown Volume Scorched Flanking",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
+   :required-inputs
+   [{:submodule "Tree Characteristics",
+     :value "Abies amabilis / ABAM (Pacific silver fir)",
+     :module "Mortality",
+     :submodule/order 0,
+     :group/order 0,
+     :group-variable/order 0,
+     :group "Mortality Tree Species",
+     :values
+     ["Abies amabilis / ABAM (Pacific silver fir)"
+      "Abies balsamea / ABBA (Balsam fir)"
+      "Abies concolor / ABCO (White fir)"
+      "Abies grandis / ABGR (Grand fir)"
+      "Abies lasiocarpa / ABLA (Subalpine fir)"
+      "Abies magnifica / ABMA (Red Fir)"
+      "Abies procera / ABPR (Noble Fir)"
+      "Acer barbatum / ACBA3 (Southern sugar maple)"
+      "Acer macrophyllum / ACMA3 (Bigleaf maple)"
+      "Acer negundo / ACNE2 (Boxelder)"
+      "Acer nigrum / ACNI5 (Black maple)"
+      "Acer pensylvanicum / ACPE (Striped maple)"
+      "Acer saccharinum / ACSA2 (Silver maple)"
+      "Acer saccharum / ACSA3 (Sugar maple)"
+      "Acer spicatum / ACSP2 (Mountain maple)"
+      "Aesculus flava / AEFL (Yellow buckeye)"
+      "Aesculus glabra / AEGL (Ohio buckeye)"
+      "Ailanthus altissima / AIAL (Ailanthus)"
+      "Alnus rhombifolia / ALRH2 (White alder)"
+      "Alnus rubra / ALRU2 (Red alder)"
+      "Amelanchier arborea / AMAR3 (Common serviceberry)"
+      "Arbutus menziesii / ARME (Pacific madrone)"
+      "Betula alleghaniensis / BEAL2 (Yellow birch)"
+      "Betula lenta / BELE (Sweet birch)"
+      "Betula nigra / BENI (River Birch)"
+      "Betula occidentalis / BEOC2 (Water birch)"
+      "Betula papyrifera / BEPA (Paper birch)"
+      "Betula species / BETSPP (Birches)"
+      "Carya alba / CAAL27 (Mockernut hickory)"
+      "Carpinus caroliniana / CACA18 (American hornbeam)"
+      "Carya cordiformis / CACOL3 (Bitternut hickory)"
+      "Castanea dentata / CADE12 (American chestnut)"
+      "Calocedrus decurrens / CADE27 (Incense - cedar)"
+      "Carya glabra / CAGL8 (Pignut hickory)"
+      "Carya illinoinensis / CAIL2 (Pecan)"
+      "Carya laciniosa / CALA21 (Shellbark hickory)"
+      "Carya ovata / CAOV2 (Shagbark hickory)"
+      "Carya species / CARSPP (Hickories)"
+      "Carya texana / CATE9 (Black hickory)"
+      "Cercis canadensis / CECA4 (Eastern redbud)"
+      "Celtis laevigata / CELA (Sugarberry)"
+      "Celtis occidentalis / CEOC (Common hackberry)"
+      "Chrysolepis chrysophylla / CHCHC4 (Giant chinkapin)"
+      "Chamaecyparis lawsoniana / CHLA (PortOrford - cedar)"
+      "Chamaecyparis nootkatensis / CHNO (Alaska - cedar)"
+      "Chamaecyparis thyoides / CHTH2 (Atlantic white - cedar)"
+      "Cornus nuttallii / CONU4 (Pacific dogwood)"
+      "Crataegus species / CRASPP (Hawthorns)"
+      "Diospyros virginiana / DIVI5 (Persimmon)"
+      "Fagus grandifolia / FAGR (American beech)"
+      "Fraxinus americana / FRAM2 (White ash)"
+      "Fraxinus species / FRASPP (Ashes)"
+      "Fraxinus nigra / FRNI (Black ash)"
+      "Fraxinus pennsylvanica / FRPE (Green ash)"
+      "Fraxinus profunda / FRPR (Pumpkin ash)"
+      "Fraxinus quadrangulata / FRQU (Blue ash)"
+      "Gleditsia triacanthos / GLTR (Honeylocust)"
+      "Gordonia lasianthus / GOLA (Loblolly bay)"
+      "Gymnocladus dioicus / GYDI (Kentucky coffeetree)"
+      "Halesia species / HALSPP (Silverbells)"
+      "Ilex opaca / ILOP (American holly)"
+      "Juglans cinerea / JUCI (Butternut)"
+      "Juglans nigra / JUNI (Black walnut)"
+      "Juniperus occidentalis / JUOC (Western juniper)"
+      "Juniperus virginiana / JUVI (Eastern redcedar)"
+      "Larix laricina / LALA (Tamarack)"
+      "Larix lyallii / LALY (Subalpine Larch)"
+      "Larix occidentalis / LAOC (Western Larch)"
+      "Lithocarpus densiflorus / LIDE3 (Tanoak)"
+      "Liquidambar styraciflua / LIST2 (Sweetgum)"
+      "Liriodendron tulipifera / LITU (Tuliptree)"
+      "Magnolia acuminata / MAAC (Cucumber - tree)"
+      "Magnolia grandiflora / MAGR4 (Southern magnolia)"
+      "Magnolia species / MAGSPP (Magnolias)"
+      "Prunus species / MALPRU (cherry and plum species)"
+      "Malus species / MALSPP (Apples)"
+      "Magnolia macrophylla / MAMA2 (Bigleaf magnolia)"
+      "Maclura pomifera / MAPO (Osage - orange)"
+      "Magnolia virginiana / MAVI2 (Sweetbay)"
+      "Morus alba / MOAL (White mulberry)"
+      "Morus species / MORSPP (Mulberries)"
+      "Morus rubra / MORU2 (Red mulberry)"
+      "Nyssa aquatica / NYAQ2 (Water tupelo)"
+      "Nyssa sylvatica / NYBI (Blackgum)"
+      "Nyssa ogeche / NYOG (Ogeechee tupelo)"
+      "Ostrya virginiana / OSVI (Hophornbeam)"
+      "Oxydendrum arboreum / OXAR (Sourwood)"
+      "Paulownia tomentosa / PATO2 (Princesstree)"
+      "Persea borbonia / PEBO (Redbay)"
+      "Picea abies / PIAB (Norway spruce)"
+      "Pinus albicaulis / PIAL (Whitebark pine)"
+      "Pinus attenuata / PIAT (Knobcone pine)"
+      "Pinus banksiana / PIBA2 (Jack pine)"
+      "Pinus clausa / PICL (Sand pine)"
+      "Pinus contorta / PICO (Lodgepole pine)"
+      "Pinus echinata / PIEC2 (Shortleaf pine)"
+      "Pinus elliottii / PIEL (Slash pine)"
+      "Picea engelmannii / PIEN (Engelmann spruce)"
+      "Pinus flexilis / PIFL2 (Limber pine)"
+      "Picea glauca / PIGL (White spruce)"
+      "Pinus glabra / PIGL2 (Spruce pine)"
+      "Pinus jeffreyi / PIJE (Jeffrey pine)"
+      "Pinus lambertiana / PILA (Sugar pine)"
+      "Picea mariana / PIMA (Black spruce)"
+      "Pinus monticola / PIMO3 (Western white pine)"
+      "Pinus palustris / PIPA2 (Longleaf pine)"
+      "Pinus ponderosa / PIPO (Ponderosa pine)"
+      "Picea pungens / PIPU (Blue spruce)"
+      "Pinus pungens / PIPU5 (Table mountain pine)"
+      "Pinus resinosa / PIRE (Red pine)"
+      "Pinus rigida / PIRI (Pitch pine)"
+      "Picea rubens / PIRU (Red spruce)"
+      "Pinus sabiniana / PISA2 (Gray pine)"
+      "Pinus serotina / PISE (Pond pine)"
+      "Picea sitchensis / PISI (Sitka spruce)"
+      "Pinus strobus / PIST (Eastern white pine)"
+      "Pinus sylvestris / PISY (Scots pine)"
+      "Pinus taeda / PITA (Loblolly pine)"
+      "Pinus virginiana / PIVI2 (Virginia pine)"
+      "Platanus occidentalis / PLOC (American sycamore)"
+      "Populus balsamifera / POBA2 (Balsam poplar)"
+      "Populus grandidentata / POGR4 (Bigtooth aspen)"
+      "Populus heterophylla / POHE4 (Swamp cottonwood)"
+      "Populus tremuloides / POTR12 (Quaking aspen)"
+      "Prunus americana / PRAM (American plum)"
+      "Prunus emarginata / PREM (Bitter cherry)"
+      "Prunus pensylvanica / PRPE2 (Pin cherry)"
+      "Prunus serotina / PRSE2 (Black cherry)"
+      "Prunus virginiana / PRVI (Chokecherry)"
+      "Pseudotsuga menziesii / PSME (Douglas - fir)"
+      "Quercus agrifolia / QUAG (California live oak)"
+      "Quercus chrysolepis / QUCH2 (Canyon live oak)"
+      "Quercus douglasii / QUDU (Blue oak)"
+      "Quercus ellipsoidalis / QUEL (Northern pin oak)"
+      "Quercus species / QUESPP (Oaks)"
+      "Quercus falcata / QUFA (Southern red oak)"
+      "Quercus imbricaria / QUIM (Shingle oak)"
+      "Quercus incana / QUIN (Bluejack oak)"
+      "Quercus laevis / QULA2 (Turkey oak)"
+      "Quercus laurifolia / QULA3 (Laurel oak)"
+      "Quercus lobata / QULO (Valley oak)"
+      "Quercus lyrata / QULY (Overcup oak)"
+      "Quercus macrocarpa / QUMA2 (Bur oak)"
+      "Quercus michauxii / QUMI (Swamp chestnut oak)"
+      "Quercus muehlenbergii / QUMU (Chinkapin oak)"
+      "Quercus nigra / QUNI (Water oak)"
+      "Quercus palustris / QUPA2 (Pin oak)"
+      "Quercus phellos / QUPH (Willow oak)"
+      "Quercus rubra / QURU (Northern red oak)"
+      "Quercus shumardii / QUSH (Shumard oak)"
+      "Quercus stellata / QUST (Post oak)"
+      "Quercus texana / QUTE (Texas red oak)"
+      "Quercus virginiana / QUVI (Live oak)"
+      "Quercus wislizeni / QUWI2 (Interior live oak)"
+      "Robinia pseudoacacia / ROPS (Black locust)"
+      "Salix bebbiana / SABE2 (Bebb willow)"
+      "Salix species / SALSPP (Willows)"
+      "Salix nigra / SANI (Black willow)"
+      "Sorbus americana / SOAM3 (American mountain - ash)"
+      "Taxodium ascendens / TAAS (Pond cypress)"
+      "Taxus brevifolia / TABR2 (Pacific yew)"
+      "Taxodium distichum / TADI2 (Bald cypress)"
+      "Thuja occidentalis / THOC2 (arborvitae)"
+      "Thuja plicata / THPL (Western redcedar)"
+      "Tilia americana / TIAM (American basswood)"
+      "Tsuga canadensis / TSCA (Eastern hemlock)"
+      "Tsuga heterophylla / TSHE (Western hemlock)"
+      "Tsuga mertensiana / TSME (Mountain hemlock)"
+      "Ulmus alata / ULAL (Winged elm)"
+      "Ulmus americana / ULAM (American elm)"
+      "Ulmus species / ULMSPP (Elms)"
+      "Ulmus pumila / ULPU (Siberian elm)"
+      "Ulmus rubra / ULRU (Slippery elm)"
+      "Ulmus thomasii / ULTH (Rock elm)"
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Heading, Flanking, Backing",
@@ -9578,198 +10019,22 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs
-   [{:submodule "Tree Characteristics",
-     :value "Abies amabilis / ABAM (Pacific silver fir)",
-     :module "Mortality",
-     :submodule/order 0,
-     :group/order 0,
-     :group-variable/order 0,
-     :group "Mortality Tree Species",
-     :values
-     ["Abies amabilis / ABAM (Pacific silver fir)"
-      "Abies balsamea / ABBA (Balsam fir)"
-      "Abies concolor / ABCO (White fir)"
-      "Abies grandis / ABGR (Grand fir)"
-      "Abies lasiocarpa / ABLA (Subalpine fir)"
-      "Abies magnifica / ABMA (Red Fir)"
-      "Abies procera / ABPR (Noble Fir)"
-      "Acer barbatum / ACBA3 (Southern sugar maple)"
-      "Acer macrophyllum / ACMA3 (Bigleaf maple)"
-      "Acer negundo / ACNE2 (Boxelder)"
-      "Acer nigrum / ACNI5 (Black maple)"
-      "Acer pensylvanicum / ACPE (Striped maple)"
-      "Acer saccharinum / ACSA2 (Silver maple)"
-      "Acer saccharum / ACSA3 (Sugar maple)"
-      "Acer spicatum / ACSP2 (Mountain maple)"
-      "Aesculus flava / AEFL (Yellow buckeye)"
-      "Aesculus glabra / AEGL (Ohio buckeye)"
-      "Ailanthus altissima / AIAL (Ailanthus)"
-      "Alnus rhombifolia / ALRH2 (White alder)"
-      "Alnus rubra / ALRU2 (Red alder)"
-      "Amelanchier arborea / AMAR3 (Common serviceberry)"
-      "Arbutus menziesii / ARME (Pacific madrone)"
-      "Betula alleghaniensis / BEAL2 (Yellow birch)"
-      "Betula lenta / BELE (Sweet birch)"
-      "Betula nigra / BENI (River Birch)"
-      "Betula occidentalis / BEOC2 (Water birch)"
-      "Betula papyrifera / BEPA (Paper birch)"
-      "Betula species / BETSPP (Birches)"
-      "Carya alba / CAAL27 (Mockernut hickory)"
-      "Carpinus caroliniana / CACA18 (American hornbeam)"
-      "Carya cordiformis / CACOL3 (Bitternut hickory)"
-      "Castanea dentata / CADE12 (American chestnut)"
-      "Calocedrus decurrens / CADE27 (Incense - cedar)"
-      "Carya glabra / CAGL8 (Pignut hickory)"
-      "Carya illinoinensis / CAIL2 (Pecan)"
-      "Carya laciniosa / CALA21 (Shellbark hickory)"
-      "Carya ovata / CAOV2 (Shagbark hickory)"
-      "Carya species / CARSPP (Hickories)"
-      "Carya texana / CATE9 (Black hickory)"
-      "Cercis canadensis / CECA4 (Eastern redbud)"
-      "Celtis laevigata / CELA (Sugarberry)"
-      "Celtis occidentalis / CEOC (Common hackberry)"
-      "Chrysolepis chrysophylla / CHCHC4 (Giant chinkapin)"
-      "Chamaecyparis lawsoniana / CHLA (PortOrford - cedar)"
-      "Chamaecyparis nootkatensis / CHNO (Alaska - cedar)"
-      "Chamaecyparis thyoides / CHTH2 (Atlantic white - cedar)"
-      "Cornus nuttallii / CONU4 (Pacific dogwood)"
-      "Crataegus species / CRASPP (Hawthorns)"
-      "Diospyros virginiana / DIVI5 (Persimmon)"
-      "Fagus grandifolia / FAGR (American beech)"
-      "Fraxinus americana / FRAM2 (White ash)"
-      "Fraxinus species / FRASPP (Ashes)"
-      "Fraxinus nigra / FRNI (Black ash)"
-      "Fraxinus pennsylvanica / FRPE (Green ash)"
-      "Fraxinus profunda / FRPR (Pumpkin ash)"
-      "Fraxinus quadrangulata / FRQU (Blue ash)"
-      "Gleditsia triacanthos / GLTR (Honeylocust)"
-      "Gordonia lasianthus / GOLA (Loblolly bay)"
-      "Gymnocladus dioicus / GYDI (Kentucky coffeetree)"
-      "Halesia species / HALSPP (Silverbells)"
-      "Ilex opaca / ILOP (American holly)"
-      "Juglans cinerea / JUCI (Butternut)"
-      "Juglans nigra / JUNI (Black walnut)"
-      "Juniperus occidentalis / JUOC (Western juniper)"
-      "Juniperus virginiana / JUVI (Eastern redcedar)"
-      "Larix laricina / LALA (Tamarack)"
-      "Larix lyallii / LALY (Subalpine Larch)"
-      "Larix occidentalis / LAOC (Western Larch)"
-      "Lithocarpus densiflorus / LIDE3 (Tanoak)"
-      "Liquidambar styraciflua / LIST2 (Sweetgum)"
-      "Liriodendron tulipifera / LITU (Tuliptree)"
-      "Magnolia acuminata / MAAC (Cucumber - tree)"
-      "Magnolia grandiflora / MAGR4 (Southern magnolia)"
-      "Magnolia species / MAGSPP (Magnolias)"
-      "Prunus species / MALPRU (cherry and plum species)"
-      "Malus species / MALSPP (Apples)"
-      "Magnolia macrophylla / MAMA2 (Bigleaf magnolia)"
-      "Maclura pomifera / MAPO (Osage - orange)"
-      "Magnolia virginiana / MAVI2 (Sweetbay)"
-      "Morus alba / MOAL (White mulberry)"
-      "Morus species / MORSPP (Mulberries)"
-      "Morus rubra / MORU2 (Red mulberry)"
-      "Nyssa aquatica / NYAQ2 (Water tupelo)"
-      "Nyssa sylvatica / NYBI (Blackgum)"
-      "Nyssa ogeche / NYOG (Ogeechee tupelo)"
-      "Ostrya virginiana / OSVI (Hophornbeam)"
-      "Oxydendrum arboreum / OXAR (Sourwood)"
-      "Paulownia tomentosa / PATO2 (Princesstree)"
-      "Persea borbonia / PEBO (Redbay)"
-      "Picea abies / PIAB (Norway spruce)"
-      "Pinus albicaulis / PIAL (Whitebark pine)"
-      "Pinus attenuata / PIAT (Knobcone pine)"
-      "Pinus banksiana / PIBA2 (Jack pine)"
-      "Pinus clausa / PICL (Sand pine)"
-      "Pinus contorta / PICO (Lodgepole pine)"
-      "Pinus echinata / PIEC2 (Shortleaf pine)"
-      "Pinus elliottii / PIEL (Slash pine)"
-      "Picea engelmannii / PIEN (Engelmann spruce)"
-      "Pinus flexilis / PIFL2 (Limber pine)"
-      "Picea glauca / PIGL (White spruce)"
-      "Pinus glabra / PIGL2 (Spruce pine)"
-      "Pinus jeffreyi / PIJE (Jeffrey pine)"
-      "Pinus lambertiana / PILA (Sugar pine)"
-      "Picea mariana / PIMA (Black spruce)"
-      "Pinus monticola / PIMO3 (Western white pine)"
-      "Pinus palustris / PIPA2 (Longleaf pine)"
-      "Pinus ponderosa / PIPO (Ponderosa pine)"
-      "Picea pungens / PIPU (Blue spruce)"
-      "Pinus pungens / PIPU5 (Table mountain pine)"
-      "Pinus resinosa / PIRE (Red pine)"
-      "Pinus rigida / PIRI (Pitch pine)"
-      "Picea rubens / PIRU (Red spruce)"
-      "Pinus sabiniana / PISA2 (Gray pine)"
-      "Pinus serotina / PISE (Pond pine)"
-      "Picea sitchensis / PISI (Sitka spruce)"
-      "Pinus strobus / PIST (Eastern white pine)"
-      "Pinus sylvestris / PISY (Scots pine)"
-      "Pinus taeda / PITA (Loblolly pine)"
-      "Pinus virginiana / PIVI2 (Virginia pine)"
-      "Platanus occidentalis / PLOC (American sycamore)"
-      "Populus balsamifera / POBA2 (Balsam poplar)"
-      "Populus grandidentata / POGR4 (Bigtooth aspen)"
-      "Populus heterophylla / POHE4 (Swamp cottonwood)"
-      "Populus tremuloides / POTR12 (Quaking aspen)"
-      "Prunus americana / PRAM (American plum)"
-      "Prunus emarginata / PREM (Bitter cherry)"
-      "Prunus pensylvanica / PRPE2 (Pin cherry)"
-      "Prunus serotina / PRSE2 (Black cherry)"
-      "Prunus virginiana / PRVI (Chokecherry)"
-      "Pseudotsuga menziesii / PSME (Douglas - fir)"
-      "Quercus agrifolia / QUAG (California live oak)"
-      "Quercus chrysolepis / QUCH2 (Canyon live oak)"
-      "Quercus douglasii / QUDU (Blue oak)"
-      "Quercus ellipsoidalis / QUEL (Northern pin oak)"
-      "Quercus species / QUESPP (Oaks)"
-      "Quercus falcata / QUFA (Southern red oak)"
-      "Quercus imbricaria / QUIM (Shingle oak)"
-      "Quercus incana / QUIN (Bluejack oak)"
-      "Quercus laevis / QULA2 (Turkey oak)"
-      "Quercus laurifolia / QULA3 (Laurel oak)"
-      "Quercus lobata / QULO (Valley oak)"
-      "Quercus lyrata / QULY (Overcup oak)"
-      "Quercus macrocarpa / QUMA2 (Bur oak)"
-      "Quercus michauxii / QUMI (Swamp chestnut oak)"
-      "Quercus muehlenbergii / QUMU (Chinkapin oak)"
-      "Quercus nigra / QUNI (Water oak)"
-      "Quercus palustris / QUPA2 (Pin oak)"
-      "Quercus phellos / QUPH (Willow oak)"
-      "Quercus rubra / QURU (Northern red oak)"
-      "Quercus shumardii / QUSH (Shumard oak)"
-      "Quercus stellata / QUST (Post oak)"
-      "Quercus texana / QUTE (Texas red oak)"
-      "Quercus virginiana / QUVI (Live oak)"
-      "Quercus wislizeni / QUWI2 (Interior live oak)"
-      "Robinia pseudoacacia / ROPS (Black locust)"
-      "Salix bebbiana / SABE2 (Bebb willow)"
-      "Salix species / SALSPP (Willows)"
-      "Salix nigra / SANI (Black willow)"
-      "Sorbus americana / SOAM3 (American mountain - ash)"
-      "Taxodium ascendens / TAAS (Pond cypress)"
-      "Taxus brevifolia / TABR2 (Pacific yew)"
-      "Taxodium distichum / TADI2 (Bald cypress)"
-      "Thuja occidentalis / THOC2 (arborvitae)"
-      "Thuja plicata / THPL (Western redcedar)"
-      "Tilia americana / TIAM (American basswood)"
-      "Tsuga canadensis / TSCA (Eastern hemlock)"
-      "Tsuga heterophylla / TSHE (Western hemlock)"
-      "Tsuga mertensiana / TSME (Mountain hemlock)"
-      "Ulmus alata / ULAL (Winged elm)"
-      "Ulmus americana / ULAM (American elm)"
-      "Ulmus species / ULMSPP (Elms)"
-      "Ulmus pumila / ULPU (Siberian elm)"
-      "Ulmus rubra / ULRU (Slippery elm)"
-      "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+     :group/single-select? true}]},
   "69e250cd-eee5-4197-bd6e-4791cfde2777"
-  {:output-name "Tree Crown Volume Scorched",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Tree Crown Volume Scorched",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules [],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -9953,13 +10218,24 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "66aa7ec1-475c-4e6d-9a55-6a47675b92ea"
-  {:output-name "Bole Char Height",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Bole Char Height",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Acer rubrum / ACRU (Red maple)",
@@ -9981,11 +10257,40 @@
       "Quercus kelloggii / QUKE (Califonia black oak)"
       "Quercus marilandica / QUMA3 (Blackjack oak)"
       "Quercus velutina / QUVE (Black oak)"
-      "Sassafras albidum / SAAL5 (Sassafras)"]}]},
+      "Sassafras albidum / SAAL5 (Sassafras)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "64c4118c-7aa3-464b-b7da-3ed2e2aacb42"
-  {:output-name "Wind/Slope/Spread Direction Diagram",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Wind/Slope/Spread Direction Diagram",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs
+   [{:submodule "Wind and Slope",
+     :value "Not Aligned (Wind is >30° from upslope).",
+     :module "Surface",
+     :submodule/order 6,
+     :group/order 5,
+     :group-variable/order 0,
+     :group "Wind and slope are"}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Direction of Interest",
@@ -9994,20 +10299,31 @@
      :group/order 0,
      :group-variable/order 2,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs
-   [{:submodule "Wind and Slope",
-     :value "Not Aligned (Wind is >30° from upslope).",
-     :module "Surface",
-     :submodule/order 6,
-     :group/order 5,
-     :group-variable/order 0,
-     :group "Wind and slope are"}]},
+     :group/single-select? true}]},
   "66f1e3a8-e3c6-4634-84bc-2887383fc892"
-  {:output-name "Direction of Interest Rate of Spread",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Direction of Interest Rate of Spread",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Direction of Interest",
@@ -10023,15 +10339,22 @@
      :submodule/order 1,
      :group/order 1,
      :group-variable/order 0,
-     :group "Surface Fire"}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group "Surface Fire"}]},
   "69e250cd-332e-4f31-b5db-2cc236596095"
-  {:output-name "Tree Crown Length Scorched",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Tree Crown Length Scorched",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules [],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -10215,11 +10538,33 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "6520512a-5c55-4986-9aca-5ce023083294"
-  {:output-name "Backing Fireline Intensity",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Backing Fireline Intensity",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Fireline Intensity",
@@ -10235,13 +10580,211 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "64a75ef0-6963-430c-beb7-60e0a271b340"
-  {:output-name "Firebrand Height from a Burning Pile",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Wind and Slope",
+     :group "Wind Measured at:",
+     :value "20-Foot"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Firebrand Height from a Burning Pile",
+   :required-outputs-operator nil,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Heat Source",
+     :value "Wind Factor"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Heat Sink",
+     :value "Heat Sink"}
+    {:module "Surface",
+     :submodule "Size",
+     :group "Surface - Fire Size",
+     :value "Spread Distance"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Stems 0.25 Inches to 0.50 Inches"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Fuel Characteristics",
+     :value "Packing Ratio"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Leaves"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Heat Sink",
+     :value "Flame Residence Time"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Palmetto-Galberry",
+     :value "Live Medium: 0.25 to 1 inches"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Western Aspen",
+     :value "1-h Fuel Load"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Fuel Moisture",
+     :value "Characteristic Dead Moisture"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Stems 0.50 Inches to 1.0 inches"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Surface Fire",
+     :value "Flame Length"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Palmetto-Galberry",
+     :value "Live Fine: 0 to 0.25 inches"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Fuel Characteristics",
+     :value "Relative Packing Ratio"}
+    {:module "Surface",
+     :submodule "Size",
+     :group "Surface - Fire Size",
+     :value "Fire Perimeter"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Fuel Moisture",
+     :value "Characteristic Live Moisture"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Heat Source",
+     :value "Slope Factor"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Western Aspen",
+     :value "Live Woody Fuel Load"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Fuel Characteristics",
+     :value "Characteristic SA/V"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "From 0.50 Inches to 1.0 inches"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Heat Source",
+     :value "Heat Source"}
+    {:module "Surface",
+     :submodule "Size",
+     :group "Surface - Fire Size",
+     :value "Length-to-Width Ratio"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Surface Fire",
+     :value "Rate of Spread"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Fuel Moisture",
+     :value "Live Fuel Moisture of Extinction"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Western Aspen",
+     :value "1-h SA/V"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Western Aspen",
+     :value "Live Herbaceous Fuel Load"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "From 1.0 Inches to 3.0 Inches"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Surface Fire",
+     :value "Fireline Intensity"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Palmetto-Galberry",
+     :value "Live Foliage: On Stem"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Direction Mode",
+     :value "Heading"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Direction Mode",
+     :value "Direction of Interest"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Direction Mode",
+     :value "Heading, Flanking, Backing"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Heat Source",
+     :value "Dead Fuel Reaction Intensity"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Heat Source",
+     :value "Live Fuel Reaction Intensity"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Less than: 0.25 Inches"}
+    {:module "Surface",
+     :submodule "Intermediates (ROS Model)",
+     :group "Fuel Characteristics",
+     :value "Bulk Density"}
+    {:module "Surface",
+     :submodule "Size",
+     :group "Surface - Fire Size",
+     :value "Fire Area"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Western Aspen",
+     :value "Live Woody SA/V"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Total Live Fuel Load"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Total Dead Fuel Load"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Palmetto-Galberry",
+     :value "Fuelbed Depth"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "From 0.25 Inches to 0.50 inches"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Stems 1.0 to 3.0 inches"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Chaparral",
+     :value "Stems less than 0.25 inches"}
+    {:module "Surface",
+     :submodule "Special Case Fuel Models",
+     :group "Palmetto-Galberry",
+     :value "Leaves"}
+    {:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Wind-Driven Surface Fire (Grass Only)"}],
    :required-outputs
    [{:submodule "Spot",
      :value "Burning Pile",
@@ -10249,13 +10792,31 @@
      :submodule/order 5,
      :group/order 0,
      :group-variable/order 0,
-     :group "Maximum Spotting Distance"}],
-   :required-outputs-operator nil,
-   :required-inputs []},
+     :group "Maximum Spotting Distance"}]},
   "64a75ef0-1a04-49fd-82eb-200c59a361cb"
-  {:output-name "Heading Flame Length",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Heading Flame Length",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Flame Length",
@@ -10287,15 +10848,22 @@
      :group/order 0,
      :group-variable/order 2,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "64a75ef0-f0fe-42e9-8854-78d06047a870"
-  {:output-name "Tree Crown Volume Scorched",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Tree Crown Volume Scorched",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules [],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -10479,11 +11047,33 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "66f1e3a8-8a36-4e16-ac73-b2906c1e609b"
-  {:output-name "Direction of Interest Fireline Intensity",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Direction of Interest Fireline Intensity",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Direction of Interest",
@@ -10499,13 +11089,31 @@
      :submodule/order 1,
      :group/order 1,
      :group-variable/order 2,
-     :group "Surface Fire"}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group "Surface Fire"}]},
   "66f1e3a8-4756-4b6d-8df4-89aab6f6564b"
-  {:output-name "Direction of Interest Flame Length",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Direction of Interest Flame Length",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Flame Length",
@@ -10521,13 +11129,31 @@
      :group/order 0,
      :group-variable/order 2,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "64a75ef0-78d6-4932-a701-0c57065c241d"
-  {:output-name "Backing Rate of Spread",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Backing Rate of Spread",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Rate of Spread",
@@ -10543,13 +11169,38 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "660c32c0-e416-4026-b490-567e4e4be42f"
-  {:output-name "Direction of Backing",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Direction of Backing",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs
+   [{:submodule "Wind and Slope",
+     :value "Not Aligned (Wind is >30° from upslope).",
+     :module "Surface",
+     :submodule/order 6,
+     :group/order 5,
+     :group-variable/order 0,
+     :group "Wind and slope are"}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Heading, Flanking, Backing",
@@ -10558,20 +11209,31 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs
-   [{:submodule "Wind and Slope",
-     :value "Not Aligned (Wind is >30° from upslope).",
-     :module "Surface",
-     :submodule/order 6,
-     :group/order 5,
-     :group-variable/order 0,
-     :group "Wind and slope are"}]},
+     :group/single-select? true}]},
   "64a75ef0-0fde-4850-a090-553701d254a8"
-  {:output-name "Flanking Rate of Spread",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Flanking Rate of Spread",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Rate of Spread",
@@ -10587,15 +11249,22 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "660c32c0-9ff5-4720-9b72-f71b308c0651"
-  {:output-name "Direction of Heading",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Direction of Heading",
+   :required-outputs-operator nil,
    :module "Surface",
    :required-modules [],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Wind and Slope",
      :value "Not Aligned (Wind is >30° from upslope).",
@@ -10603,13 +11272,24 @@
      :submodule/order 6,
      :group/order 5,
      :group-variable/order 0,
-     :group "Wind and slope are"}]},
+     :group "Wind and slope are"}],
+   :disabling-outputs [],
+   :required-outputs []},
   "64a75ef0-a04e-4b80-b2a8-45b60d7875b8"
-  {:output-name "Tree Crown Length Scorched",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Tree Crown Length Scorched",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules [],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -10793,11 +11473,33 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "65205189-9791-424a-b86b-9c134b6ac9e9"
-  {:output-name "Heading Fireline Intensity",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Heading Fireline Intensity",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Fireline Intensity",
@@ -10829,13 +11531,31 @@
      :group/order 0,
      :group-variable/order 2,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "660c397e-7b47-4df6-985c-208d90c89e03"
-  {:output-name "Backing Spread Distance",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Backing Spread Distance",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Size",
      :value "Spread Distance",
@@ -10851,13 +11571,31 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "64a75ef0-ca01-47f3-a716-4a88d8f0bfbe"
-  {:output-name "Heading Rate of Spread",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Direction of Interest from Upslope"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Heading Rate of Spread",
+   :required-outputs-operator :and,
    :module "Surface",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Rate of Spread",
@@ -10889,30 +11627,43 @@
      :group/order 0,
      :group-variable/order 2,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "669ea283-f980-41c3-84ef-77fd85fae6bd"
-  {:output-name "Equation Type",
-   :module "Mortality",
-   :required-modules ["mortality" "surface"],
-   :required-outputs [],
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Equation Type",
    :required-outputs-operator nil,
-   :required-inputs []},
-  "66a7f9a1-4bc1-49ac-8c2e-3ec36ca912bd"
-  {:output-name "Scorch Height Backing",
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs
-   [{:submodule "Fire Behavior",
-     :value "Heading, Flanking, Backing",
-     :module "Surface",
-     :submodule/order 1,
-     :group/order 0,
-     :group-variable/order 1,
-     :group "Direction Mode",
-     :group/single-select? true}],
+   :required-inputs [],
+   :disabling-outputs [],
+   :required-outputs []},
+  "66a7f9a1-4bc1-49ac-8c2e-3ec36ca912bd"
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Scorch Height Backing",
    :required-outputs-operator :and,
+   :module "Mortality",
+   :required-modules ["mortality" "surface"],
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -11096,11 +11847,12 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
-  "660c32c0-2eba-40af-93ec-4bc0c816e1e2"
-  {:output-name "Direction of Flanking",
-   :module "Surface",
-   :required-modules [],
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Heading, Flanking, Backing",
@@ -11109,8 +11861,25 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
+     :group/single-select? true}]},
+  "660c32c0-2eba-40af-93ec-4bc0c816e1e2"
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Direction of Flanking",
    :required-outputs-operator :and,
+   :module "Surface",
+   :required-modules [],
    :required-inputs
    [{:submodule "Wind and Slope",
      :value "Not Aligned (Wind is >30° from upslope).",
@@ -11118,11 +11887,12 @@
      :submodule/order 6,
      :group/order 5,
      :group-variable/order 0,
-     :group "Wind and slope are"}]},
-  "66a7f9e4-4ac1-4524-b6d3-f1db04eceec1"
-  {:output-name "Crown Length Scorched Flanking",
-   :module "Mortality",
-   :required-modules ["mortality" "surface"],
+     :group "Wind and slope are"}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Heading, Flanking, Backing",
@@ -11131,8 +11901,25 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
+     :group/single-select? true}]},
+  "66a7f9e4-4ac1-4524-b6d3-f1db04eceec1"
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Crown Length Scorched Flanking",
    :required-outputs-operator :and,
+   :module "Mortality",
+   :required-modules ["mortality" "surface"],
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -11316,27 +12103,72 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
+   :required-outputs
+   [{:submodule "Fire Behavior",
+     :value "Heading, Flanking, Backing",
+     :module "Surface",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 1,
+     :group "Direction Mode",
+     :group/single-select? true}]},
   "64a75ef0-a289-479b-a829-9681e113dfd8"
-  {:output-name "Probability Of Mortality",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Probability Of Mortality",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs [],
-   :required-outputs-operator nil,
-   :required-inputs []},
+   :required-inputs [],
+   :disabling-outputs [],
+   :required-outputs []},
   "66a7fa54-81b5-420e-9e73-49107410021b"
-  {:output-name "CVS or CLS",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "CVS or CLS",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs [],
-   :required-outputs-operator nil,
-   :required-inputs []},
+   :required-inputs [],
+   :disabling-outputs [],
+   :required-outputs []},
   "69e250cd-917c-4198-a1ba-377e2835c3a6"
-  {:output-name "Scorch Height",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Scorch Height",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules [],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Abies amabilis / ABAM (Pacific silver fir)",
@@ -11520,13 +12352,24 @@
       "Ulmus pumila / ULPU (Siberian elm)"
       "Ulmus rubra / ULRU (Slippery elm)"
       "Ulmus thomasii / ULTH (Rock elm)"
-      "Umbellularia californica / UMCA (California - laurel)"]}]},
+      "Umbellularia californica / UMCA (California - laurel)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "69e250cd-a8d7-494a-9842-9530f6792314"
-  {:output-name "Bark Char Height",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Bark Char Height",
+   :required-outputs-operator nil,
    :module "Mortality",
    :required-modules ["mortality" "surface"],
-   :required-outputs [],
-   :required-outputs-operator nil,
    :required-inputs
    [{:submodule "Tree Characteristics",
      :value "Acer rubrum / ACRU (Red maple)",
@@ -11548,11 +12391,33 @@
       "Quercus kelloggii / QUKE (Califonia black oak)"
       "Quercus marilandica / QUMA3 (Blackjack oak)"
       "Quercus velutina / QUVE (Black oak)"
-      "Sassafras albidum / SAAL5 (Sassafras)"]}]},
+      "Sassafras albidum / SAAL5 (Sassafras)"]}],
+   :disabling-outputs [],
+   :required-outputs []},
   "66a7f28a-f65a-4b86-8b21-73c1ba5219c8"
-  {:output-name "Probability of Mortality Flanking",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Directions",
+     :value "Heading-Flanking-Backing"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Probability of Mortality Flanking",
+   :required-outputs-operator :and,
    :module "Mortality",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs
+   [{:module "Surface",
+     :submodule "Spot",
+     :group "Maximum Spotting Distance",
+     :value "Burning Pile"}],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Heading, Flanking, Backing",
@@ -11561,13 +12426,24 @@
      :group/order 0,
      :group-variable/order 1,
      :group "Direction Mode",
-     :group/single-select? true}],
-   :required-outputs-operator :and,
-   :required-inputs []},
+     :group/single-select? true}]},
   "64a75ef0-aeee-4ccc-bdf8-3a05cfb882b9"
-  {:output-name "Fire Type",
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Fire Type",
+   :required-outputs-operator :or,
    :module "Crown",
    :required-modules [],
+   :required-inputs [],
+   :disabling-outputs [],
    :required-outputs
    [{:submodule "Fire Behavior",
      :value "Rate of Spread",
@@ -11652,6 +12528,4 @@
      :submodule/order 5,
      :group/order 0,
      :group-variable/order 3,
-     :group "Crown - Fire Size"}],
-   :required-outputs-operator :or,
-   :required-inputs []}}}
+     :group "Crown - Fire Size"}]}}}

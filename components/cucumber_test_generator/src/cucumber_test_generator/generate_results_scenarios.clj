@@ -241,8 +241,10 @@
         input-step     (when (seq required-inputs)
                          (str STEP-INDENT "When these input paths are selected\n"
                               (render-table input-headers required-inputs)))
-        ;; Varying output — placeholders in step TEXT (reified by tegere), mirroring
-        ;; the input outline. Output rows never carry a subgroup, so the 3-arg form.
+        ;; Varying output — placeholders in step TEXT (reified by tegere). Grouped with
+        ;; the static outputs, before the inputs, so the tested output is selected first
+        ;; (consistent with render-scenario / render-scenario-outline). Output rows never
+        ;; carry a subgroup, so the 3-arg form.
         varying-step   (str STEP-INDENT
                             "When this output path is selected <submodule> : <group> : <value>")
         then-step      (str STEP-INDENT "Then \"the following outputs are displayed in the results page\"\n"
@@ -252,8 +254,8 @@
         examples-rows  (mapv #(select-keys % [:submodule :group :value]) example-rows)
         examples-step  (str STEP-INDENT "Examples: This scenario is repeated for each of these rows\n"
                             (render-table [:submodule :group :value] examples-rows))]
-    (str/join "\n" (remove nil? [outline-header given-step output-step
-                                 input-step varying-step
+    (str/join "\n" (remove nil? [outline-header given-step output-step varying-step
+                                 input-step
                                  then-step "" examples-step]))))
 
 ;;; ============================================================================
@@ -325,10 +327,20 @@
 (def ^:private module-sort-order
   {"Surface" 0 "Crown" 1 "Mortality" 2 "Contain" 3})
 
-;; Same worksheet order, keyed by module-combo keyword. Used to assemble a
-;; combo's baseline from each constituent module's per-module entry (Surface first).
+;; Same worksheet order, keyed by module-combo keyword. Used to order a combo's
+;; constituent modules (Surface first) when deriving its baselines key.
 (def ^:private module-combo-order
   {:surface 0 :crown 1 :mortality 2 :contain 3})
+
+(defn- combo->baseline-key
+  "Map an effective module-combo set to its single baselines key, Surface first.
+   e.g. #{:surface} -> :surface, #{:surface :mortality} -> :surface-mortality."
+  [module-combo]
+  (->> module-combo
+       (sort-by #(get module-combo-order % 99))
+       (map name)
+       (str/join "-")
+       keyword))
 
 (defn- sort-by-vms-order
   "Sort rows by VMS hierarchy: module → submodule/order → group/order → group-variable/order.
@@ -397,9 +409,12 @@
 
 (defn- conditionals-pass?
   "Evaluate the :conditionals block from an :input-visibility entry against
-   known-values (a map of group-name → value-string).
-   Supports :group-variable type with :equal and :in operators."
-  [conditionals-block known-values]
+   known-values (a map of group-name → value-string) and module-name-set (the
+   set of the worksheet's effective module names, e.g. #{\"surface\"}).
+   Supports :group-variable type with :equal and :in operators, and :module type
+   evaluated against module-name-set (mirroring the app's resolve-conditionals:
+   :equal = set equality, :in = set intersection)."
+  [conditionals-block known-values module-name-set]
   (let [conds    (get-in conditionals-block [:conditionals :conditionals])
         operator (get-in conditionals-block [:conditionals :conditionals-operator])]
     (if (empty? conds)
@@ -419,8 +434,14 @@
                                  :equal (= cur-val (first values))
                                  :in    (some #(= cur-val %) values)
                                  false))
-                             ;; :module type — treat as satisfied (module already chosen by Given)
-                             :module true
+                             ;; :module type — evaluate against the worksheet's module set,
+                             ;; matching the app (a surface-only run does NOT satisfy a
+                             ;; ["mortality" "surface"] gate, so its input drops).
+                             :module
+                             (case operator
+                               :equal (= (set values) module-name-set)
+                               :in    (boolean (some module-name-set values))
+                               false)
                              false))
                          conds)]
         (if (= operator :or)
@@ -429,88 +450,108 @@
 
 (defn- merge-with-baselines
   "Merge a test case with the worksheet-combo baseline.
-   The baseline is assembled per-module: each module in the effective combo is
-   looked up by its own key (:surface, :mortality, :crown, :contain) and their
-   :baseline-inputs / :baseline-outputs are concatenated in worksheet order
-   (Surface first). No module re-declares another module's rows.
+   The baseline is looked up by a single effective-combo key (:surface,
+   :surface-crown, :surface-mortality, :surface-contain). Each combo entry holds
+   its COMPLETE baseline — Surface rows are repeated per combo rather than shared,
+   so a combo's Surface inputs/outputs can diverge from the Surface-only combo. A
+   missing combo key yields an empty baseline.
 
    :baseline-outputs are prepended before test-case-specific :required-outputs (deduped).
    :baseline-inputs are filtered via :input-visibility conditionals and merged with
    test-case-specific inputs (test-case values override baseline by input-key)."
   [test-case baselines input-visibility output-order-index]
-  (let [module-combo  (effective-module-combo (:required-modules test-case) (:module test-case))
-        ordered-keys  (sort-by #(get module-combo-order % 99) module-combo)
-        baseline      {:baseline-outputs (vec (mapcat #(:baseline-outputs (get baselines % {})) ordered-keys))
-                       :baseline-inputs  (vec (mapcat #(:baseline-inputs (get baselines % {})) ordered-keys))}
+  (let [module-combo    (effective-module-combo (:required-modules test-case) (:module test-case))
+        module-name-set (into #{} (map name) module-combo)
+        combo-key       (combo->baseline-key module-combo)
+        entry           (get baselines combo-key {})
+        baseline        {:baseline-outputs (vec (:baseline-outputs entry))
+                         :baseline-inputs  (vec (:baseline-inputs entry))}
         ;; Baseline output rows no longer hand-code VMS order; recover it from the
         ;; matrix-derived index so the downstream drop/dedup/sort pipeline is
         ;; unchanged.
-        base-outputs  (mapv #(merge % (get output-order-index
-                                           [(:module %) (:submodule %) (:group %) (:value %)]))
-                            (get baseline :baseline-outputs []))
-        tc-inputs     (:required-inputs test-case)
+        base-outputs    (mapv #(merge % (get output-order-index
+                                             [(:module %) (:submodule %) (:group %) (:value %)]))
+                              (get baseline :baseline-outputs []))
+        tc-inputs       (:required-inputs test-case)
         ;; Drop baseline inputs the test case already provides (same submodule/
         ;; group/subgroup). The test-case value is authoritative; keeping the
         ;; baseline row would otherwise pollute known-values during the fixpoint
         ;; and mis-gate dependent inputs (e.g. baseline "Wind and slope are =
         ;; Aligned" overwriting a test case's "Not Aligned", which gates the
         ;; "Wind Direction (from upslope)" input).
-        tc-keys       (into #{} (map input-key) tc-inputs)
-        base-inputs   (remove #(tc-keys (input-key %)) (get baseline :baseline-inputs []))
+        tc-keys         (into #{} (map input-key) tc-inputs)
+        ;; Apply conditionally auto-set input values (e.g. "Wind Measured at" -> 20-Foot
+        ;; for spot outputs) derived in Phase-1 (:input-value-overrides). Overriding the
+        ;; value before the fixpoint makes its dependent inputs gate correctly (e.g.
+        ;; "20-Foot Wind Speed" becomes visible and midflame "Wind Speed" drops).
+        override-vals   (into {} (map (juxt input-key :value)) (:input-value-overrides test-case))
+        base-inputs     (->> (get baseline :baseline-inputs [])
+                             (remove #(tc-keys (input-key %)))
+                             (mapv (fn [row]
+                                     (if-let [v (get override-vals (input-key row))]
+                                       (assoc row :value v)
+                                       row))))
         ;; Merge baseline outputs before test-case outputs, deduped
-        tc-outputs    (get test-case :required-outputs [])
+        tc-outputs      (get test-case :required-outputs [])
         ;; Baseline outputs are fallback defaults (a direction mode + a fire-behavior
         ;; result output) that make the worksheet compute. Drop any baseline output
         ;; whose [:submodule :group] the test case already selects — the test's own
         ;; output covers that group, so the default is redundant (and for single-select
         ;; groups like Direction Mode, only one value may be active). E.g. Backing Flame
         ;; Length keeps only its own Flame Length and not the baseline Rate of Spread.
-        tc-out-groups (into #{} (map (juxt :submodule :group)) tc-outputs)
-        base-outputs  (remove #(tc-out-groups [(:submodule %) (:group %)]) base-outputs)
-        all-outputs   (->> (concat base-outputs tc-outputs)
-                           (reduce (fn [acc row]
-                                     (if (some #(= % row) acc) acc (conj acc row)))
-                                   [])
-                           vec)
+        tc-out-groups   (into #{} (map (juxt :submodule :group)) tc-outputs)
+        base-outputs    (remove #(tc-out-groups [(:submodule %) (:group %)]) base-outputs)
+        ;; Drop any baseline output that DISABLES the tested output (its GV has a :disable
+        ;; action gated on that output). Otherwise the prerequisite baseline (e.g. Direction
+        ;; Mode Heading + Surface Fire Rate of Spread) disables the target (e.g. the Spot
+        ;; "Burning Pile" output) so it can never be selected. The test's own required-outputs
+        ;; are untouched, so the target is still selected and the worksheet still computes.
+        disabling-outs  (into #{} (map (juxt :submodule :group :value)) (:disabling-outputs test-case))
+        base-outputs    (remove #(disabling-outs [(:submodule %) (:group %) (:value %)]) base-outputs)
+        all-outputs     (->> (concat base-outputs tc-outputs)
+                             (reduce (fn [acc row]
+                                       (if (some #(= % row) acc) acc (conj acc row)))
+                                     [])
+                             vec)
         ;; Seed known-values: input group→value AND all selected output names→"true"
         ;; so output-gated input conditionals (e.g. "Wind and slope are") pass
-        init-known    (into {}
-                            (concat
-                             (map (fn [{:keys [group subgroup value]}] [(or subgroup group) value]) tc-inputs)
-                             (map (fn [{:keys [value]}] [value "true"]) all-outputs)))
+        init-known      (into {}
+                              (concat
+                               (map (fn [{:keys [group subgroup value]}] [(or subgroup group) value]) tc-inputs)
+                               (map (fn [{:keys [value]}] [value "true"]) all-outputs)))
         ;; Fixpoint: include baseline inputs whose conditionals pass, in declaration order.
         ;; Uses vector + seen-set to avoid array-map overflow losing ordering.
-        included-vec  (loop [remaining (vec base-inputs)
-                             known     init-known
-                             acc       []
-                             seen      #{}]
-                        (let [newly     (remove (fn [row] (seen (input-key row)))
-                                                (filter (fn [row]
+        included-vec    (loop [remaining (vec base-inputs)
+                               known     init-known
+                               acc       []
+                               seen      #{}]
+                          (let [newly     (remove (fn [row] (seen (input-key row)))
+                                                  (filter (fn [row]
                                                           ;; Visible only when BOTH its group/subgroup conditional
                                                           ;; AND its submodule conditional pass (empty = no gate).
-                                                          (let [g (find-group-entries input-visibility row)
-                                                                s (find-submodule-entries input-visibility row)]
-                                                            (and (or (empty? g) (some #(conditionals-pass? % known) g))
-                                                                 (or (empty? s) (some #(conditionals-pass? % known) s)))))
-                                                        remaining))
-                              new-acc   (into acc newly)
-                              new-seen  (into seen (map input-key newly))
-                              new-known (into known (map (fn [{:keys [group subgroup value]}]
-                                                           [(or subgroup group) value]) newly))
-                              leftover  (remove (fn [row] (new-seen (input-key row))) remaining)]
-                          (if (= (count new-acc) (count acc))
-                            new-acc
-                            (recur leftover new-known new-acc new-seen))))
+                                                            (let [g (find-group-entries input-visibility row)
+                                                                  s (find-submodule-entries input-visibility row)]
+                                                              (and (or (empty? g) (some #(conditionals-pass? % known module-name-set) g))
+                                                                   (or (empty? s) (some #(conditionals-pass? % known module-name-set) s)))))
+                                                          remaining))
+                                new-acc   (into acc newly)
+                                new-seen  (into seen (map input-key newly))
+                                new-known (into known (map (fn [{:keys [group subgroup value]}]
+                                                             [(or subgroup group) value]) newly))
+                                leftover  (remove (fn [row] (new-seen (input-key row))) remaining)]
+                            (if (= (count new-acc) (count acc))
+                              new-acc
+                              (recur leftover new-known new-acc new-seen))))
         ;; Input order is implicit: the declaration order of :baseline-inputs (already
         ;; worksheet order). Several baseline inputs (DBH, Air Temperature) appear in no
         ;; test case, so declaration order is the only complete ordering source.
-        base-order    (into {} (map-indexed (fn [i r] [(input-key r) i])
-                                            (get baseline :baseline-inputs [])))
+        base-order      (into {} (map-indexed (fn [i r] [(input-key r) i])
+                                              (get baseline :baseline-inputs [])))
         ;; tc-inputs override baseline values for same key; new keys appended after
-        tc-override   (into {} (map #(vector (input-key %) %) tc-inputs))
-        base-keys     (set (map input-key included-vec))
-        merged-raw    (into (mapv #(get tc-override (input-key %) %) included-vec)
-                            (remove #(base-keys (input-key %)) tc-inputs))]
+        tc-override     (into {} (map #(vector (input-key %) %) tc-inputs))
+        base-keys       (set (map input-key included-vec))
+        merged-raw      (into (mapv #(get tc-override (input-key %) %) included-vec)
+                              (remove #(base-keys (input-key %)) tc-inputs))]
     (assoc test-case
            ;; stable sort: any test-case-only input (not in baseline) trails in order
            :required-inputs  (sort-by #(get base-order (input-key %) Long/MAX_VALUE) merged-raw)

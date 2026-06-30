@@ -1,10 +1,11 @@
 {;; ============================================================================
- ;; Per-module baselines.
- ;; Keyed by a single module (:surface, :mortality, :crown, :contain) — NOT by
- ;; module combination. The generator assembles a worksheet's baseline by looking
- ;; up each module in the effective combo (Surface first) and concatenating their
- ;; :baseline-inputs / :baseline-outputs. So a Surface & Mortality run pulls
- ;; :surface then :mortality; no module re-declares another module's rows.
+ ;; Combo-keyed baselines.
+ ;; Keyed by the EFFECTIVE worksheet module combo — the set returned by
+ ;; effective-module-combo in generate_results_scenarios.clj (Crown/Mortality/
+ ;; Contain always promote to include Surface). Each combo OWNS its complete
+ ;; baseline: Surface rows are REPEATED in every multi-module combo rather than
+ ;; shared, because a Surface-only run and a Surface & Crown run require different
+ ;; Surface inputs/outputs. No cross-combo assembly happens anymore.
  ;;
  ;; Row order = worksheet (VMS) order; the generator derives input ordering
  ;; implicitly from this declaration order, and output ordering from the
@@ -21,36 +22,77 @@
    {:module "Surface" :submodule "Spread Directions" :group "Direction of Interest" :subgroup nil :value "90"}
    {:module "Surface" :submodule "Wind and Slope" :group "Wind Measured at:" :subgroup nil :value "Midflame (Eye Level)"}
    {:module "Surface" :submodule "Wind and Slope" :group "Wind Speed" :subgroup nil :value "1"}
+   {:module "Surface" :submodule "Wind and Slope" :group "20-Foot Wind Speed" :subgroup nil :value "1"}
    {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are" :subgroup nil :value "Aligned (Wind is ≤30° from upslope)."}
    {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are" :subgroup "Wind Direction (from upslope)" :value "45"}
    {:module "Surface" :submodule "Wind and Slope" :group "Slope" :subgroup nil :value "0"}
-   {:module "Surface" :submodule "Size" :group "Elapsed Time" :subgroup nil :value "1"}]}
+   {:module "Surface" :submodule "Size" :group "Elapsed Time" :subgroup nil :value "1"}
+   {:module "Surface" :submodule "Spot" :group "Burning Pile" :subgroup "Flame Height from a Burning Pile" :value "1"}
+   {:module "Surface" :submodule "Spot" :group "Downwind Canopy Fuel" :subgroup "Downwind Canopy Height" :value "1"}
+   {:module "Surface" :submodule "Spot" :group "Downwind Canopy Fuel" :subgroup "Downwind Canopy Cover" :value "Closed"}
+   {:module "Surface" :submodule "Spot" :group "Topography" :subgroup "Ridge-to-Valley Elevation Difference" :value "1000"}
+   {:module "Surface" :submodule "Spot" :group "Topography" :subgroup "Ridge-to-Valley Horizontal Distance" :value "1"}
+   {:module "Surface" :submodule "Spot" :group "Topography" :subgroup "Spotting Source Location" :value "RT (Ridge Top)"}]}
 
  ;; ============================================================================
- ;; Mortality baseline (Mortality-specific rows only — Surface rows come from :surface).
- ;; Canopy Height and Crown Ratio are conditionally visible (gated by species).
+ ;; Surface & Mortality baseline. Surface rows are repeated here (this combo's
+ ;; Surface inputs/outputs may diverge from the Surface-only combo), followed by
+ ;; the Mortality-specific rows. Canopy Height and Crown Ratio are conditionally
+ ;; visible (gated by species).
  ;; ============================================================================
- :mortality
- {:baseline-outputs                                                                                                                                          []
+ :surface-mortality
+ {:baseline-outputs
+  [{:module "Surface" :submodule "Fire Behavior" :group "Direction Mode" :subgroup nil :value "Heading"}
+   {:module "Surface" :submodule "Fire Behavior" :group "Surface Fire" :subgroup nil :value "Rate of Spread"}]
   :baseline-inputs
-  [{:module "Mortality" :submodule "Tree Characteristics" :group "Mortality Tree Species" :subgroup nil :value "Abies amabilis / ABAM (Pacific silver fir)"}
+  [{:module "Surface" :submodule "Fuel Model" :group "Standard" :subgroup "Fuel Model" :value "FB1/1 - Short grass (Static)"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "Moisture Input Mode" :subgroup nil :value "Individual Size Class"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "By Size Class" :subgroup "1-h Fuel Moisture" :value "1"}
+   {:module "Surface" :submodule "Spread Directions" :group "Direction of Interest" :subgroup nil :value "90"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Measured at:" :subgroup nil :value "Midflame (Eye Level)"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Speed" :subgroup nil :value "1"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are" :subgroup nil :value "Aligned (Wind is ≤30° from upslope)."}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are" :subgroup "Wind Direction (from upslope)" :value "45"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Slope" :subgroup nil :value "0"}
+   {:module "Surface" :submodule "Size" :group "Elapsed Time" :subgroup nil :value "1"}
+   {:module "Mortality" :submodule "Tree Characteristics" :group "Mortality Tree Species" :subgroup nil :value "Abies amabilis / ABAM (Pacific silver fir)"}
    {:module "Mortality" :submodule "Tree Characteristics" :group "Canopy Height" :subgroup nil :value "10"}
    {:module "Mortality" :submodule "Tree Characteristics" :group "Crown Ratio" :subgroup nil :value "0.5"}
    {:module "Mortality" :submodule "Tree Characteristics" :group "DBH (Diameter at Breast Height)" :subgroup nil :value "10"}
    {:module "Mortality" :submodule "Scorch" :group "Air Temperature" :subgroup nil :value "70"}]}
 
  ;; ============================================================================
- ;; Crown baseline (Crown-specific rows only — Surface rows come from :surface).
- ;; TODO: add Crown-specific inputs and outputs once a Crown run is verified.
+ ;; Surface & Crown baseline. Empty until a real Surface & Crown run is verified;
+ ;; populate with the combo's own (repeated) Surface rows plus Crown-specific rows.
  ;; ============================================================================
- :crown
- {:baseline-outputs []
-  :baseline-inputs  []}
+ :surface-crown
+ {:baseline-outputs
+  []
+  :baseline-inputs
+  [{:module "Surface" :submodule "Fuel Model" :group "Standard" :subgroup "Fuel Model" :value "FB1/1 - Short grass (Static)"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "Moisture Input Mode" :subgroup nil :value "Individual Size Class"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "By Size Class" :subgroup "1-h Fuel Moisture" :value "1"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "By Size Class" :subgroup "10-h Fuel Moisture" :value "1"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "By Size Class" :subgroup "100-h Fuel Moisture" :value "1"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "By Size Class" :subgroup "Live Woody Fuel Moisture" :value "60"}
+   {:module "Surface" :submodule "Spread Directions" :group "Direction of Interest" :subgroup nil :value "90"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Measured at:" :subgroup nil :value "20-Foot"}
+   {:module "Surface" :submodule "Wind and Slope" :group "20-Foot Wind Speed" :subgroup nil :value "1"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Adjustment Factor" :subgroup nil :value "User Input"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Adjustment Factor" :subgroup "Wind Adjustment Factor - User Input" :value "1"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are" :subgroup nil :value "Aligned (Wind is ≤30° from upslope)."}
+   {:module "Surface" :submodule "Wind and Slope" :group "Slope" :subgroup nil :value "0"}
+   {:module "Crown" :submodule "Crown Fire Method" :group "Calculate Crown Fire Using:" :subgroup nil :value "Finney"}
+   {:module "Crown" :submodule "Foliar Moisture" :group "Foliar Moisture" :subgroup nil :value "30"}
+   {:module "Crown" :submodule "Canopy Fuel" :group "Canopy Height" :subgroup nil :value "10"}
+   {:module "Crown" :submodule "Canopy Fuel" :group "Canopy Base Height" :subgroup nil :value "10"}
+   {:module "Crown" :submodule "Canopy Fuel" :group "Canopy Bulk Density" :subgroup nil :value "0.5"}]}
 
  ;; ============================================================================
- ;; Contain baseline (Contain-specific rows only — Surface rows come from :surface).
- ;; TODO: add Contain-specific inputs once a minimal Contain run is verified.
+ ;; Surface & Contain baseline. Empty until a real Surface & Contain run is
+ ;; verified; populate with the combo's own (repeated) Surface rows plus
+ ;; Contain-specific rows.
  ;; ============================================================================
- :contain
+ :surface-contain
  {:baseline-outputs []
   :baseline-inputs  []}}

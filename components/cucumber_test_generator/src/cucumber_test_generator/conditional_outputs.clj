@@ -42,27 +42,40 @@
 ;;; Pull helpers
 ;;; ============================================================================
 
+(def ^:private actions-pull-spec
+  "Pull pattern for a GV's actions with their raw conditionals."
+  '[{:group-variable/actions
+     [:action/type
+      :action/conditionals-operator
+      {:action/conditionals
+       [:conditional/type
+        :conditional/operator
+        :conditional/values
+        :conditional/group-variable-uuid
+        :conditional/sub-conditional-operator
+        {:conditional/sub-conditionals
+         [:conditional/type
+          :conditional/operator
+          :conditional/values
+          :conditional/group-variable-uuid]}]}]}])
+
+(defn- pull-actions-of-type
+  "Pull the actions of a given :action/type (e.g. :select, :disable) with their raw
+   conditionals for a GV eid."
+  [db gv-eid action-type]
+  (->> (d/pull db actions-pull-spec gv-eid)
+       :group-variable/actions
+       (filter #(= (:action/type %) action-type))))
+
 (defn- pull-select-actions
   "Pull the :select actions with their raw conditionals for a GV eid."
   [db gv-eid]
-  (->> (d/pull db
-               '[{:group-variable/actions
-                  [:action/type
-                   :action/conditionals-operator
-                   {:action/conditionals
-                    [:conditional/type
-                     :conditional/operator
-                     :conditional/values
-                     :conditional/group-variable-uuid
-                     :conditional/sub-conditional-operator
-                     {:conditional/sub-conditionals
-                      [:conditional/type
-                       :conditional/operator
-                       :conditional/values
-                       :conditional/group-variable-uuid]}]}]}]
-               gv-eid)
-       :group-variable/actions
-       (filter #(= (:action/type %) :select))))
+  (pull-actions-of-type db gv-eid :select))
+
+(defn- pull-disable-actions
+  "Pull the :disable actions with their raw conditionals for a GV eid."
+  [db gv-eid]
+  (pull-actions-of-type db gv-eid :disable))
 
 (defn- pull-ancestor-conditionals
   "Return the raw gating-conditional entities from the parent group hierarchy
@@ -189,6 +202,15 @@
                                    (when-let [processed (core/process-conditional db raw)]
                                      (processed->output-req processed))))
                            (remove nil?))
+     ;; uuids of the output-true conditionals — i.e. the OUTPUTS this action selects.
+     ;; Lets build-test-case look up those outputs' own :disable actions.
+     :output-uuids    (->> raw-conds
+                           (keep (fn [raw]
+                                   (when-let [p (core/process-conditional db raw)]
+                                     (when (and (= (get-in p [:group-variable :io]) :output)
+                                                (= (:values p) ["true"]))
+                                       (:conditional/group-variable-uuid raw)))))
+                           distinct)
      :output-operator (:action/conditionals-operator action)}))
 
 (defn- gating-cond->req
@@ -247,13 +269,99 @@
       (seq values)         (assoc :values values))))
 
 ;;; ============================================================================
+;;; Input value overrides (conditionally auto-set input values)
+;;; ============================================================================
+
+(defn- find-input-value-setter-eids
+  "Return eids of group-variables that have a :select action carrying an
+   :action/target-value — i.e. the action auto-sets the GV's value when its
+   conditionals hold (e.g. 'Wind Measured at' -> 20-Foot for spot outputs).
+   Caller filters to :input GVs."
+  [db]
+  (d/q '[:find [?gv ...]
+         :where
+         [?gv :group-variable/actions ?a]
+         [?a :action/type :select]
+         [?a :action/target-value _]]
+       db))
+
+(defn- pull-select-target-actions
+  "Pull a GV's :select actions that carry an :action/target-value."
+  [db gv-eid]
+  (->> (d/pull db
+               '[{:group-variable/actions
+                  [:action/type
+                   :action/target-value
+                   :action/conditionals-operator
+                   {:action/conditionals
+                    [:conditional/type
+                     :conditional/operator
+                     :conditional/values
+                     :conditional/group-variable-uuid]}]}]
+               gv-eid)
+       :group-variable/actions
+       (filter #(and (= (:action/type %) :select) (:action/target-value %)))))
+
+(defn- action-fires?
+  "True when a value-setting :select action's conditionals are satisfied by the
+   test's active output names and module-name set (mirrors the app: :module is
+   set-equality/intersection; an output conditional passes when its translated
+   name is among the selected outputs)."
+  [db action active-output-names module-name-set]
+  (let [conds (:action/conditionals action)
+        op    (:action/conditionals-operator action)
+        res   (map (fn [c]
+                     (case (:conditional/type c)
+                       :module
+                       (case (:conditional/operator c)
+                         :equal (= (set (:conditional/values c)) module-name-set)
+                         :in    (boolean (some module-name-set (:conditional/values c)))
+                         false)
+                       :group-variable
+                       (boolean
+                        (when-let [p (core/process-conditional db c)]
+                          (and (= (get-in p [:group-variable :io]) :output)
+                               (= (:conditional/values c) ["true"])
+                               (contains? active-output-names
+                                          (get-in p [:group-variable :group-variable/translated-name])))))
+                       false))
+                   conds)]
+    (if (= op :or) (boolean (some true? res)) (every? true? res))))
+
+(defn- compute-input-value-overrides
+  "For each candidate input value-setter GV, if one of its value-setting :select
+   actions fires for the test's active outputs, emit an override row
+   {:submodule :group [:subgroup] :value} with the action's target-value resolved
+   to a display value via the GV's list options. Returns a deduped vec."
+  [db setter-eids active-output-names module-name-set]
+  (->> setter-eids
+       (keep (fn [eid]
+               (when-let [uuid (:bp/uuid (d/pull db '[:bp/uuid] eid))]
+                 (let [info (core/resolve-group-variable-uuid db uuid)]
+                   (when (= (:io info) :input)
+                     (when-let [act (first (filter #(action-fires? db % active-output-names module-name-set)
+                                                   (pull-select-target-actions db eid)))]
+                       (let [comps (path->components (:path info))
+                             val   (get (core/get-variable-list-options db uuid)
+                                        (:action/target-value act))]
+                         (when (and (>= (count comps) 2) val)
+                           (cond-> {:submodule (first comps)
+                                    :group     (second comps)
+                                    :value     val}
+                             (>= (count comps) 3) (assoc :subgroup (nth comps 2)))))))))))
+       distinct
+       vec))
+
+;;; ============================================================================
 ;;; Per-GV test-case builder
 ;;; ============================================================================
 
 (defn- build-test-case
   "Return a test-case map for an output gv-eid, or nil if the GV is research,
-   not an output, or its action conditionals cannot be resolved."
-  [db gv-eid]
+   not an output, or its action conditionals cannot be resolved.
+   setter-eids = candidate input value-setter GV eids (from
+   find-input-value-setter-eids), used to derive :input-value-overrides."
+  [db gv-eid setter-eids]
   (when-let [gv-uuid (:bp/uuid (d/pull db '[:bp/uuid] gv-eid))]
     (let [gv-info (core/resolve-group-variable-uuid db gv-uuid)]
       (when (and gv-info
@@ -274,20 +382,46 @@
                                        :output-operator)]
               ;; Proceed if there are any requirements at all (input OR output)
               (when (or (seq initial-reqs) (seq output-reqs) (seq modules))
-                (let [all-reqs  (if (seq initial-reqs)
-                                  (resolve-transitive-closure db initial-reqs)
-                                  [])
-                      rows      (vec (keep req->row all-reqs))
-                      module-kw (or (first (map keyword modules))
-                                    (some-> gv-info :path first :name str/lower-case keyword))]
+                (let [all-reqs            (if (seq initial-reqs)
+                                            (resolve-transitive-closure db initial-reqs)
+                                            [])
+                      rows                (vec (keep req->row all-reqs))
+                      module-kw           (or (first (map keyword modules))
+                                              (some-> gv-info :path first :name str/lower-case keyword))
+                      ;; Outputs that, when selected, DISABLE one of the outputs this test
+                      ;; must click (its gating outputs — e.g. "Burning Pile" — plus the
+                      ;; target). Each such output GV carries its own :disable action whose
+                      ;; conditionals name the outputs that disable it. Downstream
+                      ;; (merge-with-baselines) drops any baseline output in this set so the
+                      ;; prerequisite baseline never disables an output the test selects.
+                      selected-out-uuids  (vec (distinct (mapcat :output-uuids all-action-reqs)))
+                      disabling-outputs   (->> (cons gv-uuid selected-out-uuids)
+                                               (mapcat (fn [u]
+                                                         (->> (pull-disable-actions db [:bp/uuid u])
+                                                              (mapcat #(:output-reqs (action->requirements db %))))))
+                                               (map #(select-keys % [:module :submodule :group :value]))
+                                               distinct
+                                               vec)
+                      ;; Some inputs are conditionally auto-set by the app via a
+                      ;; value-setting :select action (e.g. "Wind Measured at" -> 20-Foot
+                      ;; for spot outputs). Derive those overrides from the test's active
+                      ;; outputs so merge-with-baselines applies the correct value instead
+                      ;; of the (surface-fire) baseline default.
+                      output-name         (or (:group-variable/translated-name gv-info)
+                                              "Unknown Output")
+                      active-output-names (into #{} (conj (mapv :value output-reqs) output-name))
+                      module-name-set     (into #{} (or (seq modules) ["surface"]))
+                      input-overrides     (compute-input-value-overrides
+                                           db setter-eids active-output-names module-name-set)]
                   {:gv-uuid                   gv-uuid
-                   :output-name               (or (:group-variable/translated-name gv-info)
-                                                  "Unknown Output")
+                   :output-name               output-name
                    :module                    (some-> module-kw name str/capitalize)
                    :required-modules          modules
                    :required-outputs          output-reqs
                    :required-outputs-operator out-operator
-                   :required-inputs           rows})))))))))
+                   :required-inputs           rows
+                   :disabling-outputs         disabling-outputs
+                   :input-value-overrides     input-overrides})))))))))
 
 ;;; ============================================================================
 ;;; Main entry point
@@ -309,24 +443,25 @@
   ([db]
    (generate-conditional-outputs-matrix! db "development/test_matrix_data.edn"))
   ([db edn-path]
-   (let [gv-eids    (find-conditionally-set-output-gvs db)
-         _          (println (format "Found %d conditionally-set output GVs" (count gv-eids)))
-         test-cases (->> gv-eids
-                         (keep (fn [eid]
-                                 (try (build-test-case db eid)
-                                      (catch Exception e
-                                        (println (format "  ⚠ eid %d: %s" eid (.getMessage e)))
-                                        nil))))
-                         (remove nil?)
-                         (into {} (map (juxt :gv-uuid #(dissoc % :gv-uuid)))))
+   (let [gv-eids     (find-conditionally-set-output-gvs db)
+         _           (println (format "Found %d conditionally-set output GVs" (count gv-eids)))
+         setter-eids (find-input-value-setter-eids db)
+         test-cases  (->> gv-eids
+                          (keep (fn [eid]
+                                  (try (build-test-case db eid setter-eids)
+                                       (catch Exception e
+                                         (println (format "  ⚠ eid %d: %s" eid (.getMessage e)))
+                                         nil))))
+                          (remove nil?)
+                          (into {} (map (juxt :gv-uuid #(dissoc % :gv-uuid)))))
          ;; Merge :results-visibility into existing combined file (preserves :input-visibility).
          ;; select-keys strips any legacy bare path-vector keys that may have accumulated
          ;; from the old flat format, keeping only the two canonical keyword sections.
-         existing   (when (.exists (java.io.File. edn-path))
-                      (try (edn/read-string (slurp edn-path))
-                           (catch Exception _ nil)))
-         combined   (assoc (select-keys (or existing {}) [:input-visibility :results-visibility])
-                           :results-visibility test-cases)]
+         existing    (when (.exists (java.io.File. edn-path))
+                       (try (edn/read-string (slurp edn-path))
+                            (catch Exception _ nil)))
+         combined    (assoc (select-keys (or existing {}) [:input-visibility :results-visibility])
+                            :results-visibility test-cases)]
      (spit edn-path (with-out-str (pprint combined)))
      (println (format "✓ %d :results-visibility test cases → %s" (count test-cases) edn-path))
      {:edn-path      edn-path
