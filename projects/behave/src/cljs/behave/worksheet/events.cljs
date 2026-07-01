@@ -508,11 +508,9 @@
                   (let [[_min-to-use max-to-use] (if-let [direcitonal-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
                                                    (get output-min-max-values direcitonal-parent-uuid)
                                                    [min-val max-val])
-                        y-max-raw                (if (< max-val 1)
-                                                   (to-precision max-to-use 1)
-                                                   (math/round max-to-use))
-                        step                     (nice-step-size y-max-raw)
-                        y-max                    (+ y-max-raw step)]
+                        ;; FIX: BHP1-1532 - do not clip max values
+                        step                     (nice-step-size max-to-use)
+                        y-max                    (+ max-to-use step)]
                     (-> acc
                         (conj [:dispatch [:worksheet/update-y-axis-limit-attr
                                           ws-uuid
