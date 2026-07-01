@@ -157,7 +157,15 @@
                                 :version)))
 
 (defn render-tests-page
-  "Renders the site for tests."
+  "Renders the site for tests.
+
+  Mirrors the figwheel host page in [[render-page]]: load `behave-min.js`
+  (the MODULARIZE build that defines the `createModule` factory), kick off
+  module instantiation inline so `window.Module` is set while figwheel
+  asynchronously loads the cljs deps, then load the `app-testing.js` bundle.
+  Without the inline `createModule` call the `behave.lib.*` namespaces that
+  read `js/Module` at load time (e.g. `behave.lib.units`) evaluate before the
+  module exists. `behave.test-runner` self-runs on load."
   [_request]
   {:status  200
    :headers {"Content-Type" "text/html"}
@@ -166,7 +174,10 @@
               [:title "BehavePlus Tests"]]
              [:body
               [:div#app-testing]
-              (include-js "/js/behave-min.js" "/cljs/app-testing.js")])})
+              (include-js "/js/behave-min.js")
+              [:script {:type "text/javascript"}
+               "createModule().then(function (instance) { window.Module = instance; });"]
+              (include-js "/cljs/app-testing.js")])})
 
 (defn render-page
   "Renders a page."

@@ -345,7 +345,7 @@
         (cond-> []
           :always
           (->
-           (mortality-input "setRegion" "region" (enums/region-code "south_east"))
+           (mortality-input "setRegion" "region" (enums/gacc "SouthernArea"))
            (mortality-input "setEquationType" "equationType" equation-type)
            (mortality-input "setSpeciesCode" "speciesCode" species-code))
 

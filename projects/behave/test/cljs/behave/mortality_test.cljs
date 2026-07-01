@@ -39,7 +39,7 @@
                        -1)
        species-code  (get row "TreeSpecies")]
 
-    (mortality/setRegion module (enums/region-code "south_east"))
+    (mortality/setGACCRegion module (enums/gacc "SouthernArea"))
 
     (mortality/setEquationType module  equation-type)
 
