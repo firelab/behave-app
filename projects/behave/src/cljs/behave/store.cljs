@@ -76,6 +76,19 @@
       (swap! batch concat datoms)
       (debounced-batch-sync-tx-data))))
 
+(defn flush-sync!
+  "POST pending tx-data now, bypassing the 2s debounce. Called on route changes."
+  []
+  (batch-sync-tx-data))
+
+(defn flush-sync-beacon!
+  "Send pending tx-data via `navigator.sendBeacon` on teardown (`pagehide`)."
+  []
+  (when (seq @batch)
+    (let [payload (pr-str {:tx-data @batch})
+          blob    (js/Blob. #js [payload] #js {:type "application/edn"})]
+      (.sendBeacon js/navigator "/api/sync" blob))))
+
 (defn apply-latest-datoms [[ok body]]
   (when ok
     (let [datoms (->> (c/unpack body)
@@ -125,7 +138,6 @@
                          @(rf/subscribe [:worksheet/version @(rf/subscribe [:worksheet/latest])])])
       (rf/dispatch-sync [:worksheet/update-worksheet-name-from-import
                          @(rf/subscribe [:worksheet/latest]) file-name]))))
-
 
 (defn open-worksheet! [{:keys [file]}]
   (let [form-data (js/FormData.)]
@@ -182,6 +194,8 @@
 ;;; Effects
 
 (rf/reg-fx :ds/init init!)
+
+(rf/reg-fx :sync/flush (fn [_] (flush-sync!)))
 
 ;;; Events
 

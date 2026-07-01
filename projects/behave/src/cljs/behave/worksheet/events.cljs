@@ -2,7 +2,8 @@
   (:require [behave.components.toolbar     :refer [step-priority]]
             [behave.importer               :refer [import-worksheet]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [behave.vms.subs               :refer [directional-parent-entity]]
+            [behave.vms.subs               :refer [direction-variables
+                                                   directional-parent-entity]]
             [behave.wizard.subs            :refer [all-conditionals-pass?]]
             [clojure.math                  :as math]
             [clojure.string                :as str]
@@ -624,29 +625,43 @@
          {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                       :table-settings/filters    [filter-entry]}]})))))
 
+(defn- filter-seeded?
+  "True when `gv-uuid` (or any of its direction children) already has a min."
+  [ds ws-uuid gv-uuid]
+  (let [gv-uuids (cons gv-uuid (map :bp/uuid (direction-variables gv-uuid)))]
+    (boolean
+     (some (fn [u]
+             (when-let [eid (get-table-filter-eid ds ws-uuid u)]
+               (some? (:table-filter/min (d/entity ds eid)))))
+           gv-uuids))))
+
 (rp/reg-event-fx
  :worksheet/update-all-table-filters-from-results
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
- (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{ds :ds output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   ;; Seed only unseeded filters, so re-runs keep user-set ranges.
    {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
-                  (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
-                                                  (get output-min-max-values directional-parent-uuid)
-                                                  [min-val max-val])]
-                    (-> acc
-                        (conj [:dispatch [:worksheet/update-table-filter-attr
-                                          ws-uuid
-                                          gv-uuid
-                                          :table-filter/min
-                                          (if (< min-to-use 1)
-                                            (to-precision min-to-use 1)
-                                            (.floor js/Math min-to-use))]])
-                        (conj [:dispatch [:worksheet/update-table-filter-attr
-                                          ws-uuid
-                                          gv-uuid
-                                          :table-filter/max
-                                          (if (< max-to-use 1)
-                                            (to-precision max-to-use 1)
-                                            (.ceil js/Math max-to-use))]]))))
+                  (if (filter-seeded? ds ws-uuid gv-uuid)
+                    acc
+                    (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
+                                                    (get output-min-max-values directional-parent-uuid)
+                                                    [min-val max-val])]
+                      (-> acc
+                          (conj [:dispatch [:worksheet/update-table-filter-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :table-filter/min
+                                            (if (< min-to-use 1)
+                                              (to-precision min-to-use 1)
+                                              (.floor js/Math min-to-use))]])
+                          (conj [:dispatch [:worksheet/update-table-filter-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :table-filter/max
+                                            (if (< max-to-use 1)
+                                              (to-precision max-to-use 1)
+                                              (.ceil js/Math max-to-use))]])))))
                 []
                 output-min-max-values)}))
 

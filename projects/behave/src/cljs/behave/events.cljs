@@ -102,6 +102,8 @@
      {:db                 (assoc db :router {:history new-history :curr-position new-position})
       :browser/scroll-top {}
       :help/scroll-top    {}
+      ;; Flush pending tx-data so edits survive a later reload.
+      :sync/flush         {}
       :history/push-state {:position new-position
                            :route    new-route}})))
 
