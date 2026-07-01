@@ -303,7 +303,7 @@
         "setEquationType"            "equationType"
         "setFirelineIntensity"       "firelineIntensity"
         "setMidFlameWindSpeed"       "midFlameWindSpeed"
-        "setRegion"                  "region"
+        "setGACCRegion"              "region"
         "setSpeciesCode"             "speciesCode"
         "setSurfaceFireFlameLength"  "value"
         "setSurfaceFireScorchHeight" "value"
@@ -345,7 +345,7 @@
         (cond-> []
           :always
           (->
-           (mortality-input "setRegion" "region" (enums/gacc "SouthernArea"))
+           (mortality-input "setGACCRegion" "region" (enums/gacc "SouthernArea"))
            (mortality-input "setEquationType" "equationType" equation-type)
            (mortality-input "setSpeciesCode" "speciesCode" species-code))
 
