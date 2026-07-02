@@ -1,5 +1,3 @@
-^{:launch-js ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-              "--headless=new" "--disable-gpu" "--repl" :open-url]}
 {:main          behave.headless-test-runner
  :output-dir    "resources/public/cljs-test"
  :output-to     "resources/public/cljs-test/headless.js"

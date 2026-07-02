@@ -81,14 +81,10 @@
              :test-page        {:main-opts ["-m" "figwheel.main"
                                             "-fwo" "{:open-url \"http://localhost:8081/api/test\"}"
                                             "-b" "compile-dev" "-s"]}
-             ;; Headless CI run: exits with a pass/fail code.
+             ;; Deps only; `bb test:ci` supplies the OS-specific browser + the
+             ;; figwheel opts via -fwo (see projects/behave/bb.edn).
              :test-ci          {:extra-paths ["test/cljs"]
-                                :extra-deps  {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}
-                                ;; Own port; open the WASM-bootstrapping headless page.
-                                :main-opts   ["-m" "figwheel.main"
-                                              "-fwo" "{:ring-server-options {:port 9500} :open-url \"http://localhost:9500/api/test-headless\"}"
-                                              "-co" "test-headless.cljs.edn"
-                                              "-m" "behave.headless-test-runner"]}
+                                :extra-deps  {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}}
              :compile-cljs     {:main-opts ["-m" "behave.compile-cljs" "compile-prod.cljs.edn"]}
              :production       {:jvm-opts ["-XX:MaxRAMPercentage=90" "-XX:+PrintFlagsFinal"]}
              :standalone       {:main-opts ["-m" "behave.core"]
