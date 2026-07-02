@@ -1,15 +1,15 @@
 (ns behave.solver-test
-  (:require [clojure.string       :as str]
-            [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
-            [csv-parser.interface :refer [parse-csv]]
-            [data-utils.interface :refer [parse-float parse-int]]
-            [datascript.core      :as d]
-            [behave.fixtures      :as fx]
+  (:require [behave.fixtures      :as fx]
             [behave.lib.enums     :as enums]
+            [behave.schema.core   :refer [rules]]
             [behave.solver.core   :refer [solve-worksheet]]
             [behave.solver.queries :as q]
             [behave.vms.store     :refer [vms-conn]]
-            [behave.schema.core   :refer [rules]]
+            [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
+            [clojure.string       :as str]
+            [csv-parser.interface :refer [parse-csv]]
+            [data-utils.interface :refer [parse-float parse-int]]
+            [datascript.core      :as d]
             [re-frame.core        :as rf])
   (:require-macros [behave.macros :refer [inline-resource]]))
 
@@ -29,7 +29,7 @@
 
 (defn- clean-values [row]
   (into {}
-        (map (fn remove-quotes[[key val]]
+        (map (fn remove-quotes [[key val]]
                (if (string? val)
                  [key (str/replace val "\"" "")]
                  [key val])))
@@ -143,8 +143,11 @@
 (defn add-ws-input!
   "Resolve `class-name`/`fn-name`/`param-name` to a worksheet group +
   group-variable and add `value`. Options: `:tk` disambiguates the
-  group-variable by translation key; `:unit` is a unit short-code whose
-  units-uuid is attached so the solver converts the value."
+  group-variable by translation key; `:unit` is a unit short-code stored as
+  the input's `:input/units-uuid` (via `:worksheet/update-input-units`, as
+  the wizard does) so the solver passes the matching WASM units enum.
+  Without `:unit`, the solver falls back to the variable/domain native unit,
+  so `value` must already be in that unit."
   [ws-uuid class-name fn-name param-name value & {:keys [tk unit]}]
   (when-let [[group-uuid gv-uuid]
              (if tk
@@ -152,8 +155,10 @@
                (class+fn+param->group+gv-uuid class-name fn-name param-name))]
     (rf/dispatch-sync [:worksheet/add-input-group ws-uuid group-uuid 0])
     (rf/dispatch-sync [:worksheet/upsert-input-variable
-                       ws-uuid group-uuid 0 gv-uuid (str value)
-                       (if unit (or (unit-uuid unit) :none) :none)])))
+                       ws-uuid group-uuid 0 gv-uuid (str value)])
+    (when-let [units-uuid (and unit (unit-uuid unit))]
+      (rf/dispatch-sync [:worksheet/update-input-units
+                         ws-uuid group-uuid 0 gv-uuid units-uuid]))))
 
 (defn enable-ws-output!
   "Enable the `class-name`/`fn-name` output on the worksheet; returns its gv-uuid."
@@ -301,8 +306,7 @@
         "setWindAndSpreadOrientationMode"  "windAndSpreadOrientationMode"
         "setWindDirection"                 "windDirection"
         "setWindHeightInputMode"           "windHeightInputMode"
-        "setWindSpeed"                     "windSpeed"
-        )
+        "setWindSpeed"                     "windSpeed")
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
         "setDownwindCoverHeight"    "downwindCoverHeight"
@@ -337,7 +341,6 @@
       (outputs-exist? spot
                       "getMaxMountainousTerrainSpottingDistanceFromTorchingTrees"
                       "getFlameHeightForTorchingTrees"))
-
 
     (testing "Crown Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
@@ -406,28 +409,28 @@
 
 (deftest mortality-worksheet
 
-  (let [mortality-input     (fn [acc & args]
-                              (conj acc (apply ws-input "SIGMortality" args)))
-        row                 (->> (inline-resource "public/csv/mortality.csv")
-                                 (parse-csv)
-                                 (map clean-values)
-                                 (first))
-        equation-type       (if (get row "EquationType")
-                              (->> (get row "EquationType")
-                                   (get equation-type-lookup)
-                                   (enums/equation-type))
-                              -1)
-        species-code        (get row "TreeSpecies")
-        FS                  (get row "FS")
-        FlLe-ScHt           (get row "FlLe/ScHt")
-        TreeExpansionFactor (get row "TreeExpansionFactor")
-        Diameter            (get row "Diameter")
-        TreeHeight          (get row "TreeHeight")
-        CrownRatio          (get row "CrownRatio")
-        CrownScorch         (get row "CrownScorch%")
-        CKR                 (get row "CKR")
-        BeetleDamage        (get row "BeetleDamage")
-        BoleCharHeight      (get row "BoleCharHeight")
+  (let [mortality-input                                                                                          (fn [acc & args]
+                                                                                                                   (conj acc (apply ws-input "SIGMortality" args)))
+        row                                                                                                      (->> (inline-resource "public/csv/mortality.csv")
+                                                                                                                      (parse-csv)
+                                                                                                                      (map clean-values)
+                                                                                                                      (first))
+        equation-type                                                                                            (if (get row "EquationType")
+                                                                                                                   (->> (get row "EquationType")
+                                                                                                                        (get equation-type-lookup)
+                                                                                                                        (enums/equation-type))
+                                                                                                                   -1)
+        species-code                                                                                             (get row "TreeSpecies")
+        FS                                                                                                       (get row "FS")
+        FlLe-ScHt                                                                                                (get row "FlLe/ScHt")
+        TreeExpansionFactor                                                                                      (get row "TreeExpansionFactor")
+        Diameter                                                                                                 (get row "Diameter")
+        TreeHeight                                                                                               (get row "TreeHeight")
+        CrownRatio                                                                                               (get row "CrownRatio")
+        CrownScorch                                                                                              (get row "CrownScorch%")
+        CKR                                                                                                      (get row "CKR")
+        BeetleDamage                                                                                             (get row "BeetleDamage")
+        BoleCharHeight                                                                                           (get row "BoleCharHeight")
         inputs
         (cond-> []
           :always
@@ -469,71 +472,61 @@
           (not-blank? BoleCharHeight)
           (mortality-input "setBoleCharHeight" "boleCharHeight" BoleCharHeight))
 
-        outputs  [(ws-output "SIGMortality" "getProbabilityOfMortality")]
-        expected (get row "MortAvgPercent")
+        outputs                                                                                                  [(ws-output "SIGMortality" "getProbabilityOfMortality")]
+        expected                                                                                                 (get row "MortAvgPercent")
 
-        observed (-> (solve-worksheet nil #{:mortality} inputs outputs)
-                     (first)
-                     (:outputs)
-                     (vals)
-                     (ffirst)
-                     (* 100))]
+        observed                                                                                                 (-> (solve-worksheet nil #{:mortality} inputs outputs)
+                                                                                                                     (first)
+                                                                                                                     (:outputs)
+                                                                                                                     (vals)
+                                                                                                                     (ffirst)
+                                                                                                                     (* 100))]
 
     (is (within-four-percent? observed expected))))
 
 (deftest surface-worksheet
-  (let [surface-input  (fn [acc & args]
-                         (conj acc (apply ws-input "SIGSurface" args)))
-        surface-output (partial ws-output "SIGSurface")
-        row            (->> (inline-resource "public/csv/surface.csv")
-                            (parse-csv)
-                            (map clean-values)
-                            (first))
-        _              (println row)
-        outputs        [(surface-output "getSpreadRate")]
+  (let [row     (->> (inline-resource "public/csv/surface.csv")
+                     (parse-csv)
+                     (map clean-values)
+                     (first))
+        ws-uuid "surface-ws"]
+    (new-solver-worksheet! ws-uuid [:surface])
 
-        inputs
-        (-> []
-            ;; Fuel -- disambiguate to the standard (not wind-driven) fuel-model
-            ;; variable so the surface->crown fuel-model link fires.
-            (surface-input "setFuelModelNumber"         "fuelModelNumber"         (get row "fuelModelNumber") "standard:fuel_model")
+    ;; Raw CSV values are passed with the CSV's units (moisture/cover Percent,
+    ;; slope/aspect Degrees, wind mi/h) so the WASM converts them, exactly as
+    ;; surface-simple-test feeds them directly.
+    ;; Fuel -- standard (not wind-driven) fuel-model variable.
+    (add-ws-input! ws-uuid "SIGSurface" "setFuelModelNumber" "fuelModelNumber" (get row "fuelModelNumber") :tk "standard:fuel_model")
 
-            ;; Moisture
-            (surface-input "setMoistureOneHour"         "moistureOneHour"         (/ (get row "moistureOneHour") 100))
-            (surface-input "setMoistureTenHour"         "moistureTenHour"         (/ (get row "moistureTenHour") 100))
-            (surface-input "setMoistureHundredHour"     "moistureHundredHour"     (/ (get row "moistureHundredHour") 100))
-            (surface-input "setMoistureLiveHerbaceous"  "moistureLiveHerbaceous"  (/ (get row "moistureLiveHerbaceous") 100))
-            (surface-input "setMoistureLiveWoody"       "moistureLiveWoody"       (/ (get row "moistureLiveWoody") 100))
+    ;; Moisture
+    (add-ws-input! ws-uuid "SIGSurface" "setMoistureOneHour" "moistureOneHour" (get row "moistureOneHour") :unit "%")
+    (add-ws-input! ws-uuid "SIGSurface" "setMoistureTenHour" "moistureTenHour" (get row "moistureTenHour") :unit "%")
+    (add-ws-input! ws-uuid "SIGSurface" "setMoistureHundredHour" "moistureHundredHour" (get row "moistureHundredHour") :unit "%")
+    (add-ws-input! ws-uuid "SIGSurface" "setMoistureLiveHerbaceous" "moistureLiveHerbaceous" (get row "moistureLiveHerbaceous") :unit "%")
+    (add-ws-input! ws-uuid "SIGSurface" "setMoistureLiveWoody" "moistureLiveWoody" (get row "moistureLiveWoody") :unit "%")
 
-            (surface-input "setSurfaceRunInDirectionOf" "surfaceRunInDirectionOf" (enums/surface-run-in-direction-of "MaxSpread"))
+    (add-ws-input! ws-uuid "SIGSurface" "setSurfaceRunInDirectionOf" "surfaceRunInDirectionOf" (enums/surface-run-in-direction-of "MaxSpread"))
 
-            ;; Wind
-            (surface-input "setWindAndSpreadOrientationMode" "windAndSpreadOrientationMode" (enums/wind-and-spread-orientation-mode (get row "windAndSpreadOrientationMode")))
-            (surface-input "setWindSpeed"               "windSpeed"               (get row "windSpeed"))
-            (surface-input "setWindHeightInputMode"     "windHeightInputMode"     (enums/wind-height-input-mode (get row "windHeightInputMode")))
-            (surface-input "setWindDirection"           "windDirection"           (get row "windDirection"))
+    ;; Wind
+    (add-ws-input! ws-uuid "SIGSurface" "setWindAndSpreadOrientationMode" "windAndSpreadOrientationMode" (enums/wind-and-spread-orientation-mode (get row "windAndSpreadOrientationMode")))
+    (add-ws-input! ws-uuid "SIGSurface" "setWindSpeed" "windSpeed" (get row "windSpeed") :tk "wind_speed:wind_speed" :unit "mi/h")
+    (add-ws-input! ws-uuid "SIGSurface" "setWindHeightInputMode" "windHeightInputMode" (enums/wind-height-input-mode (get row "windHeightInputMode")))
+    (add-ws-input! ws-uuid "SIGSurface" "setWindDirection" "windDirection" (get row "windDirection") :tk "wind_and_slope_are:wind-direction" :unit "deg")
 
-            ;; Topo
-            (surface-input "setAspect"                  "aspect"                  (get row "aspect"))
-            (surface-input "setSlope"                   "slope"                   (slope-degrees (get row "slope")))
+    ;; Topo -- row 1 of surface.csv carries slope in Degrees.
+    (add-ws-input! ws-uuid "SIGSurface" "setAspect" "aspect" (get row "aspect") :unit "deg")
+    (add-ws-input! ws-uuid "SIGSurface" "setSlope" "slope" (get row "slope") :unit "deg")
 
-            ;; Canopy
-            (surface-input "setCanopyCover"             "canopyCover"             (/ (get row "canopyCover") 100))
-            (surface-input "setCanopyHeight"            "canopyHeight"            (get row "canopyHeight"))
-            (surface-input "setCrownRatio"              "crownRatio"              (get row "crownRatio")))
+    ;; Canopy
+    (add-ws-input! ws-uuid "SIGSurface" "setCanopyCover" "canopyCover" (get row "canopyCover") :unit "%")
+    (add-ws-input! ws-uuid "SIGSurface" "setCanopyHeight" "canopyHeight" (get row "canopyHeight") :unit "ft")
+    (add-ws-input! ws-uuid "SIGSurface" "setCrownRatio" "crownRatio" (get row "crownRatio") :unit "fraction")
 
-        expected
-        (get row "spreadRate")
-
-        observed
-        (-> (solve-worksheet nil #{:surface} inputs outputs)
-            (first)
-            (:outputs)
-            (vals)
-            (ffirst))]
-
-    (println "SOLVER OUTPUT:" observed "EXPECTED:" expected)
-    (is (within-one-percent? expected observed))))
+    (let [sr-gv    (enable-ws-output! ws-uuid "SIGSurface" "getSpreadRate")
+          expected (parse-float (get row "spreadRate"))
+          observed (-> (solve-ws-outputs ws-uuid) (get sr-gv) first parse-float)]
+      (is (within-one-percent? expected observed)
+          (str "Expected: " expected " Observed: " observed)))))
 
 (defn test-crown-worksheet [row-idx row]
   (let [ws-uuid (str "crown-ws-" row-idx)]
@@ -552,8 +545,9 @@
     (add-ws-input! ws-uuid "SIGSurface" "setWindAndSpreadOrientationMode" "windAndSpreadOrientationMode" (enums/wind-and-spread-orientation-mode (get row "windAndSpreadOrientationMode")))
     (add-ws-input! ws-uuid "SIGSurface" "setWindSpeed" "windSpeed" (get row "windSpeed") :tk "wind_speed:wind_speed" :unit "mi/h")
     (add-ws-input! ws-uuid "SIGSurface" "setWindHeightInputMode" "windHeightInputMode" (enums/wind-height-input-mode (get row "windHeightInputMode")))
-    (add-ws-input! ws-uuid "SIGSurface" "setWindDirection" "windDirection" (get row "windDirection") :tk "wind_and_slope_are:wind-direction")
-    (add-ws-input! ws-uuid "SIGSurface" "setAspect" "aspect" (get row "aspect"))
+    (add-ws-input! ws-uuid "SIGSurface" "setWindDirection" "windDirection" (get row "windDirection") :tk "wind_and_slope_are:wind-direction" :unit "deg")
+    (add-ws-input! ws-uuid "SIGSurface" "setAspect" "aspect" (get row "aspect") :unit "deg")
+    ;; crown.csv carries slope in Percent; convert to degrees.
     (add-ws-input! ws-uuid "SIGSurface" "setSlope" "slope" (slope-degrees (get row "slope")) :unit "deg")
 
     ;;; Crown inputs (set directly on crown). Canopy cover and crown ratio are
@@ -566,23 +560,25 @@
     (add-ws-input! ws-uuid "SIGCrown" "setCrownFireCalculationMethod" "CrownFireCalculationMethod" (enums/crown-fire-calculation-method (get row "calculationMethod")))
 
     (let [lw-gv    (enable-ws-output! ws-uuid "SIGCrown" "getCrownFireLengthToWidthRatio")
+          ft-gv    (enable-ws-output! ws-uuid "SIGCrown" "getFireType")
           observed (solve-ws-outputs ws-uuid)]
 
       ;; L/W ratio -- wind-driven; reaches crown via the surface->crown wind
       ;; links, so this verifies the link-preserving worksheet solve end to end.
-      ;;
-      ;; fireType (and spread/flame/intensity) are not asserted yet: crown
-      ;; reports Torching for every row, i.e. the crown-fire *transition* inputs
-      ;; (canopy base height, canopy bulk density) are not landing on the crown
-      ;; module through this solve path -- a separate crown input-delivery issue,
-      ;; independent of the units-uuid work. crown-simple-test covers those
-      ;; values via direct calls in the meantime.
       (testing (str "Crown Worksheet (#" (inc row-idx) "): lengthToWidthRatio")
         (let [expected (parse-float (get row "lengthToWidthRatio"))
               actual   (-> observed (get lw-gv) first parse-float)]
           (when-not (js/isNaN expected)
             (is (within-millionth? expected actual)
-                (str "Expected: " expected " Observed: " actual))))))))
+                (str "Expected: " expected " Observed: " actual)))))
+
+      ;; fireType -- driven by the crown transition inputs (canopy base height,
+      ;; canopy bulk density) plus the linked surface fire behavior.
+      (testing (str "Crown Worksheet (#" (inc row-idx) "): fireType")
+        (let [expected (enums/fire-type (get row "fireType"))
+              actual   (some-> observed (get ft-gv) first parse-int)]
+          (is (= expected actual)
+              (str "Expected: " expected " Observed: " actual)))))))
 
 (deftest crown-worksheet
   (let [rows (->> (inline-resource "public/csv/crown.csv")
