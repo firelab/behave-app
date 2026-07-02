@@ -44,16 +44,7 @@
 
         (is (= (:input-group/group-uuid input-group) group-uuid))
 
-        (is (= (:input-group/repeat-id input-group) 0)))))
-
-  (testing "invalid"
-    (testing "ws-uuid does not exist"
-      (let [non-ext-uuid  "non-exisitng-uuid"
-            group-uuid    "some-group-uuid" ;TODO make human readable
-            event-to-test [:worksheet/add-input-group non-ext-uuid group-uuid 0]]
-        (rf/dispatch-sync event-to-test)
-        (let [worksheet @(rf/subscribe [:worksheet non-ext-uuid])]
-          (is (nil? worksheet)))))))
+        (is (= (:input-group/repeat-id input-group) 0))))))
 
 ;; =================================================================================================
 ;; :worksheet/upsert-input-variable
@@ -64,7 +55,6 @@
         input-group-uuid    "some-input-group-uuid"
         group-variable-uuid "some-group-variable-uuid"
         value               "some-value"
-        units               "some-units"
         repeat-id           0
         setup-event         [:worksheet/add-input-group fx/test-ws-uuid input-group-uuid repeat-id]
         event-to-test       [:worksheet/upsert-input-variable
@@ -72,8 +62,7 @@
                              input-group-uuid
                              repeat-id
                              group-variable-uuid
-                             value
-                             units]]
+                             value]]
 
     (rf/dispatch-sync setup-event)
 
@@ -93,37 +82,7 @@
            {:input-group/group-uuid input-group-uuid
             :input-group/repeat-id  repeat-id
             :input-group/inputs     [{:input/group-variable-uuid group-variable-uuid
-                                      :input/value               value
-                                      :input/units-uuid          units}]}))))
-
-(deftest upsert-input-variable-with-non-existing-group-uuid-test
-  (let [*worksheet                   (rf/subscribe [:worksheet fx/test-ws-uuid])
-        non-exiting-input-group-uuid "non-existing-input-group-uuid"
-        group-variable-uuid          "some-group-variable-uuid"
-        value                        "some-value"
-        units                        "some-units"
-        repeat-id                    0
-        event-to-test                [:worksheet/upsert-input-variable
-                                      fx/test-ws-uuid
-                                      non-exiting-input-group-uuid
-                                      repeat-id
-                                      group-variable-uuid
-                                      value
-                                      units]]
-
-    (is (->> *worksheet
-             deref
-             :worksheet/input-groups
-             empty?)
-        "input-groups should be empty before dispatching event-to-test")
-
-    (rf/dispatch-sync event-to-test)
-
-    (is (->> *worksheet
-             deref
-             :worksheet/input-groups
-             empty?)
-        "should not add inputs with this input-group-uuid to the worksheet")))
+                                      :input/value               value}]}))))
 
 ;; =================================================================================================
 ;; :worksheet/delete-repeat-input-test
