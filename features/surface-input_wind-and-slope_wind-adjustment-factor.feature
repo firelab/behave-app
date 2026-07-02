@@ -17,6 +17,7 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Fire Behavior | Direction Mode | Heading                    |
       | Fire Behavior | Direction Mode | Heading, Flanking, Backing |
       | Fire Behavior | Direction Mode | Direction of Interest      |
+      | Wind and Fuel | Wind           | Midflame Wind Speed        |
 
   @core
   Scenario Outline: Wind Adjustment Factor is displayed with Surface outputs (Wind Measured at: 10-Meter)
@@ -34,6 +35,7 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Fire Behavior | Direction Mode | Heading                    |
       | Fire Behavior | Direction Mode | Heading, Flanking, Backing |
       | Fire Behavior | Direction Mode | Direction of Interest      |
+      | Wind and Fuel | Wind           | Midflame Wind Speed        |
 
   @core
   Scenario Outline: Wind Adjustment Factor is displayed with Surface & Crown outputs (Wind Measured at: 20-Foot)

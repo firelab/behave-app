@@ -478,12 +478,34 @@
   [conditional]
   (true? (get-in conditional [:group-variable :group-variable/conditionally-set?])))
 
+(defn single-non-surface-module-conditional?
+  "True if a conditional gates visibility on a SINGLE non-surface module run
+   (crown-, contain-, or mortality-only) — a combination the harness can't run
+   (it supports surface-only and surface-paired combos only)."
+  [conditional]
+  (and (= :module (:type conditional))
+       (= 1 (count (:values conditional)))
+       (not= "surface" (first (:values conditional)))))
+
+(defn requires-unsupported-single-module?
+  "True if any of the entity's conditionals — its own or inherited from
+   :ancestors, including nested :sub-conditionals — requires a single
+   non-surface module run."
+  [entity]
+  (let [own      (get-in entity [:conditionals :conditionals] [])
+        ancestor (mapcat #(get-in % [:conditionals :conditionals] [])
+                         (:ancestors entity []))
+        walk     (fn walk [cs] (mapcat (fn [c] (cons c (walk (:sub-conditionals c)))) cs))]
+    (boolean (some single-non-surface-module-conditional?
+                   (walk (concat own ancestor))))))
+
 (defn should-skip-group?
   "Determine if a group should be excluded from feature generation.
 
    Checks:
    - Group's :group/research? field
    - Group's :group/hidden? field
+   - Group is gated on a single non-surface module run (unsupported combo)
 
    Note: Does NOT check individual conditionals for research - those will be filtered
    during scenario generation to remove research items while keeping non-research alternatives.
@@ -495,7 +517,8 @@
    Boolean true if group should be skipped"
   [group]
   (or (true? (:group/research? group))
-      (true? (:group/hidden? group))))
+      (true? (:group/hidden? group))
+      (requires-unsupported-single-module? group)))
 
 (defn has-only-module-conditionals?
   "Check if group has ONLY module-type conditionals for contain/crown/mortality.
@@ -550,7 +573,8 @@
   [submodule]
   (let [submodule-research? (:submodule/research? submodule)]
     (or (true? submodule-research?)
-        (has-only-module-conditionals? submodule))))
+        (has-only-module-conditionals? submodule)
+        (requires-unsupported-single-module? submodule))))
 
 ;; ===========================================================================================================
 ;; Module Compatibility Filtering Functions (Task 5.7)
@@ -1335,7 +1359,9 @@
 
 (defn delete-old-generated-files
   "Clean up before generation.
-   Delete all .feature files in features/ directory except core_conditional_scenarios.feature.
+   Delete .feature files directly in features-dir (non-recursive) except
+   core_conditional_scenarios.feature. Subdirectories such as results-page/ are
+   left untouched — those are managed by generate-results-feature-files!.
 
    Arguments:
    - features-dir: Features directory path
@@ -1344,10 +1370,9 @@
    Number of files deleted"
   [features-dir]
   (let [dir           (io/file features-dir)
-        files         (file-seq dir)
+        files         (or (.listFiles dir) [])
         feature-files (filter #(and (.isFile %)
-                                    (str/ends-with? (.getName %) ".feature")
-                                    (not= (.getName %) "core_conditional_scenarios.feature"))
+                                    (str/ends-with? (.getName %) ".feature"))
                               files)]
     (doseq [file feature-files]
       (.delete file))

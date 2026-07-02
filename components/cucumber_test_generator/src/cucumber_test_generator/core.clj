@@ -251,10 +251,18 @@
                                (vec (concat (take 2 base-path) [io] (drop 2 base-path)))
                                base-path)]
         ;; Resolve display name — prefer :translation-key, fall back to :result-translation-key
-        ;; (directional output GVs like "Heading Rate of Spread" use the latter)
+        ;; (directional output GVs like "Heading Rate of Spread" use the latter).
+        ;; Keep the metadata whenever the group-variable has a translation-KEY attribute:
+        ;; :io/:path/values-resolution don't depend on the display name, and dropping the
+        ;; whole map over a missing display translation degrades conditionals (raw enum ids,
+        ;; no :group-variable) and silently strips required When-step preconditions.
+        ;; Fall back to the raw key so translated-name is never nil for downstream consumers.
         (let [translated-name (or (get-translation db (:group-variable/translation-key gv))
-                                  (get-translation db (:group-variable/result-translation-key gv)))]
-          (when translated-name
+                                  (get-translation db (:group-variable/result-translation-key gv))
+                                  (:group-variable/translation-key gv)
+                                  (:group-variable/result-translation-key gv))]
+          (when (or (:group-variable/translation-key gv)
+                    (:group-variable/result-translation-key gv))
             {:group-variable/translated-name    translated-name
              :group-variable/research?          (:group-variable/research? gv)
              :group-variable/conditionally-set? (:group-variable/conditionally-set? gv)
@@ -364,9 +372,15 @@
                            (resolve-enum-values db gv-uuid values)
                            (vec values))]
 
-    ;; Return nil if this is an input conditional and values couldn't be resolved
-    (when (or (not= (:io gv-info) :input) ; not an input conditional, proceed
-              resolved-values) ; input conditional with resolved values
+    ;; Drop a group-variable conditional whose referenced GV couldn't be resolved
+    ;; (gv-uuid present but gv-info nil). Emitting it anyway yields a degraded
+    ;; conditional (raw enum ids, no :group-variable) that silently strips the
+    ;; scenario's When-step precondition — a false-green test. Surfacing the drop
+    ;; makes the underlying data problem visible instead.
+    (when (and (or (nil? gv-uuid) gv-info)
+               ;; Return nil if this is an input conditional and values couldn't be resolved
+               (or (not= (:io gv-info) :input) ; not an input conditional, proceed
+                   resolved-values)) ; input conditional with resolved values
 
       (cond-> {:type     cond-type
                :operator operator
