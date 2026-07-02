@@ -367,8 +367,7 @@
    "Time from Report"                          "0e9457cb-33cb-4fce-a4b6-165fa1fd60a5",
    "Contain Status"                            "7fe3de90-6207-4200-9b0c-2112d6e5cf09",
    "Contained Area"                            "19e71ac2-1c30-4f6b-9d8a-5d7e208e0ff0",
-   "Fireline Constructed"                      "32078406-4117-47b0-8cef-2b395c869ff6",
-   "Number of Resources Used"                  "84015e74-32c4-4a02-9717-5ac33d4e3f9c"}
+   "Fireline Constructed"                      "32078406-4117-47b0-8cef-2b395c869ff6"}
 
   ;; inputs
   {"Fire Size at Report"                           "30493fc2-a231-41ee-a16a-875f00cf853f",
@@ -448,8 +447,7 @@
     "Time from Report"
     "Contain Status"
     "Contained Area"
-    "Fireline Constructed"
-    "Number of Resources Used"))
+    "Fireline Constructed"))
 
 (deftest solver-test-multi-row-results-table-test
   (are [output] (run-solver-test-suite output :multi)
@@ -458,8 +456,7 @@
     "Time from Report"
     "Contain Status"
     "Contained Area"
-    "Fireline Constructed"
-    "Number of Resources Used"))
+    "Fireline Constructed"))
 
 ;; =================================================================================================
 ;; :worksheet/update-all-table-filters-from-results

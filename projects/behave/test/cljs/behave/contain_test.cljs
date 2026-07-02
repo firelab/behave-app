@@ -26,7 +26,10 @@
       (contain/setReportRate (get row "reportRate") (get-unit "ch/h"))
       (contain/setReportSize (get row "reportSize") (get-unit "ac"))
       (contain/setTactic (enums/contain-tactic (get row "tactic")))
+      ;; addResource: [arrival arrivalTimeUnit duration durationTimeUnit
+      ;;               productionRate productionRateUnits description]
       (contain/addResource (get row "resourceArrival")
+                           (get-unit "h")
                            (get row "resourceDuration")
                            (get-unit "h")
                            (get row "resourceProduction")

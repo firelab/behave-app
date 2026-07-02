@@ -190,8 +190,7 @@
                       "getFinalFireLineLength"
                       "getFinalTimeSinceReport"
                       "getFireSizeAtInitialAttack"
-                      "getPerimeterAtInitialAttack"
-                      "getResourcesUsed"))
+                      "getPerimeterAtInitialAttack"))
 
     (testing "Contain Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
