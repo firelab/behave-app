@@ -315,8 +315,8 @@
 ;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table-test
   (are [output] (run-solver-test-suite output :single)
-    "Fire Perimeter - at resource arrival time"
-    "Fire Area - at resource arrival time"
+    "Fire Perimeter at First Resource Arrival Time"
+    "Fire Area at First Resource Arrival Time"
     "Time from Report"
     "Contain Status"
     "Contained Area"
@@ -324,8 +324,8 @@
 
 (deftest solver-test-multi-row-results-table-test
   (are [output] (run-solver-test-suite output :multi)
-    "Fire Perimeter - at resource arrival time"
-    "Fire Area - at resource arrival time"
+    "Fire Perimeter at First Resource Arrival Time"
+    "Fire Area at First Resource Arrival Time"
     "Time from Report"
     "Contain Status"
     "Contained Area"
