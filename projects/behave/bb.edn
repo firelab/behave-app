@@ -12,6 +12,8 @@
   build-js   (clojure "-M:compile-cljs")
   test       {:doc  "Run figwheel and open the test host page (/api/test)."
               :task (clojure "-M:figwheel:test-page")}
+  test:ci    {:doc  "Run the browser test suite headless (Chrome) and exit with a pass/fail code."
+              :task (clojure "-M:test-ci")}
   uber       (clojure "-X:build-uberjar")
   pull       (do
                (shell "git pull")

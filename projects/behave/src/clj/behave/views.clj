@@ -156,28 +156,33 @@
                                 edn/read-string
                                 :version)))
 
-(defn render-tests-page
-  "Renders the site for tests.
-
-  Mirrors the figwheel host page in [[render-page]]: load `behave-min.js`
-  (the MODULARIZE build that defines the `createModule` factory), kick off
-  module instantiation inline so `window.Module` is set while figwheel
-  asynchronously loads the cljs deps, then load the `app-testing.js` bundle.
-  Without the inline `createModule` call the `behave.lib.*` namespaces that
-  read `js/Module` at load time (e.g. `behave.lib.units`) evaluate before the
-  module exists. `behave.test-runner` self-runs on load."
-  [_request]
+(defn- tests-page
+  "Host page for a browser test `bundle`. Instantiates the WASM module inline so
+  `window.Module` is set before `bundle` loads -- otherwise the `behave.lib.*`
+  namespaces read `js/Module` at load time and every WASM call fails."
+  [title bundle]
   {:status  200
    :headers {"Content-Type" "text/html"}
    :body    (html5
              [:meta
-              [:title "BehavePlus Tests"]]
+              [:title title]]
              [:body
               [:div#app-testing]
               (include-js "/js/behave-min.js")
               [:script {:type "text/javascript"}
                "createModule().then(function (instance) { window.Module = instance; });"]
-              (include-js "/cljs/app-testing.js")])})
+              (include-js bundle)])})
+
+(defn render-tests-page
+  "Renders the interactive test host page. `behave.test-runner` self-runs on load."
+  [_request]
+  (tests-page "BehavePlus Tests" "/cljs/app-testing.js"))
+
+(defn render-headless-tests-page
+  "Renders the headless test host page. Loads the `test-headless` build, whose
+  `behave.headless-test-runner/-main` runs the suite via `run-tests-async`."
+  [_request]
+  (tests-page "BehavePlus Tests (headless)" "/cljs-test/headless.js"))
 
 (defn render-page
   "Renders a page."

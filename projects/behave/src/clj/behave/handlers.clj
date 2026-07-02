@@ -5,7 +5,7 @@
             [behave.open                       :refer [open-handler]]
             [behave.save                       :refer [save-handler]]
             [behave.sync                       :refer [sync-handler]]
-            [behave.views                      :refer [render-page render-tests-page]]
+            [behave.views                      :refer [render-headless-tests-page render-page render-tests-page]]
             [bidi.bidi                         :refer [match-route]]
             [clojure.core.async                :refer [<! alts! chan go-loop put! timeout]]
             [clojure.edn                       :as edn]
@@ -103,7 +103,10 @@
                        (str/starts-with? uri "/api/sync")     #'sync-handler
                        (str/starts-with? uri "/api/save")     #'save-handler
                        (str/starts-with? uri "/api/open")     #'open-handler
-                       ;; Test page: dev/figwheel only.
+                       ;; Test pages: dev/figwheel only. -headless first (prefix).
+                       (and (:figwheel? request)
+                            (str/starts-with? uri "/api/test-headless"))
+                       #'render-headless-tests-page
                        (and (:figwheel? request)
                             (str/starts-with? uri "/api/test"))
                        #'render-tests-page
