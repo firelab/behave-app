@@ -408,81 +408,58 @@
 (def not-blank? (comp not str/blank?))
 
 (deftest mortality-worksheet
+  (let [row           (->> (inline-resource "public/csv/mortality.csv")
+                           (parse-csv)
+                           (map clean-values)
+                           (first))
+        ws-uuid       "mortality-ws"
+        equation-type (if (get row "EquationType")
+                        (->> (get row "EquationType")
+                             (get equation-type-lookup)
+                             (enums/equation-type))
+                        -1)
+        species-code  (get row "TreeSpecies")
+        FS            (get row "FS")
+        FlLe-ScHt     (get row "FlLe/ScHt")
+        expected      (parse-float (get row "MortAvgPercent"))]
+    (new-solver-worksheet! ws-uuid [:mortality])
 
-  (let [mortality-input                                                                                          (fn [acc & args]
-                                                                                                                   (conj acc (apply ws-input "SIGMortality" args)))
-        row                                                                                                      (->> (inline-resource "public/csv/mortality.csv")
-                                                                                                                      (parse-csv)
-                                                                                                                      (map clean-values)
-                                                                                                                      (first))
-        equation-type                                                                                            (if (get row "EquationType")
-                                                                                                                   (->> (get row "EquationType")
-                                                                                                                        (get equation-type-lookup)
-                                                                                                                        (enums/equation-type))
-                                                                                                                   -1)
-        species-code                                                                                             (get row "TreeSpecies")
-        FS                                                                                                       (get row "FS")
-        FlLe-ScHt                                                                                                (get row "FlLe/ScHt")
-        TreeExpansionFactor                                                                                      (get row "TreeExpansionFactor")
-        Diameter                                                                                                 (get row "Diameter")
-        TreeHeight                                                                                               (get row "TreeHeight")
-        CrownRatio                                                                                               (get row "CrownRatio")
-        CrownScorch                                                                                              (get row "CrownScorch%")
-        CKR                                                                                                      (get row "CKR")
-        BeetleDamage                                                                                             (get row "BeetleDamage")
-        BoleCharHeight                                                                                           (get row "BoleCharHeight")
-        inputs
-        (cond-> []
-          :always
-          (->
-           (mortality-input "setGACCRegion" "region" (enums/gacc "SouthernArea"))
-           (mortality-input "setEquationType" "equationType" equation-type)
-           (mortality-input "setSpeciesCode" "speciesCode" species-code))
+    (add-ws-input! ws-uuid "SIGMortality" "setGACCRegion" "region" (enums/gacc "SouthernArea"))
+    (add-ws-input! ws-uuid "SIGMortality" "setEquationType" "equationType" equation-type)
+    (add-ws-input! ws-uuid "SIGMortality" "setSpeciesCode" "speciesCode" species-code)
 
-          (empty? FS)
-          (mortality-input "setSurfaceFireFlameLength" "value" 4)
+    ;; Surface fire input -- scorch height (FS "S") or flame length (FS "F"/empty), in feet.
+    (cond
+      (empty? FS)
+      (add-ws-input! ws-uuid "SIGMortality" "setSurfaceFireFlameLength" "value" 4 :unit "ft")
 
-          (and (not-blank? FlLe-ScHt) (= FS "F"))
-          (mortality-input "setSurfaceFireFlameLength" "value" FlLe-ScHt)
+      (and (not-blank? FlLe-ScHt) (= FS "F"))
+      (add-ws-input! ws-uuid "SIGMortality" "setSurfaceFireFlameLength" "value" FlLe-ScHt :unit "ft")
 
-          (and (not-blank? FlLe-ScHt) (= FS "S"))
-          (mortality-input "setSurfaceFireScorchHeight" "value" FlLe-ScHt)
+      (and (not-blank? FlLe-ScHt) (= FS "S"))
+      (add-ws-input! ws-uuid "SIGMortality" "setSurfaceFireScorchHeight" "value" FlLe-ScHt :unit "ft"))
 
-          (not-blank? TreeExpansionFactor)
-          (mortality-input "setTreeDensityPerUnitArea" "numberOfTrees" TreeExpansionFactor)
+    (when (not-blank? (get row "TreeExpansionFactor"))
+      (add-ws-input! ws-uuid "SIGMortality" "setTreeDensityPerUnitArea" "numberOfTrees" (get row "TreeExpansionFactor") :unit "ac"))
+    (when (not-blank? (get row "Diameter"))
+      (add-ws-input! ws-uuid "SIGMortality" "setDBH" "dbh" (get row "Diameter") :unit "in"))
+    (when (not-blank? (get row "TreeHeight"))
+      (add-ws-input! ws-uuid "SIGMortality" "setTreeHeight" "treeHeight" (get row "TreeHeight") :unit "ft"))
+    (when (not-blank? (get row "CrownRatio"))
+      (add-ws-input! ws-uuid "SIGMortality" "setCrownRatio" "crownRatio" (/ (parse-float (get row "CrownRatio")) 100) :unit "fraction"))
+    (when (not-blank? (get row "CrownScorch%"))
+      (add-ws-input! ws-uuid "SIGMortality" "setCrownDamage" "crownDamage" (get row "CrownScorch%")))
+    (when (not-blank? (get row "CKR"))
+      (add-ws-input! ws-uuid "SIGMortality" "setCambiumKillRating" "cambiumKillRating" (get row "CKR")))
+    (when (not-blank? (get row "BeetleDamage"))
+      (add-ws-input! ws-uuid "SIGMortality" "setBeetleDamage" "beetleDamage" (enums/beetle-damage (str/lower-case (get row "BeetleDamage")))))
+    (when (not-blank? (get row "BoleCharHeight"))
+      (add-ws-input! ws-uuid "SIGMortality" "setBoleCharHeight" "boleCharHeight" (get row "BoleCharHeight") :unit "ft"))
 
-          (not-blank? Diameter)
-          (mortality-input "setDBH" "dbh" Diameter)
-
-          (not-blank? TreeHeight)
-          (mortality-input "setTreeHeight" "treeHeight" TreeHeight)
-
-          (not-blank? CrownRatio)
-          (mortality-input "setCrownRatio" "crownRatio" (/ CrownRatio 100))
-
-          (not-blank? CrownScorch)
-          (mortality-input "setCrownDamage" "crownDamage" CrownScorch)
-
-          (not-blank? CKR)
-          (mortality-input "setCambiumKillRating" "cambiumKillRating" CKR)
-
-          (not-blank? BeetleDamage)
-          (mortality-input "setBeetleDamage" "beetleDamage" (enums/beetle-damage (str/lower-case BeetleDamage)))
-
-          (not-blank? BoleCharHeight)
-          (mortality-input "setBoleCharHeight" "boleCharHeight" BoleCharHeight))
-
-        outputs                                                                                                  [(ws-output "SIGMortality" "getProbabilityOfMortality")]
-        expected                                                                                                 (get row "MortAvgPercent")
-
-        observed                                                                                                 (-> (solve-worksheet nil #{:mortality} inputs outputs)
-                                                                                                                     (first)
-                                                                                                                     (:outputs)
-                                                                                                                     (vals)
-                                                                                                                     (ffirst)
-                                                                                                                     (* 100))]
-
-    (is (within-four-percent? observed expected))))
+    (let [mort-gv  (enable-ws-output! ws-uuid "SIGMortality" "getProbabilityOfMortality")
+          observed (-> (solve-ws-outputs ws-uuid) (get mort-gv) first parse-float)]
+      (is (within-four-percent? observed expected)
+          (str "Expected: " expected " Observed: " observed)))))
 
 (deftest surface-worksheet
   (let [row     (->> (inline-resource "public/csv/surface.csv")
