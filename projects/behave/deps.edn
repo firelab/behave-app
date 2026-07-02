@@ -70,11 +70,21 @@
              sig/behave-schema             {:local/root "../../bases/behave_schema"}
              sig/datom_store               {:local/root "../../bases/datom_store" :exclusions [datascript/datascript]}}
 
- :aliases   {:figwheel-lib     {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.13"}}}
+ :aliases   {:figwheel-lib     {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}}
              :figwheel         {:extra-paths ["test/cljs"]
-                                :extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.2.13"}
+                                ;; 0.2.18 (matches root :dev): uses beholder + JNA
+                                ;; 5.7 for file watching. 0.2.13's hawk pulls JNA
+                                ;; 3.2.2, which has no arm64 build and crashes on
+                                ;; Apple Silicon.
+                                :extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.2.18"}
                                               com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
                                 :main-opts   ["-m" "figwheel.main" "-b" "compile-dev" "-r"]}
+             ;; Like :figwheel but opens the test host page; -s (serve) since the
+             ;; browser test suite needs no REPL. Compose after :figwheel for its
+             ;; deps/paths:  clojure -M:figwheel:test-page
+             :test-page        {:main-opts ["-m" "figwheel.main"
+                                            "-fwo" "{:open-url \"http://localhost:8081/api/test\"}"
+                                            "-b" "compile-dev" "-s"]}
              :compile-cljs     {:main-opts ["-m" "behave.compile-cljs" "compile-prod.cljs.edn"]}
              :production       {:jvm-opts ["-XX:MaxRAMPercentage=90" "-XX:+PrintFlagsFinal"]}
              :standalone       {:main-opts ["-m" "behave.core"]
