@@ -103,7 +103,10 @@
                        (str/starts-with? uri "/api/sync")     #'sync-handler
                        (str/starts-with? uri "/api/save")     #'save-handler
                        (str/starts-with? uri "/api/open")     #'open-handler
-                       (str/starts-with? uri "/api/test")     #'render-tests-page
+                       ;; Test page: dev/figwheel only.
+                       (and (:figwheel? request)
+                            (str/starts-with? uri "/api/test"))
+                       #'render-tests-page
                        (str/starts-with? uri "/api/close")    #'close-handler
                        (match-route routes uri)              (render-page (match-route routes uri))
                        :else                                 (not-found "404 Not Found"))]
