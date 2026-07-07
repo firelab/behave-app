@@ -6,4 +6,6 @@
  :asset-path    "/cljs/"
  :source-map    true
  :optimizations :none
- :pretty-print  true}
+ :pretty-print  true
+ ;; Print the cljs-test-display report to js/console (off by default).
+ :closure-defines {cljs-test-display.core/printing true}}

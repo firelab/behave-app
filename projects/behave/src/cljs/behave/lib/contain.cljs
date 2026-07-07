@@ -115,9 +115,6 @@
 (defn getPerimeterAtInitialAttack [self lengthUnits]
   (.getPerimeterAtInitialAttack self lengthUnits))
 
-(defn getResourcesUsed [self]
-  (.getResourcesUsed self))
-
 (defn getReportRate [self speedUnits]
   (.getReportRate self speedUnits))
 

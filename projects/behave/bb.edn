@@ -1,6 +1,25 @@
 {:tasks 
  {:requires  ([clojure.string :as str]
               [babashka.fs :as fs])
+  :init      (defn find-browser
+               "Headless-capable Chrome/Chromium path: $CHROME_BIN, else per-OS defaults."
+               []
+               (or (System/getenv "CHROME_BIN")
+                   (let [os    (str/lower-case (System/getProperty "os.name"))
+                         cands (cond
+                                 (str/includes? os "mac")
+                                 ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+                                  "/Applications/Chromium.app/Contents/MacOS/Chromium"]
+                                 (str/includes? os "win")
+                                 ["C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+                                  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"]
+                                 :else
+                                 ["google-chrome" "google-chrome-stable" "chromium" "chromium-browser"])]
+                     (or (some (fn [c]
+                                 (cond (fs/exists? c) c
+                                       (fs/which c)   (str (fs/which c))))
+                               cands)
+                         (throw (ex-info "No Chrome/Chromium found. Set CHROME_BIN." {:tried cands}))))))
   -project   "cljweb-behave"
   reload     (shell "systemctl --user daemon-reload")
   status     {:depends [-project]
@@ -10,6 +29,16 @@
   stop       {:depends [-project]
               :task (shell (format "systemctl --user stop %s" -project))}
   build-js   (clojure "-M:compile-cljs")
+  test       {:doc  "Run figwheel and open the test host page (/api/test)."
+              :task (clojure "-M:figwheel:test-page")}
+  test:ci    {:doc  "Run the browser test suite headless (Chrome) and exit with a pass/fail code."
+              :task (clojure "-M:test-ci"
+                             "-m" "figwheel.main"
+                             "-fwo" (pr-str {:launch-js           [(find-browser) "--headless=new" "--disable-gpu" "--repl" :open-url]
+                                             :ring-server-options {:port 9500}
+                                             :open-url            "http://localhost:9500/api/test-headless"})
+                             "-co" "test-headless.cljs.edn"
+                             "-m" "behave.headless-test-runner")}
   uber       (clojure "-X:build-uberjar")
   pull       (do
                (shell "git pull")

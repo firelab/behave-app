@@ -959,6 +959,7 @@ body {
   border-top: solid 1px var(--gray-4);
   border-bottom: dashed 1px var(--gray-4);
   color: var(--black);
+  white-space: pre-wrap;
 }
 
 .wizard-note__manage {
