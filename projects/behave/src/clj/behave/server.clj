@@ -2,12 +2,14 @@
   (:gen-class)
   (:require [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
             [behave.store         :as store]
+            [behave.views         :refer [warm-version-cache!]]
             [clojure.java.browse  :refer [browse-url]]
             [clojure.java.io      :as io]
             [config.interface     :refer [get-config load-config merge-config!]]
             [file-utils.interface :refer [os-path]]
-            [logging.interface    :as l :refer [log-str]]
-            [server.interface     :as server]))
+            [logging.interface    :as l :refer [log-str timed]]
+            [server.interface     :as server])
+  (:import [java.lang.management ManagementFactory]))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
@@ -31,12 +33,25 @@
     (io/make-parents (get-in database-config [:store :path]))
     (store/connect! database-config)))
 
+(defn init-db-async!
+  "Initializes the DB on a background thread so CEF/Jetty startup proceeds in
+  parallel. Handlers that touch the DB block on [[behave.store/await-db!]].
+  Failures are logged and unblock waiters (futures otherwise swallow them)."
+  [database-config]
+  (future
+    (try
+      (timed "init-db (async)" (init-db! database-config))
+      (catch Throwable t
+        (log-str "DB init failed: " (ex-message t))
+        (log-str (Throwable->map t))
+        (store/abort-db!)))))
+
 ;;; Logging
 
 (defn- log-system-start! []
-  (log-str [:SYSTEM])
-  (doseq [[k v] (into {} (System/getProperties))]
-    (log-str k ": " v))
+  (log-str [:SYSTEM {:java (System/getProperty "java.version")
+                     :os   (str (System/getProperty "os.name") " " (System/getProperty "os.version"))
+                     :arch (System/getProperty "os.arch")}])
   (log-str (get-config)))
 
 (defn- start-logging! [log-opts]
@@ -48,17 +63,21 @@
 (defn start-server!
   "Starts the Behave7 Application server."
   []
-  (init-config!)
-  (enrich-config!)
+  (timed "load-config"
+         (init-config!)
+         (enrich-config!))
   (let [mode      (get-config :server :mode)
         http-port (or (get-config :server :http-port) 8080)
         org-name  (get-config :site :org-name)
         app-name  (get-config :site :app-name)]
-    (start-logging! (get-config :logging))
-    (init-db! (get-config :database :config))
+    (timed "start-logging" (start-logging! (get-config :logging)))
+    (init-db-async! (get-config :database :config))
+    (warm-version-cache!)
     (log-str (format "Starting %s %s server at http://localhost:%s" org-name app-name http-port))
-    (server/start-server! {:handler (server-handler-stack {:reload? (= mode "dev") :figwheel? false})
-                           :port    http-port})
+    (timed "start-jetty"
+           (server/start-server! {:handler (server-handler-stack {:reload? (= mode "dev") :figwheel? false})
+                                  :port    http-port}))
+    (log-str "[TIMING] server ready " (.getUptime (ManagementFactory/getRuntimeMXBean)) "ms after JVM start")
     (condp = mode
       "dev"
       (vms-sync!)

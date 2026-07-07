@@ -103,6 +103,10 @@
              :build-uberjar    {:extra-deps  {org.clojure/tools.deps {:mvn/version "0.24.1523"}
                                               slipset/deps-deploy    {:mvn/version "0.2.2"}}
                                 :exec-fn     packaging/build-uberjar
+                                ;; NOTE: do NOT add :compile-opts {:direct-linking true} —
+                                ;; it breaks datascript's Datom/nth (invokeStatic signature
+                                ;; mismatch on the forward-declared nth-datom) and measured
+                                ;; zero startup benefit.
                                 :exec-args   {:app-name behave7 :main-ns behave.core}}
              :check-reflection {:main-opts ["-e" "(do,(set!,*warn-on-reflection*,true),nil)"
                                             "-e" "(require,'behave.server)"]}

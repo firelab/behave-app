@@ -1,16 +1,17 @@
 (ns behave.vms.store
   (:require [ajax.core                  :refer [ajax-request]]
             [ajax.protocols             :as pr]
+            [behave.perf                :as perf]
+            [behave.schema.core         :refer [all-schemas]]
+            [behave.translate           :refer [load-translations!]]
             [datascript.core            :as d]
-            [posh.reagent               :refer [pull pull-many q posh!]
-                                        :rename {q posh-query pull posh-pull pull-many posh-pull-many}]
+            [datom-compressor.interface :as c]
             [datom-utils.interface      :refer [db-attrs
                                                 datoms->map]]
-            [re-frame.core              :as rf]
-            [datom-compressor.interface :as c]
             [ds-schema-utils.interface  :refer [->ds-schema]]
-            [behave.schema.core         :refer [all-schemas]]
-            [behave.translate           :refer [load-translations!]]))
+            [posh.reagent               :refer [pull pull-many q posh!]
+             :rename {q posh-query pull posh-pull pull-many posh-pull-many}]
+            [re-frame.core              :as rf]))
 
 ;;; State
 
@@ -20,6 +21,7 @@
 
 (defn- load-data-handler [[ok body]]
   (when ok
+    (perf/mark! "vms-fetch-done")
     (let [raw-datoms (c/unpack body)
           bad-attrs  (db-attrs raw-datoms)
           datoms     (remove (fn [[_ attr vval]]
@@ -29,6 +31,7 @@
           datoms-map (datoms->map datoms)]
       (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms-map])
       (rf/dispatch-sync [:state/set :vms-loaded? true])
+      (perf/store-loaded! :vms)
       (load-translations!))))
 
 (defn- reloaded-vms-data [[ok _]]
@@ -38,6 +41,7 @@
 ;;; Public Fns
 
 (defn load-vms! [version]
+  (perf/mark! "vms-fetch-start")
   (ajax-request {:uri             (str "/layout.msgpack?v=" version)
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}

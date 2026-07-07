@@ -6,6 +6,7 @@
             [behave.demo.views               :refer [demo-output-diagram-page]]
             [behave.events]
             [behave.help.views               :refer [help-area]]
+            [behave.perf                     :as perf]
             [behave.print.views              :refer [print-page]]
             [behave.settings.views           :as settings]
             [behave.store                    :refer [flush-sync-beacon! load-store!]]
@@ -148,6 +149,7 @@
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
   [params]
+  (perf/mark! "client-init-start")
   (let [params (js->clj params :keywordize-keys true)]
     (reset! route-params-atom params)
     (rf/dispatch-sync [:initialize])
@@ -160,7 +162,8 @@
     (load-store!)
     (load-scripts! params)
     (add-before-unload-event! params)
-    (render [app-shell params] (.getElementById js/document "app"))))
+    (render [app-shell params] (.getElementById js/document "app"))
+    (perf/mark! "initial-render")))
 
 #_{:clj-kondo/ignore [:unused-private-var]}
 (defn- ^:after-load mount-root!

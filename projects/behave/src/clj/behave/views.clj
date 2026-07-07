@@ -1,10 +1,11 @@
 (ns behave.views
-  (:require [clojure.data.json  :as json]
-            [clojure.string     :as str]
+  (:require [clj-commons.digest :as digest]
+            [clojure.data.json  :as json]
             [clojure.edn        :as edn]
+            [clojure.string     :as str]
             [config.interface   :refer [get-config]]
             [hiccup.page        :refer [html5] :as p]
-            [clj-commons.digest :as digest]))
+            [logging.interface  :refer [timed]]))
 
 ;;; Macros
 
@@ -35,7 +36,7 @@
   {:app-version (if @*app-version @*app-version (reset-app-version!))})
 
 (defn- add-v-query [paths]
- (let [{:keys [vms-version]} (get-vms-version)]
+  (let [{:keys [vms-version]} (get-vms-version)]
     (map #(str % "?v=" vms-version) paths)))
 
 (defn- include-css [& paths]
@@ -59,8 +60,8 @@
   []
   [:head
    [:title (if (:app-version (get-app-version))
-            (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))
-            (get-config :site :title))]
+             (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))
+             (get-config :site :title))]
    [:meta {:name    "description"
            :content (get-config :site :description)}]
    [:meta {:name "apple-mobile-web-app-title" :content (get-config :site :title)}]
@@ -81,7 +82,7 @@
   [params & [figwheel?]]
   (if figwheel?
     [:script {:type "text/javascript"}
-     (str/join "\n" ["createModule().then(instance => { window.Module = instance; });"
+     (str/join "\n" ["createModule().then(instance => { window.Module = instance; if (window.performance) performance.mark('bhp:wasm-module-loaded'); });"
                      (str "window.onAppLoaded = function () { behave.client.init(" (json/write-str params) "); };")
                      "function waitForClient() { console.log('waiting for behave...', window.behave); (typeof behave !== 'undefined' && behave.client && behave.client.init) ? window.onAppLoaded() : setTimeout(waitForClient, 500); };"
                      "waitForClient();"])]
@@ -95,10 +96,10 @@
 (defn- announcement-banner []
   (let [a11t-file    (resource "public/announcement.txt")
         announcement (if (nil? a11t-file)
-                         []
-                         (-> a11t-file
-                             (slurp)
-                             (str/split #"\n")))]
+                       []
+                       (-> a11t-file
+                           (slurp)
+                           (str/split #"\n")))]
     (when-not (empty? (first announcement))
       [:div#banner {:style {:background-color "#082233"
                             :box-shadow       "3px 1px 4px 0 rgb(0, 0, 0, 0.25)"
@@ -145,7 +146,8 @@
 (defn reset-vms-version!
   "Resets the VMS version based on the file hash."
   []
-  (reset! *vms-version (digest/md5 (slurp (resource "public/layout.msgpack")))))
+  (timed "hash layout.msgpack (vms-version)"
+         (reset! *vms-version (digest/md5 (slurp (resource "public/layout.msgpack"))))))
 
 (defn reset-app-version!
   "Resets the App version based on the file hash."
@@ -155,6 +157,14 @@
                                 slurp
                                 edn/read-string
                                 :version)))
+
+(defn warm-version-cache!
+  "Precomputes the VMS + app version hashes on a background thread so the
+  first page render doesn't pay the layout.msgpack slurp + MD5."
+  []
+  (future
+    (reset-vms-version!)
+    (reset-app-version!)))
 
 (defn- tests-page
   "Host page for a browser test `bundle`. Instantiates the WASM module inline so
@@ -198,11 +208,11 @@
       {:status  (if (some? match) 200 404)
        :headers {"Content-Type" "text/html"}
        :body    (html5
-                  (head-meta-css)
-                  [:body
-                   (when (not (:ws-uuid route-params)) (announcement-banner))
-                   [:div#app]
-                   (include-js "/js/behave-min.js")
-                   (cljs-init init-params figwheel?)
-                   (include-js "/js/katex.min.js" "/js/bodymovin.js")
-                   (when figwheel? (include-js (find-app-js)))])})))
+                 (head-meta-css)
+                 [:body
+                  (when (not (:ws-uuid route-params)) (announcement-banner))
+                  [:div#app]
+                  (include-js "/js/behave-min.js")
+                  (cljs-init init-params figwheel?)
+                  (include-js "/js/katex.min.js" "/js/bodymovin.js")
+                  (when figwheel? (include-js (find-app-js)))])})))

@@ -1,20 +1,30 @@
 (ns behave.core
   (:gen-class)
-  (:import [javax.imageio ImageIO]
+  (:import [java.lang.management ManagementFactory]
+           [javax.imageio ImageIO]
            [javax.swing JFrame SwingUtilities UIManager])
   (:require [behave.handlers      :refer [create-cef-handler-stack]]
             [behave.server        :as server]
+            [behave.views         :refer [warm-version-cache!]]
             [clojure.java.io      :as io]
             [config.interface     :refer [get-config]]
             [file-utils.interface :refer [os-type app-data-dir]]
-            [logging.interface    :as l :refer [log-str]]))
+            [logging.interface    :as l :refer [log-str timed]]))
+
+;;; Timing
+
+(defn- jvm-uptime-ms
+  "Milliseconds since the JVM process started (captures class-loading time
+  spent before `-main` is entered)."
+  []
+  (.getUptime (ManagementFactory/getRuntimeMXBean)))
 
 ;;; Logging
 
 (defn- log-system-start! []
-  (log-str [:SYSTEM])
-  (doseq [[k v] (into {} (System/getProperties))]
-    (log-str k ": " v))
+  (log-str [:SYSTEM {:java (System/getProperty "java.version")
+                     :os   (str (System/getProperty "os.name") " " (System/getProperty "os.version"))
+                     :arch (System/getProperty "os.arch")}])
   (log-str (get-config)))
 
 (defn- start-logging! [log-opts]
@@ -75,7 +85,8 @@
   (let [show-loader!           (requiring-resolve 'jcef.interface/show-loader!)
         create-cef-app!        (requiring-resolve 'jcef.interface/create-cef-app!)
         custom-request-handler (requiring-resolve 'jcef.interface/custom-request-handler)
-        loader                 (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
+        loader                 (timed "show-loader"
+                                      (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png")))
         mode                   (get-config :server :mode)
         http-port              (or (get-config :server :http-port) 8080)
         org-name               (get-config :site :org-name)
@@ -96,8 +107,12 @@
                                  :resource-dir "public"
                                  :ring-handler (create-cef-handler-stack)})]
 
-    (start-logging! log-config)
-    (server/init-db! db-config)
+    (timed "start-logging" (start-logging! log-config))
+    ;; DB restore and the layout.msgpack hash run in the background while
+    ;; CEF/Chromium boots; API handlers gate on `behave.store/await-db!`.
+    (server/init-db-async! db-config)
+    (warm-version-cache!)
+    (log-str "[TIMING] scheduling CEF app " (jvm-uptime-ms) "ms after JVM start")
 
     (create-cef-app!
      {:title                                                (get-config :site :title)
@@ -105,6 +120,8 @@
       :cache-path                                           cache-path
       :fullscreen?                                          true
       :on-shown                                             (fn [app & _]
+                                                              (log-str "[TIMING] browser window shown "
+                                                                       (jvm-uptime-ms) "ms after JVM start")
                                                               (reset! the-app app)
                                                               (.dispose (:frame loader)))
       :request-handler                                      request-handler
@@ -116,10 +133,12 @@
   "Unified entry point. Detects runtime environment and starts
    in CEF desktop mode or HTTP server mode."
   [& _args]
+  (log-str "[TIMING] -main entered " (jvm-uptime-ms) "ms after JVM start")
   (if (conveyor?)
     (do
-      (server/init-config!)
-      (server/enrich-config!)
+      (timed "load-config"
+             (server/init-config!)
+             (server/enrich-config!))
       (start-cef!))
     (do
       (server/start-server!)

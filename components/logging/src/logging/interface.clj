@@ -28,3 +28,12 @@
     - :pprint        [bool] (Default: false) - Pretty print data.
     - :force-stdout  [bool] (Default: false) - Display log message to stdout as well."}
   log core/log)
+
+(defmacro timed
+  "Evaluates `body`, logs `[TIMING] <label> <elapsed>ms` via [[log-str]], and
+  returns the value of the last expression in `body`."
+  [label & body]
+  `(let [start# (System/nanoTime)
+         ret#   (do ~@body)]
+     (logging.core/log-str "[TIMING] " ~label " " (quot (- (System/nanoTime) start#) 1000000) "ms")
+     ret#))

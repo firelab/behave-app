@@ -5,6 +5,13 @@ function addScript( src, callback ) {
   document.body.appendChild( s );
 };
 
+// Startup timing marks (Phase 0 of STARTUP.org); read via behave.perf.
+function bhpMark( name ) {
+  if (window.performance) { performance.mark('bhp:' + name); }
+};
+
+bhpMark('wasm-glue-loaded');
+
 // Backwards compatability
 window.onWASMModuleLoaded = function() {
   addScript(window.onWASMModuleLoadedPath, window.onAppLoaded);
@@ -12,7 +19,11 @@ window.onWASMModuleLoaded = function() {
 
 if (window.createModule) {
   createModule().then(instance => {
+    bhpMark('wasm-module-loaded');
     window.Module = instance;
-    addScript(window.onWASMModuleLoadedPath, window.onAppLoaded);
+    addScript(window.onWASMModuleLoadedPath, function() {
+      bhpMark('app-js-loaded');
+      window.onAppLoaded();
+    });
   });
 }

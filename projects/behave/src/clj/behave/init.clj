@@ -41,9 +41,14 @@
   (let [res-type (or (mime->type accept) :edn)]
     (when (= request-method :get)
       (register-client!)
-      (s/release-conn!)
+      ;; Reconnect only when an opened worksheet swapped the store to a temp
+      ;; file (see `behave.open/open-handler`); otherwise reuse the startup
+      ;; connection — reconnecting re-restores the whole DB from SQLite and
+      ;; yanks the conn out from under concurrent clients.
+      (when (or (nil? @s/conn) @current-worksheet-atom)
+        (s/release-conn!)
+        (init!))
       (reset! current-worksheet-atom nil)
-      (init!)
       (let [datoms (s/export-datoms @s/conn)]
         {:status  200
          :body    (if (= res-type :msgpack)

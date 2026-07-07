@@ -4,6 +4,7 @@
             [behave.init                       :refer [active-clients init-handler]]
             [behave.open                       :refer [open-handler]]
             [behave.save                       :refer [save-handler]]
+            [behave.store                      :as store]
             [behave.sync                       :refer [sync-handler]]
             [behave.views                      :refer [render-headless-tests-page render-page render-tests-page]]
             [bidi.bidi                         :refer [match-route]]
@@ -95,6 +96,19 @@
   [uri]
   (str/includes? (str/lower-case uri) "php"))
 
+(def ^:private db-route-prefixes
+  ["/api/init" "/api/sync" "/api/save" "/api/open"])
+
+(defn- wrap-await-db
+  "DB init runs on a background thread at startup (see
+  `behave.server/init-db-async!`); block DB-touching API routes until the
+  connection is ready instead of serializing all of startup behind it."
+  [handler]
+  (fn [{:keys [uri] :as request}]
+    (when (some #(str/starts-with? uri %) db-route-prefixes)
+      (store/await-db!))
+    (handler request)))
+
 (defn- routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
                        (bad-uri? uri)                         (not-found "404 Not Found")
@@ -184,6 +198,7 @@
    - `:figwheel?` Attach figwheel context to requests"
   [{:keys [cef? reload? figwheel?]}]
   (-> routing-handler
+      wrap-await-db
       (wrap-figwheel figwheel?)
       wrap-params
       wrap-keyword-params

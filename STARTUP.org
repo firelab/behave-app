@@ -1,0 +1,292 @@
+#+TITLE: Behave7 Startup Optimization Plan
+#+DATE: 2026-07-07
+#+AUTHOR: RJ Sheperd (w/ Claude)
+
+* Overview
+
+Behave7 startup has two surfaces, and both are almost entirely *serial* today:
+
+1. *Backend / desktop (JVM + JCEF)* — =behave.core/-main= → config → logging →
+   DataScript/SQLite restore → *then* CEF/Chromium init. Nothing overlaps.
+2. *Frontend (every launch, desktop and web)* — =behave-min.js= (343 KB) →
+   WASM instantiate (454 KB) → =app.js= (2.7 MB) download+parse →
+   =behave.client/init= → fetch =layout.msgpack= (1.4 MB) + =/api/sync=
+   (full user-datom dump) → synchronous =d/transact= of both → first real paint.
+
+The single biggest structural problem: *five sequential phases* on the frontend
+critical path where at least three could run concurrently, plus zero HTTP
+compression and no client-side caching of the two boot payloads.
+
+* Current Startup Sequence (as measured from code)
+
+** Backend (=projects/behave/src/clj/behave/core.clj:115=)
+1. =init-config!= / =enrich-config!= — trivial (~400 B EDN).
+2. =show-loader!= — Swing splash appears early (good).
+3. =start-logging!= + =log-system-start!= — logs *every* JVM system property
+   and full config synchronously (=core.clj:14-18=).
+4. =server/init-db!= → =datom-store.main/connect!=
+   (=bases/datom_store/src/datom_store/main.clj:66=):
+   - =d/restore-conn= — deserializes the *entire* SQLite-backed DataScript DB
+     into memory. Scales with user's worksheet history.
+   - =build-tx-index!= (=main.clj:35=) — full =d/datoms :eavt= scan, split,
+     filter, group-by tx. A second O(all-datoms) pass at every boot.
+5. =create-cef-app!= — CEF/Chromium native init on the Swing EDT. Only
+   *scheduled after* DB init completes, so the two slowest backend steps are
+   serialized.
+6. First page request: =reset-vms-version!= (=views.clj:145=) slurps the 1.4 MB
+   =layout.msgpack= and MD5s it synchronously before the first HTML byte.
+
+** Frontend (=projects/behave/src/clj/behave/views.clj:187=, =resources/onload.js=)
+1. HTML → =/js/behave-min.js= (Emscripten glue).
+2. =createModule()= fetches + instantiates =behave-min.wasm=.
+3. *Only then* =onload.js= appends =<script src=/cljs/app-<hash>.js>= — the
+   2.7 MB bundle cannot even begin downloading until WASM is done. (Ordering
+   exists because every =behave.lib.*= namespace reads =js/Module= at
+   namespace-load time, e.g. =behave/lib/enums.cljs:8=.)
+4. =behave.client/init= (=client.cljs:148=) → fires =load-vms!=
+   (=/layout.msgpack=, 1.4 MB) and =load-store!= (=/api/sync=, full dump) —
+   these two *are* parallel with each other, but start only after ~3.5 MB of
+   JS/WASM has serially loaded and parsed.
+5. =app-shell= renders =Loading...= until *both* =vms-loaded?= and
+   =sync-loaded?= — each requires msgpack unpack + a synchronous main-thread
+   =d/transact= of the full datom set.
+6. =katex.min.js= (264 KB) + =bodymovin.js= (531 KB) load eagerly on every page.
+
+Everything is served *uncompressed* (no gzip middleware in
+=handlers.clj:180-196=) and both boot payloads are re-fetched on every launch
+(no service worker / IndexedDB / localStorage caching; only =behave-settings=
+uses localStorage).
+
+* Phase 0 — Measure First [baseline, ~0.5 day]
+
+Do this before changing anything so each fix is attributable.
+
+- [X] Backend: each step of =start-cef!= / =start-server!= is wrapped with a
+  =timed= macro (added to =logging.interface=) — config load, =show-loader=,
+  =start-logging=, =init-db= (with =restore-conn= vs =build-tx-index= split out
+  inside =datom-store.main/connect!=), Jetty start, and the first-request
+  =layout.msgpack= hash. JVM-uptime milestones are logged at =-main= entry,
+  CEF scheduling, and browser-window-shown (=[TIMING]= lines in the app log).
+- [X] Frontend: =behave.perf= records =performance.mark= s under the =bhp:=
+  prefix — =wasm-glue-loaded=, =wasm-module-loaded=, =app-js-loaded= (set in
+  =onload.js=), =client-init-start=, =initial-render=, =vms/sync-fetch-start=,
+  =vms/sync-fetch-done=, =vms/sync-loaded=, and =app-ready=. Once both boot
+  stores hydrate, a =console.table= startup report prints automatically.
+  (Marks are also queryable via
+  =performance.getEntriesByType('mark')= in DevTools.)
+- [ ] Record three baselines: cold desktop launch (Conveyor package),
+  warm desktop relaunch, and web/server mode over localhost.
+- [ ] Note DB size sensitivity: baseline with an empty =db.sqlite= vs. one with
+  many worksheets (the =restore-conn= + =build-tx-index!= costs scale with it).
+
+Deliverable: a table in this file with per-phase milliseconds.
+
+*** Baseline measurements (fill in)
+
+| Phase / mark                       | Cold desktop | Warm desktop | Web (localhost) |
+|------------------------------------+--------------+--------------+-----------------|
+| =-main= entered (JVM uptime)       |              |              |                 |
+| load-config                        |              |              |                 |
+| show-loader                        |              |              |                 |
+| start-logging                      |              |              |                 |
+| init-db (restore conn)             |              |              |                 |
+| init-db (build-tx-index)           |              |              |                 |
+| browser window shown (JVM uptime)  |              |              |                 |
+| hash layout.msgpack (first req)    |              |              |                 |
+| wasm-glue-loaded                   |              |              |                 |
+| wasm-module-loaded                 |              |              |                 |
+| app-js-loaded                      |              |              |                 |
+| client-init-start                  |              |              |                 |
+| initial-render                     |              |              |                 |
+| vms-fetch-done / vms-loaded        |              |              |                 |
+| sync-fetch-done / sync-loaded      |              |              |                 |
+| app-ready                          |              |              |                 |
+
+Initial spot-check (2026-07-07, dev machine, warm JVM, existing
+=~/.behave/db.sqlite=): restore-conn 68ms, build-tx-index 59ms,
+layout.msgpack hash 46ms — the backend DB path is cheap on this machine/DB;
+expect the frontend WASM→app.js→hydrate chain to dominate.
+
+Post-Phase-2 verification (2026-07-07, uberjar, server mode, same machine):
+=-main= entered 881ms after JVM start (pure class loading — AOT'd),
+start-logging 5ms, start-jetty 39ms, *server ready 1059ms after JVM start*;
+DB init completed asynchronously off the critical path (restore 172ms +
+tx-index 216ms = 391ms total); layout hash warmed in background (57ms).
+First page request served in 4ms, first =/api/sync= 200 in 46ms.
+
+* Phase 1 — Frontend Critical Path [highest impact]
+
+** 1.1 Parallelize WASM instantiate and app.js download [S effort, high impact]
+The bundle only needs =window.Module= set *before it executes*, not before it
+downloads.
+- Add =<link rel="preload" as="script" href="/cljs/app-<hash>.js">= in
+  =head-meta-css= (=views.clj:57=), and same for =behave-min.wasm=
+  (=as="fetch" type="application/wasm" crossorigin=).
+- Or restructure =onload.js=: fetch the bundle text in parallel
+  (=Promise.all([createModule(), fetch(appJs)])=) and inject/execute it only
+  after =Module= is set. Preload is simpler and sufficient.
+- Longer-term (optional): make =behave.lib.*= resolve =js/Module= lazily
+  (accessor fn instead of top-level def) so script order stops mattering.
+
+** 1.2 Start boot data fetches before app.js parses [S effort, high impact]
+=layout.msgpack= and =/api/sync= are known at HTML-render time.
+- Emit =<link rel="preload" as="fetch" href="/layout.msgpack?v=...">= (exact
+  URL already computed server-side) and =/api/sync= in the page head, or kick
+  off both =fetch()= calls in the inline =cljs-init= script and stash the
+  promises on =window= for =load-vms!= / =load-store!= to consume.
+- Result: data downloads overlap the WASM+JS phase instead of following it.
+
+** 1.3 Compress everything [S effort, high impact for web mode]
+- Precompress at build time (=bb build-js= step): gzip/brotli =app.js=,
+  =layout.msgpack=, =behave-min.js/.wasm=, css. Serve =.gz=/=.br= with
+  =Content-Encoding= via middleware (e.g. =ring.middleware.gzip= or
+  bsless/ring-gzip), or hand-rolled resource lookup in =handler-stack=.
+- Expected: app.js 2.7 MB → ~600-700 KB; layout.msgpack shrinks substantially.
+- Desktop (CEF, local scheme handler) benefit is smaller but msgpack unpack
+  time is unaffected — this is a wire-size win for web/server mode primarily.
+
+** 1.4 Cache boot payloads client-side [M effort, high impact on relaunch]
+Both payloads are already content-versioned (=?v=<md5>= for layout; fingerprint
+for app.js) — exploit that:
+- Add =Cache-Control: public, max-age=31536000, immutable= for fingerprinted
+  =/cljs/app-*.js= and versioned =/layout.msgpack?v=...= responses;
+  =no-cache= for HTML. Today no cache headers are set at all, and the CEF
+  =custom-request-handler= path should be checked to honor them (CEF cache-path
+  is already configured in =start-cef!=).
+- Optional deeper win: persist the *unpacked* VMS DataScript DB (serialized via
+  =dt/write-transit-str= or datoms array) in IndexedDB keyed by =vms-version=;
+  skip download *and* re-transact when version matches. Same idea for
+  =/api/sync= is harder (data changes every session) — skip it.
+
+** 1.5 Defer katex + bodymovin [S effort, small-medium impact]
+- Add =defer= to both script tags, or lazy-load on first use (katex → help
+  pages with math; bodymovin → loading animations). ~800 KB off the boot path.
+
+** 1.6 Skeleton first paint [S effort, perceived-speed]
+- =app-shell= can render the chrome (toolbar, sidebar skeleton) immediately and
+  gate only the content area on =vms-loaded?/sync-loaded?= instead of a bare
+  ~Loading...~ =h3=. Pure perceived-latency win while 1.1-1.4 land.
+
+** 1.7 (Later) Code-splitting =:modules= [L effort, medium impact]
+Split =app.js= — e.g. wizard/results/print/tools as separate closure modules,
+=cljsjs/vega*= (~2 MB source) only loads with results/graphs. Real work under
+figwheel-main + =:advanced=; do only if 1.1-1.5 aren't sufficient.
+
+* Phase 2 — Backend / Desktop JVM Path
+
+** DONE 2.1 Overlap CEF init with DB init [S-M effort, high impact on desktop cold start]
+In =start-cef!= (=core.clj:70=): CEF =.build= (Chromium process spawn) and
+=init-db!= (SQLite restore) are independent — run =init-db!= on a =future= and
+call =create-cef-app!= immediately. Gate only the request handlers on a
+db-ready promise (deref in =/api/sync=, =/api/init=, =save/open= handlers).
+The browser needs ~1-2 s to boot and load the JS anyway — the DB restore hides
+inside that window for free.
+
+/Implemented 2026-07-07:/ =server/init-db-async!= runs =init-db!= on a future
+(both CEF and server paths); =behave.store= exposes a =db-ready?= promise
+delivered by =connect!=; =wrap-await-db= middleware in =behave.handlers=
+blocks only =/api/init|sync|save|open= until the conn is ready (30 s timeout).
+
+** 2.2 Defer or drop =build-tx-index!= at boot [S effort, medium impact, grows with DB]
+=datom_store/main.clj:35= does a full =:eavt= scan only to serve
+=latest-datoms= incremental sync. Options (pick one):
+- Build lazily on first =latest-datoms= call (delay).
+- Build on a background thread after =connect!= returns.
+- Track only =max-tx= at boot; clients doing a full =/api/sync= GET don't need
+  the index at all.
+
+** DONE 2.3 Trim first-request work [S effort, small-medium impact]
+- =reset-vms-version!= (=views.clj:145=): compute the layout.msgpack MD5 at
+  *build time* (write alongside =version.edn=), or hash lazily on a background
+  thread at boot — not synchronously inside the first page render.
+- =log-system-start!=: drop the full =System/getProperties= dump (or log async /
+  behind a debug flag).
+
+/Implemented 2026-07-07:/ =views/warm-version-cache!= precomputes the VMS +
+app version hashes on a future at startup (called from both entry paths);
+=log-system-start!= now logs only java/os/arch + config instead of every
+system property.
+
+** DONE 2.4 Verify AOT actually covers the app [S effort to verify, potentially large win]
+=packaging/build-uberjar= calls =b/compile-clj= with =:src-dirs ["src"]= while
+the project paths are =src/clj= / =src/cljs=. Verify =target/classes= (and the
+jar) contain =.class= files for =behave.core=, =behave.server=, all components —
+if namespaces are loading from source at runtime, JVM cold start pays full
+Clojure compilation. Fix =:src-dirs= if so.
+
+/Verified 2026-07-07:/ =target/behave7.jar= contains ~38k =.class= files
+including =behave/core__init.class=, all components and bases — AOT works
+(tools.build finds namespaces by reading =ns= forms, not by path).
+Direct linking was tried and *reverted*: it breaks datascript
+(=Datom.nth= → =nth-datom= invokeStatic signature mismatch on the
+forward-declared, primitive-hinted fn) and A/B measurement showed no
+class-load win (~0.87 s to =(require 'behave.core)= either way).
+
+** 2.5 JVM-level wins [S effort, medium impact]
+- *AppCDS*: JDK 17 supports =-XX:ArchiveClassesAtExit= /
+  =-XX:SharedArchiveFile=. Generate an archive during a post-install first run
+  (or ship one built in CI) and add the flag to =conveyor.base.conf jvm.options=.
+  Typically 20-40% off JVM+Clojure class-load time.
+- Consider =-XX:TieredStopAtLevel=1= for the desktop app (startup-biased JIT) —
+  measure; compute-heavy paths run in WASM on the client, so peak JVM perf
+  matters little for the desktop shell. /Skipped for now: would slow the
+  background DB restore on large DBs; revisit with measurements./
+- =start.sh= places =--add-exports/-Xmx= *after* =-jar=, so they're passed as
+  program args, not JVM flags — /fixed 2026-07-07/.
+- AppCDS deferred: JDK 17 needs a separate training run
+  (=-XX:ArchiveClassesAtExit=); the clean solution
+  (=-XX:+AutoCreateSharedArchive=) needs JDK 19+, i.e. a Conveyor JDK bump —
+  decide separately.
+
+** DONE 2.6 Fix =/api/init= reconnect churn [S effort, correctness+latency]
+=behave.init/init-handler= (=init.clj:39=) does =release-conn!= → reload config
+→ reconnect → *another* full =restore-conn= + =build-tx-index!= + full
+=export-datoms= on every new-worksheet request. Reuse the existing conn; this
+makes "New Worksheet" markedly faster too.
+
+/Implemented 2026-07-07:/ =init-handler= now reconnects only when
+=current-worksheet-atom= is set (an =open-handler= call swapped the store to a
+temp worksheet file) or the conn is nil; otherwise it reuses the startup
+connection.
+
+* Phase 3 — Desktop Packaging (lower priority)
+
+- Loader/splash already appears early (=show-loader!=) — keep it as the anchor
+  for perceived startup; consider adding progress text (DB, browser, UI).
+- Confirm CEF =cache-path= persists between runs so Chromium's own disk cache
+  (V8 code cache for the 2.7 MB bundle, images) survives relaunches — this
+  compounds with the =Cache-Control= work in 1.4.
+- Check whether jlink module set can drop anything (marginal disk/mmap win).
+
+* Suggested Order of Attack
+
+| # | Item                                        | Effort | Expected win                        |
+|---+---------------------------------------------+--------+-------------------------------------|
+| 1 | 0. Instrument + baselines                   | 0.5 d  | attribution                         |
+| 2 | 1.1 preload app.js / parallel WASM          | S      | removes full WASM wait from path    |
+| 3 | 1.2 preload layout.msgpack + /api/sync      | S      | overlaps data with JS phase         |
+| 4 | 1.3 gzip/brotli                             | S      | ~4x less wire on web mode           |
+| 5 | 2.1 overlap CEF + DB init                   | S-M    | hides DB restore in browser boot    |
+| 6 | 1.4 cache headers (+ CEF cache)             | S      | near-instant warm relaunch assets   |
+| 7 | 2.2 defer tx-index scan                     | S      | scales with user DB size            |
+| 8 | 2.3 build-time vms-version, quiet logging   | S      | faster first request                |
+| 9 | 2.4 verify AOT / 2.5 AppCDS                 | S-M    | JVM cold start                      |
+| 10| 1.5 defer katex/bodymovin, 1.6 skeleton UI  | S      | polish + perceived speed            |
+| 11| 1.7 code splitting, IndexedDB VMS cache     | L      | only if still needed after above    |
+
+* Verification
+
+- Re-run the Phase 0 measurements after each landed item; update the baseline
+  table here.
+- Cold-start acceptance target (suggest): desktop app usable < 3 s on a warm
+  relaunch, < 6 s cold, on reference hardware; web-mode first meaningful paint
+  < 2 s on localhost.
+- Regression guard: keep the timing =performance.mark= s in prod (cheap) and
+  log the backend per-phase timings at INFO on every boot so field logs show
+  startup health.
+
+* Non-Goals / Explicitly Deferred
+
+- Replacing DataScript/SQLite storage layer.
+- Shadow-cljs migration (would ease code-splitting but is a separate project).
+- Reducing WASM size (454 KB is not on the critical path once 1.1 lands).

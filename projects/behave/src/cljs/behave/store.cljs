@@ -4,6 +4,7 @@
             [ajax.protocols              :as pr]
             [austinbirch.reactive-entity :as re]
             [behave-routing.main         :refer [current-route-order]]
+            [behave.perf                 :as perf]
             [behave.schema.core          :refer [all-schemas]]
             [browser-utils.core          :refer [download]]
             [browser-utils.interface     :refer [debounce]]
@@ -34,10 +35,12 @@
 
 (defn- load-data-handler [[ok body]]
   (when ok
+    (perf/mark! "sync-fetch-done")
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (swap! sync-txs union (txs datoms))
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
-      (rf/dispatch-sync [:state/set :sync-loaded? true]))))
+      (rf/dispatch-sync [:state/set :sync-loaded? true])
+      (perf/store-loaded! :sync))))
 
 (defn- sync-tx-data-handler [[ok body]]
   (reset! batch [])
@@ -45,6 +48,7 @@
     (println ok body)))
 
 (defn load-store! []
+  (perf/mark! "sync-fetch-start")
   (ajax-request {:uri             "/api/sync"
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}

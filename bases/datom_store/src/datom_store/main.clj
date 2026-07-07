@@ -1,15 +1,15 @@
 (ns datom-store.main
   (:require [datascript.core             :as d]
             [datascript.db               :refer [datom]]
-            [me.raynes.fs                :as fs]
-            [ds-schema-utils.interface   :refer [->ds-schema]]
             [datascript.storage.sql.core :as storage-sql]
             [datom-utils.interface       :refer [safe-attr?
                                                  safe-deref
                                                  split-datoms
                                                  unsafe-attrs
                                                  unwrap]]
-            [logging.interface           :refer [log-str]])
+            [ds-schema-utils.interface   :refer [->ds-schema]]
+            [logging.interface           :refer [log-str timed]]
+            [me.raynes.fs                :as fs])
   (:import [java.sql DriverManager]))
 
 ;;; Helpers
@@ -65,9 +65,11 @@
 
 (defn connect! [config schema & [setup-fn]]
   (reset! stored-unsafe-attrs (unsafe-attrs schema))
-  (let [conn (create-conn-with-storage! config schema)]
+  (let [conn (timed "datom-store restore/create conn"
+                    (create-conn-with-storage! config schema))]
     (when (fn? setup-fn) (setup-fn conn))
-    (build-tx-index! conn)
+    (timed "datom-store build-tx-index"
+           (build-tx-index! conn))
     (d/listen! conn :record-tx record-tx)
     conn))
 
@@ -75,7 +77,7 @@
   (when @storage
     (storage-sql/close @storage)
     (reset! storage nil))
-  (when @conn 
+  (when @conn
     (reset! conn nil))
   (fs/delete (get-db-file config)))
 
@@ -93,7 +95,7 @@
   (when @storage
     (storage-sql/close @storage)
     (reset! storage nil))
-  (when @conn 
+  (when @conn
     (reset! conn nil)))
 
 ;;; Sync datoms
