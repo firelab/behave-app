@@ -9,7 +9,17 @@
             [file-utils.interface :refer [os-path]]
             [logging.interface    :as l :refer [log-str timed]]
             [server.interface     :as server])
-  (:import [java.lang.management ManagementFactory]))
+  (:import [java.lang ProcessHandle]))
+
+(defn jvm-uptime-ms
+  "Milliseconds since the process started (captures class-loading time spent
+  before `-main` is entered). Uses `ProcessHandle` (java.base) rather than
+  `ManagementFactory` — `java.management` isn't in the jlinked runtime."
+  []
+  (let [start (-> (ProcessHandle/current) .info .startInstant (.orElse nil))]
+    (if start
+      (- (System/currentTimeMillis) (.toEpochMilli start))
+      -1)))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
@@ -77,7 +87,7 @@
     (timed "start-jetty"
            (server/start-server! {:handler (server-handler-stack {:reload? (= mode "dev") :figwheel? false})
                                   :port    http-port}))
-    (log-str "[TIMING] server ready " (.getUptime (ManagementFactory/getRuntimeMXBean)) "ms after JVM start")
+    (log-str "[TIMING] server ready " (jvm-uptime-ms) "ms after JVM start")
     (condp = mode
       "dev"
       (vms-sync!)

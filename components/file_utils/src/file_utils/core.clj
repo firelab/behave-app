@@ -2,10 +2,10 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str]
             [me.raynes.fs    :as fs])
-  (:import [java.io File OutputStream ByteArrayInputStream ByteArrayOutputStream]
-           [javax.imageio ImageIO]
-           [java.awt.image BufferedImage]
+  (:import [java.awt.image BufferedImage]
+           [java.io File OutputStream ByteArrayInputStream ByteArrayOutputStream]
            [java.util.zip ZipEntry ZipOutputStream ZipInputStream]
+           [javax.imageio ImageIO]
            [net.coobird.thumbnailator Thumbnails]))
 
 ;;; Constants
@@ -38,7 +38,7 @@
                              (.size image-max-size image-max-size)
                              (.outputQuality image-quality))
                            (.asBufferedImage))]
-    (try 
+    (try
       (if output-file
         (write-image-to-file buffered-image fmt output-file)
         (write-image buffered-image fmt output-stream))
@@ -112,17 +112,17 @@
   "Returns the OS-specific location for application data."
   [org-name app-name]
   (apply io/file
-   (concat
-    (condp = (os-type)
-      :windows
-      [(System/getenv "LOCALAPPDATA")]
+         (concat
+          (condp = (os-type)
+            :windows
+            [(System/getenv "LOCALAPPDATA")]
 
-      :mac
-      [(System/getenv "HOME") "Library" "Application Support"]
+            :mac
+            [(System/getenv "HOME") "Library" "Application Support"]
 
-      :linux
-      [(System/getenv "XDG_STATE_HOME")])
-    [org-name app-name])))
+            :linux
+            [(System/getenv "XDG_STATE_HOME")])
+          [org-name app-name])))
 
 (defn os-path
   "Translates a path in either Windows/Unix format
@@ -130,7 +130,7 @@
   [path]
   (let [path (str/split path #"[/\\]")]
     (str
-     (apply io/file 
+     (apply io/file
             (map
              #(cond
                 (str/starts-with? % "~")
@@ -144,6 +144,12 @@
 
                 (str/starts-with? % "%")
                 (or (System/getenv (str/replace % #"%" "")) %)
+
+                ;; Keep drive letters absolute: "C:" alone is drive-RELATIVE
+                ;; on Windows ("C:Users" resolves against the CWD), which
+                ;; scatters files like db.sqlite into the install dir.
+                (re-matches #"[A-Za-z]:" %)
+                (str % java.io.File/separator)
 
                 :else
                 %) path)))))

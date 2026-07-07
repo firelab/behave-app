@@ -114,6 +114,47 @@ DB init completed asynchronously off the critical path (restore 172ms +
 tx-index 216ms = 391ms total); layout hash warmed in background (57ms).
 First page request served in 4ms, first =/api/sync= 200 in 46ms.
 
+*** Windows test box verification (2026-07-07, 10.1.30.117)
+
+Deployed the JDK 21 build via =scripts/test-windows.sh= (v7.1.6 test zip,
+unsigned). Box: 2-core VM, Xeon E5-2699 v4 @ 2.2GHz. App runs, JCEF window
+shows, =/api/sync= served. Numbers:
+
+| Metric                         | Cold (fresh files) | Warm relaunch |
+|--------------------------------+--------------------+---------------|
+| scheduling CEF app (JVM start) | 33.3s              | 33.8s         |
+| layout.msgpack hash (async)    | 258ms              | 506ms         |
+| datom-store restore (async)    | 11.4s              | 586ms         |
+| browser window shown           | 45.8s              | 35.2s         |
+
+Caveats and analysis:
+- The =schtasks=-based launcher used by the test script runs at *below-normal
+  priority*, inflating CPU-bound phases ~3-4x. Launching =java -cp
+  app/behave7.jar clojure.main -e "(require 'behave.core)"= directly on the
+  box: *~9s wall, ~17s CPU* (stable across runs; Defender CPU ~0 — not AV).
+  Real double-click launches should see roughly 9-12s to splash, not 33s.
+- *App class loading is THE desktop bottleneck on weak Windows hardware*:
+  17 CPU-seconds (vs 2.3 on an M-series Mac). The async DB/hash work
+  (Phase 2) is confirmed off the critical path (restore hides behind CEF).
+- Biggest remaining lever, in order:
+  1. *Defer the heavy namespace tree out of =behave.core='s ns load* —
+     =behave.handlers= drags in datascript/core.async/schemas before =-main=
+     runs, so the splash can't show for ~9s. =requiring-resolve= the handler
+     stack inside =start-cef!= after =show-loader!= (like jcef already is)
+     → splash at ~1-2s, rest loads while CEF boots.
+  2. AppCDS (~2x on those 17 CPU-sec) — blocked on Conveyor cross-build,
+     see 2.5.
+
+Bugs found & fixed during this test:
+- =ManagementFactory= (java.management module) isn't in the jlinked runtime →
+  instant crash at class init. Replaced with =ProcessHandle= (java.base).
+- =file-utils/os-path= turned =C:\Users\...= into drive-relative =C:Users\...=
+  → =db.sqlite= (and worksheets) landed *inside the install dir* (wiped on
+  reinstall/update; affected 7.1.5 too). Fixed by keeping the drive segment
+  absolute.
+- mac-only =sun.lwawt*= add-opens flags now scoped to =jvm.mac.options=
+  (were printing warnings on every Windows launch).
+
 * Phase 1 — Frontend Critical Path [highest impact]
 
 ** 1.1 Parallelize WASM instantiate and app.js download [S effort, high impact]

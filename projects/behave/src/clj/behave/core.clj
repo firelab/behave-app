@@ -1,23 +1,14 @@
 (ns behave.core
   (:gen-class)
-  (:import [java.lang.management ManagementFactory]
-           [javax.imageio ImageIO]
+  (:import [javax.imageio ImageIO]
            [javax.swing JFrame SwingUtilities UIManager])
   (:require [behave.handlers      :refer [create-cef-handler-stack]]
-            [behave.server        :as server]
+            [behave.server        :as server :refer [jvm-uptime-ms]]
             [behave.views         :refer [warm-version-cache!]]
             [clojure.java.io      :as io]
             [config.interface     :refer [get-config]]
             [file-utils.interface :refer [os-type app-data-dir]]
             [logging.interface    :as l :refer [log-str timed]]))
-
-;;; Timing
-
-(defn- jvm-uptime-ms
-  "Milliseconds since the JVM process started (captures class-loading time
-  spent before `-main` is entered)."
-  []
-  (.getUptime (ManagementFactory/getRuntimeMXBean)))
 
 ;;; Logging
 
