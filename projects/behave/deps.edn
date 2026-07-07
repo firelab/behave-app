@@ -87,7 +87,7 @@
                                 :extra-deps  {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}}
              :compile-cljs     {:main-opts ["-m" "behave.compile-cljs" "compile-prod.cljs.edn"]}
              :production       {:jvm-opts ["-XX:MaxRAMPercentage=90" "-XX:+PrintFlagsFinal"]}
-             :standalone       {:main-opts ["-m" "behave.main"]
+             :standalone       {:main-opts ["-m" "behave.core"]
                                 :jvm-opts  ["--add-exports=java.base/java.lang=ALL-UNNAMED"
                                             "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
                                             "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
@@ -107,9 +107,9 @@
                                 ;; it breaks datascript's Datom/nth (invokeStatic signature
                                 ;; mismatch on the forward-declared nth-datom) and measured
                                 ;; zero startup benefit.
-                                ;; behave.main is a minimal splash-first shim; the app
-                                ;; namespace tree loads afterwards via requiring-resolve.
-                                :exec-args   {:app-name behave7 :main-ns behave.main}}
+                                ;; behave.Launcher (src/java) is a pure-Java splash-first
+                                ;; shim; the Clojure tree loads after the splash is visible.
+                                :exec-args   {:app-name behave7 :main-ns behave.Launcher}}
              :check-reflection {:main-opts ["-e" "(do,(set!,*warn-on-reflection*,true),nil)"
                                             "-e" "(require,'behave.server)"]}
              :check-deps       {:extra-deps {olical/depot {:mvn/version "2.3.0"}}

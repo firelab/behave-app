@@ -145,26 +145,34 @@ Caveats and analysis:
   2. AppCDS (~2x on those 17 CPU-sec) — blocked on Conveyor cross-build,
      see 2.5.
 
-**** DONE Splash-first entry shim (item 1) — implemented 2026-07-07
+**** DONE Splash-first entry (item 1) — =behave.Launcher=, implemented 2026-07-07
 
-New =behave.main= namespace: minimal =:gen-class= entry (requires only
-=clojure.java.io=) that shows the splash via
-=(requiring-resolve 'jcef.loading/show-loader!)= — deliberately NOT
-=jcef.interface=, which pulls in =org.cef= classes — then hands off to
-=behave.core/start-cef!=, which loads the app tree while the splash is
-visible. =jvm.gui= (Conveyor), uberjar =:main-ns=, and the =:standalone=
-alias all point at =behave.main= now. Keep =behave.main='s require list
-empty of app namespaces — anything added there delays the splash.
+Final form is a *pure-Java* entry class,
+=projects/behave/src/java/behave/Launcher.java= (compiled via a new
+=b/javac= step in =packaging.clj=; Conveyor =jvm.gui= and uberjar
+=:main-ns= point at =behave.Launcher=). It shows the splash (same layout
+as =jcef.loading=) before any Clojure class loads, then boots Clojure via
+=clojure.java.api= and hands the frame to =behave.core/start-cef!=.
+Server mode delegates to =behave.core/-main= unchanged.
 
-Measured on the Windows test box (same session, direct launcher runs):
-| Milestone            | Before shim  | With shim |
-|----------------------+--------------+-----------|
-| splash visible       | ~30s (after full tree load) | *7.3s* |
-| app namespaces loaded | ~30s        | ~30s (behind splash) |
-Pre-splash cost is now just JVM + clojure.core + shim (~5-7s on that
-2-core VM; 0.25s on an M-series Mac). A sub-second splash on weak hardware
-would require a non-Clojure (pure Java/native) splash — noted as a possible
-future step, along with AppCDS which would halve the remaining ~30s tree load.
+An intermediate Clojure shim (=behave.main=, since deleted) got the splash
+to 7.3s — but even an empty Clojure namespace pays ~5-6s of =clojure.core=
+class-init on the slow box. Java skips that entirely. Keep =Launcher.java=
+free of Clojure references before the splash: the first =Clojure.var()=
+call triggers the =clojure.core= load.
+
+Measured on the Windows test box (direct launcher runs, same session):
+| Milestone             | Original | Clojure shim | Java Launcher |
+|-----------------------+----------+--------------+---------------|
+| entry code running    | —        | 6.7s         | *0.25s*       |
+| splash visible        | ~30s     | 7.3s         | *0.7s*        |
+| app namespaces loaded | ~30s     | ~30s         | ~30s (behind splash) |
+(Mac: launcher entered 76ms vs 881ms for the Clojure entry.)
+
+Also assessed: the JVM's =-splash:= flag (~0.2s, zero code) — not viable:
+it's implemented by the =java= launcher binary, and Conveyor's custom
+launcher has no documented support for it. Remaining lever for the ~30s
+tree load itself: AppCDS (2x, blocked on Conveyor cross-build, see 2.5).
 
 Bugs found & fixed during this test:
 - =ManagementFactory= (java.management module) isn't in the jlinked runtime →

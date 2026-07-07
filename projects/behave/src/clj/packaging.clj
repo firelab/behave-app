@@ -141,9 +141,10 @@
 
 (defn build-uberjar
   "Create an UberJAR suitable for deployment and use as an application."
-  [{:keys [app-name main-ns src-dirs resource-dirs bindings compile-opts java-opts manifest]
+  [{:keys [app-name main-ns src-dirs resource-dirs java-src-dirs bindings compile-opts java-opts manifest]
     :or   {src-dirs      ["src"]
            resource-dirs ["resources"]
+           java-src-dirs ["src/java"]
            bindings      {}
            compile-opts  {}
            java-opts     []
@@ -161,6 +162,7 @@
                 :main-ns       ::main-ns
                 :src-dirs      ::src-dirs
                 :resource-dirs ::resource-dirs
+                :java-src-dirs ::resource-dirs
                 :bindings      ::bindings
                 :compile-opts  ::compile-opts
                 :java-opts     ::java-opts
@@ -175,6 +177,14 @@
     ;; Copy static files to jar-content folder
     (b/copy-dir {:src-dirs   (concat src-dirs resource-dirs)
                  :target-dir jar-content})
+
+    ;; Compile Java sources (e.g. behave.Launcher splash shim) before Clojure
+    (let [java-dirs (filterv #(.exists (io/file %)) java-src-dirs)]
+      (when (seq java-dirs)
+        (b/javac {:src-dirs   java-dirs
+                  :class-dir  jar-content
+                  :basis      basis
+                  :javac-opts ["--release" "17"]})))
 
     ;; Compile Clojure source code to classes in the jar-content folder
     (b/compile-clj {:src-dirs     src-dirs
