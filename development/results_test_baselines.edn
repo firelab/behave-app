@@ -94,5 +94,17 @@
  ;; Contain-specific rows.
  ;; ============================================================================
  :surface-contain
- {:baseline-outputs []
-  :baseline-inputs  []}}
+ {:baseline-outputs                                                                                                                                []
+  :baseline-inputs
+  [{:module "Contain" :submodule "Suppression" :group "Tactic" :subgroup nil :value "Head"}
+   {:module "Contain" :submodule "Suppression" :group "Line Construction Offset" :subgroup nil :value "0"}
+   {:module "Contain" :submodule "Suppression" :group "Fire Area at Report" :subgroup nil :value "1"}
+   {:module "Contain" :submodule "Suppression" :group "Estimated Resource Arrival Time and Duration" :subgroup "Resource Arrival Time" :value "1"}
+   {:module "Contain" :submodule "Suppression" :group "Estimated Resource Arrival Time and Duration" :subgroup "Resource Duration" :value "8"}
+   {:module "Surface" :submodule "Fuel Model" :group "Standard" :subgroup "Fuel Model" :value "FB1/1 - Short grass (Static)"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "Moisture Input Mode" :subgroup nil :value "Individual Size Class"}
+   {:module "Surface" :submodule "Fuel Moisture" :group "By Size Class" :subgroup "1-h Fuel Moisture" :value "1"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Measured at:" :subgroup nil :value "Midflame (Eye Level)"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind Speed" :subgroup nil :value "1"}
+   {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are" :subgroup nil :value "Aligned (Wind is ≤30° from upslope)."}
+   {:module "Surface" :submodule "Wind and Slope" :group "Slope" :subgroup nil :value "0"}]}}

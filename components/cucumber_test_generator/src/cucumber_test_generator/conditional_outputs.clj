@@ -353,6 +353,59 @@
        vec))
 
 ;;; ============================================================================
+;;; Default (auto-selected) outputs — seed-only
+;;; ============================================================================
+
+(defn- find-output-select-gv-eids
+  "Return eids of group-variables that have at least one :select action. These
+   are candidates for a worksheet's auto-default outputs (the app auto-selects an
+   output when a :select action's conditionals pass on a fresh worksheet — see
+   process-output-actions->fx). Caller filters to :output GVs."
+  [db]
+  (d/q '[:find [?gv ...]
+         :where
+         [?gv :group-variable/actions ?a]
+         [?a :action/type :select]]
+       db))
+
+(defn- output-default-candidates
+  "Resolve every :output GV that has a :select action into a candidate row
+   {:module :submodule :group [:subgroup] :value <translated-name>
+    :actions <raw :select actions>}. Computed once per generation run and filtered
+   per module-combo by default-outputs-for-combo."
+  [db]
+  (->> (find-output-select-gv-eids db)
+       (keep (fn [eid]
+               (when-let [uuid (:bp/uuid (d/pull db '[:bp/uuid] eid))]
+                 (let [info (core/resolve-group-variable-uuid db uuid)]
+                   (when (and info (= (:io info) :output))
+                     (when-let [comps (seq (path->components (:path info)))]
+                       (cond-> {:module    (:name (first (:path info)))
+                                :submodule (first comps)
+                                :value     (:group-variable/translated-name info)
+                                :actions   (pull-select-actions db eid)}
+                         (>= (count comps) 2) (assoc :group (second comps))
+                         (>= (count comps) 3) (assoc :subgroup (nth comps 2)))))))))
+       vec))
+
+(defn- default-outputs-for-combo
+  "Given the effective worksheet module-name set (lower-cased strings, e.g.
+   #{\"surface\" \"contain\"}), return the outputs the app auto-selects on a fresh
+   worksheet: candidate :output GVs whose module is in the combo and one of whose
+   :select actions fires with NO outputs yet selected (so only :module-type
+   conditionals can pass — mirrors process-output-actions->fx on worksheet start).
+   Rows are {:module :submodule :group [:subgroup] :value}; :value is the
+   translated output name. Seed-only — never rendered as a selected output."
+  [db candidates module-name-set]
+  (->> candidates
+       (filter (fn [{:keys [module actions]}]
+                 (and (contains? module-name-set (some-> module str/lower-case))
+                      (some #(action-fires? db % #{} module-name-set) actions))))
+       (map #(select-keys % [:module :submodule :group :subgroup :value]))
+       distinct
+       vec))
+
+;;; ============================================================================
 ;;; Per-GV test-case builder
 ;;; ============================================================================
 
@@ -360,8 +413,10 @@
   "Return a test-case map for an output gv-eid, or nil if the GV is research,
    not an output, or its action conditionals cannot be resolved.
    setter-eids = candidate input value-setter GV eids (from
-   find-input-value-setter-eids), used to derive :input-value-overrides."
-  [db gv-eid setter-eids]
+   find-input-value-setter-eids), used to derive :input-value-overrides.
+   output-candidates = auto-default output candidates (from
+   output-default-candidates), used to derive :default-outputs."
+  [db gv-eid setter-eids output-candidates]
   (when-let [gv-uuid (:bp/uuid (d/pull db '[:bp/uuid] gv-eid))]
     (let [gv-info (core/resolve-group-variable-uuid db gv-uuid)]
       (when (and gv-info
@@ -412,7 +467,19 @@
                       active-output-names (into #{} (conj (mapv :value output-reqs) output-name))
                       module-name-set     (into #{} (or (seq modules) ["surface"]))
                       input-overrides     (compute-input-value-overrides
-                                           db setter-eids active-output-names module-name-set)]
+                                           db setter-eids active-output-names module-name-set)
+                      ;; Effective worksheet module set: Crown/Mortality/Contain always
+                      ;; promote to include Surface (mirrors effective-module-combo). Used to
+                      ;; derive the outputs the app auto-defaults on a fresh worksheet.
+                      effective-mns       (let [base (into #{} (map str/lower-case)
+                                                           (or (seq modules) [(name module-kw)]))]
+                                            (if (some #{"crown" "mortality" "contain"} base)
+                                              (conj base "surface")
+                                              base))
+                      ;; Auto-defaulted outputs (e.g. Rate of Spread / Flame Length for a
+                      ;; Surface & Contain worksheet). Seed-only: they un-gate baseline inputs
+                      ;; in merge-with-baselines but are never rendered as selected outputs.
+                      default-outputs     (default-outputs-for-combo db output-candidates effective-mns)]
                   {:gv-uuid                   gv-uuid
                    :output-name               output-name
                    :module                    (some-> module-kw name str/capitalize)
@@ -421,7 +488,8 @@
                    :required-outputs-operator out-operator
                    :required-inputs           rows
                    :disabling-outputs         disabling-outputs
-                   :input-value-overrides     input-overrides})))))))))
+                   :input-value-overrides     input-overrides
+                   :default-outputs           default-outputs})))))))))
 
 ;;; ============================================================================
 ;;; Main entry point
@@ -446,9 +514,10 @@
    (let [gv-eids     (find-conditionally-set-output-gvs db)
          _           (println (format "Found %d conditionally-set output GVs" (count gv-eids)))
          setter-eids (find-input-value-setter-eids db)
+         candidates  (output-default-candidates db)
          test-cases  (->> gv-eids
                           (keep (fn [eid]
-                                  (try (build-test-case db eid setter-eids)
+                                  (try (build-test-case db eid setter-eids candidates)
                                        (catch Exception e
                                          (println (format "  ⚠ eid %d: %s" eid (.getMessage e)))
                                          nil))))

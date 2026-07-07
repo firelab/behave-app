@@ -23,6 +23,7 @@ Feature: Surface Input - Wind and Slope
       | Size          | Surface - Fire Size       | Fire Perimeter                        |
       | Size          | Surface - Fire Size       | Length-to-Width Ratio                 |
       | Size          | Surface - Fire Size       | Spread Distance                       |
+      | Wind and Fuel | Wind                      | Midflame Wind Speed                   |
 
   @core
   Scenario Outline: Wind and Slope is displayed with Surface & Crown outputs

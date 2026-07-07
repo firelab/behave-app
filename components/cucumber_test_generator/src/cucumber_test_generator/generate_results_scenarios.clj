@@ -514,11 +514,17 @@
                                      [])
                              vec)
         ;; Seed known-values: input group→value AND all selected output names→"true"
-        ;; so output-gated input conditionals (e.g. "Wind and slope are") pass
+        ;; so output-gated input conditionals (e.g. "Wind and slope are") pass.
+        ;; :default-outputs are outputs the app auto-selects on a fresh worksheet
+        ;; (e.g. Rate of Spread / Flame Length for Surface & Contain). They are
+        ;; seeded here so their gated baseline inputs (fuel model, wind & slope…)
+        ;; survive the fixpoint, but are deliberately NOT added to all-outputs so
+        ;; they never render as an explicit "output paths selected" step.
         init-known      (into {}
                               (concat
                                (map (fn [{:keys [group subgroup value]}] [(or subgroup group) value]) tc-inputs)
-                               (map (fn [{:keys [value]}] [value "true"]) all-outputs)))
+                               (map (fn [{:keys [value]}] [value "true"]) all-outputs)
+                               (map (fn [{:keys [value]}] [value "true"]) (:default-outputs test-case))))
         ;; Fixpoint: include baseline inputs whose conditionals pass, in declaration order.
         ;; Uses vector + seen-set to avoid array-map overflow losing ordering.
         included-vec    (loop [remaining (vec base-inputs)

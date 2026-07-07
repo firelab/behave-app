@@ -1927,6 +1927,23 @@
    {:conditionals
     [{:type :module, :operator :equal, :values ["surface"]}],
     :conditionals-operator :or}},
+  [{:name "Mortality", :key "behaveplus:mortality"}
+   {:name "Tree Characteristics",
+    :key "behaveplus:mortality:input:fuelvegetation_overstory"}
+   :input
+   {:name "Bark Char Height",
+    :key
+    "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height"}]
+  {:group/translated-name "Bark Char Height",
+   :group/research? nil,
+   :group/hidden? nil,
+   :parent-submodule/io :input,
+   :group/order 4,
+   :submodule/order 0,
+   :conditionals
+   {:conditionals
+    [{:type :module, :operator :equal, :values ["mortality"]}],
+    :conditionals-operator nil}},
   [{:name "Surface", :key "behaveplus:surface"}
    {:name "Fuel Model", :key "behaveplus:surface:input:fuel_models"}
    :input
@@ -5421,7 +5438,27 @@
        :group-variable/translated-name "Active Crown Fire",
        :group-variable/order 1,
        :submodule/order 6,
-       :group/single-select? false}}],
+       :group/single-select? false}}
+     {:type :group-variable,
+      :operator :equal,
+      :values ["true"],
+      :group-variable
+      {:path
+       [{:name "Surface", :key "behaveplus:surface"}
+        {:name "Wind and Fuel",
+         :key "behaveplus:surface:output:wind-and-fuel"}
+        :output
+        {:name "Wind",
+         :key "behaveplus:surface:output:wind-and-fuel:wind"}],
+       :io :output,
+       :submodule/research? nil,
+       :group-variable/research? nil,
+       :group/order 0,
+       :group-variable/conditionally-set? nil,
+       :group-variable/translated-name "Midflame Wind Speed",
+       :group-variable/order 0,
+       :submodule/order 12,
+       :group/single-select? nil}}],
     :conditionals-operator :or}},
   [{:name "Crown", :key "behaveplus:crown"}
    {:name "Spot", :key "behaveplus:crown:input:spotting"}
@@ -8853,23 +8890,6 @@
    {:conditionals
     [{:type :module, :operator :equal, :values ["contain"]}],
     :conditionals-operator nil}},
-  [{:name "Mortality", :key "behaveplus:mortality"}
-   {:name "Tree Characteristics",
-    :key "behaveplus:mortality:input:fuelvegetation_overstory"}
-   :input
-   {:name "Bole Char Height",
-    :key
-    "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height"}]
-  {:group/translated-name "Bole Char Height",
-   :group/research? nil,
-   :group/hidden? nil,
-   :parent-submodule/io :input,
-   :group/order 4,
-   :submodule/order 0,
-   :conditionals
-   {:conditionals
-    [{:type :module, :operator :equal, :values ["mortality"]}],
-    :conditionals-operator nil}},
   [{:name "Surface", :key "behaveplus:surface"}
    {:name "Wind and Slope", :key "behaveplus:surface:input:wind_speed"}
    :input
@@ -8925,6 +8945,7 @@
      :value "From Perimeter"}],
    :output-name "Flanking Flame Length",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -8965,6 +8986,23 @@
      :value "From Perimeter"}],
    :output-name "Bark Char Height Flanking",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -9019,6 +9057,23 @@
      :value "From Perimeter"}],
    :output-name "Probability of Mortality Backing",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs [],
@@ -9052,6 +9107,23 @@
      :value "From Perimeter"}],
    :output-name "Scorch Height Flanking",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -9268,6 +9340,7 @@
      :value "From Perimeter"}],
    :output-name "Flanking Fireline Intensity",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -9308,6 +9381,7 @@
      :value "From Perimeter"}],
    :output-name "DOI Spread Distance",
    :required-outputs-operator nil,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -9348,6 +9422,7 @@
      :value "From Perimeter"}],
    :output-name "Backing Flame Length",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -9385,6 +9460,23 @@
      :value "From Perimeter"}],
    :output-name "Probability of Mortality",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs [],
@@ -9406,6 +9498,7 @@
      :value "From Perimeter"}],
    :output-name "Heading Spread Distance",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -9454,6 +9547,7 @@
      :value "From Perimeter"}],
    :output-name "Flanking Spread Distance",
    :required-outputs-operator nil,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -9494,6 +9588,23 @@
      :value "From Perimeter"}],
    :output-name "Crown Length Scorched Backing",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -9710,6 +9821,23 @@
      :value "From Perimeter"}],
    :output-name "Bark Char Height Backing",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -9764,6 +9892,23 @@
      :value "From Perimeter"}],
    :output-name "Crown Volume Scorched Backing",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -9977,6 +10122,23 @@
      :value "From Perimeter"}],
    :output-name "Scorch Height",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs
@@ -10181,6 +10343,23 @@
      :value "From Perimeter"}],
    :output-name "Crown Volume Scorched Flanking",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -10394,6 +10573,23 @@
      :value "From Perimeter"}],
    :output-name "Tree Crown Volume Scorched",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs
@@ -10593,8 +10789,25 @@
     {:submodule "Spread Directions",
      :group "Surface Spread Direction Mode",
      :value "From Perimeter"}],
-   :output-name "Bole Char Height",
+   :output-name "Bark Char Height",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -10637,6 +10850,7 @@
      :value "From Perimeter"}],
    :output-name "Wind/Slope/Spread Direction Diagram",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs
@@ -10677,6 +10891,7 @@
      :value "From Perimeter"}],
    :output-name "Direction of Interest Rate of Spread",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -10714,6 +10929,23 @@
      :value "From Perimeter"}],
    :output-name "Tree Crown Length Scorched",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs
@@ -10918,6 +11150,7 @@
      :value "From Perimeter"}],
    :output-name "Backing Fireline Intensity",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -10958,6 +11191,7 @@
      :value "From Perimeter"}],
    :output-name "Firebrand Height from a Burning Pile",
    :required-outputs-operator nil,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11170,6 +11404,7 @@
      :value "From Perimeter"}],
    :output-name "Heading Flame Length",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11223,6 +11458,23 @@
      :value "From Perimeter"}],
    :output-name "Tree Crown Volume Scorched",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs
@@ -11427,6 +11679,7 @@
      :value "From Perimeter"}],
    :output-name "Direction of Interest Fireline Intensity",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11467,6 +11720,7 @@
      :value "From Perimeter"}],
    :output-name "Direction of Interest Flame Length",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11507,6 +11761,7 @@
      :value "From Perimeter"}],
    :output-name "Backing Rate of Spread",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11547,6 +11802,7 @@
      :value "From Perimeter"}],
    :output-name "Direction of Backing",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs
@@ -11587,6 +11843,7 @@
      :value "From Perimeter"}],
    :output-name "Flanking Rate of Spread",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11624,6 +11881,7 @@
      :value "From Perimeter"}],
    :output-name "Direction of Heading",
    :required-outputs-operator nil,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs
@@ -11649,6 +11907,23 @@
      :value "From Perimeter"}],
    :output-name "Tree Crown Length Scorched",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs
@@ -11853,6 +12128,7 @@
      :value "From Perimeter"}],
    :output-name "Heading Fireline Intensity",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11909,6 +12185,7 @@
      :value "From Perimeter"}],
    :output-name "Backing Spread Distance",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -11949,6 +12226,7 @@
      :value "From Perimeter"}],
    :output-name "Heading Rate of Spread",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs [],
@@ -12002,9 +12280,64 @@
      :value "From Perimeter"}],
    :output-name "Equation Type",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs [],
+   :disabling-outputs [],
+   :required-outputs []},
+  "6a286b33-0ea9-4e21-9355-2636577f8649"
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Optimized Contain Diagram",
+   :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Surface Fire",
+     :value "Flame Length"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Surface Fire",
+     :value "Rate of Spread"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Direction Mode",
+     :value "Heading"}],
+   :module "Contain",
+   :required-modules [],
+   :required-inputs
+   [{:submodule "Suppression",
+     :value "Calculate Minimum Production Rate Only",
+     :module "Contain",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 0,
+     :group "Contain Mode"}],
    :disabling-outputs [],
    :required-outputs []},
   "66a7f9a1-4bc1-49ac-8c2e-3ec36ca912bd"
@@ -12023,6 +12356,23 @@
      :value "From Perimeter"}],
    :output-name "Scorch Height Backing",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -12239,6 +12589,7 @@
      :value "From Perimeter"}],
    :output-name "Direction of Flanking",
    :required-outputs-operator :and,
+   :default-outputs [],
    :module "Surface",
    :required-modules [],
    :required-inputs
@@ -12279,6 +12630,23 @@
      :value "From Perimeter"}],
    :output-name "Crown Length Scorched Flanking",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -12492,6 +12860,23 @@
      :value "From Perimeter"}],
    :output-name "Probability Of Mortality",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs [],
@@ -12510,9 +12895,64 @@
      :value "From Perimeter"}],
    :output-name "CVS or CLS",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs [],
+   :disabling-outputs [],
+   :required-outputs []},
+  "68af3e25-94ef-4f25-ba83-3ad8ef396b2a"
+  {:input-value-overrides
+   [{:submodule "Wind and Slope",
+     :group "Wind Adjustment Factor",
+     :value "User Input"}
+    {:submodule "Spread Directions",
+     :group "Wind and Spread Directions",
+     :value "Degrees Clockwise From Upslope"}
+    {:submodule "Spread Directions",
+     :group "Surface Spread Direction Mode",
+     :value "From Perimeter"}],
+   :output-name "Minimal Resource Production Rate for Containment",
+   :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Surface Fire",
+     :value "Flame Length"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Surface Fire",
+     :value "Rate of Spread"}
+    {:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Direction Mode",
+     :value "Heading"}],
+   :module "Contain",
+   :required-modules [],
+   :required-inputs
+   [{:submodule "Suppression",
+     :value "Calculate Minimum Production Rate Only",
+     :module "Contain",
+     :submodule/order 1,
+     :group/order 0,
+     :group-variable/order 0,
+     :group "Contain Mode"}],
    :disabling-outputs [],
    :required-outputs []},
   "69e250cd-917c-4198-a1ba-377e2835c3a6"
@@ -12528,6 +12968,23 @@
      :value "From Perimeter"}],
    :output-name "Scorch Height",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs
@@ -12729,6 +13186,23 @@
      :value "From Perimeter"}],
    :output-name "Bark Char Height",
    :required-outputs-operator nil,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules ["mortality" "surface"],
    :required-inputs
@@ -12771,6 +13245,23 @@
      :value "From Perimeter"}],
    :output-name "Probability of Mortality Flanking",
    :required-outputs-operator :and,
+   :default-outputs
+   [{:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability Of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Equation Type"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "Probability of Mortality"}
+    {:module "Mortality",
+     :submodule "Mortality",
+     :group "Tree Mortality",
+     :value "CVS or CLS"}],
    :module "Mortality",
    :required-modules [],
    :required-inputs [],
@@ -12801,6 +13292,11 @@
      :value "From Perimeter"}],
    :output-name "Fire Type",
    :required-outputs-operator :or,
+   :default-outputs
+   [{:module "Surface",
+     :submodule "Fire Behavior",
+     :group "Direction Mode",
+     :value "Heading"}],
    :module "Crown",
    :required-modules [],
    :required-inputs [],

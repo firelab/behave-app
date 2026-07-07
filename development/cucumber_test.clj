@@ -9,10 +9,11 @@
 
 (comment
 
-  (require '[cucumber-test-generator.core                       :as core] :reload)
-  (require '[cucumber-test-generator.conditional-outputs        :as co] :reload)
-  (require '[cucumber-test-generator.generate-scenarios         :as gs] :reload)
-  (require '[cucumber-test-generator.generate-results-scenarios :as grs] :reload)
+  (do
+    (require '[cucumber-test-generator.core                       :as core] :reload)
+    (require '[cucumber-test-generator.conditional-outputs        :as co] :reload)
+    (require '[cucumber-test-generator.generate-scenarios         :as gs] :reload)
+    (require '[cucumber-test-generator.generate-results-scenarios :as grs] :reload))
 
   ;; ── Recommended: generate both sections of the combined matrix in one call ──
   (core/generate-all-matrix! (d/db (default-conn)))
@@ -20,12 +21,14 @@
   ;; ── Or regenerate sections individually ──
   ;; :input-visibility section only
   (core/generate-test-matrix! (d/db (default-conn)))
+
   ;; :results-visibility section only
   (co/generate-conditional-outputs-matrix! (d/db (default-conn)))
 
   ;; ── Generate feature files from the combined matrix ──
   ;; Input-visibility scenarios → features/
   (gs/generate-feature-files!)
+
   ;; Results-page scenarios → features/results-page/
   (grs/generate-results-feature-files!)
 
@@ -70,8 +73,14 @@
   ;; Example: run just the Burning Pile feature
   (run-feature "features/test_results_page.feature")
 
-  (run-feature "/home/kcheung/work/code/behave-polylith/features/results-page")
-  (run-feature "/home/kcheung/work/code/behave-polylith/features/results-page/results-page_mortality_equation-type.feature")
+  (run-feature "/home/kcheung/work/code/behave-polylith/features/results-page/results-page_contain_minimal-resource-production-rate-for-containment.feature")
+
+  (run-feature "features/results-page/results-page_surface_wind-slope-spread-direction-diagram.feature")
+  (run-feature "/home/kcheung/work/code/behave-polylith/features/surface-input_wind-and-slope.feature")
+
+  (run-feature "features/surface-input_fuel-model_standard_fuelmodel.feature")
+  (run-feature "features/surface-input_fuel-moisture_by-size-class_live-woody-fuel-moisture.feature")
+  (run-feature "features/surface-input_spot_surface-fire-flame-length.feature")
 
   (def all-data
     {["Surface" "Fuel Model" :input "Special Case" "Palmetto-Gallberry"]
