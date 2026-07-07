@@ -1,25 +1,46 @@
-{:tasks 
+{:tasks
  {:requires  ([clojure.string :as str]
-              [babashka.fs :as fs])
-  :init      (defn find-browser
-               "Headless-capable Chrome/Chromium path: $CHROME_BIN, else per-OS defaults."
-               []
-               (or (System/getenv "CHROME_BIN")
-                   (let [os    (str/lower-case (System/getProperty "os.name"))
-                         cands (cond
-                                 (str/includes? os "mac")
-                                 ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-                                  "/Applications/Chromium.app/Contents/MacOS/Chromium"]
-                                 (str/includes? os "win")
-                                 ["C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-                                  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"]
-                                 :else
-                                 ["google-chrome" "google-chrome-stable" "chromium" "chromium-browser"])]
-                     (or (some (fn [c]
-                                 (cond (fs/exists? c) c
-                                       (fs/which c)   (str (fs/which c))))
-                               cands)
-                         (throw (ex-info "No Chrome/Chromium found. Set CHROME_BIN." {:tried cands}))))))
+              [babashka.fs :as fs]
+              [babashka.cli :as cli])
+  :init      (do
+               (defn find-browser
+                 "Headless-capable Chrome/Chromium path: $CHROME_BIN, else per-OS defaults."
+                 []
+                 (or (System/getenv "CHROME_BIN")
+                     (let [os    (str/lower-case (System/getProperty "os.name"))
+                           cands (cond
+                                   (str/includes? os "mac")
+                                   ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+                                    "/Applications/Chromium.app/Contents/MacOS/Chromium"]
+                                   (str/includes? os "win")
+                                   ["C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+                                    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"]
+                                   :else
+                                   ["google-chrome" "google-chrome-stable" "chromium" "chromium-browser"])]
+                       (or (some (fn [c]
+                                   (cond (fs/exists? c) c
+                                         (fs/which c)   (str (fs/which c))))
+                                 cands)
+                           (throw (ex-info "No Chrome/Chromium found. Set CHROME_BIN." {:tried cands}))))))
+
+               (defn uber-stale?
+                 "True when target/behave7.jar is missing or older than any source file."
+                 []
+                 (let [jar "target/behave7.jar"]
+                   (or (not (fs/exists? jar))
+                       (let [jar-ms  (.toMillis (fs/last-modified-time jar))
+                             root    (fs/path (fs/cwd) "../..")
+                             sources (concat (fs/glob root "components/*/src/**")
+                                             (fs/glob root "bases/*/src/**")
+                                             (fs/glob root "projects/behave/src/**")
+                                             (fs/glob root "projects/behave/resources/**")
+                                             (filter fs/exists?
+                                                     [(fs/path root "deps.edn")
+                                                      (fs/path (fs/cwd) "deps.edn")]))]
+                         (boolean (some (fn [p]
+                                          (and (fs/regular-file? p)
+                                               (> (.toMillis (fs/last-modified-time p)) jar-ms)))
+                                        sources)))))))
   -project   "cljweb-behave"
   reload     (shell "systemctl --user daemon-reload")
   status     {:depends [-project]
@@ -64,13 +85,32 @@
                     (str/join "\n")
                     (spit "classpath.conf")))
 
-  conveyor   (do
-               (when (fs/exists? "target/behave7.jar")
-                 (fs/delete "target/behave7.jar"))
-               (run 'build-js)
-               (run 'uber)
-               (run 'rename-jar)
-               (shell "conveyor -Kapp.machines=mac.aarch64 make notarized-mac-zip -o output/mac-aarch64/ --overwrite")
-               (shell "conveyor -Kapp.machines=mac.amd64 make notarized-mac-zip -o output/mac-amd64/ --overwrite")
-               (shell "conveyor make windows-zip -o output/windows --overwrite")
-               (shell "conveyor make debian-package -o output/deb --overwrite"))}}
+  uber-prep   {:doc  "Build JS + uberjar when sources have changed. Skips if target/behave7.jar is up-to-date."
+               :task (if (uber-stale?)
+                       (do
+                         (when (fs/exists? "target/behave7.jar")
+                           (fs/delete "target/behave7.jar"))
+                         (run 'build-js)
+                         (run 'uber)
+                         (run 'rename-jar))
+                       (println "target/behave7.jar is up-to-date, skipping uber-prep."))}
+
+  conveyor    {:doc  "Build Conveyor packages. Use -t <target> (mac, windows, linux) or omit for all. Comma-separate for multiple: -t mac,windows. Use -f to force rebuild."
+               :task (let [{:keys [target force]} (cli/parse-opts *command-line-args*
+                                                                  {:spec {:target {:alias :t}
+                                                                          :force  {:alias :f :coerce :boolean}}})
+                           targets (if target
+                                     (into #{} (map (comp keyword str/trim))
+                                           (str/split target (re-pattern ",")))
+                                     #{:mac :windows :linux})]
+                       (when force
+                         (when (fs/exists? "target/behave7.jar")
+                           (fs/delete "target/behave7.jar")))
+                       (run 'uber-prep)
+                       (when (:mac targets)
+                         (shell "conveyor -f conveyor.macos-ci.conf -Kapp.machines=mac.aarch64 make notarized-mac-zip -o output/mac-aarch64/ --overwrite")
+                         (shell "conveyor -f conveyor.macos-ci.conf -Kapp.machines=mac.amd64 make notarized-mac-zip -o output/mac-amd64/ --overwrite"))
+                       (when (:windows targets)
+                         (shell "conveyor -f conveyor.windows-ci.conf make windows-zip -o output/windows --overwrite"))
+                       (when (:linux targets)
+                         (shell "conveyor -f conveyor.linux-ci.conf make debian-package -o output/deb --overwrite")))}}}
