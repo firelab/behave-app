@@ -27,6 +27,7 @@ Options :
  -l  Specifies the shortcut target
  -o  Saves the shortcut to a file
  -n  Specifies a description for the shortcut
+ -r  Specifies the relative path to the target (portable fallback)
  -w  Specifies the starting directory for the command
  -a  Specifies the arguments for the launched command
  -i  Specifies the icon path
@@ -44,13 +45,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # IS_PRINTER_LNK=0
-while getopts "hpl:o:n:w:a:i:" opt; do
+while getopts "hpl:o:n:r:w:a:i:" opt; do
   case "${opt}" in
     h) usage ;;
     p) IS_PRINTER_LNK=1 ;;
     l) LNK_TARGET="$OPTARG" ;;
     o) OUTPUT_FILE="$OPTARG" ;;
     n) param_HasName="$OPTARG" ;;
+    r) param_HasRelativePath="$OPTARG" ;;
     w) param_HasWorkingDir="$OPTARG" ;;
     a) param_HasArguments="$OPTARG" ;;
     i) param_HasIconLocation="$OPTARG" ;;
@@ -67,16 +69,16 @@ done
 #############################################################################################
 
 function ascii2hex() {
-	echo $(echo -n ${1} | hexdump -v -e '/1 " x%02x"'|sed s/\ /\\\\/g)
+	echo $(echo -n "${1}" | hexdump -v -e '/1 " x%02x"'|sed s/\ /\\\\/g)
 }
 
 function gen_LinkFlags() {
-	echo '\x'$(printf '%02x' "$((HasLinkTargetIDList + HasName + HasWorkingDir + HasArguments + HasIconLocation))")${LinkFlags_2_3_4}
+	echo '\x'$(printf '%02x' "$((HasLinkTargetIDList + HasName + HasRelativePath + HasWorkingDir + HasArguments + HasIconLocation))")${LinkFlags_2_3_4}
 }
 
 function gen_Data_string() {
         ITEM_SIZE=$(printf '%04x' $((${#1})))
-        echo '\x'${ITEM_SIZE:2:2}'\x'${ITEM_SIZE:0:2}$(ascii2hex ${1})
+        echo '\x'${ITEM_SIZE:2:2}'\x'${ITEM_SIZE:0:2}$(ascii2hex "${1}")
 }
 
 function gen_IDLIST() {
@@ -94,6 +96,7 @@ function convert_CLSID_to_DATA() {
 
 HasLinkTargetIDList=0x01
 HasName=0x04
+HasRelativePath=0x08
 HasWorkingDir=0x10
 HasArguments=0x20
 HasIconLocation=0x40
@@ -137,22 +140,27 @@ END_OF_STRING='\x00'
 #############################################################################################
 
 if [ ! -z "${param_HasName}" ]; then
-	STRING_DATA=${STRING_DATA}$(gen_Data_string ${param_HasName})
+	STRING_DATA=${STRING_DATA}$(gen_Data_string "${param_HasName}")
 else
 	HasName=0x00
 fi
+if [ ! -z "${param_HasRelativePath}" ]; then
+	STRING_DATA=${STRING_DATA}$(gen_Data_string "${param_HasRelativePath}")
+else
+	HasRelativePath=0x00
+fi
 if [ ! -z "${param_HasWorkingDir}" ]; then
-	STRING_DATA=${STRING_DATA}$(gen_Data_string ${param_HasWorkingDir})
+	STRING_DATA=${STRING_DATA}$(gen_Data_string "${param_HasWorkingDir}")
 else
 	HasWorkingDir=0x00
 fi
 if [ ! -z "${param_HasArguments}" ]; then
-	STRING_DATA=${STRING_DATA}$(gen_Data_string ${param_HasArguments})
+	STRING_DATA=${STRING_DATA}$(gen_Data_string "${param_HasArguments}")
 else
 	HasArguments=0x00
 fi
 if [ ! -z "${param_HasIconLocation}" ]; then
-	STRING_DATA=${STRING_DATA}$(gen_Data_string ${param_HasIconLocation})
+	STRING_DATA=${STRING_DATA}$(gen_Data_string "${param_HasIconLocation}")
 else
 	HasIconLocation=0x00
 fi
