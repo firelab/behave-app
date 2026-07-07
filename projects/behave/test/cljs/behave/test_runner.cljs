@@ -12,9 +12,9 @@
             [behave.surface-test]
             [behave.test-solver-generators]
             [behave.test-solver-queries]
+            [behave.test-support :as ts]
             [behave.tests-used-in-fixtures]
             [behave.utils-test]
-            [behave.vms.store :refer [load-vms!]]
             [behave.vms.subs]
             [behave.wizard.events]
             [behave.wizard.subs]
@@ -22,17 +22,8 @@
             [behave.worksheet-subs-test]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [browser-utils.core :refer [add-script]]
             [cljs-test-display.core]
-            [clojure.string :as str]
-            [figwheel.main.testing :refer [run-tests]]
-            [re-frame.core :as rf]
-            [re-posh.core :as rp]))
-
-(rp/reg-event-fx
- :transact
- (fn [_ [_ datoms]]
-   {:transact datoms}))
+            [figwheel.main.testing :refer [run-tests]]))
 
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
@@ -52,23 +43,6 @@
              'behave.worksheet-subs-test))
 
 (defn ^:after-load init []
-  (let [window-keys    (js->clj (.keys js/Object js/window))
-        module-loaded? (seq (filter #(str/starts-with? % "Module") window-keys))
-        vms-loaded?    @(rf/subscribe [:state :vms-loaded?])]
-
-    (cond
-      (not module-loaded?)
-      (do (set! (.-onWASMModuleLoaded js/window) init)
-          (add-script "/js/behave-min.js"))
-
-      (not vms-loaded?)
-      (do
-        ;; `version` is only a cache-buster query param; the test server serves
-        ;; layout.msgpack statically and ignores it.
-        (load-vms! "test")
-        (js/setTimeout #(init) 1000))
-
-      :else
-      (run-the-tests))))
+  (ts/ensure-test-env! run-the-tests))
 
 (init)

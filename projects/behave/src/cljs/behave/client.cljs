@@ -8,7 +8,7 @@
             [behave.help.views               :refer [help-area]]
             [behave.print.views              :refer [print-page]]
             [behave.settings.views           :as settings]
-            [behave.store                    :refer [load-store!]]
+            [behave.store                    :refer [flush-sync-beacon! load-store!]]
             [behave.subs]
             [behave.tools                    :as tools]
             [behave.translate                :refer [<t bp]]
@@ -154,12 +154,15 @@
     (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
+    ;; Flush pending tx-data on teardown (reload/close).
+    (.addEventListener js/window "pagehide" (fn [_] (flush-sync-beacon!)))
     (load-vms! (:vms-version params))
     (load-store!)
     (load-scripts! params)
     (add-before-unload-event! params)
     (render [app-shell params] (.getElementById js/document "app"))))
 
+#_{:clj-kondo/ignore [:unused-private-var]}
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."
   []

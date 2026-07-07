@@ -44,7 +44,7 @@
 
 (defn teardown-vms-db [& [f]]
   (reset! rpdb/store nil)
-  (reset! vms/conn nil)
+  (reset! vms/vms-conn nil)
   (rf/clear-subscription-cache!)
   (when (fn? f) (f)))
 
@@ -68,6 +68,10 @@
 ;; =================================================================================================
 
 (defn with-dummy-results-table [& [f]]
+  ;; Register the dummy output columns as VMS group-variables so subs that resolve
+  ;; outputs through the VMS (e.g. :worksheet/output-uuids-filtered via the `lookup`
+  ;; rule) can find them. :bp/uuid is :db.unique/identity, so this upsert is idempotent.
+  (d/transact @vms/vms-conn [{:bp/uuid "output1"} {:bp/uuid "output2"}])
   (d/transact @bs/conn
               [{:db/id                  [:worksheet/uuid test-ws-uuid]
                 ;; Insert table 3 input columns, 1 output column, and 3 rows of data

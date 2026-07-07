@@ -2,7 +2,8 @@
   (:require [behave.components.toolbar     :refer [step-priority]]
             [behave.importer               :refer [import-worksheet]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [behave.vms.subs               :refer [directional-parent-entity]]
+            [behave.vms.subs               :refer [direction-variables
+                                                   directional-parent-entity]]
             [behave.wizard.subs            :refer [all-conditionals-pass?]]
             [clojure.math                  :as math]
             [clojure.string                :as str]
@@ -268,74 +269,6 @@
                                   [?ws :worksheet/result-table ?t]]
                                 ds ws-uuid)]
      {:transact [[:db.fn/retractEntity existing-eid]]})))
-
-(rp/reg-event-fx
- :worksheet/add-result-table
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid]]
-   (when-let [ws (first (d/q '[:find [?e ...]
-                               :in $ ?uuid
-                               :where [?e :worksheet/uuid ?uuid]] ds ws-uuid))]
-     {:transact [{:worksheet/_result-table ws}]})))
-
-(rp/reg-event-fx
- :worksheet/add-result-table-header
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid repeat-id units]]
-   (when-let [table (first (d/q '[:find [?table]
-                                  :in $ ?uuid
-                                  :where [?w :worksheet/uuid ?uuid]
-                                  [?w :worksheet/result-table ?table]] ds ws-uuid))]
-     ;; header with gv-uuid and repeat-id does not already exist
-     (when-not (d/q '[:find ?h .
-                      :in $ ?t ?group-variable-uuid ?repeat-id
-                      :where [?t :result-table/headers ?h]
-                      [?h :result-header/group-variable-uuid ?group-variable-uuid]
-                      [?h :result-header/repeat-id ?repeat-id]]
-                    ds table group-variable-uuid repeat-id)
-       {:transact [{:db/id                table
-                    :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
-                                            :result-header/repeat-id           repeat-id
-                                            :result-header/units               units}]}]}))))
-
-(rp/reg-event-fx
- :worksheet/add-result-table-row
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid row-id]]
-   (when-let [table (first (d/q '[:find [?table]
-                                  :in $ ?uuid
-                                  :where [?w :worksheet/uuid ?uuid]
-                                  [?w :worksheet/result-table ?table]]
-                                ds ws-uuid))]
-     {:transact [{:db/id             table
-                  :result-table/rows [{:result-row/id row-id}]}]})))
-
-(rp/reg-event-fx
- :worksheet/add-result-table-cell
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid row-id group-variable-uuid repeat-id value]]
-   (when-let [table (d/q '[:find ?table .
-                           :in $ ?uuid
-                           :where
-                           [?w :worksheet/uuid ?uuid]
-                           [?w :worksheet/result-table ?table]]
-                         ds ws-uuid)]
-     (when-let [row (d/q '[:find ?r .
-                           :in $ ?table ?row-id
-                           :where
-                           [?table :result-table/rows ?r]
-                           [?r :result-row/id ?row-id]]
-                         ds table row-id)]
-       (when-let [header (d/q '[:find ?h .
-                                :in $ ?table ?group-var-uuid ?repeat-id
-                                :where
-                                [?t :result-table/headers ?h]
-                                [?h :result-header/group-variable-uuid ?group-var-uuid]
-                                [?h :result-header/repeat-id ?repeat-id]]
-                              ds table group-variable-uuid repeat-id)]
-         {:transact [{:result-row/_cells  row
-                      :result-cell/header header
-                      :result-cell/value  value}]})))))
 
 (rp/reg-event-fx
  :worksheet/upsert-table-setting-map-units
@@ -624,29 +557,43 @@
          {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                       :table-settings/filters    [filter-entry]}]})))))
 
+(defn- filter-seeded?
+  "True when `gv-uuid` (or any of its direction children) already has a min."
+  [ds ws-uuid gv-uuid]
+  (let [gv-uuids (cons gv-uuid (map :bp/uuid (direction-variables gv-uuid)))]
+    (boolean
+     (some (fn [u]
+             (when-let [eid (get-table-filter-eid ds ws-uuid u)]
+               (some? (:table-filter/min (d/entity ds eid)))))
+           gv-uuids))))
+
 (rp/reg-event-fx
  :worksheet/update-all-table-filters-from-results
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
- (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{ds :ds output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   ;; Seed only unseeded filters, so re-runs keep user-set ranges.
    {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
-                  (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
-                                                  (get output-min-max-values directional-parent-uuid)
-                                                  [min-val max-val])]
-                    (-> acc
-                        (conj [:dispatch [:worksheet/update-table-filter-attr
-                                          ws-uuid
-                                          gv-uuid
-                                          :table-filter/min
-                                          (if (< min-to-use 1)
-                                            (to-precision min-to-use 1)
-                                            (.floor js/Math min-to-use))]])
-                        (conj [:dispatch [:worksheet/update-table-filter-attr
-                                          ws-uuid
-                                          gv-uuid
-                                          :table-filter/max
-                                          (if (< max-to-use 1)
-                                            (to-precision max-to-use 1)
-                                            (.ceil js/Math max-to-use))]]))))
+                  (if (filter-seeded? ds ws-uuid gv-uuid)
+                    acc
+                    (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
+                                                    (get output-min-max-values directional-parent-uuid)
+                                                    [min-val max-val])]
+                      (-> acc
+                          (conj [:dispatch [:worksheet/update-table-filter-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :table-filter/min
+                                            (if (< min-to-use 1)
+                                              (to-precision min-to-use 1)
+                                              (.floor js/Math min-to-use))]])
+                          (conj [:dispatch [:worksheet/update-table-filter-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :table-filter/max
+                                            (if (< max-to-use 1)
+                                              (to-precision max-to-use 1)
+                                              (.ceil js/Math max-to-use))]])))))
                 []
                 output-min-max-values)}))
 
