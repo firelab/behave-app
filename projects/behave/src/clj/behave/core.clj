@@ -72,63 +72,72 @@
   "Start the app in JCEF desktop mode. `loader` is an optional splash already
   created by `behave.Launcher` before this namespace tree loaded — either a
   raw `JFrame` (from Java) or a `{:frame ...}` map; when absent (dev/REPL),
-  one is created here."
-  [& [loader]]
+  one is created here. `progress-consumer` is an optional
+  `java.util.function.BiConsumer` of [percent message] used to report the
+  startup checkpoints on the splash progress bar (see `behave.Launcher`)."
+  [& [loader progress-consumer]]
   (log-str "[TIMING] app namespaces loaded " (jvm-uptime-ms) "ms after JVM start")
-  (timed "load-config"
-         (server/init-config!)
-         (server/enrich-config!))
+  (let [progress! (if progress-consumer
+                    (fn [pct msg]
+                      (.accept ^java.util.function.BiConsumer progress-consumer (int pct) msg))
+                    (fn [_ _]))]
+    (timed "load-config"
+           (server/init-config!)
+           (server/enrich-config!))
+    (progress! 87 "Preparing configuration...")
   ;; Lazy-require jcef so server mode never loads jcef namespaces or
   ;; org.cef.* classes. Only this code path pulls in the native bundle.
-  (let [show-loader!           (requiring-resolve 'jcef.interface/show-loader!)
-        create-cef-app!        (requiring-resolve 'jcef.interface/create-cef-app!)
-        custom-request-handler (requiring-resolve 'jcef.interface/custom-request-handler)
-        loader                 (cond
-                                 (map? loader)  loader
-                                 (some? loader) {:frame loader}
-                                 :else          (timed "show-loader"
-                                                       (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))))
-        mode                   (get-config :server :mode)
-        http-port              (or (get-config :server :http-port) 8080)
-        org-name               (get-config :site :org-name)
-        app-name               (get-config :site :app-name)
-        my-app-data-dir        (app-data-dir org-name app-name)
-        log-config             (if (= "prod" mode)
-                                 (assoc (get-config :logging) :log-dir (str (io/file my-app-data-dir "logs")))
-                                 (get-config :logging))
-        db-config              (if (= "prod" mode)
-                                 (assoc-in (get-config :database :config)
-                                           [:store :path]
-                                           (str (io/file my-app-data-dir "db.sqlite")))
-                                 (get-config :database :config))
-        cache-path             (str (io/file my-app-data-dir ".cache"))
-        request-handler        (custom-request-handler
-                                {:protocol     "http"
-                                 :authority    (format "localhost:%s" http-port)
-                                 :resource-dir "public"
-                                 :ring-handler (create-cef-handler-stack)})]
+    (let [show-loader!           (requiring-resolve 'jcef.interface/show-loader!)
+          create-cef-app!        (requiring-resolve 'jcef.interface/create-cef-app!)
+          custom-request-handler (requiring-resolve 'jcef.interface/custom-request-handler)
+          loader                 (cond
+                                   (map? loader)  loader
+                                   (some? loader) {:frame loader}
+                                   :else          (timed "show-loader"
+                                                         (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))))
+          mode                   (get-config :server :mode)
+          http-port              (or (get-config :server :http-port) 8080)
+          org-name               (get-config :site :org-name)
+          app-name               (get-config :site :app-name)
+          my-app-data-dir        (app-data-dir org-name app-name)
+          log-config             (if (= "prod" mode)
+                                   (assoc (get-config :logging) :log-dir (str (io/file my-app-data-dir "logs")))
+                                   (get-config :logging))
+          db-config              (if (= "prod" mode)
+                                   (assoc-in (get-config :database :config)
+                                             [:store :path]
+                                             (str (io/file my-app-data-dir "db.sqlite")))
+                                   (get-config :database :config))
+          cache-path             (str (io/file my-app-data-dir ".cache"))
+          request-handler        (custom-request-handler
+                                  {:protocol     "http"
+                                   :authority    (format "localhost:%s" http-port)
+                                   :resource-dir "public"
+                                   :ring-handler (create-cef-handler-stack)})]
 
-    (timed "start-logging" (start-logging! log-config))
+      (timed "start-logging" (start-logging! log-config))
     ;; DB restore and the layout.msgpack hash run in the background while
     ;; CEF/Chromium boots; API handlers gate on `behave.store/await-db!`.
-    (server/init-db-async! db-config)
-    (warm-version-cache!)
-    (log-str "[TIMING] scheduling CEF app " (jvm-uptime-ms) "ms after JVM start")
+      (server/init-db-async! db-config)
+      (warm-version-cache!)
+      (log-str "[TIMING] scheduling CEF app " (jvm-uptime-ms) "ms after JVM start")
+      (progress! 90 "Starting browser...")
 
-    (create-cef-app!
-     {:title                                                (get-config :site :title)
-      :url                                                  (str "http://localhost:" http-port)
-      :cache-path                                           cache-path
-      :fullscreen?                                          true
-      :on-shown                                             (fn [app & _]
-                                                              (log-str "[TIMING] browser window shown "
-                                                                       (jvm-uptime-ms) "ms after JVM start")
-                                                              (reset! the-app app)
-                                                              (.dispose (:frame loader)))
-      :request-handler                                      request-handler
-      :on-before-launch
-      (fn [{:keys [frame]}]
-        (on-before-launch frame (get-config :site :title)))})))
+      (create-cef-app!
+       {:title                                                (get-config :site :title)
+        :url                                                  (str "http://localhost:" http-port)
+        :cache-path                                           cache-path
+        :fullscreen?                                          true
+        :on-shown                                             (fn [app & _]
+                                                                (log-str "[TIMING] browser window shown "
+                                                                         (jvm-uptime-ms) "ms after JVM start")
+                                                                (progress! 100 nil)
+                                                                (reset! the-app app)
+                                                                (.dispose (:frame loader)))
+        :request-handler                                      request-handler
+        :on-before-launch
+        (fn [{:keys [frame]}]
+          (on-before-launch frame (get-config :site :title)))}))))
 
 (defn -main
   "Legacy entry point (dev/REPL and `-m behave.core`). Packaged apps enter
