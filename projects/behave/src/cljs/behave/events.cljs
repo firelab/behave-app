@@ -133,7 +133,7 @@
 
 (rf/reg-event-db
  :local-storage/clear
- (fn [_ [_ data]]
+ (fn [_ _]
    (clear-local-storage!)))
 
 ;;; System
@@ -177,7 +177,7 @@
                     [:vms/translations language-shortcode]))]
  (fn [{db               :db
        vms-translations :vms/translations} [_ language-shortcode]]
-   {:db (update-in db [language-shortcode] merge vms-translations)}))
+   {:db (update db language-shortcode merge vms-translations)}))
 
 ;; (update db :translations language-short-code merge vms-translations)
 

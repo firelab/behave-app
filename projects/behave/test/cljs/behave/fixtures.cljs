@@ -44,7 +44,7 @@
 
 (defn teardown-vms-db [& [f]]
   (reset! rpdb/store nil)
-  (reset! vms/conn nil)
+  (reset! vms/vms-conn nil)
   (rf/clear-subscription-cache!)
   (when (fn? f) (f)))
 

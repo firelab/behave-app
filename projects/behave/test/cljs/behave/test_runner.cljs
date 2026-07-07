@@ -15,7 +15,6 @@
             [behave.test-support :as ts]
             [behave.tests-used-in-fixtures]
             [behave.utils-test]
-            [behave.vms.store :refer [load-vms!]]
             [behave.vms.subs]
             [behave.wizard.events]
             [behave.wizard.subs]

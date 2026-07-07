@@ -39,7 +39,6 @@
 
 (cms/init-db!)
 
-#_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
 (def class-name "SIGMortality")
@@ -114,7 +113,6 @@
           retype-return-payload))
 
 (comment
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (def tx-data (d/transact conn payload)))
 
 ;; ===========================================================================================================

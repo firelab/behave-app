@@ -162,6 +162,7 @@
     (add-before-unload-event! params)
     (render [app-shell params] (.getElementById js/document "app"))))
 
+#_{:clj-kondo/ignore [:unused-private-var]}
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."
   []

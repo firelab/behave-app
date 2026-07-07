@@ -1,6 +1,5 @@
 (ns behave.worksheet-events-test
   (:require
-   [austinbirch.reactive-entity :as re]
    [behave.fixtures :as fx]
    [behave.test-utils :as utils]
    [behave.worksheet.events]
@@ -289,48 +288,6 @@
     "Contain Status"
     "Contained Area"
     "Fireline Constructed"))
-
-;; =================================================================================================
-;; :worksheet/update-all-table-filters-from-results
-;; =================================================================================================
-
-(defn- table-filter-for
-  "The [gv-uuid min max enabled?] tuple for `gv-uuid`, or nil when the filter has
-  no min/max yet (the sub only returns filters that have been seeded)."
-  [ws-uuid gv-uuid]
-  (first (filter (fn [[u]] (= u gv-uuid))
-                 @(rf/subscribe [:worksheet/table-settings-filters ws-uuid]))))
-
-(deftest update-all-table-filters-seeds-unseeded-filter-test
-  ;; The dummy results table gives output1 values 10/20/30 -> range [10 30].
-  (fx/with-dummy-results-table)
-  (rf-test/run-test-sync
-   (let [ws fx/test-ws-uuid
-         gv "output1"]
-     (rf/dispatch [:worksheet/add-table-filter ws gv])
-     (is (nil? (table-filter-for ws gv))
-         "precondition: a freshly added filter has no min/max yet")
-
-     (rf/dispatch [:worksheet/update-all-table-filters-from-results ws])
-     (is (= ["output1" 10 30 false] (table-filter-for ws gv))
-         "an unseeded filter is auto-ranged to the floor/ceil of the results"))))
-
-(deftest update-all-table-filters-preserves-seeded-filter-test
-  (fx/with-dummy-results-table)
-  (rf-test/run-test-sync
-   (let [ws fx/test-ws-uuid
-         gv "output1"]
-     (rf/dispatch [:worksheet/add-table-filter ws gv])
-     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/min 15])
-     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/max 25])
-     (is (= ["output1" 15 25 false] (table-filter-for ws gv))
-         "precondition: the filter has a user-set range")
-
-     ;; Re-running a solve dispatches this event again — it must not clobber the
-     ;; user's range (the bug this guards against).
-     (rf/dispatch [:worksheet/update-all-table-filters-from-results ws])
-     (is (= ["output1" 15 25 false] (table-filter-for ws gv))
-         "a re-run preserves an already-seeded / user-set range"))))
 
 ;; =================================================================================================
 ;; :worksheet/update-all-table-filters-from-results

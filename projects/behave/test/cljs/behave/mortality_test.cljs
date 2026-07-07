@@ -16,10 +16,10 @@
 
 (defn- clean-values [row]
   (into {}
-        (map (fn remove-quotes[[key val]]
-               (if (string? val)
-                 [key (str/replace val "\"" "")]
-                 [key val])))
+        (map (fn remove-quotes [[k v]]
+               (if (string? v)
+                 [k (str/replace v "\"" "")]
+                 [k v])))
         row))
 
 (def equation-type-lookup

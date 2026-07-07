@@ -14,8 +14,7 @@
             [datom-utils.interface       :refer [split-datom]]
             [ds-schema-utils.interface   :refer [->ds-schema]]
             [re-frame.core               :as rf]
-            [re-posh.core                :as rp]
-            [string-utils.interface      :refer [->str]]))
+            [re-posh.core                :as rp]))
 
 ;;; State
 
@@ -98,6 +97,7 @@
         (swap! sync-txs union (txs datoms))
         (d/transact @conn datoms)))))
 
+#_{:clj-kondo/ignore [:unused-private-var]}
 (defn- sync-latest-datoms! []
   (ajax-request {:uri             "/api/sync"
                  :params          {:tx (:max-tx @@conn)}
@@ -151,7 +151,7 @@
                                      :content-type "application/msgpack"
                                      :read         pr/-body}})))
 
-(defn new-worksheet-handler [nname modules submodule workflow [ok body]]
+(defn new-worksheet-handler [nname modules _submodule workflow [ok body]]
   (when ok
     (reset! worksheet-from-file? false)
     (reset! conn nil)
