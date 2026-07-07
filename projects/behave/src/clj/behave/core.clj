@@ -68,16 +68,23 @@
 
 ;;; Entry Points
 
-(defn- start-cef!
-  "Start the app in JCEF desktop mode."
-  []
+(defn start-cef!
+  "Start the app in JCEF desktop mode. `loader` is an optional splash frame
+  already created by [[behave.main/-main]] before this namespace tree loaded;
+  when absent (dev/REPL), one is created here."
+  [& [loader]]
+  (log-str "[TIMING] app namespaces loaded " (jvm-uptime-ms) "ms after JVM start")
+  (timed "load-config"
+         (server/init-config!)
+         (server/enrich-config!))
   ;; Lazy-require jcef so server mode never loads jcef namespaces or
   ;; org.cef.* classes. Only this code path pulls in the native bundle.
   (let [show-loader!           (requiring-resolve 'jcef.interface/show-loader!)
         create-cef-app!        (requiring-resolve 'jcef.interface/create-cef-app!)
         custom-request-handler (requiring-resolve 'jcef.interface/custom-request-handler)
-        loader                 (timed "show-loader"
-                                      (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png")))
+        loader                 (or loader
+                                   (timed "show-loader"
+                                          (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))))
         mode                   (get-config :server :mode)
         http-port              (or (get-config :server :http-port) 8080)
         org-name               (get-config :site :org-name)
@@ -121,16 +128,14 @@
         (on-before-launch frame (get-config :site :title)))})))
 
 (defn -main
-  "Unified entry point. Detects runtime environment and starts
-   in CEF desktop mode or HTTP server mode."
+  "Legacy entry point (dev/REPL and `-m behave.core`). Packaged apps enter
+   through [[behave.main/-main]], which shows the splash before this
+   namespace tree loads. Detects runtime environment and starts in CEF
+   desktop mode or HTTP server mode."
   [& _args]
   (log-str "[TIMING] -main entered " (jvm-uptime-ms) "ms after JVM start")
   (if (conveyor?)
-    (do
-      (timed "load-config"
-             (server/init-config!)
-             (server/enrich-config!))
-      (start-cef!))
+    (start-cef!)
     (do
       (server/start-server!)
       ;; `server.core/start-server!` runs Jetty with `:join? false`, and

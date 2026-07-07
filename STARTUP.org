@@ -145,6 +145,27 @@ Caveats and analysis:
   2. AppCDS (~2x on those 17 CPU-sec) — blocked on Conveyor cross-build,
      see 2.5.
 
+**** DONE Splash-first entry shim (item 1) — implemented 2026-07-07
+
+New =behave.main= namespace: minimal =:gen-class= entry (requires only
+=clojure.java.io=) that shows the splash via
+=(requiring-resolve 'jcef.loading/show-loader!)= — deliberately NOT
+=jcef.interface=, which pulls in =org.cef= classes — then hands off to
+=behave.core/start-cef!=, which loads the app tree while the splash is
+visible. =jvm.gui= (Conveyor), uberjar =:main-ns=, and the =:standalone=
+alias all point at =behave.main= now. Keep =behave.main='s require list
+empty of app namespaces — anything added there delays the splash.
+
+Measured on the Windows test box (same session, direct launcher runs):
+| Milestone            | Before shim  | With shim |
+|----------------------+--------------+-----------|
+| splash visible       | ~30s (after full tree load) | *7.3s* |
+| app namespaces loaded | ~30s        | ~30s (behind splash) |
+Pre-splash cost is now just JVM + clojure.core + shim (~5-7s on that
+2-core VM; 0.25s on an M-series Mac). A sub-second splash on weak hardware
+would require a non-Clojure (pure Java/native) splash — noted as a possible
+future step, along with AppCDS which would halve the remaining ~30s tree load.
+
 Bugs found & fixed during this test:
 - =ManagementFactory= (java.management module) isn't in the jlinked runtime →
   instant crash at class init. Replaced with =ProcessHandle= (java.base).
