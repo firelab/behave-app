@@ -2,7 +2,8 @@
   (:require [behave.components.toolbar     :refer [step-priority]]
             [behave.importer               :refer [import-worksheet]]
             [behave.solver.core            :refer [solve-worksheet]]
-            [behave.vms.subs               :refer [directional-parent-entity]]
+            [behave.vms.subs               :refer [direction-variables
+                                                   directional-parent-entity]]
             [behave.wizard.subs            :refer [all-conditionals-pass?]]
             [clojure.math                  :as math]
             [clojure.string                :as str]
@@ -270,74 +271,6 @@
      {:transact [[:db.fn/retractEntity existing-eid]]})))
 
 (rp/reg-event-fx
- :worksheet/add-result-table
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid]]
-   (when-let [ws (first (d/q '[:find [?e ...]
-                               :in $ ?uuid
-                               :where [?e :worksheet/uuid ?uuid]] ds ws-uuid))]
-     {:transact [{:worksheet/_result-table ws}]})))
-
-(rp/reg-event-fx
- :worksheet/add-result-table-header
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid repeat-id units]]
-   (when-let [table (first (d/q '[:find [?table]
-                                  :in $ ?uuid
-                                  :where [?w :worksheet/uuid ?uuid]
-                                  [?w :worksheet/result-table ?table]] ds ws-uuid))]
-     ;; header with gv-uuid and repeat-id does not already exist
-     (when-not (d/q '[:find ?h .
-                      :in $ ?t ?group-variable-uuid ?repeat-id
-                      :where [?t :result-table/headers ?h]
-                      [?h :result-header/group-variable-uuid ?group-variable-uuid]
-                      [?h :result-header/repeat-id ?repeat-id]]
-                    ds table group-variable-uuid repeat-id)
-       {:transact [{:db/id                table
-                    :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
-                                            :result-header/repeat-id           repeat-id
-                                            :result-header/units               units}]}]}))))
-
-(rp/reg-event-fx
- :worksheet/add-result-table-row
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid row-id]]
-   (when-let [table (first (d/q '[:find [?table]
-                                  :in $ ?uuid
-                                  :where [?w :worksheet/uuid ?uuid]
-                                  [?w :worksheet/result-table ?table]]
-                                ds ws-uuid))]
-     {:transact [{:db/id             table
-                  :result-table/rows [{:result-row/id row-id}]}]})))
-
-(rp/reg-event-fx
- :worksheet/add-result-table-cell
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid row-id group-variable-uuid repeat-id value]]
-   (when-let [table (d/q '[:find ?table .
-                           :in $ ?uuid
-                           :where
-                           [?w :worksheet/uuid ?uuid]
-                           [?w :worksheet/result-table ?table]]
-                         ds ws-uuid)]
-     (when-let [row (d/q '[:find ?r .
-                           :in $ ?table ?row-id
-                           :where
-                           [?table :result-table/rows ?r]
-                           [?r :result-row/id ?row-id]]
-                         ds table row-id)]
-       (when-let [header (d/q '[:find ?h .
-                                :in $ ?table ?group-var-uuid ?repeat-id
-                                :where
-                                [?t :result-table/headers ?h]
-                                [?h :result-header/group-variable-uuid ?group-var-uuid]
-                                [?h :result-header/repeat-id ?repeat-id]]
-                              ds table group-variable-uuid repeat-id)]
-         {:transact [{:result-row/_cells  row
-                      :result-cell/header header
-                      :result-cell/value  value}]})))))
-
-(rp/reg-event-fx
  :worksheet/upsert-table-setting-map-units
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ _ws-uuid attr value]]
@@ -420,26 +353,39 @@
  (fn [{worksheet               :worksheet
        multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ _]]
    (when (pos? (count multi-value-input-uuids))
-     (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
-           gv-uuids         (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %])) multi-value-input-uuids)]
-       {:transact [; First clear any existing graph settings.
-                   [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
-                   [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
-                   [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
-                   ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
-                   (cond-> {:db/id graph-setting-id}
+     (let [graph-setting-id  (get-in worksheet [:worksheet/graph-settings :db/id])
+           table-settings-id (get-in worksheet [:worksheet/table-settings :db/id])
+           gv-uuids          (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %])) multi-value-input-uuids)]
+       {:transact (into
+                   [; First clear any existing graph settings.
+                    [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
+                    [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
+                    [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
+                     ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
+                    (cond-> {:db/id graph-setting-id}
 
-                     ;; sets default x-axis selection if available
-                     (first multi-value-input-uuids)
-                     (assoc :graph-settings/x-axis-group-variable-uuid (first gv-uuids))
+                       ;; sets default x-axis selection if available
+                      (first multi-value-input-uuids)
+                      (assoc :graph-settings/x-axis-group-variable-uuid (first gv-uuids))
 
-                     ;; sets default z-axis selection if available
-                     (second multi-value-input-uuids)
-                     (assoc :graph-settings/z-axis-group-variable-uuid (second gv-uuids))
+                       ;; sets default z-axis selection if available
+                      (second multi-value-input-uuids)
+                      (assoc :graph-settings/z-axis-group-variable-uuid (second gv-uuids))
 
-                     ;; sets default z2-axis selection if available
-                     (nth multi-value-input-uuids 2 nil)
-                     (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]}))))
+                       ;; sets default z2-axis selection if available
+                      (nth multi-value-input-uuids 2 nil)
+                      (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]
+                    ;; default table-settings row/col (col = x = first, row = z = second)
+                   (when table-settings-id
+                     [(cond-> {:db/id table-settings-id}
+                        (not (second multi-value-input-uuids))
+                        (assoc :table-settings/row-group-variable-uuid "outputs"
+                               :table-settings/col-group-variable-uuid (first gv-uuids))
+                        (second multi-value-input-uuids)
+                        (assoc :table-settings/col-group-variable-uuid (first gv-uuids)
+                               :table-settings/row-group-variable-uuid (second gv-uuids))
+                        (nth multi-value-input-uuids 2 nil)
+                        (assoc :table-settings/submatrix-group-variable-uuid (nth gv-uuids 2)))]))}))))
 
 (rp/reg-event-fx
  :worksheet/toggle-graph-settings
@@ -474,13 +420,13 @@
  (fn [{ds                   :ds
        directional-children :vms/directional-children} [_ ws-uuid group-var-uuid attr value]]
    (when-let [graph-axis-limit-id (get-graph-axis-limit-eid ds ws-uuid group-var-uuid)]
-     (let [children-payload (map (fn [child]
-                                   (let [child-graph-axis-limit-id
-                                         (get-graph-axis-limit-eid ds ws-uuid (:bp/uuid child))]
-                                     (assoc {:db/id child-graph-axis-limit-id} attr value)))
-                                 directional-children)]
-       {:transact (cond-> [(assoc {:db/id graph-axis-limit-id} attr value)]
-                    (seq children-payload) (concat children-payload))}))))
+     (let [children-payload (for [child directional-children
+                                  :let  [child-graph-axis-limit-id (get-graph-axis-limit-eid ds ws-uuid (:bp/uuid child))]
+                                  :when child-graph-axis-limit-id]
+                              (assoc {:db/id child-graph-axis-limit-id} attr value))
+           final-payload    (cond-> [(assoc {:db/id graph-axis-limit-id} attr value)]
+                              (seq children-payload) (concat children-payload))]
+       {:transact final-payload}))))
 (rp/reg-event-fx
  :worksheet/update-all-axis-limits-from-results
  (fn [_ [_ ws-uuid]]
@@ -495,11 +441,9 @@
                   (let [[_min-to-use max-to-use] (if-let [direcitonal-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
                                                    (get output-min-max-values direcitonal-parent-uuid)
                                                    [min-val max-val])
-                        y-max-raw                (if (< max-val 1)
-                                                   (to-precision max-to-use 1)
-                                                   (math/round max-to-use))
-                        step                     (nice-step-size y-max-raw)
-                        y-max                    (+ y-max-raw step)]
+                        ;; FIX: BHP1-1532 - do not clip max values
+                        step                     (nice-step-size max-to-use)
+                        y-max                    (+ max-to-use step)]
                     (-> acc
                         (conj [:dispatch [:worksheet/update-y-axis-limit-attr
                                           ws-uuid
@@ -556,7 +500,7 @@
 (rp/reg-event-fx
  :worksheet/update-x-axis-limit-attr
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid attr value]]
+ (fn [{:keys [ds]} [_ ws-uuid _gv-uuid attr value]]
    (when-let [eid (d/q '[:find ?y .
                          :in $ ?ws-uuid
                          :where
@@ -613,29 +557,43 @@
          {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                       :table-settings/filters    [filter-entry]}]})))))
 
+(defn- filter-seeded?
+  "True when `gv-uuid` (or any of its direction children) already has a min."
+  [ds ws-uuid gv-uuid]
+  (let [gv-uuids (cons gv-uuid (map :bp/uuid (direction-variables gv-uuid)))]
+    (boolean
+     (some (fn [u]
+             (when-let [eid (get-table-filter-eid ds ws-uuid u)]
+               (some? (:table-filter/min (d/entity ds eid)))))
+           gv-uuids))))
+
 (rp/reg-event-fx
  :worksheet/update-all-table-filters-from-results
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
- (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{ds :ds output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   ;; Seed only unseeded filters, so re-runs keep user-set ranges.
    {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
-                  (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
-                                                  (get output-min-max-values directional-parent-uuid)
-                                                  [min-val max-val])]
-                    (-> acc
-                        (conj [:dispatch [:worksheet/update-table-filter-attr
-                                          ws-uuid
-                                          gv-uuid
-                                          :table-filter/min
-                                          (if (< min-to-use 1)
-                                            (to-precision min-to-use 1)
-                                            (.floor js/Math min-to-use))]])
-                        (conj [:dispatch [:worksheet/update-table-filter-attr
-                                          ws-uuid
-                                          gv-uuid
-                                          :table-filter/max
-                                          (if (< max-to-use 1)
-                                            (to-precision max-to-use 1)
-                                            (.ceil js/Math max-to-use))]]))))
+                  (if (filter-seeded? ds ws-uuid gv-uuid)
+                    acc
+                    (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
+                                                    (get output-min-max-values directional-parent-uuid)
+                                                    [min-val max-val])]
+                      (-> acc
+                          (conj [:dispatch [:worksheet/update-table-filter-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :table-filter/min
+                                            (if (< min-to-use 1)
+                                              (to-precision min-to-use 1)
+                                              (.floor js/Math min-to-use))]])
+                          (conj [:dispatch [:worksheet/update-table-filter-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :table-filter/max
+                                            (if (< max-to-use 1)
+                                              (to-precision max-to-use 1)
+                                              (.ceil js/Math max-to-use))]])))))
                 []
                 output-min-max-values)}))
 
@@ -683,26 +641,6 @@
        {:transact (cond-> [{:db/id                 eid
                             :table-filter/enabled? (not enabled?)}]
                     (seq children-payload) (concat children-payload))}))))
-
-(rp/reg-event-fx
- :worksheet/update-graph-settings-attr
- [(rp/inject-cofx :ds)
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid attr]] [:worksheet/graph-settings-axis-group-variable-uuid ws-uuid attr]))
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid _ value]] [:worksheet/graph-settings-axis-attr ws-uuid value]))]
- (fn [{ds               :ds
-       original-gv-uuid :worksheet/graph-settings-axis-group-variable-uuid
-       attr-to-swap     :worksheet/graph-settings-axis-attr} [_ ws-uuid attr value]]
-   (when-let [g (first (d/q '[:find [?g]
-                              :in $ ?uuid
-                              :where
-                              [?w :worksheet/uuid ?uuid]
-                              [?w :worksheet/graph-settings ?g]]
-                            ds
-                            ws-uuid))]
-     (if attr-to-swap
-       {:transact [(assoc {:db/id g} attr value)
-                   (assoc {:db/id g} attr-to-swap original-gv-uuid)]}
-       {:transact [(assoc {:db/id g} attr value)]}))))
 
 ;;Notes
 
@@ -844,7 +782,6 @@
                     direction-of-max-spread
                     wind-direction
                     _wind-speed
-                    slope-direction
                     _elapsed-time]]
    (let [existing-eid    (d/q '[:find ?d .
                                 :in $ ?uuid ?gv-uuid ?row-id
@@ -883,7 +820,7 @@
 
                                                           {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
                                                            :arrow/length    semi-major-axis
-                                                           :arrow/rotation  slope-direction
+                                                           :arrow/rotation  0
                                                            :arrow/color     "red"
                                                            :arrow/dashed?   true}]}]})))
 (rp/reg-event-fx

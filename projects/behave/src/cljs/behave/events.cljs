@@ -1,17 +1,17 @@
 (ns behave.events
-  (:require [browser-utils.core            :refer [add-script
+  (:require [ajax.core                     :as ajax]
+            [behave.components.sidebar.events]
+            [behave.help.events]
+            [behave.tool.events]
+            [browser-utils.core            :refer [add-script
                                                    script-exist?
                                                    scroll-top!
                                                    set-local-storage!
                                                    clear-local-storage!
                                                    assoc-in-local-storage!
                                                    create-local-storage!]]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [ajax.core                     :as ajax]
             [re-frame.core                 :as rf]
-            [behave.components.sidebar.events]
-            [behave.help.events]
-            [behave.tool.events]))
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Initialization
 
@@ -102,6 +102,8 @@
      {:db                 (assoc db :router {:history new-history :curr-position new-position})
       :browser/scroll-top {}
       :help/scroll-top    {}
+      ;; Flush pending tx-data so edits survive a later reload.
+      :sync/flush         {}
       :history/push-state {:position new-position
                            :route    new-route}})))
 
@@ -131,7 +133,7 @@
 
 (rf/reg-event-db
  :local-storage/clear
- (fn [_ [_ data]]
+ (fn [_ _]
    (clear-local-storage!)))
 
 ;;; System
@@ -175,7 +177,7 @@
                     [:vms/translations language-shortcode]))]
  (fn [{db               :db
        vms-translations :vms/translations} [_ language-shortcode]]
-   {:db (update-in db [language-shortcode] merge vms-translations)}))
+   {:db (update db language-shortcode merge vms-translations)}))
 
 ;; (update db :translations language-short-code merge vms-translations)
 

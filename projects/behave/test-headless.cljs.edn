@@ -1,0 +1,6 @@
+{:main          behave.headless-test-runner
+ :output-dir    "resources/public/cljs-test"
+ :output-to     "resources/public/cljs-test/headless.js"
+ :asset-path    "/cljs-test/"
+ :optimizations :none
+ :pretty-print  true}

@@ -66,6 +66,7 @@
              sig/transport                  {:local/root "../../components/transport"}
              sig/map-utils                  {:local/root "../../components/map_utils"}
              sig/cucumber-test-generator    {:local/root "../../components/cucumber_test_generator"}
+             sig/schema-migrate             {:local/root "../../components/schema_migrate"}
 
              ;; Bases
              sig/behave-components          {:local/root "../../bases/behave_components" :exclusions [org.clojure/clojurescript

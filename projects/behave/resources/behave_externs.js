@@ -41,6 +41,9 @@ Module.SIGContainAdapter = class {
   getFirePerimeterX(){}
   getFirePerimeterY(){}
   getFirePerimeterPointCount(){}
+  getOptimizedContainProductionRates(){}
+  getOptimizedContainAreas(){}
+  getOptimizedContainPointCount(){}
   getFireBackAtReport(){}
   getFireHeadAtReport(){}
   getFireHeadAtAttack(){}

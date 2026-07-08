@@ -7,6 +7,9 @@
     (is (= [7 1 4] (vu/parse "7.1.4")))
     (is (= [7]     (vu/parse "7")))
     (is (= [1 0 0] (vu/parse "1.0.0"))))
+  (testing "strips leading v/V prefix"
+    (is (= [7 1 5] (vu/parse "v7.1.5")))
+    (is (= [7 1 4] (vu/parse "V7.1.4"))))
   (testing "returns nil for invalid input"
     (is (nil? (vu/parse nil)))
     (is (nil? (vu/parse "")))
