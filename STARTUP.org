@@ -389,6 +389,12 @@ class-load win (~0.87 s to =(require 'behave.core)= either way).
   (or ship one built in CI) and add the flag to =conveyor.base.conf jvm.options=.
   Typically 20-40% off JVM+Clojure class-load time.
 
+/UPDATE (later 2026-07-07): AppCDS mechanics PROVEN end-to-end on the
+Windows box — see "AppCDS on the Windows box" below. Measured payoff on
+that hardware is ~15% of class-load time, not the 2x from the Mac probe:
+CDS eliminates parse/verify/load but cannot skip executing Clojure's
+static initializers, which dominate on slow CPUs./
+
 /Investigated 2026-07-07 — JDK bumped, AppCDS blocked by cross-building:/
 - *Bumped Conveyor to JDK 21* (Corretto, =/stdlib/jdk/21/amazon.conf=);
   verified a Windows package builds (JAVA_VERSION=21.0.9 runtime).
@@ -412,6 +418,51 @@ class-load win (~0.87 s to =(require 'behave.core)= either way).
      it exists). Needs testing on a real Windows install.
   2. Per-platform CI runners so jlink runs natively per target.
   3. Wait for Conveyor's built-in AppCDS support.
+
+*** AppCDS on the Windows box — proven 2026-07-07
+
+Working recipe (all steps verified on 10.1.30.117):
+1. The packaged runtime has no =java.exe= / =lib/classlist= (Conveyor
+   strips them), but Conveyor's *download cache on the build machine* has
+   the exact Corretto build it jlinked from
+   (=~/Library/Caches/Hydraulic/Conveyor/entries/.../content=). Transplant
+   =bin/java.exe=, =bin/jli.dll=, =lib/jvm.cfg=, =lib/classlist= into the
+   install dir, plus copy the packaged =bin/jvm.dll= to =bin/server/=.
+   The transplanted CLI runs against the jlinked image (=21.0.9=, verified).
+2. Base archive: =bin\java.exe -Xshare:dump= → =bin/server/classes.jsa=
+   (13MB); ALSO copy to =bin/classes.jsa= — the Conveyor launcher loads
+   the flat =bin\jvm.dll=, and the JVM looks for the default base archive
+   *next to the jvm.dll that's running*.
+3. App archive: dump via a clean-exit training run with the launcher's
+   EXACT context — classpath string must match byte-for-byte (the launcher
+   builds =...app\\behave7.jar= with a *double backslash*!) and the
+   =--add-exports/--add-opens= set must match (module options are recorded
+   in dynamic archives). Get both from =jcmd <pid> VM.command_line=.
+   Verify with =-Xshare:on ... -version= → "mixed mode, *sharing*".
+4. Shipped flags (=conveyor.base.conf=):
+   =-XX:+AutoCreateSharedArchive -XX:SharedArchiveFile=&&/behave7.jsa= —
+   warn-and-ignore no-ops without the base archive; with it, each install
+   self-dumps the app archive on first clean exit (self-dumped = classpath
+   always matches, so the string-matching pitfall vanishes).
+   =jcmd <pid> VM.info= on the packaged app confirms:
+   "CDS: on, archive(s) mapped, size 79MB".
+
+Dead ends hit (so nobody repeats them):
+- =JAVA_TOOL_OPTIONS= / =_JAVA_OPTIONS=: the Conveyor launcher scrubs them.
+- =CONVEYOR_JVM_OPTIONS= + =app.jvm.allowed-options=: config key resolves,
+  but the Conveyor *21.1* launcher predates the feature (docs are newer).
+- =-XX:+RecordDynamicDumpInfo= (for =jcmd VM.cds dynamic_dump=): hard
+  VM-exit error when the base archive is missing AND mutually exclusive
+  with a dynamic =SharedArchiveFile= — never ship it.
+
+Measured payoff (clean A/B, =java.exe -Xshare:on= vs =off=, full
+=behave.core= require): *31.5s → 26.6s (~15%)*. Far from the Mac's 2x:
+CDS removes parse/verify/load, but this box's cost is dominated by
+*running* Clojure =<clinit>= initializers, which CDS can't skip.
+Production wiring (base-archive injection via a =windows-latest= CI job,
+or generated once per release on this box) is optional at that payoff;
+the flags ship inert either way. The deeper fix for the ~30s remains
+reducing eager =<clinit>= work, or Project Leyden down the road.
 - Consider =-XX:TieredStopAtLevel=1= for the desktop app (startup-biased JIT) —
   measure; compute-heavy paths run in WASM on the client, so peak JVM perf
   matters little for the desktop shell. /Skipped for now: would slow the
