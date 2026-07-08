@@ -95,7 +95,8 @@
                          (run 'rename-jar))
                        (println "target/behave7.jar is up-to-date, skipping uber-prep."))}
 
-  conveyor    {:doc  "Build Conveyor packages. Use -t <target> (mac, windows, linux) or omit for all. Comma-separate for multiple: -t mac,windows. Use -f to force rebuild."
+  conveyor    {:doc  "Build Conveyor packages. Use -t <target> (mac, windows, linux) or omit for all.
+                      Comma-separate for multiple: -t mac,windows. Use -f to force rebuild."
                :task (let [{:keys [target force]} (cli/parse-opts *command-line-args*
                                                                   {:spec {:target {:alias :t}
                                                                           :force  {:alias :f :coerce :boolean}}})
@@ -113,4 +114,10 @@
                        (when (:windows targets)
                          (shell "conveyor -f conveyor.windows-ci.conf make windows-zip -o output/windows --overwrite"))
                        (when (:linux targets)
-                         (shell "conveyor -f conveyor.linux-ci.conf make debian-package -o output/deb --overwrite")))}}}
+                         (shell "conveyor -f conveyor.linux-ci.conf make debian-package -o output/deb --overwrite")))}
+
+  azure-sign  {:doc  "Sign a built Windows zip with Azure Trusted Signing (via az-cli).
+                      Optional arg: path to zip; defaults to newest unsigned in output/windows.
+                      Requires `az login` and az-cli's direnv env."
+               :task (apply shell "bash" "scripts/sign-windows-zip.sh"
+                            *command-line-args*)}}}
