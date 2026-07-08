@@ -1,27 +1,27 @@
 (ns ^:figwheel-hooks behave.client
-  (:require [clojure.string                  :as str]
-            [reagent.dom                     :refer [render]]
-            [re-frame.core                   :as rf]
-            [behave.components.core          :as c]
+  (:require [behave.components.core          :as c]
+            [behave.components.modal         :refer [modal]]
             [behave.components.sidebar.views :refer [sidebar]]
             [behave.components.toolbar       :refer [toolbar]]
-            [behave.components.modal         :refer [modal]]
+            [behave.demo.views               :refer [demo-output-diagram-page]]
+            [behave.events]
             [behave.help.views               :refer [help-area]]
+            [behave.print.views              :refer [print-page]]
             [behave.settings.views           :as settings]
-            [behave.store                    :refer [load-store!]]
+            [behave.store                    :refer [flush-sync-beacon! load-store!]]
+            [behave.subs]
             [behave.tools                    :as tools]
             [behave.translate                :refer [<t bp]]
             [behave.vms.store                :refer [load-vms!]]
             [behave.wizard.views             :as wizard]
-            [behave.print.views              :refer [print-page]]
-            [behave.demo.views               :refer [demo-output-diagram-page]]
             [behave.worksheet.views          :refer [home-page
                                                      import-worksheet-page
                                                      module-selection-page
                                                      workflow-selection-page]]
-            [behave.events]
-            [behave.subs]
-            [day8.re-frame.http-fx]))
+            [clojure.string                  :as str]
+            [day8.re-frame.http-fx]
+            [re-frame.core                   :as rf]
+            [reagent.dom                     :refer [render]]))
 
 (def ^:private CANCEL-TIMEOUT-MS 4000)
 
@@ -31,7 +31,7 @@
 
 (def handler->page {:home                  home-page
                     :demo/diagram          demo-output-diagram-page
-                    :ws/home                home-page
+                    :ws/home               home-page
                     :ws/import             import-worksheet-page
                     :ws/module-selection   module-selection-page
                     :ws/workflow-selection workflow-selection-page
@@ -66,8 +66,6 @@
   (let [*image-modal   (rf/subscribe [:state [:help-area :image-modal]])
         close-modal-fn #(rf/dispatch [:state/set [:help-area :image-modal] nil])]
     [:div {:style {:display (if @*image-modal "block" "none")}}
-     [:div.modal__background
-      {:on-click close-modal-fn}]
      [modal {:title          (:title @*image-modal)
              :close-on-click close-modal-fn
              :content        [:div.image-viewer
@@ -78,8 +76,6 @@
   (let [*table-modal   (rf/subscribe [:state [:help-area :table-modal]])
         close-modal-fn #(rf/dispatch [:state/set [:help-area :table-modal] nil])]
     [:div {:style {:display (if @*table-modal "block" "none")}}
-     [:div.modal__background
-      {:on-click close-modal-fn}]
      [modal {:close-on-click close-modal-fn
              :content        [:div.table-viewer @*table-modal]}]]))
 
@@ -93,7 +89,7 @@
         page               (get handler->page (:handler @route) not-found)
         params             (-> (merge params (:route-params @route))
                                (assoc :route-handler (:handler @route)))
-        show-disclaimer?    @(rf/subscribe [:state :show-disclaimer?])]
+        show-disclaimer?   @(rf/subscribe [:state :show-disclaimer?])]
     [:div.app-shell
      [image-modal]
      [table-modal]
@@ -103,12 +99,13 @@
          [:h3 "Loading..."])
        [:div.page
         (when @vms-export-results
-          [modal {:title          "Vms Sync"
-                  :close-on-click #(do (rf/dispatch [:state/set :vms-export-http-results nil])
-                                       (rf/dispatch [:app/reload]))
-                  :content        [:div
-                                   {:style {:width "400px"}}
-                                   @vms-export-results]}])
+          [modal {:title                "Vms Sync"
+                  :close-on-click       #(do (rf/dispatch [:state/set :vms-export-http-results nil])
+                                             (rf/dispatch [:app/reload]))
+                  :dismiss-on-backdrop? false
+                  :content              [:div
+                                         {:style {:width "400px"}}
+                                         @vms-export-results]}])
         [:table.page__top
          [:tr
           [:td.page__top__logo
@@ -157,12 +154,15 @@
     (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
+    ;; Flush pending tx-data on teardown (reload/close).
+    (.addEventListener js/window "pagehide" (fn [_] (flush-sync-beacon!)))
     (load-vms! (:vms-version params))
     (load-store!)
     (load-scripts! params)
     (add-before-unload-event! params)
     (render [app-shell params] (.getElementById js/document "app"))))
 
+#_{:clj-kondo/ignore [:unused-private-var]}
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."
   []

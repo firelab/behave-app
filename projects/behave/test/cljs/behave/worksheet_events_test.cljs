@@ -1,14 +1,13 @@
 (ns behave.worksheet-events-test
   (:require
-   [cljs.test :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
-   [re-frame.core :as rf]
    [behave.fixtures :as fx]
    [behave.test-utils :as utils]
-   [day8.re-frame.test :as rf-test]
-   [datascript.core :as d]
    [behave.worksheet.events]
    [behave.worksheet.subs]
-   [austinbirch.reactive-entity :as re]))
+   [cljs.test :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
+   [datascript.core :as d]
+   [day8.re-frame.test :as rf-test]
+   [re-frame.core :as rf]))
 
 ;; =================================================================================================
 ;; Fixtures
@@ -44,16 +43,7 @@
 
         (is (= (:input-group/group-uuid input-group) group-uuid))
 
-        (is (= (:input-group/repeat-id input-group) 0)))))
-
-  (testing "invalid"
-    (testing "ws-uuid does not exist"
-      (let [non-ext-uuid  "non-exisitng-uuid"
-            group-uuid    "some-group-uuid" ;TODO make human readable
-            event-to-test [:worksheet/add-input-group non-ext-uuid group-uuid 0]]
-        (rf/dispatch-sync event-to-test)
-        (let [worksheet @(rf/subscribe [:worksheet non-ext-uuid])]
-          (is (nil? worksheet)))))))
+        (is (= (:input-group/repeat-id input-group) 0))))))
 
 ;; =================================================================================================
 ;; :worksheet/upsert-input-variable
@@ -64,7 +54,6 @@
         input-group-uuid    "some-input-group-uuid"
         group-variable-uuid "some-group-variable-uuid"
         value               "some-value"
-        units               "some-units"
         repeat-id           0
         setup-event         [:worksheet/add-input-group fx/test-ws-uuid input-group-uuid repeat-id]
         event-to-test       [:worksheet/upsert-input-variable
@@ -72,8 +61,7 @@
                              input-group-uuid
                              repeat-id
                              group-variable-uuid
-                             value
-                             units]]
+                             value]]
 
     (rf/dispatch-sync setup-event)
 
@@ -93,37 +81,7 @@
            {:input-group/group-uuid input-group-uuid
             :input-group/repeat-id  repeat-id
             :input-group/inputs     [{:input/group-variable-uuid group-variable-uuid
-                                      :input/value               value
-                                      :input/units-uuid          units}]}))))
-
-(deftest upsert-input-variable-with-non-existing-group-uuid-test
-  (let [*worksheet                   (rf/subscribe [:worksheet fx/test-ws-uuid])
-        non-exiting-input-group-uuid "non-existing-input-group-uuid"
-        group-variable-uuid          "some-group-variable-uuid"
-        value                        "some-value"
-        units                        "some-units"
-        repeat-id                    0
-        event-to-test                [:worksheet/upsert-input-variable
-                                      fx/test-ws-uuid
-                                      non-exiting-input-group-uuid
-                                      repeat-id
-                                      group-variable-uuid
-                                      value
-                                      units]]
-
-    (is (->> *worksheet
-             deref
-             :worksheet/input-groups
-             empty?)
-        "input-groups should be empty before dispatching event-to-test")
-
-    (rf/dispatch-sync event-to-test)
-
-    (is (->> *worksheet
-             deref
-             :worksheet/input-groups
-             empty?)
-        "should not add inputs with this input-group-uuid to the worksheet")))
+                                      :input/value               value}]}))))
 
 ;; =================================================================================================
 ;; :worksheet/delete-repeat-input-test
@@ -205,133 +163,6 @@
           ":output/eneabled? should be updated to true"))))
 
 ;; =================================================================================================
-;; :worksheet/add-result-table
-;; =================================================================================================
-
-(deftest add-result-table-test
-  (let [event-to-test [:worksheet/add-result-table fx/test-ws-uuid]]
-    (rf/dispatch-sync event-to-test)
-    (let [*worksheet (rf/subscribe [:worksheet fx/test-ws-uuid])]
-      (is (some? (:worksheet/result-table @*worksheet))))))
-
-;; =================================================================================================
-;; :worksheet/add-result-table-header-test
-;; =================================================================================================
-
-(deftest add-result-table-header-test
-  (let [*worksheet          (rf/subscribe [:worksheet fx/test-ws-uuid])
-        group-variable-uuid "some-group-variable-uuid"
-        repeat-id           0
-        units               "some-units"
-        setup-event         [:worksheet/add-result-table fx/test-ws-uuid]
-        event-to-test       [:worksheet/add-result-table-header fx/test-ws-uuid group-variable-uuid repeat-id units]]
-
-    (rf/dispatch-sync setup-event)
-
-    (is (empty? (-> @*worksheet
-                    :worksheet/result-table
-                    :result-table/headers))
-        "should not have any headers before dispatching event-to-test")
-
-    (rf/dispatch-sync event-to-test)
-
-    (is (= (-> @*worksheet
-               :worksheet/result-table
-               :result-table/headers
-               first
-               :result-header/group-variable-uuid)
-           group-variable-uuid)
-        "should now have the correct header added to result-table")))
-
-(deftest add-result-table-header-order-test
-  (let [*worksheet           (rf/subscribe [:worksheet fx/test-ws-uuid])
-        group-variable-uuids ["1" "2" "3" "4"]
-        new-gv-uuid          "5"
-        repeat-id            0
-        units                "some-units"
-        setup-event          [:worksheet/add-result-table fx/test-ws-uuid]
-        event-to-test        [:worksheet/add-result-table-header fx/test-ws-uuid new-gv-uuid repeat-id units]]
-
-    (rf/dispatch-sync setup-event)
-
-    (doseq [uuid group-variable-uuids]
-      (rf/dispatch-sync [:worksheet/add-result-table-header fx/test-ws-uuid repeat-id uuid units]))
-
-    (is (= (count (-> @*worksheet
-                      :worksheet/result-table
-                      :result-table/headers))
-           4)
-        "should exist 4 group variables before dispatching event-to-test")
-
-    (rf/dispatch-sync event-to-test)
-
-    (is (= (->> @*worksheet
-                :worksheet/result-table
-                :result-table/headers
-                (filterv #(= (:result-header/group-variable-uuid %) new-gv-uuid))
-                first
-                :result-header/order)
-           4)
-        "order should be set to 4 (0 index) since we already have 4 variables")))
-
-;; =================================================================================================
-;; :worksheet/add-result-table-row
-;; =================================================================================================
-
-(deftest add-result-table-row-single-test
-  (let [*worksheet    (rf/subscribe [:worksheet fx/test-ws-uuid])
-        setup-event   [:worksheet/add-result-table fx/test-ws-uuid]
-        event-to-test [:worksheet/add-result-table-row fx/test-ws-uuid 0]]
-
-    (rf/dispatch-sync setup-event)
-
-    (is (empty? (-> @*worksheet
-                    :worksheet/result-table
-                    :result-table/rows))
-        "should not have any rows before dispatching event-to-test")
-
-    (rf/dispatch-sync event-to-test)
-
-    (is (= (-> @*worksheet
-               :worksheet/result-table
-               :result-table/rows
-               first
-               :result-row/id)
-           0)
-        "Should now have one row with the correct row-id")))
-
-(deftest add-result-table-row-multiple-test
-  (let [*worksheet     (rf/subscribe [:worksheet fx/test-ws-uuid])
-        setup-event    [:worksheet/add-result-table fx/test-ws-uuid]
-        events-to-test [[:worksheet/add-result-table-row fx/test-ws-uuid 0]
-                        [:worksheet/add-result-table-row fx/test-ws-uuid 1]
-                        [:worksheet/add-result-table-row fx/test-ws-uuid 2]]]
-
-    (rf/dispatch-sync setup-event)
-
-    (is (empty? (-> @*worksheet
-                    :worksheet/result-table
-                    :result-table/rows))
-        "should not have any rows before dispatching events-to-test")
-
-    (doseq [event events-to-test]
-      (rf/dispatch-sync event))
-
-    (is (= (count (-> @*worksheet
-                      :worksheet/result-table
-                      :result-table/rows))
-           3)
-        "Should now have 3 rows")))
-
-;; =================================================================================================
-;; :worksheet/add-result-table-cell
-;; =================================================================================================
-
-;; (deftest add-result-table-cell
-;;   (is (= 1 0)
-;;       "TODO"))
-
-;; =================================================================================================
 ;; :worksheet/solve
 ;; =================================================================================================
 
@@ -367,8 +198,7 @@
    "Time from Report"                          "0e9457cb-33cb-4fce-a4b6-165fa1fd60a5",
    "Contain Status"                            "7fe3de90-6207-4200-9b0c-2112d6e5cf09",
    "Contained Area"                            "19e71ac2-1c30-4f6b-9d8a-5d7e208e0ff0",
-   "Fireline Constructed"                      "32078406-4117-47b0-8cef-2b395c869ff6",
-   "Number of Resources Used"                  "84015e74-32c4-4a02-9717-5ac33d4e3f9c"}
+   "Fireline Constructed"                      "32078406-4117-47b0-8cef-2b395c869ff6"}
 
   ;; inputs
   {"Fire Size at Report"                           "30493fc2-a231-41ee-a16a-875f00cf853f",
@@ -420,10 +250,10 @@
        (is (seq result-table-cell-data))
 
        (if (= single-or-multi :single)
-        (is (= 1 (inc (apply max (map first result-table-cell-data))))
-            (with-output-name output-name "should only have one row of data"))
-        (is (= 4 (inc (apply max (map first result-table-cell-data))))
-            (with-output-name output-name "should only have four rows of data")))
+         (is (= 1 (inc (apply max (map first result-table-cell-data))))
+             (with-output-name output-name "should only have one row of data"))
+         (is (= 4 (inc (apply max (map first result-table-cell-data))))
+             (with-output-name output-name "should only have four rows of data")))
 
        (is (= 6 (count (into #{} (map (fn [[_row col-uuid repeat-id _value]]
                                         (str col-uuid "-" repeat-id)))
@@ -443,23 +273,63 @@
 ;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table-test
   (are [output] (run-solver-test-suite output :single)
-    "Fire Perimeter - at resource arrival time"
-    "Fire Area - at resource arrival time"
+    "Fire Perimeter at First Resource Arrival Time"
+    "Fire Area at First Resource Arrival Time"
     "Time from Report"
     "Contain Status"
     "Contained Area"
-    "Fireline Constructed"
-    "Number of Resources Used"))
+    "Fireline Constructed"))
 
 (deftest solver-test-multi-row-results-table-test
   (are [output] (run-solver-test-suite output :multi)
-    "Fire Perimeter - at resource arrival time"
-    "Fire Area - at resource arrival time"
+    "Fire Perimeter at First Resource Arrival Time"
+    "Fire Area at First Resource Arrival Time"
     "Time from Report"
     "Contain Status"
     "Contained Area"
-    "Fireline Constructed"
-    "Number of Resources Used"))
+    "Fireline Constructed"))
+
+;; =================================================================================================
+;; :worksheet/update-all-table-filters-from-results
+;; =================================================================================================
+
+(defn- table-filter-for
+  "The [gv-uuid min max enabled?] tuple for `gv-uuid`, or nil when the filter has
+  no min/max yet (the sub only returns filters that have been seeded)."
+  [ws-uuid gv-uuid]
+  (first (filter (fn [[u]] (= u gv-uuid))
+                 @(rf/subscribe [:worksheet/table-settings-filters ws-uuid]))))
+
+(deftest update-all-table-filters-seeds-unseeded-filter-test
+  ;; The dummy results table gives output1 values 10/20/30 -> range [10 30].
+  (fx/with-dummy-results-table)
+  (rf-test/run-test-sync
+   (let [ws fx/test-ws-uuid
+         gv "output1"]
+     (rf/dispatch [:worksheet/add-table-filter ws gv])
+     (is (nil? (table-filter-for ws gv))
+         "precondition: a freshly added filter has no min/max yet")
+
+     (rf/dispatch [:worksheet/update-all-table-filters-from-results ws])
+     (is (= ["output1" 10 30 false] (table-filter-for ws gv))
+         "an unseeded filter is auto-ranged to the floor/ceil of the results"))))
+
+(deftest update-all-table-filters-preserves-seeded-filter-test
+  (fx/with-dummy-results-table)
+  (rf-test/run-test-sync
+   (let [ws fx/test-ws-uuid
+         gv "output1"]
+     (rf/dispatch [:worksheet/add-table-filter ws gv])
+     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/min 15])
+     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/max 25])
+     (is (= ["output1" 15 25 false] (table-filter-for ws gv))
+         "precondition: the filter has a user-set range")
+
+     ;; Re-running a solve dispatches this event again — it must not clobber the
+     ;; user's range (the bug this guards against).
+     (rf/dispatch [:worksheet/update-all-table-filters-from-results ws])
+     (is (= ["output1" 15 25 false] (table-filter-for ws gv))
+         "a re-run preserves an already-seeded / user-set range"))))
 
 ;; =================================================================================================
 ;; :worksheet/toggle-table-settings

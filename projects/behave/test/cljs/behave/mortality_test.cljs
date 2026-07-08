@@ -16,10 +16,10 @@
 
 (defn- clean-values [row]
   (into {}
-        (map (fn remove-quotes[[key val]]
-               (if (string? val)
-                 [key (str/replace val "\"" "")]
-                 [key val])))
+        (map (fn remove-quotes [[k v]]
+               (if (string? v)
+                 [k (str/replace v "\"" "")]
+                 [k v])))
         row))
 
 (def equation-type-lookup
@@ -39,7 +39,7 @@
                        -1)
        species-code  (get row "TreeSpecies")]
 
-    (mortality/setRegion module (enums/region-code "south_east"))
+    (mortality/setGACCRegion module (enums/gacc "SouthernArea"))
 
     (mortality/setEquationType module  equation-type)
 
@@ -73,7 +73,7 @@
 
     (let [CrownRatio (get row "CrownRatio")]
       (when (not-blank? CrownRatio)
-        (mortality/setCrownRatio module (/ CrownRatio 100))))
+        (mortality/setCrownRatio module (/ CrownRatio 100) (enums/fraction-units "Fraction"))))
 
     (let [CrownScorch (get row "CrownScorch%")]
       (when (not-blank? CrownScorch)
@@ -93,8 +93,9 @@
 
     (let [line-number (+ row-idx 2)]
       (testing (str "csv line #:" line-number)
+        (mortality/calculateMortalityAllDirections module (enums/probability-units "Percent"))
         (let [expected (get row "MortAvgPercent")
-              observed (mortality/calculateMortality module (enums/probability-units "Percent"))]
+              observed (mortality/getProbabilityOfMortality module (enums/probability-units "Percent"))]
           (when (not (within-four-percent? expected observed))
             (swap! failing-tests
                    conj

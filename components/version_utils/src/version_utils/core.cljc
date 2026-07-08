@@ -6,7 +6,7 @@
   Returns nil for nil, blank, or non-numeric input."
   [s]
   (when (and (string? s) (not (str/blank? s)))
-    (let [parts (str/split s #"\.")]
+    (let [parts (-> s (str/replace #"^[vV]" "") (str/split #"\."))]
       (when (every? #(re-matches #"\d+" %) parts)
         (mapv #?(:clj  #(Integer/parseInt %)
                  :cljs js/parseInt) parts)))))

@@ -1,6 +1,9 @@
 (ns behave.wizard.views
   (:require [behave-routing.main                    :refer [routes current-route-order]]
             [behave.components.core                 :as c]
+            [behave.components.graph-settings.events]
+            [behave.components.graph-settings.subs]
+            [behave.components.graph-settings.views :refer [graph-settings-modal]]
             [behave.components.input-group          :refer [input-group]]
             [behave.components.navigation           :refer [wizard-navigation]]
             [behave.components.output-group         :refer [output-group]]
@@ -13,6 +16,9 @@
                                                             pivot-tables
                                                             search-tables]]
             [behave.components.review-input-group   :as review]
+            [behave.components.settings-form.views  :refer [settings-form]]
+            [behave.components.table-settings.subs]
+            [behave.components.table-settings.views :refer [table-settings-modal]]
             [behave.tool.views                      :refer [tool tool-selector]]
             [behave.translate                       :refer [<t bp]]
             [behave.wizard.events]
@@ -21,9 +27,7 @@
             [behave.worksheet.subs]
             [bidi.bidi                              :refer [path-for]]
             [clojure.string                         :as str]
-            [dom-utils.interface                    :refer [input-int-value
-                                                            input-float-value
-                                                            input-value]]
+            [dom-utils.interface                    :refer [input-value]]
             [goog.string                            :as gstring]
             [goog.string.format]
             [re-frame.core                          :refer [dispatch dispatch-sync subscribe]]
@@ -103,7 +107,7 @@
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
       [:div.wizard-header__banner__title
-       (str/join " and " (map :module/name modules))]
+       (str/join " and " (map :module/name (sort-by :module/results-order modules)))]
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodules
@@ -364,189 +368,6 @@
 
 ;; Wizard Results Settings Page
 
-(defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
-  (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
-
-(defn- number-inputs
-  [{:keys [saved-entries on-change default-values]}]
-  (map (fn [[gv-uuid saved-value enabled?]]
-         (let [value-atom            (r/atom saved-value)
-               show-tenth-precision? (< (get default-values gv-uuid) 1)]
-           [c/number-input (cond-> {:disabled?  (if (some? enabled?)
-                                                  (not enabled?)
-                                                  false)
-                                    :on-change  #(let [v (if show-tenth-precision?
-                                                           (input-float-value %)
-                                                           (input-int-value %))]
-                                                   (reset! value-atom v))
-                                    :on-blur    #(on-change gv-uuid @value-atom)
-                                    :value-atom value-atom}
-                             show-tenth-precision?
-                             (assoc :step "0.1"))]))
-       saved-entries))
-
-(defn settings-form
-  [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
-  (let [*gv-uuid+min+max-entries       (subscribe [rf-sub-id ws-uuid])
-        *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
-        gv-uuid+min+max-entries-sorted (->> @*gv-uuid+min+max-entries
-                                            (sort-by #(.indexOf @*gv-order (first %))))
-        *default-max-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
-        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :min])
-        units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
-        maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val [[gv-uuid _min-val max-val enabled?]]
-                                                                              [gv-uuid max-val enabled?])
-                                                                            gv-uuid+min+max-entries-sorted)
-                                                       :on-change      #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)
-                                                       :default-values @*default-max-values})
-        minimums                       (number-inputs {:saved-entries  (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
-                                                                              [gv-uuid min-val enabled?])
-                                                                            gv-uuid+min+max-entries-sorted)
-                                                       :min-attr-id    max-attr-id
-                                                       :on-change      #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)
-                                                       :default-values @*default-min-values})
-        output-ranges                  (map (fn [[gv-uuid & _rest]]
-                                              (let [min-val     (get @*default-min-values gv-uuid)
-                                                    min-val-fmt (if (< min-val 1) "%.1f" "%d")
-                                                    max-val     (get @*default-max-values gv-uuid)
-                                                    max-val-fmt (if (< max-val 1) "%.1f" "%d")
-                                                    fmt         (gstring/format "%s - %s" min-val-fmt max-val-fmt)]
-                                                (gstring/format fmt min-val max-val)))
-                                            gv-uuid+min+max-entries-sorted)
-        names                          (map (fn get-variable-name [[gv-uuid _min _max]]
-                                              (gstring/format "%s (%s)"
-                                                              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
-                                                              (get units-lookup
-                                                                   (if-let [direcitonal-children (seq @(subscribe [:vms/directional-children gv-uuid]))]
-                                                                     (:bp/uuid (first direcitonal-children))
-                                                                     gv-uuid))))
-                                            gv-uuid+min+max-entries-sorted)
-        enabled-check-boxes            (when (= rf-event-id :worksheet/update-table-filter-attr)
-                                         (map (fn [[gv-uuid _min _max enabled?]]
-                                                [c/checkbox {:checked?  enabled?
-                                                             :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid gv-uuid])}])
-                                              gv-uuid+min+max-entries-sorted))
-        column-keys                    (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
-        row-data                       (if enabled-check-boxes
-                                         (map (fn build-row [& args]
-                                                (into {}
-                                                      (map (fn [x y] [x y])
-                                                           column-keys args)))
-                                              enabled-check-boxes
-                                              names
-                                              output-ranges
-                                              minimums
-                                              maximums)
-                                         (map (fn build-row [& args]
-                                                (into {}
-                                                      (map (fn [x y] [x y])
-                                                           column-keys args)))
-                                              names
-                                              output-ranges
-                                              minimums
-                                              maximums))]
-    [:div.settings-form
-     (c/table {:title   title
-               :headers headers
-               :columns column-keys
-               :rows    row-data})]))
-
-(defn- graph-settings [ws-uuid]
-  (let [*multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])
-        group-variables          (->> @*multi-value-input-uuids
-                                      (map #(deref (subscribe [:wizard/group-variable %]))))
-        multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
-        multi-valued-input-count (count multi-valued-input-uuids)
-        x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
-        units-lookup             @(subscribe [:worksheet/result-table-units ws-uuid])
-        enabled?                 @(subscribe [:wizard/enable-graph-settings? ws-uuid])]
-    (letfn [(radio-group [{:keys [label attr variables on-change]}]
-              (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
-                    selected? (first @*values)]
-                [c/radio-group {:label   label
-                                :options (mapv (fn [{group-var-uuid :bp/uuid}]
-                                                 (let [var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name group-var-uuid])]
-                                                   {:value     var-name
-                                                    :label     var-name
-                                                    :on-change #(do (dispatch [:worksheet/update-graph-settings-attr
-                                                                               ws-uuid
-                                                                               attr
-                                                                               group-var-uuid])
-                                                                    (on-change group-var-uuid))
-                                                    :checked?  (= selected? group-var-uuid)}))
-                                               variables)}]))]
-      [:<>
-       [c/checkbox {:label     @(<t (bp "display_graph_results"))
-                    :checked?  enabled?
-                    :on-change #(dispatch [:worksheet/toggle-graph-settings ws-uuid])}]
-       (when enabled?
-         (cond-> [:<>]
-           (>= multi-valued-input-count 1)
-           (conj [radio-group {:label     (str @(<t (bp "select_x_axis_variable")) ":")
-                               :attr      :graph-settings/x-axis-group-variable-uuid
-                               :variables group-variables
-                               :on-change #(dispatch [:worksheet/upsert-x-axis-limit ws-uuid %])}])
-
-           (>= multi-valued-input-count 2)
-           (conj [radio-group {:label     (str @(<t (bp "select_z_axis_variable")) ":")
-                               :attr      :graph-settings/z-axis-group-variable-uuid
-                               :variables group-variables}])
-
-           (>= multi-valued-input-count 3)
-           (conj [radio-group {:label     (str @(<t (bp "select_z2_axis_variable")) ":")
-                               :attr      :graph-settings/z2-axis-group-variable-uuid
-                               :variables group-variables}])
-
-           (and (>= multi-valued-input-count 1) (not @(subscribe [:wizard/discrete-group-variable? (first x-axis-limits)])))
-           (conj (let [[gv-uuid
-                        min-val
-                        max-val]                 x-axis-limits
-                       v-name                    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
-                       [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
-                   [:div.settings-form
-                    (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
-                              :headers (->> [@(<t (bp "input_variable"))
-                                             @(<t (bp "range"))
-                                             @(<t (bp "minimum"))
-                                             @(<t (bp "maximum"))]
-                                            (mapv #(str/upper-case %)))
-                              :columns [:v-name :input-range :min :max]
-                              :rows    [{:v-name      (gstring/format "%s (%s)"
-                                                                      v-name
-                                                                      (get units-lookup gv-uuid))
-                                         :input-range (str default-min "-" default-max)
-                                         :min         (let [value-atom (r/atom min-val)]
-                                                        [c/number-input {:enabled?   enabled?
-                                                                         :on-change  #(let [v (input-int-value %)]
-                                                                                        (reset! value-atom v))
-                                                                         :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
-                                                                                                 ws-uuid
-                                                                                                 :x-axis-limit/min
-                                                                                                 @value-atom])
-                                                                         :value-atom value-atom}])
-                                         :max         (let [value-atom (r/atom max-val)]
-                                                        [c/number-input {:enabled?   enabled?
-                                                                         :on-change  #(let [v (input-int-value %)]
-                                                                                        (reset! value-atom v))
-                                                                         :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
-                                                                                                 ws-uuid
-                                                                                                 :x-axis-limit/max
-                                                                                                 @value-atom])
-                                                                         :value-atom value-atom}])}]})]))
-
-           (>= multi-valued-input-count 1)
-           (conj [settings-form {:ws-uuid     ws-uuid
-                                 :title       @(<t (bp "y_graph_and_axis_limits"))
-                                 :headers     (->> [@(<t (bp "output_variable"))
-                                                    @(<t (bp "range"))
-                                                    @(<t (bp "minimum"))
-                                                    @(<t (bp "maximum"))]
-                                                   (mapv #(str/upper-case %)))
-                                 :rf-event-id :worksheet/update-y-axis-limit-attr
-                                 :rf-sub-id   :worksheet/graph-settings-y-axis-limits-filtered
-                                 :min-attr-id :y-axis-limit/min
-                                 :max-attr-id :y-axis-limit/max}])))])))
-
 (defn- map-units-form
   [ws-uuid]
   (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -585,19 +406,22 @@
                   :on-change #(dispatch [:worksheet/toggle-map-units-settings ws-uuid])}]
      (when map-units-enabled?
        [map-units-form ws-uuid])
-     [settings-form {:ws-uuid     ws-uuid
-                     :title       @(<t (bp "table_shading_filters"))
-                     :headers     (mapv
-                                   #(str/upper-case %)
-                                   [(str @(<t (bp "enabled")) "?")
-                                    @(<t (bp "output_variable"))
-                                    @(<t (bp "range"))
-                                    @(<t (bp "minimum"))
-                                    @(<t (bp "maximum"))])
-                     :rf-event-id :worksheet/update-table-filter-attr
-                     :rf-sub-id   :worksheet/table-settings-filters-filtered
-                     :min-attr-id :table-filter/min
-                     :max-attr-id :table-filter/max}]]))
+     [settings-form {:ws-uuid            ws-uuid
+                     :title              @(<t (bp "table_shading_filters"))
+                     :headers            (mapv
+                                          #(str/upper-case %)
+                                          [(str @(<t (bp "enabled")) "?")
+                                           @(<t (bp "output_variable"))
+                                           @(<t (bp "range"))
+                                           @(<t (bp "minimum"))
+                                           @(<t (bp "maximum"))])
+                     :rf-event-id        :worksheet/update-table-filter-attr
+                     :rf-sub-id          :worksheet/table-settings-filters-filtered
+                     :min-attr-id        :table-filter/min
+                     :max-attr-id        :table-filter/max
+                     :default-min-values @(subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :min])
+                     :default-max-values @(subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
+                     :on-toggle-row      #(dispatch [:worksheet/toggle-enable-filter ws-uuid %])}]]))
 
 (defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
@@ -611,7 +435,8 @@
                                                               :workflow workflow})])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
-        show-graph-settings? @(subscribe [:wizard/show-graph-settings? ws-uuid])]
+        show-graph-settings? @(subscribe [:wizard/show-graph-settings? ws-uuid])
+        graph-enabled?       @(subscribe [:wizard/enable-graph-settings? ws-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -633,14 +458,16 @@
           [add-note-section ws-uuid modules])
         [:div.wizard-page__body
          [:div.wizard-results__table-settings
-          [:div.wizard-results__table-settings__header "Table Settings"]
+          [:div.wizard-results__table-settings__header @(<t (bp "table_settings"))]
           [:div.wizard-results__table-settings__content
            [table-settings ws-uuid]]]
          (when show-graph-settings?
            [:div.wizard-results__graph-settings
-            [:div.wizard-results__graph-settings__header "Graph Settings"]
+            [:div.wizard-results__graph-settings__header @(<t (bp "show_graphs"))]
             [:div.wizard-results__graph-settings__content
-             [graph-settings ws-uuid]]])]]]
+             [c/checkbox {:label     @(<t (bp "display_graph_results"))
+                          :checked?  graph-enabled?
+                          :on-change #(dispatch [:worksheet/toggle-graph-settings ws-uuid])}]]])]]]
       [wizard-navigation {:next-label @(<t (bp "next"))
                           :on-next    on-next
                           :back-label @(<t (bp "back"))
@@ -652,49 +479,52 @@
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
     (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
-  (let [*worksheet          (subscribe [:worksheet ws-uuid])
-        modules             @(subscribe [:worksheet/modules ws-uuid])
-        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        *tab-selected       (subscribe [:wizard/results-tab-selected])
-        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])
-        repeat-groups?      @(subscribe [:worksheet/repeat-groups? ws-uuid])
-        tabs                (cond-> []
+  (let [*worksheet                 (subscribe [:worksheet ws-uuid])
+        modules                    @(subscribe [:worksheet/modules ws-uuid])
+        *ws-date                   (subscribe [:wizard/worksheet-date ws-uuid])
+        *tab-selected              (subscribe [:wizard/results-tab-selected])
+        *cell-data                 (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        show-tool-selector?        @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid         @(subscribe [:tool/selected-tool-uuid])
+        repeat-groups?             @(subscribe [:worksheet/repeat-groups? ws-uuid])
+        show-table-settings?       @(subscribe [:table-settings/modal-visible?])
+        show-graph-settings-modal? @(subscribe [:graph-settings/modal-visible?])
+        multi-value-input-count    (count @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
+        tabs                       (cond-> []
 
-                              :always
-                              (conj {:label     (-> @(<t (bp "notes"))
-                                                    s/capitalize-words)
-                                     :tab       :notes
-                                     :icon-name :notes
-                                     :selected? (= @*tab-selected :notes)})
+                                     :always
+                                     (conj {:label     (-> @(<t (bp "notes"))
+                                                           s/capitalize-words)
+                                            :tab       :notes
+                                            :icon-name :notes
+                                            :selected? (= @*tab-selected :notes)})
 
-                              :always
-                              (into [{:label     (-> @(<t (bp "inputs"))
-                                                     s/capitalize-words)
-                                      :tab       :inputs
-                                      :icon-name :tables
-                                      :selected? (= @*tab-selected :inputs)}
+                                     :always
+                                     (into [{:label     (-> @(<t (bp "inputs"))
+                                                            s/capitalize-words)
+                                             :tab       :inputs
+                                             :icon-name :tables
+                                             :selected? (= @*tab-selected :inputs)}
 
-                                     {:label     (-> @(<t (bp "output_tables"))
-                                                     s/capitalize-words)
-                                      :tab       :outputs
-                                      :icon-name :tables
-                                      :selected? (= @*tab-selected :outputs)}])
+                                            {:label     (-> @(<t (bp "output_tables"))
+                                                            s/capitalize-words)
+                                             :tab       :outputs
+                                             :icon-name :tables
+                                             :selected? (= @*tab-selected :outputs)}])
 
-                              @(subscribe [:wizard/enable-graph-settings? ws-uuid])
-                              (conj {:label     (-> @(<t (bp "output_graphs"))
-                                                    s/capitalize-words)
-                                     :tab       :graph
-                                     :icon-name :graphs
-                                     :selected? (= @*tab-selected :graph)})
+                                     @(subscribe [:wizard/enable-graph-settings? ws-uuid])
+                                     (conj {:label     (-> @(<t (bp "output_graphs"))
+                                                           s/capitalize-words)
+                                            :tab       :graph
+                                            :icon-name :graphs
+                                            :selected? (= @*tab-selected :graph)})
 
-                              (seq (:worksheet/diagrams @*worksheet))
-                              (conj {:label     (-> @(<t (bp "output_diagrams"))
-                                                    s/capitalize-words)
-                                     :tab       :diagram
-                                     :icon-name :graphs
-                                     :selected? (= @*tab-selected :diagram)}))]
+                                     (seq (:worksheet/diagrams @*worksheet))
+                                     (conj {:label     (-> @(<t (bp "output_diagrams"))
+                                                           s/capitalize-words)
+                                            :tab       :diagram
+                                            :icon-name :graphs
+                                            :selected? (= @*tab-selected :diagram)}))]
     (when (not @*tab-selected)
       (dispatch-sync [:wizard/results-select-tab (first tabs)]))
     [:<>
@@ -702,6 +532,10 @@
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-table-settings?
+       [table-settings-modal ws-uuid])
+     (when show-graph-settings-modal?
+       [graph-settings-modal ws-uuid])
      [:div.accordion
       [:div.accordion__header @(<t "behaveplus:working_area")]
       [wizard-expand]
@@ -741,6 +575,12 @@
             (when (not repeat-groups?)
               (search-tables ws-uuid))
             [pivot-tables ws-uuid]
+            (when (>= multi-value-input-count 1)
+              [:div.wizard-results__table-settings-button
+               [c/button {:label     "Table Settings"
+                          :variant   "secondary"
+                          :icon-name "settings"
+                          :on-click  #(dispatch [:table-settings/toggle])}]])
             [result-matrices ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
@@ -808,7 +648,7 @@
             [:div.wizard-header__submodule-navigator__label
              (if (= (count modules) 1)
                (gstring/format "%s %s" (:module/name (first modules)) (str (str/capitalize (name io)) "s"))
-               (apply gstring/format "%s & %s %s" (conj (mapv :module/name modules) (str (str/capitalize (name io)) "s"))))]
+               (apply gstring/format "%s & %s %s" (conj (mapv :module/name (sort-by :module/results-order modules)) (str (str/capitalize (name io)) "s"))))]
             (let [->option (fn [[module-name {submodule-name :submodule/name}]]
                              {:value submodule-name
                               :label (str module-name " - " submodule-name)})]

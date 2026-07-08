@@ -28,5 +28,26 @@
   (let ((cider-clojure-cli-aliases ":dev:behave/cms"))
     (cider-jack-in-clj&cljs nil)))
 
+(defcustom behave-test-url "http://localhost:8081/api/test"
+  "URL of the behave CLJS test page (served by `behave.handlers').
+The route renders `behave.views/render-tests-page', which instantiates
+the WASM module and only then loads the `app-testing.js' bundle whose
+main is `behave.test-runner'. Prefer this over the figwheel
+/figwheel-extra-main/testing page: that host page never sets
+`window.Module' before the bundle loads, so the `behave.lib.*'
+namespaces that read `js/Module' in top-level defs fail."
+  :type 'string
+  :group 'behave)
+
+(defun behave-test ()
+  "Open the behave CLJS test page in a browser and run the suite.
+Requires the behave dev build (compile-dev) to already be running, e.g.
+via `cider-jack-in-clj&cljs' with the default :dev:behave/app alias.
+Loading `behave-test-url' evaluates `behave.test-runner', which loads
+the VMS, runs the tests, and renders results into the `app-testing'
+element via cljs-test-display."
+  (interactive)
+  (browse-url behave-test-url))
+
 (provide 'behave)
 ;;; behave.el ends here

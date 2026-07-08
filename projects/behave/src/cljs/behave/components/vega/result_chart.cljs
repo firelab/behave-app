@@ -1,6 +1,6 @@
 (ns behave.components.vega.result-chart
-  (:require [cljsjs.vega-embed]
-            [behave.components.vega.core :refer [vega-box]]))
+  (:require [behave.components.vega.core :refer [vega-box]]
+            [cljsjs.vega-embed]))
 
 (defn build-line-chart
   "Given a map of with the following entries:
@@ -16,33 +16,34 @@
         (defaults to 1)."
   [{:keys [data x y z z2 width height]}]
   (when (and x y)
-    (let [line-chart {:mark (cond-> {}
-                              (:discrete? x)
-                              (assoc :type "bar")
+    (let [line-chart {:mark     (cond-> {}
+                                  (:discrete? x)
+                                  (assoc :type "bar")
 
-                              (not (:discrete? x))
-                              (merge {:type        "line"
-                                      :interpolate "monotone"})
+                                  (not (:discrete? x))
+                                  (merge {:type        "line"
+                                          :interpolate "monotone"
+                                          :strokeWidth 3})
 
-                              (:scale y)
-                              (assoc :clip true))
-                      :encoding (cond-> {:x     (cond-> {:field (:name x)
-                                                         :type  (if (:discrete? x)
-                                                                  "nominal"
-                                                                  "quantitative")}
-                                                  (and (not (:discrete? x)) (:scale x))
-                                                  (assoc :scale {:domain (:scale x)}))
-                                         :y     (cond-> {:field     (:name y)
-                                                         :type      "quantitative"}
-                                                  (:scale y)
-                                                  (assoc :scale {:domain (:scale y)}))}
+                                  (:scale y)
+                                  (assoc :clip true))
+                      :encoding (cond-> {:x (cond-> {:field (:name x)
+                                                     :type  (if (:discrete? x)
+                                                              "nominal"
+                                                              "quantitative")}
+                                              (and (not (:discrete? x)) (:scale x))
+                                              (assoc :scale {:domain (:scale x)}))
+                                         :y (cond-> {:field (:name y)
+                                                     :type  "quantitative"}
+                                              (:scale y)
+                                              (assoc :scale {:domain (:scale y)}))}
                                   z
-                                  (merge {:shape {:field  (:name z)
-                                                  :type   "nominal"
-                                                  :legend nil}
-                                          :color {:field  (:name z)
-                                                  :type   "nominal"
-                                                  :legend nil}
+                                  (merge {:shape   {:field  (:name z)
+                                                    :type   "nominal"
+                                                    :legend nil}
+                                          :color   {:field  (:name z)
+                                                    :type   "nominal"
+                                                    :legend nil}
                                           :xOffset {:field (:name z)}})
                                   z2
                                   (assoc :facet {:field   (:name z2)
@@ -52,24 +53,24 @@
                       :resolve  {:axis {:x "independent" :y "independent"}}
                       :width    width
                       :height   height}
-          z-name   (:name z)
-          z-legend {:mark     {:type "point"}
-                    :title    z-name
-                    :encoding {:shape {:field     z-name
-                                       :type      "nominal"
-                                       :aggregate "min"
-                                       :legend    nil}
-                               :color {:field     z-name
-                                       :type      "nominal"
-                                       :aggregate "min"
-                                       :legend    nil}
-                               :fill  {:field     z-name
-                                       :type      "nominal"
-                                       :aggregate "min"
-                                       :legend    nil}
-                               :y     {:field z-name
-                                       :type  "nominal"
-                                       :title nil}}}]
+          z-name     (:name z)
+          z-legend   {:mark     {:type "point"}
+                      :title    z-name
+                      :encoding {:shape {:field     z-name
+                                         :type      "nominal"
+                                         :aggregate "min"
+                                         :legend    nil}
+                                 :color {:field     z-name
+                                         :type      "nominal"
+                                         :aggregate "min"
+                                         :legend    nil}
+                                 :fill  {:field     z-name
+                                         :type      "nominal"
+                                         :aggregate "min"
+                                         :legend    nil}
+                                 :y     {:field z-name
+                                         :type  "nominal"
+                                         :title nil}}}]
       (cond-> {:$schema     "https://vega.github.io/schema/vega-lite/v2.json"
                :description "test"
                :data        {:values data}}

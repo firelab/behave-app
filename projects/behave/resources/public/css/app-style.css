@@ -493,8 +493,11 @@ body {
   font-weight: var(--font-weight-300);
 }
 
-.wizard-add-notes {
-  padding: 5px;
+.wizard-add-notes,
+.wizard-results__download-button,
+.wizard-results__table-settings-button,
+.wizard-results__graph-settings-button {
+  padding-left: 5px;
 }
 
 .wizard-header__results-toolbar {
@@ -842,6 +845,10 @@ body {
 
 /* -- End Wizard Standard -- */
 
+.wizard-results__graph {
+  padding-top: 10px;
+}
+
 .wizard-results__table-settings__header,
 .wizard-results__graph-settings__header {
   padding: 5px 18px;
@@ -952,6 +959,7 @@ body {
   border-top: solid 1px var(--gray-4);
   border-bottom: dashed 1px var(--gray-4);
   color: var(--black);
+  white-space: pre-wrap;
 }
 
 .wizard-note__manage {
@@ -1628,6 +1636,18 @@ body {
   align-items: center;
   gap: 24px;
   margin-bottom: 12px;
+}
+
+.table-settings,
+.graph-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.graph-settings .settings-form,
+.graph-settings .settings-form .table {
+  width: 100%;
 }
 
 .result-matrices__color-legend {
