@@ -284,10 +284,25 @@ shows, no console errors).
   by =:advanced= compilation and silently falls back to a double fetch.
 - *1.3*: =wrap-gzip= (bk/ring-gzip) in the server stack (web mode only —
   CEF serves from local disk): app.js 2.85MB → 746KB on the wire.
-- *1.4*: =wrap-cache-headers= — =max-age=31536000, immutable= for
+- *1.4a*: =wrap-cache-headers= — =max-age=31536000, immutable= for
   =/cljs/app-<hash>.js= and =/layout.msgpack?v=...=; 1 day for other
-  =?v==-stamped js/css. IndexedDB caching of the unpacked VMS store
-  remains future work.
+  =?v==-stamped js/css.
+- *1.4b (IndexedDB VMS cache, implemented later same day)*: the *hydrated*
+  VMS DataScript DB is cached in IndexedDB via =d/serializable= (structured
+  clone, no JSON round-trip) in =behave.vms.cache=, keyed by the layout
+  version with a client-schema-hash guard inside the wrapper. The head
+  prefetch script consults the cache *before* fetching, so a hit skips the
+  1.4MB download, the msgpack unpack, AND the full =d/transact= —
+  =d/from-serializable= + =conn-from-db= + =posh!= instead. The cache is
+  written off the boot path (=requestIdleCallback=) after a network
+  hydrate. Measured (headless Chrome, localhost): cold boot app-ready
+  1064ms → *warm boot app-ready 277ms* (vms-loaded 929ms → 146ms), zero
+  layout.msgpack requests on hit. Invalidation verified: stale version →
+  head script re-fetches; schema-hash mismatch → CLJS rejects wrapper and
+  XHR re-fetches; both re-seed the cache. All failures (private mode,
+  quota, corrupt entries) fall back to the network path. Desktop CEF
+  persists IndexedDB in its =.cache= dir, so relaunches of the installed
+  app get the same win.
 - *1.5*: katex + bodymovin load with =defer=.
 - *1.6*: skeleton was already effectively present (app chrome renders
   pre-hydration; only the working area gates on the stores) — no change.

@@ -63,11 +63,15 @@
     "/cljs/app.js"))
 
 (defn- data-prefetch-script
-  "Inline script that starts downloading the two boot payloads
-  (layout.msgpack and /api/sync) from the document head, so they overlap the
-  WASM + app.js phase instead of waiting for `behave.client/init`. The
-  ArrayBuffer promises are stashed on `window.bhpPreloads`; the CLJS stores
-  consume them (with an XHR fallback if a fetch failed)."
+  "Inline script that starts loading the two boot payloads from the document
+  head, so they overlap the WASM + app.js phase instead of waiting for
+  `behave.client/init`. `/api/sync` is always fetched. For the VMS layout,
+  the IndexedDB cache (db `behave-vms-cache`, store `vms` — written by
+  `behave.vms.cache` on a previous launch) is consulted first: on a version
+  match the promise resolves with `{bhpCached: <wrapper>}` and no network
+  request is made; otherwise it resolves with the fetched ArrayBuffer. The
+  promises are stashed on `window.bhpPreloads` for the CLJS stores (which
+  fall back to XHR on any failure)."
   [vms-version]
   [:script {:type "text/javascript"}
    (str/join "\n"
@@ -78,9 +82,36 @@
               "  return p;"
               "}"
               "window.bhpPreloads = {"
-              (str "  vms: bhpFetch('/layout.msgpack?v=" vms-version "'),")
               "  sync: bhpFetch('/api/sync', {'Accept': 'application/msgpack'})"
               "};"
+              (str "window.bhpPreloads.vms = new Promise(function (resolve) {")
+              (str "  var version = '" vms-version "';")
+              "  var net = function () { resolve(bhpFetch('/layout.msgpack?v=' + version)); };"
+              "  if (!window.indexedDB) { net(); return; }"
+              "  try {"
+              "    var req = indexedDB.open('behave-vms-cache', 1);"
+              "    req.onupgradeneeded = function (e) { e.target.result.createObjectStore('vms'); };"
+              "    req.onerror = net;"
+              "    req.onblocked = net;"
+              "    req.onsuccess = function (e) {"
+              "      var db = e.target.result;"
+              "      var fail = function () { db.close(); net(); };"
+              "      try {"
+              "        var vReq = db.transaction('vms').objectStore('vms').get('version');"
+              "        vReq.onerror = fail;"
+              "        vReq.onsuccess = function () {"
+              "          if (vReq.result !== version) { fail(); return; }"
+              "          var dReq = db.transaction('vms').objectStore('vms').get('db');"
+              "          dReq.onerror = fail;"
+              "          dReq.onsuccess = function () {"
+              "            db.close();"
+              "            if (dReq.result) { resolve({bhpCached: dReq.result}); } else { net(); }"
+              "          };"
+              "        };"
+              "      } catch (err) { fail(); }"
+              "    };"
+              "  } catch (err) { net(); }"
+              "});"
               "if (window.performance) { performance.mark('bhp:data-prefetch-start'); }"])])
 
 (defn- head-meta-css
