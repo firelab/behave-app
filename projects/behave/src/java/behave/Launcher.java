@@ -18,6 +18,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.net.URL;
+import java.util.Random;
 import java.util.function.BiConsumer;
 
 /**
@@ -51,6 +52,11 @@ import java.util.function.BiConsumer;
  * Windows test box (2026-07-07); if the load profile shifts, re-measure via
  * the [TIMING] stage lines this class prints on stdout.
  *
+ * <p>The user-facing stage messages are a grab-bag of outdoors phrases
+ * (fishing/hunting/hiking/camping), one picked at random per stage per
+ * launch. The [TIMING] lines record both the namespace and the chosen
+ * phrase, so logs stay diagnosable.
+ *
  * <p>Between checkpoints the bar eases toward the target and then creeps
  * slowly (capped ~8% past the target), so it never looks frozen during a
  * long stage. The splash layout mirrors jcef.loading/create-loader.
@@ -62,6 +68,13 @@ public final class Launcher {
 
     /** Bar resolution: percent * 10, for smooth easing. */
     private static final int SCALE = 10;
+
+    /** Picks one phrase from a stage's grab-bag, at random, per launch. */
+    private static final Random RNG = new Random();
+
+    private static String grab(String... phrases) {
+        return phrases[RNG.nextInt(phrases.length)];
+    }
 
     private static JProgressBar progressBar;
     private static JLabel       loadingLabel;
@@ -152,7 +165,8 @@ public final class Launcher {
         setProgress(percent, message);
         try {
             require.invoke(Clojure.read(ns));
-            System.out.println("[TIMING] stage " + ns + " loaded " + uptimeMs() + "ms after JVM start");
+            System.out.println("[TIMING] stage " + ns + " loaded " + uptimeMs()
+                    + "ms after JVM start (\"" + message + "\")");
         } catch (RuntimeException e) {
             if (required) throw e;
             System.err.println("[WARN] optional preload stage " + ns + " failed: " + e);
@@ -163,18 +177,46 @@ public final class Launcher {
         System.out.println("[TIMING] launcher entered " + uptimeMs() + "ms after JVM start");
         if (System.getProperty("app.dir") != null) {
             JFrame splash = showSplash();
-            setProgress(2, "Starting " + TITLE + "...");
+            setProgress(2, grab("Packing the gear...",
+                                "Loading the truck...",
+                                "Filling the canteen...",
+                                "Rolling up the sleeping bags..."));
             System.out.println("[TIMING] splash shown " + uptimeMs() + "ms after JVM start");
 
             IFn require = Clojure.var("clojure.core", "require"); // loads clojure.core (slow)
-            setProgress(20, "Clojure runtime ready...");
+            setProgress(20, grab("Lacing up the boots...",
+                                 "Checking the weather...",
+                                 "Studying the topo map...",
+                                 "Airing out the waders..."));
             System.out.println("[TIMING] clojure runtime loaded " + uptimeMs() + "ms after JVM start");
 
-            loadStage(require, 42, "Loading core libraries...",      "clojure.core.async",  false);
-            loadStage(require, 62, "Loading database engine...",     "datom-store.main",    false);
-            loadStage(require, 65, "Loading data schemas...",        "behave.schema.core",  false);
-            loadStage(require, 82, "Loading application services...", "behave.handlers",    false);
-            loadStage(require, 85, "Loading application...",         "behave.core",         true);
+            // Stage messages are a grab-bag of outdoors phrases; the real
+            // stage (namespace) is recorded in the [TIMING] stdout lines.
+            loadStage(require, 42, grab("Hitting the trail...",
+                                        "Climbing the switchbacks...",
+                                        "Fording the river...",
+                                        "Blazing the trail..."),
+                      "clojure.core.async", false);
+            loadStage(require, 62, grab("Setting up camp...",
+                                        "Pitching the tent...",
+                                        "Digging the fire ring...",
+                                        "Hanging the bear bag..."),
+                      "datom-store.main", false);
+            loadStage(require, 65, grab("Unfolding the maps...",
+                                        "Marking the waypoints...",
+                                        "Reading the trail signs...",
+                                        "Sorting the tackle box..."),
+                      "behave.schema.core", false);
+            loadStage(require, 82, grab("Gathering firewood...",
+                                        "Stoking the campfire...",
+                                        "Brewing the cowboy coffee...",
+                                        "Setting the decoys..."),
+                      "behave.handlers", false);
+            loadStage(require, 85, grab("Casting the line...",
+                                        "Glassing the ridge...",
+                                        "Baiting the hook...",
+                                        "Scouting the meadow..."),
+                      "behave.core", true);
 
             IFn startCef = Clojure.var("behave.core", "start-cef!");
             BiConsumer<Integer, String> progress = Launcher::setProgress;

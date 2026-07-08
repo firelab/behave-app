@@ -204,6 +204,13 @@ terminal and read the =[TIMING] stage <ns> loaded= stdout lines.
 Intermediate stage requires are best-effort (a renamed ns logs a warning
 and falls through; only the final =behave.core= require is load-bearing).
 
+The user-facing messages are a grab-bag of outdoors phrases (fishing/
+hunting/hiking/camping — "Pitching the tent...", "Casting the line...",
+"Brewing the cowboy coffee..."), one drawn at random per stage per launch
+(=grab= in =Launcher.java=; =rand-nth= for the two =start-cef!=
+checkpoints). The =[TIMING]= stdout lines record both the namespace and
+the drawn phrase so logs stay diagnosable.
+
 Bugs found & fixed during this test:
 - =ManagementFactory= (java.management module) isn't in the jlinked runtime →
   instant crash at class init. Replaced with =ProcessHandle= (java.base).

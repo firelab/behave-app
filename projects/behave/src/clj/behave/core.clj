@@ -84,7 +84,9 @@
     (timed "load-config"
            (server/init-config!)
            (server/enrich-config!))
-    (progress! 87 "Preparing configuration...")
+    (progress! 87 (rand-nth ["Checking the compass..."
+                             "Consulting the field guide..."
+                             "Reading the river..."]))
   ;; Lazy-require jcef so server mode never loads jcef namespaces or
   ;; org.cef.* classes. Only this code path pulls in the native bundle.
     (let [show-loader!           (requiring-resolve 'jcef.interface/show-loader!)
@@ -121,7 +123,9 @@
       (server/init-db-async! db-config)
       (warm-version-cache!)
       (log-str "[TIMING] scheduling CEF app " (jvm-uptime-ms) "ms after JVM start")
-      (progress! 90 "Starting browser...")
+      (progress! 90 (rand-nth ["Reeling it in..."
+                               "Calling in the big one..."
+                               "Netting the catch..."]))
 
       (create-cef-app!
        {:title                                                (get-config :site :title)
