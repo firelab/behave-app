@@ -729,32 +729,72 @@
           (let [combinations (apply combo/cartesian-product all-paths)]
             (map #(apply concat %) combinations)))))))
 
+(defn output-gv-signature
+  "Identity of an output group-variable conditional: its group :path plus the
+   variable's translated name. Path alone is ambiguous — e.g. 'Burning Pile' and
+   'Wind-Driven Surface Fire (Grass Only)' are different variables sharing the same
+   'Maximum Spotting Distance' group path — so the translated name is needed to tell
+   sibling outputs apart."
+  [conditional]
+  (let [gv (:group-variable conditional)]
+    [(:path gv) (:group-variable/translated-name gv)]))
+
+(defn entity-positive-output-signatures
+  "Set of output-gv-signatures for an entity's own POSITIVE output conditionals
+   (:io :output, :values [\"true\"]). Used to steer ancestor OR-branch selection
+   toward the branch the entity already satisfies."
+  [entity-conditionals]
+  (into #{}
+        (comp (filter #(and (= (get-in % [:group-variable :io]) :output)
+                            (= (:values %) ["true"])))
+              (map output-gv-signature))
+        (:conditionals entity-conditionals)))
+
 (defn expand-ancestor-or-branches
-  "Expand ancestors using only the FIRST branch from each ancestor's OR conditionals.
+  "Expand ancestors using ONE branch from each ancestor's OR conditionals.
 
    This significantly reduces the number of generated scenarios by selecting just one
    valid path through each ancestor's conditionals rather than exploring all combinations.
 
-   For ancestors with :or operators, only the first option is selected.
+   Branch selection prefers a branch that the entity's own positive-output conditionals
+   already satisfy (preferred-sigs, a set of output-gv-signatures), so an ancestor
+   visibility gate the entity already trips is not re-satisfied with an unrelated,
+   redundant output. E.g. the Spot input submodule is gated on (Burning Pile OR
+   Wind-Driven Surface Fire); an input whose own gate requires Wind-Driven should NOT
+   also select Burning Pile. Falls back to the FIRST branch when nothing matches (or
+   when preferred-sigs is empty), preserving the historical behavior.
+
    For ancestors with :and operators, all conditionals are included.
 
    Arguments:
    - ancestors: Sequence of ancestor maps with :conditionals
+   - preferred-sigs: (optional) set of entity output-gv-signatures to prefer
 
    Returns:
-   Sequence with a single ancestor setup (flat list of conditionals from first branches)"
-  [ancestors]
-  (if (empty? ancestors)
-    [[]] ; no ancestors, return single empty setup
-    (let [;; Expand each ancestor's conditionals into all possible paths
-          expanded-branches (map #(expand-or-conditionals (:conditionals %)) ancestors)]
-      (if (every? empty? expanded-branches)
-        [[]] ; all ancestors have no conditionals
-        ;; Take only the FIRST branch from each ancestor and combine them
-        (let [first-branches (map first expanded-branches)
-              ;; Combine all first branches into a single ancestor setup
-              combined-setup (apply concat first-branches)]
-          [combined-setup])))))
+   Sequence with a single ancestor setup (flat list of conditionals from chosen branches)"
+  ([ancestors]
+   (expand-ancestor-or-branches ancestors #{}))
+  ([ancestors preferred-sigs]
+   (if (empty? ancestors)
+     [[]] ; no ancestors, return single empty setup
+     (let [;; Expand each ancestor's conditionals into all possible paths
+           expanded-branches (map #(expand-or-conditionals (:conditionals %)) ancestors)]
+       (if (every? empty? expanded-branches)
+         [[]] ; all ancestors have no conditionals
+         ;; From each ancestor pick the branch the entity already satisfies, else the first.
+         (let [pick-branch     (fn [branches]
+                                 (or (first (filter (fn [branch]
+                                                      (some (fn [c]
+                                                              (and (= (:type c) :group-variable)
+                                                                   (contains? preferred-sigs
+                                                                              (output-gv-signature c))))
+                                                            branch))
+                                                    branches))
+                                     (first branches)))
+               chosen-branches (map pick-branch expanded-branches)
+               ;; Combine all chosen branches into a single ancestor setup
+               combined-setup  (apply concat chosen-branches)]
+           [combined-setup]))))))
 
 (defn has-any-research-conditional?
   "Check if any conditional in a list has research dependencies.
@@ -1073,8 +1113,19 @@
                                   (collect-all-ancestral-entities all-data all-conds-to-follow))
           ancestors             (vec (vals (into {} (map (juxt :path identity)
                                                          (concat direct-ancestors conditional-ancestors)))))
+          ;; Prefer ancestor OR-branches the entity's own outputs already satisfy, so an
+          ;; ancestor visibility gate isn't re-tripped with a redundant sibling output
+          ;; (e.g. Burning Pile alongside the Wind-Driven Surface Fire the entity requires).
+          ;; Scoped to :single triggers: only there are the entity's own outputs rendered
+          ;; in the scenario, so aligning the branch removes a genuine redundancy without
+          ;; changing the module combo (the entity's outputs already fix it). Other trigger
+          ;; types don't render the entity's outputs, so first-branch stays — steering them
+          ;; would cause spurious module drift (e.g. Surface → Surface & Crown).
+          entity-out-sigs       (if (= (:type trigger) :single)
+                                  (entity-positive-output-signatures entity-conditionals)
+                                  #{})
           ancestor-setup        (first (map deduplicate-ancestor-conditionals
-                                            (expand-ancestor-or-branches ancestors)))]
+                                            (expand-ancestor-or-branches ancestors entity-out-sigs)))]
 
       (case (:type trigger)
 

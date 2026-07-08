@@ -96,7 +96,8 @@
  :surface-contain
  {:baseline-outputs                                                                                                                                []
   :baseline-inputs
-  [{:module "Contain" :submodule "Suppression" :group "Tactic" :subgroup nil :value "Head"}
+  [{:module "Contain" :submodule "Suppression" :group "Contain Mode" :subgroup nil :value "Calculate Minimum Production Rate Only"}
+   {:module "Contain" :submodule "Suppression" :group "Tactic" :subgroup nil :value "Head"}
    {:module "Contain" :submodule "Suppression" :group "Line Construction Offset" :subgroup nil :value "0"}
    {:module "Contain" :submodule "Suppression" :group "Fire Area at Report" :subgroup nil :value "1"}
    {:module "Contain" :submodule "Suppression" :group "Estimated Resource Arrival Time and Duration" :subgroup "Resource Arrival Time" :value "1"}
