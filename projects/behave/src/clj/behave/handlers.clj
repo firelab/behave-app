@@ -14,6 +14,7 @@
             [config.interface                  :refer [get-config]]
             [logging.interface                 :as l :refer [log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
+            [ring.middleware.gzip              :refer [wrap-gzip]]
             [ring.middleware.keyword-params    :refer [wrap-keyword-params]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
             [ring.middleware.reload            :refer [wrap-reload]]
@@ -191,6 +192,29 @@
   (fn [request]
     (handler (assoc request :figwheel? figwheel?))))
 
+(defn- wrap-cache-headers
+  "Adds long-lived Cache-Control to content-addressed assets. The fingerprinted
+  bundle (`/cljs/app-<hash>.js`) and `?v=<hash>`-versioned assets change URL
+  when their content changes, so browsers can cache them forever; everything
+  else is left alone (HTML stays uncached)."
+  [handler]
+  (fn [{:keys [uri query-string] :as request}]
+    (let [response (handler request)
+          versioned? (and query-string (str/includes? query-string "v="))]
+      (if (and response (= 200 (:status response)))
+        (cond
+          (re-matches #"/cljs/app-[0-9a-f]+\.js" uri)
+          (assoc-in response [:headers "Cache-Control"] "public, max-age=31536000, immutable")
+
+          (and versioned? (= uri "/layout.msgpack"))
+          (assoc-in response [:headers "Cache-Control"] "public, max-age=31536000, immutable")
+
+          (and versioned? (re-matches #"/(js|css)/.+" uri))
+          (assoc-in response [:headers "Cache-Control"] "public, max-age=86400")
+
+          :else response)
+        response))))
+
 (defn handler-stack
   "Unified handler stack. Options:
    - `:cef?`      Skip resource serving and multipart (CEF handles these)
@@ -206,8 +230,12 @@
       wrap-req-content-type+accept
       (optional-middleware #(wrap-resource % "public" {:allow-symlinks? true}) (not cef?))
       (optional-middleware #(wrap-content-type % {:mime-types {"wasm" "application/wasm"}}) (not cef?))
+      (optional-middleware wrap-cache-headers (not cef?))
       (optional-middleware wrap-multipart-params (not cef?))
       wrap-exceptions
+      ;; Compress responses (2.7MB app.js -> ~700KB); CEF serves from local
+      ;; disk through its own scheme handler, so only web/server mode needs it.
+      (optional-middleware wrap-gzip (not cef?))
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
 (defn server-handler-stack

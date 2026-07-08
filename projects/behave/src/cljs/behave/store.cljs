@@ -14,6 +14,7 @@
             [datom-compressor.interface  :as c]
             [datom-utils.interface       :refer [split-datom]]
             [ds-schema-utils.interface   :refer [->ds-schema]]
+            [goog.object                 :as gobj]
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]))
 
@@ -47,8 +48,10 @@
   (when ok
     (println ok body)))
 
-(defn load-store! []
-  (perf/mark! "sync-fetch-start")
+(defn- fetch-store!
+  "XHR fallback when no head-initiated preload is available (dev/figwheel,
+  or the preload fetch failed)."
+  []
   (ajax-request {:uri             "/api/sync"
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}
@@ -56,6 +59,18 @@
                                    :type         :arraybuffer
                                    :content-type "application/msgpack"
                                    :read         pr/-body}}))
+
+(defn load-store! []
+  (perf/mark! "sync-fetch-start")
+  ;; The page head starts this download before app.js even parses (see
+  ;; behave.views/data-prefetch-script); consume it when present.
+  (if-let [preload (some-> (gobj/get js/window "bhpPreloads") (gobj/get "sync"))]
+    (-> preload
+        (.then (fn [buf] (load-data-handler [true buf])))
+        (.catch (fn [err]
+                  (js/console.warn "Sync preload failed, refetching:" err)
+                  (fetch-store!))))
+    (fetch-store!)))
 
 (defn- batch-sync-tx-data []
   (when-not (empty? @batch)

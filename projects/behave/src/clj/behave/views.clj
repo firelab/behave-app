@@ -45,6 +45,13 @@
 (defn- include-js [& paths]
   (apply p/include-js (add-v-query paths)))
 
+(defn- include-js-deferred
+  "Like [[include-js]] but with `defer`, so the scripts don't compete with
+  the WASM/app.js/data downloads on the boot critical path."
+  [& paths]
+  (for [path (add-v-query paths)]
+    [:script {:src path :defer true}]))
+
 (defn- find-app-js []
   (if-let [manifest (resource "public/cljs/manifest.edn")]
     (as-> (slurp manifest) app
@@ -55,9 +62,31 @@
       (str "/cljs/" app))
     "/cljs/app.js"))
 
+(defn- data-prefetch-script
+  "Inline script that starts downloading the two boot payloads
+  (layout.msgpack and /api/sync) from the document head, so they overlap the
+  WASM + app.js phase instead of waiting for `behave.client/init`. The
+  ArrayBuffer promises are stashed on `window.bhpPreloads`; the CLJS stores
+  consume them (with an XHR fallback if a fetch failed)."
+  [vms-version]
+  [:script {:type "text/javascript"}
+   (str/join "\n"
+             ["function bhpFetch(url, headers) {"
+              "  var p = fetch(url, headers ? {headers: headers} : undefined)"
+              "    .then(function (r) { if (!r.ok) { throw new Error('HTTP ' + r.status); } return r.arrayBuffer(); });"
+              "  p.catch(function () {}); // silence unhandled-rejection noise; CLJS attaches its own handler"
+              "  return p;"
+              "}"
+              "window.bhpPreloads = {"
+              (str "  vms: bhpFetch('/layout.msgpack?v=" vms-version "'),")
+              "  sync: bhpFetch('/api/sync', {'Accept': 'application/msgpack'})"
+              "};"
+              "if (window.performance) { performance.mark('bhp:data-prefetch-start'); }"])])
+
 (defn- head-meta-css
-  "Specifies head tag elements."
-  []
+  "Specifies head tag elements. `app-js` (when given) is preloaded so the
+  bundle downloads in parallel with WASM instantiation instead of after it."
+  [& [{:keys [app-js vms-version]}]]
   [:head
    [:title (if (:app-version (get-app-version))
              (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))
@@ -69,6 +98,10 @@
    [:meta {:charset "utf-8"}]
    [:meta {:name    "viewport"
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
+   (when app-js
+     [:link {:rel "preload" :as "script" :href app-js}])
+   (when vms-version
+     (data-prefetch-script vms-version))
    [:link {:rel "icon" :type "image/png" :href "/images/favicon-96x96.png" :sizes "96x96"}]
    [:link {:rel "icon" :type "image/svg+xml" :href "/images/favicon.svg"}]
    [:link {:rel "shortcut icon" :type "image/png" :href "/images/favicon.ico"}]
@@ -208,11 +241,12 @@
       {:status  (if (some? match) 200 404)
        :headers {"Content-Type" "text/html"}
        :body    (html5
-                 (head-meta-css)
+                 (head-meta-css {:app-js      (when-not figwheel? (find-app-js))
+                                 :vms-version (:vms-version init-params)})
                  [:body
                   (when (not (:ws-uuid route-params)) (announcement-banner))
                   [:div#app]
                   (include-js "/js/behave-min.js")
                   (cljs-init init-params figwheel?)
-                  (include-js "/js/katex.min.js" "/js/bodymovin.js")
+                  (include-js-deferred "/js/katex.min.js" "/js/bodymovin.js")
                   (when figwheel? (include-js (find-app-js)))])})))

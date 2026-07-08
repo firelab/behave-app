@@ -223,7 +223,7 @@ Bugs found & fixed during this test:
 
 * Phase 1 — Frontend Critical Path [highest impact]
 
-** 1.1 Parallelize WASM instantiate and app.js download [S effort, high impact]
+** DONE 1.1 Parallelize WASM instantiate and app.js download [S effort, high impact]
 The bundle only needs =window.Module= set *before it executes*, not before it
 downloads.
 - Add =<link rel="preload" as="script" href="/cljs/app-<hash>.js">= in
@@ -235,7 +235,7 @@ downloads.
 - Longer-term (optional): make =behave.lib.*= resolve =js/Module= lazily
   (accessor fn instead of top-level def) so script order stops mattering.
 
-** 1.2 Start boot data fetches before app.js parses [S effort, high impact]
+** DONE 1.2 Start boot data fetches before app.js parses [S effort, high impact]
 =layout.msgpack= and =/api/sync= are known at HTML-render time.
 - Emit =<link rel="preload" as="fetch" href="/layout.msgpack?v=...">= (exact
   URL already computed server-side) and =/api/sync= in the page head, or kick
@@ -243,7 +243,7 @@ downloads.
   promises on =window= for =load-vms!= / =load-store!= to consume.
 - Result: data downloads overlap the WASM+JS phase instead of following it.
 
-** 1.3 Compress everything [S effort, high impact for web mode]
+** DONE 1.3 Compress everything [S effort, high impact for web mode]
 - Precompress at build time (=bb build-js= step): gzip/brotli =app.js=,
   =layout.msgpack=, =behave-min.js/.wasm=, css. Serve =.gz=/=.br= with
   =Content-Encoding= via middleware (e.g. =ring.middleware.gzip= or
@@ -252,7 +252,7 @@ downloads.
 - Desktop (CEF, local scheme handler) benefit is smaller but msgpack unpack
   time is unaffected — this is a wire-size win for web/server mode primarily.
 
-** 1.4 Cache boot payloads client-side [M effort, high impact on relaunch]
+** DONE 1.4 Cache boot payloads client-side [M effort, high impact on relaunch] (headers done; IndexedDB deferred)
 Both payloads are already content-versioned (=?v=<md5>= for layout; fingerprint
 for app.js) — exploit that:
 - Add =Cache-Control: public, max-age=31536000, immutable= for fingerprinted
@@ -265,7 +265,46 @@ for app.js) — exploit that:
   skip download *and* re-transact when version matches. Same idea for
   =/api/sync= is harder (data changes every session) — skip it.
 
-** 1.5 Defer katex + bodymovin [S effort, small-medium impact]
+** Phase 1 implementation notes (2026-07-07)
+
+All verified headless-Chrome against the local server (see waterfall below)
+and on the Windows box in CEF mode (single =/api/sync= request, window
+shows, no console errors).
+
+- *1.1*: =<link rel="preload" as="script">= for the fingerprinted =app.js=
+  in =head-meta-css= — the bundle now downloads in parallel with
+  =behave-min.js= + WASM instead of after them. (WASM itself was left
+  un-preloaded: its fetch starts at ~40ms anyway and =as="fetch"= preload
+  matching is finicky.)
+- *1.2*: =data-prefetch-script= in the page head starts =fetch()= of
+  =layout.msgpack?v=...= and =/api/sync= at ~25ms, stashing ArrayBuffer
+  promises on =window.bhpPreloads=; =load-vms!=/=load-store!= consume them
+  (XHR fallback if absent/failed). GOTCHA found in testing: access the
+  stash with =goog.object/get= string keys — =.-bhpPreloads= gets renamed
+  by =:advanced= compilation and silently falls back to a double fetch.
+- *1.3*: =wrap-gzip= (bk/ring-gzip) in the server stack (web mode only —
+  CEF serves from local disk): app.js 2.85MB → 746KB on the wire.
+- *1.4*: =wrap-cache-headers= — =max-age=31536000, immutable= for
+  =/cljs/app-<hash>.js= and =/layout.msgpack?v=...=; 1 day for other
+  =?v==-stamped js/css. IndexedDB caching of the unpacked VMS store
+  remains future work.
+- *1.5*: katex + bodymovin load with =defer=.
+- *1.6*: skeleton was already effectively present (app chrome renders
+  pre-hydration; only the working area gates on the stores) — no change.
+
+Measured waterfall (localhost, headless Chrome, warm):
+| ms  | event                              |
+|-----+------------------------------------|
+| 17  | app.js + css + glue start (preload) |
+| 22  | layout.msgpack + /api/sync start (head prefetch) |
+| 58  | WASM module instantiated           |
+| 169 | app.js parsed, client init         |
+| 187 | initial render; vms payload already in hand |
+| 904 | app-ready (both stores hydrated)   |
+Remaining frontend cost is msgpack unpack + synchronous =d/transact= of
+both stores (~700ms of the 904ms) — that's the 1.7/IndexedDB territory.
+
+** DONE 1.5 Defer katex + bodymovin [S effort, small-medium impact]
 - Add =defer= to both script tags, or lazy-load on first use (katex → help
   pages with math; bodymovin → loading animations). ~800 KB off the boot path.
 

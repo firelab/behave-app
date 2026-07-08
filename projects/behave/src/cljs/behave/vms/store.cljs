@@ -9,6 +9,7 @@
             [datom-utils.interface      :refer [db-attrs
                                                 datoms->map]]
             [ds-schema-utils.interface  :refer [->ds-schema]]
+            [goog.object                :as gobj]
             [posh.reagent               :refer [pull pull-many q posh!]
              :rename {q posh-query pull posh-pull pull-many posh-pull-many}]
             [re-frame.core              :as rf]))
@@ -40,8 +41,10 @@
 
 ;;; Public Fns
 
-(defn load-vms! [version]
-  (perf/mark! "vms-fetch-start")
+(defn- fetch-vms!
+  "XHR fallback when no head-initiated preload is available (dev/figwheel,
+  or the preload fetch failed)."
+  [version]
   (ajax-request {:uri             (str "/layout.msgpack?v=" version)
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}
@@ -49,6 +52,18 @@
                                    :type         :arraybuffer
                                    :content-type "application/msgpack"
                                    :read         pr/-body}}))
+
+(defn load-vms! [version]
+  (perf/mark! "vms-fetch-start")
+  ;; The page head starts this download before app.js even parses (see
+  ;; behave.views/data-prefetch-script); consume it when present.
+  (if-let [preload (some-> (gobj/get js/window "bhpPreloads") (gobj/get "vms"))]
+    (-> preload
+        (.then (fn [buf] (load-data-handler [true buf])))
+        (.catch (fn [err]
+                  (js/console.warn "VMS preload failed, refetching:" err)
+                  (fetch-vms! version))))
+    (fetch-vms! version)))
 
 (defn reload-vms! []
   (ajax-request {:uri     "/api/vms-sync"
