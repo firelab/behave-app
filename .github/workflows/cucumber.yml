@@ -1,0 +1,69 @@
+name: cucumber
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  cucumber-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: DeLaGuardo/setup-clojure@13.0
+        with:
+          cli: latest        # clojure CLI
+          bb: latest         # babashka
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+          key: cljdeps-${{ hashFiles('deps.edn', 'projects/behave/deps.edn') }}
+          restore-keys: cljdeps-
+
+      # Matched Chrome + chromedriver (avoids Selenium SessionNotCreated version drift).
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: stable
+          install-chromedriver: true
+
+      # Prefetch deps so the readiness window is compile-only (both classpaths the run uses).
+      - name: Prefetch deps
+        run: |
+          clojure -P -M:dev:behave/cms
+          (cd projects/behave && clojure -P -M:figwheel-lib)
+
+      # Starts the app (figwheel serve + init-config!/init-db!), runs the @core suite
+      # headless against a freshly-created empty DB (connect! creates it; VMS comes from
+      # the tracked layout.msgpack), then tears the app down. Non-zero exit fails the job.
+      - name: Run @core cucumber suite (headless, fresh DB)
+        env:
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+          CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
+        run: |
+          bb cucumber:ci \
+            --query '(and "core" (not "extended"))' \
+            --db-path ci-db.sqlite \
+            --serve-timeout 300
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cucumber-results
+          path: |
+            cucumber_test_results_*.org
+            cucumber_results_*.edn
+            cucumber_figwheel.log
+            cucumber_run.log
+          if-no-files-found: ignore
