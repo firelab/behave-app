@@ -626,18 +626,20 @@
                          [?f :table-filter/group-variable-uuid ?gv-uuid]]
                        ds ws-uuid gv-uuid)]
      (let [enabled?         (:table-filter/enabled? (d/entity ds eid))
-           children-payload (map (fn [child]
-                                   (let [table-filter-id (d/q '[:find ?f .
-                                                                :in $ ?uuid ?gv-uuid
-                                                                :where
-                                                                [?w :worksheet/uuid ?uuid]
-                                                                [?w :worksheet/table-settings ?t]
-                                                                [?t :table-settings/filters ?f]
-                                                                [?f :table-filter/group-variable-uuid ?gv-uuid]]
-                                                              ds ws-uuid (:bp/uuid child))]
-                                     {:db/id                 table-filter-id
-                                      :table-filter/enabled? (not enabled?)}))
-                                 directional-children)]
+           children-payload (->> directional-children
+                                 (map (fn [child]
+                                        (let [table-filter-id (d/q '[:find ?f .
+                                                                     :in $ ?uuid ?gv-uuid
+                                                                     :where
+                                                                     [?w :worksheet/uuid ?uuid]
+                                                                     [?w :worksheet/table-settings ?t]
+                                                                     [?t :table-settings/filters ?f]
+                                                                     [?f :table-filter/group-variable-uuid ?gv-uuid]]
+                                                                   ds ws-uuid (:bp/uuid child))]
+                                          (when table-filter-id
+                                            {:db/id                 table-filter-id
+                                             :table-filter/enabled? (not enabled?)}))))
+                                 (filter some?))]
        {:transact (cond-> [{:db/id                 eid
                             :table-filter/enabled? (not enabled?)}]
                     (seq children-payload) (concat children-payload))}))))
