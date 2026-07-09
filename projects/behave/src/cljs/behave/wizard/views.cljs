@@ -423,6 +423,8 @@
                      :default-max-values @(subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
                      :on-toggle-row      #(dispatch [:worksheet/toggle-enable-filter ws-uuid %])}]]))
 
+;; Wizard Results Settings Page
+
 (defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow]}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (when ws-uuid
@@ -430,9 +432,11 @@
   (let [modules              @(subscribe [:worksheet/modules ws-uuid])
         *show-notes?         (subscribe [:wizard/show-notes?])
         on-back              #(dispatch [:wizard/back])
-        on-next              #(dispatch [:navigate (path-for routes :ws/results
-                                                             {:ws-uuid  ws-uuid
-                                                              :workflow workflow})])
+        on-next              #(do
+                                (dispatch-sync [:sync/flush])
+                                (dispatch [:navigate (path-for routes :ws/results
+                                                               {:ws-uuid  ws-uuid
+                                                                :workflow workflow})]))
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
         show-graph-settings? @(subscribe [:wizard/show-graph-settings? ws-uuid])
