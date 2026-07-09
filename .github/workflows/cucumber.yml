@@ -1,13 +1,26 @@
 name: cucumber
 
 on:
-  pull_request:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Which scenarios to run'
+        type: choice
+        default: core
+        options:
+          - core   # @core, excluding @extended
+          - all    # @core + @extended
+      features_dir:
+        description: 'Features dir (narrow to a subset, e.g. features/results-page)'
+        type: string
+        default: features
+      serve_timeout:
+        description: 'Seconds to wait for the app to become reachable'
+        type: string
+        default: '300'
 
 jobs:
-  cucumber-core:
+  cucumber:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -44,18 +57,27 @@ jobs:
           clojure -P -M:dev:behave/cms
           (cd projects/behave && clojure -P -M:figwheel-lib)
 
-      # Starts the app (figwheel serve + init-config!/init-db!), runs the @core suite
-      # headless against a freshly-created empty DB (connect! creates it; VMS comes from
-      # the tracked layout.msgpack), then tears the app down. Non-zero exit fails the job.
-      - name: Run @core cucumber suite (headless, fresh DB)
+      # Starts the app (figwheel serve + init-config!/init-db!), runs the selected
+      # scenarios headless against a freshly-created empty DB (connect! creates it; VMS
+      # comes from the tracked layout.msgpack), then tears the app down. Non-zero exit
+      # fails the job. Inputs are read via env to avoid ${{ }} script injection.
+      - name: Run cucumber suite (headless, fresh DB)
         env:
           CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
           CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
+          SCOPE: ${{ inputs.scope }}
+          FEATURES_DIR: ${{ inputs.features_dir }}
+          SERVE_TIMEOUT: ${{ inputs.serve_timeout }}
         run: |
+          case "$SCOPE" in
+            all) QUERY='(or "core" "extended")' ;;
+            *)   QUERY='(and "core" (not "extended"))' ;;
+          esac
           bb cucumber:ci \
-            --query '(and "core" (not "extended"))' \
+            --query "$QUERY" \
+            --features-dir "$FEATURES_DIR" \
             --db-path ci-db.sqlite \
-            --serve-timeout 300
+            --serve-timeout "$SERVE_TIMEOUT"
 
       - uses: actions/upload-artifact@v4
         if: always()
