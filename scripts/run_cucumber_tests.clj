@@ -110,20 +110,28 @@
       (p/shell {:out :append :out-file logf :err :append :err-file logf :continue true}
                "clojure" "-M:dev:behave/cms" driver-script cfg-file)
       (println "\n==== DONE ====")
-      (if (fs/exists? edn-file)
-        (let [{:keys [summary elapsed-seconds]} (edn/read-string (slurp edn-file))]
-          (when elapsed-seconds (println "Time:" (fmt-duration elapsed-seconds)))
-          (if summary
-            (do
-              (println (format "Files: %d passed, %d failed, %d skipped | Scenarios: %d passed, %d failed"
-                               (:passed summary) (:failed summary) (:skipped summary)
-                               (:scenarios-passed summary) (:scenarios-failed summary)))
-              (when (seq (:failed-files summary))
-                (println "Failing files:")
-                (doseq [f (:failed-files summary)] (println "  -" f))))
-            (println "⚠ Run ended without a final summary (interrupted?). Partial report kept.")))
-        (println "⚠ No results EDN produced — see" run-log))
-      (println "Org:" org-file "| raw:" edn-file "| run log:" run-log))))
+      (let [{:keys [summary elapsed-seconds]} (when (fs/exists? edn-file)
+                                                (edn/read-string (slurp edn-file)))]
+        (cond
+          (not (fs/exists? edn-file)) (println "⚠ No results EDN produced — see" run-log)
+          (nil? summary)              (println "⚠ Run ended without a final summary (interrupted?). Partial report kept.")
+          :else
+          (do
+            (when elapsed-seconds (println "Time:" (fmt-duration elapsed-seconds)))
+            (println (format "Files: %d passed, %d failed, %d skipped | Scenarios: %d passed, %d failed"
+                             (:passed summary) (:failed summary) (:skipped summary)
+                             (:scenarios-passed summary) (:scenarios-failed summary)))
+            (when (seq (:failed-files summary))
+              (println "Failing files:")
+              (doseq [f (:failed-files summary)] (println "  -" f)))))
+        (println "Org:" org-file "| raw:" edn-file "| run log:" run-log)
+        ;; Gate CI: non-zero when scenarios/files failed, or when no summary was
+        ;; produced (interrupted/crashed). A clean, all-pass run exits 0.
+        (System/exit (if (and summary
+                              (zero? (:failed summary 0))
+                              (zero? (:scenarios-failed summary 0)))
+                       0
+                       1))))))
 
 (-main *command-line-args*)
 

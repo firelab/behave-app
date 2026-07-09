@@ -32,6 +32,13 @@
                 (shell "find projects/behave/resources/public/help/images -type f ( -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.png\" ) -exec sh -c 'for file do convert \"$file\" \"${file%.*}.webp\" && echo \"Converted $file to ${file%.*}.webp\"; done' sh {} +")
                 (shell "find projects/behave/resources/public/help/images -type f ( -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.png\" ) -exec rm {} +"))
 
+  ;;; Cucumber
+  cucumber    {:doc  "Run the cucumber suite (app must already be running). Opts forwarded to scripts/run_cucumber_tests.clj: --headless --query --features-dir --steps-dir --retry-failed --stop --url --help"
+               :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/run_cucumber_tests.clj" *command-line-args*)))}
+
+  cucumber:ci {:doc  "Start the app (figwheel serve) with server-side init (config + DB), run the cucumber suite headless, then tear the app down. Requires chromedriver on PATH (major version matching installed Chrome). Opts: --db-path <sqlite> (default projects/behave/resources/db.sqlite), --serve-timeout <secs>; remaining opts forwarded to scripts/run_cucumber_tests.clj."
+               :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/cucumber_ci.clj" *command-line-args*)))}
+
   ;;; Datomic
   -today      (str (java.time.LocalDate/now))
 

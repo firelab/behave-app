@@ -123,10 +123,13 @@
         port     (url->port url)
         ;; Absolute so it resolves regardless of figwheel's :dir (projects/behave).
         db-path  (str (fs/absolutize (flag-val args "--db-path" default-db-path)))
+        ;; Seconds to wait for the app to become reachable (cold CI compile can be slow).
+        timeout  (Integer/parseInt (str (flag-val args "--serve-timeout" (str serve-timeout-secs))))
         fwo      (pr-str {:open-url false :ring-server-options {:port (Integer/parseInt port) :join? false}})
         ;; forward the user's opts, but drop our internal ones + force headless/Chrome
         fwd-args (-> (vec args)
                      (strip-flag "--db-path")
+                     (strip-flag "--serve-timeout")
                      (strip-flag "--headless")
                      (strip-flag "--browser-path")
                      (into ["--headless" "true" "--browser-path" chrome]))]
@@ -143,7 +146,7 @@
                           "-fwo" fwo "-b" "compile-dev" "-s")
           code (try
                  (println (format "Starting app (figwheel serve)… (tail -f %s)" figwheel-log))
-                 (if-not (wait-until-ready! url proc serve-timeout-secs)
+                 (if-not (wait-until-ready! url proc timeout)
                    1
                    (:exit (apply p/shell {:continue true}
                                  "bb" "scripts/run_cucumber_tests.clj" fwd-args)))

@@ -73,7 +73,7 @@
   ;; Example: run just the Burning Pile feature
   (run-feature "features/test_results_page.feature")
 
-  (run-feature "/home/kcheung/work/code/behave-polylith/features/results-page/results-page_contain_minimal-resource-production-rate-for-containment.feature")
+  (run-feature "features/surface-input_wind-and-slope_wind-adjustment-factor.feature")
 
   (run-feature "features/results-page/results-page_surface_wind-slope-spread-direction-diagram.feature")
   (run-feature "/home/kcheung/work/code/behave-polylith/features/surface-input_wind-and-slope.feature")
