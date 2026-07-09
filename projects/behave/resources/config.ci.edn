@@ -1,0 +1,32 @@
+;; CI / headless-cucumber config for `bb cucumber:ci`.
+;;
+;; The real config.edn is gitignored (dev-local, holds secrets), so it is absent on a
+;; fresh checkout / CI. This tracked file mirrors config.edn's STRUCTURE so the client
+;; wizard renders (the minimal config.dev.edn does not), with every credential blanked.
+;; The DB :store :path is overridden at runtime via `--db-path`; :mail and :vms are
+;; unused by the suite (vms-sync! is skipped) and kept only as inert dummies.
+{:database     {:host     "localhost"
+                :port     5432
+                :dbname   "behave"
+                :user     "behave"
+                :password ""
+                :config   {:store {:backend :file
+                                   ;; created fresh & empty on connect; resolved from
+                                   ;; figwheel's CWD (projects/behave). Gitignored.
+                                   :path    "resources/ci-db.sqlite"}}}
+ :client       {:jar-local? false}
+ :site         {:title       "BehavePlus"
+                :description "Wildfire Analysis toolkit."}
+ :server       {:http-port 8002
+                :mode      "dev"}
+ :logging      {:log-dir             "logs"
+                :log-memory-interval 5}
+ :mail         {:host     "localhost"
+                :user     ""
+                :pass     ""
+                :tls      false
+                :port     587
+                :site-url "http://localhost"}
+ :secret-token ""
+ :vms          {:url          "http://localhost"
+                :secret-token ""}}

@@ -33,6 +33,13 @@
 ;; so the store path is rebased to an absolute path (see init-form).
 (def default-db-path "projects/behave/resources/db.sqlite")
 
+;; The app hardcodes the resource name "config.edn" in TWO places — behave.server/
+;; init-config! AND the /api/init handler behave.init/init! — but config.edn is
+;; gitignored (dev-local), so it's absent on a fresh checkout / CI. ensure-config!
+;; provisions it from this tracked template when missing (never clobbers a dev's own).
+(def app-config    "projects/behave/resources/config.edn")
+(def ci-config-src "projects/behave/resources/config.ci.edn")
+
 ;;; ---------------------------------------------------------------------------
 ;;; Arg helpers (forward user opts to run_cucumber_tests.clj)
 ;;; ---------------------------------------------------------------------------
@@ -68,14 +75,25 @@
 ;;; App server init (runs in the figwheel JVM, before it serves)
 ;;; ---------------------------------------------------------------------------
 
+(defn ensure-config!
+  "Guarantee a `config.edn` resource exists (the app hardcodes that name in
+   init-config! and the /api/init handler). If it's missing — fresh checkout / CI —
+   copy the tracked config.ci.edn into place. Never overwrites an existing config.edn
+   (a dev's real one). Runs before figwheel starts so the file is on the classpath."
+  []
+  (when-not (fs/exists? app-config)
+    (fs/copy ci-config-src app-config)
+    (println (format "cucumber:ci: provisioned %s from %s (was absent)" app-config ci-config-src))))
+
 (defn init-form
   "Clojure source (as a string) run via `clojure.main -e` in the figwheel JVM before
    figwheel serves. figwheel only starts the ring server; it never runs the app's
    server-side init, so DB-backed endpoints (e.g. /api/init) fail without this. Mirrors
    the manual dev step (init-config! + init-db!); vms-sync! is intentionally skipped
    (remote, network-dependent — the app serves the pre-exported layout.msgpack).
-   The store path is overridden to an absolute `db-path` because figwheel runs with
-   :dir \"projects/behave\", where the config's repo-root-relative path misresolves."
+   config.edn is guaranteed present by ensure-config!. The store path is overridden to
+   an absolute `db-path` because figwheel runs with :dir \"projects/behave\", where the
+   config's repo-root-relative path misresolves."
   [db-path]
   (str "(do "
        "(require '[behave.server :as server] '[config.interface :refer [get-config]]) "
@@ -135,6 +153,7 @@
                      (into ["--headless" "true" "--browser-path" chrome]))]
     (println (format "▶ cucumber:ci — Chrome: %s | serve :%s | DB: %s | figwheel log: %s"
                      chrome port db-path figwheel-log))
+    (ensure-config!)
     (spit figwheel-log "")
     ;; Compute the exit code inside the try, tear figwheel down in the finally,
     ;; then exit AFTER — System/exit skips finally blocks, so it must come last.
