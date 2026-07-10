@@ -66,6 +66,13 @@
   [^WebDriver d]
   (.. d (manage) (window) (maximize)))
 
+(defn set-window-size
+  "Set an explicit window size. Headless `maximize` has no real screen to size to, so
+   the viewport can end up short and fixed-bottom elements (page__footer) overlap
+   content — set a deterministic size instead."
+  [^WebDriver d width height]
+  (.. d (manage) (window) (setSize (org.openqa.selenium.Dimension. (int width) (int height)))))
+
 (defn chrome-driver
   "Instatiate a Chrome WebDriver."
   [{:keys [browser-path headless?]}]

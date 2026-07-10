@@ -1,5 +1,6 @@
 (ns cucumber.element
-  (:import [org.openqa.selenium By WebElement]))
+  (:import [org.openqa.selenium By WebElement WrapsDriver JavascriptExecutor
+            ElementClickInterceptedException]))
 
 (defn attr-value
   "Get an element attribute value."
@@ -12,9 +13,22 @@
   (.clear e))
 
 (defn click!
-  "Click on an element."
+  "Click on an element, robust to overlap by a fixed element (e.g. the app's fixed
+   `page__footer`). Scrolls the element to the viewport center so it clears the footer,
+   then clicks; if the native click is still intercepted, falls back to a JS click."
   [^WebElement e]
-  (.click e))
+  (let [driver (.getWrappedDriver ^WrapsDriver e)]
+    (try
+      (.executeScript ^JavascriptExecutor driver
+                      "arguments[0].scrollIntoView({block:'center',inline:'center'});"
+                      (into-array Object [e]))
+      (catch Exception _ nil))
+    (try
+      (.click e)
+      (catch ElementClickInterceptedException _
+        (.executeScript ^JavascriptExecutor driver
+                        "arguments[0].click();"
+                        (into-array Object [e]))))))
 
 (defn css-value
   "Get an element's CSS Value."
