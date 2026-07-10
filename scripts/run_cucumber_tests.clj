@@ -106,9 +106,16 @@
           cfg-file (str (fs/create-temp-file {:prefix "cuke-cfg-" :suffix ".edn"}))
           logf     (io/file run-log)]
       (spit cfg-file (pr-str cfg))
-      (println (format "▶ Running cucumber → %s  (incremental; live: tail -f %s)" org-file run-log))
-      (p/shell {:out :append :out-file logf :err :append :err-file logf :continue true}
-               "clojure" "-M:dev:behave/cms" driver-script cfg-file)
+      ;; In CI, stream the driver output to the console so failure reasons are visible
+      ;; inline in the Actions log; locally keep it in run-log (tail -f friendly).
+      (if (some? (or (System/getenv "GITHUB_ACTIONS") (System/getenv "CI")))
+        (do
+          (println (format "▶ Running cucumber → %s  ── driver output (streamed) ──" org-file))
+          (p/shell {:continue true} "clojure" "-M:dev:behave/cms" driver-script cfg-file))
+        (do
+          (println (format "▶ Running cucumber → %s  (incremental; live: tail -f %s)" org-file run-log))
+          (p/shell {:out :append :out-file logf :err :append :err-file logf :continue true}
+                   "clojure" "-M:dev:behave/cms" driver-script cfg-file)))
       (println "\n==== DONE ====")
       (let [{:keys [summary elapsed-seconds]} (when (fs/exists? edn-file)
                                                 (edn/read-string (slurp edn-file)))]
