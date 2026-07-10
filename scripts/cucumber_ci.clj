@@ -173,6 +173,12 @@
                    (println "\nStopping app (figwheel)…")
                    (p/destroy-tree proc)
                    (try @proc (catch Exception _ nil))))]
+      ;; On failure, surface the (otherwise file-only) figwheel log so startup / server-
+      ;; side errors are visible inline (e.g. in the Actions log). Bounded tail; only on
+      ;; failure ⇒ no datom-dump noise on success.
+      (when (and code (not (zero? code)) (fs/exists? figwheel-log))
+        (println (format "\n── figwheel log: %s (last 200 lines) ──" figwheel-log))
+        (println (->> (str/split-lines (slurp figwheel-log)) (take-last 200) (str/join "\n"))))
       (System/exit (or code 0)))))
 
 (-main *command-line-args*)
