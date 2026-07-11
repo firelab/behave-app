@@ -1,9 +1,9 @@
 (ns behave.components.review-input-group
-  (:require [reagent.core            :as r]
-            [re-frame.core           :as rf]
-            [behave.components.core  :as c]
+  (:require [behave.components.core  :as c]
             [behave.translate        :refer [<t bp]]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [re-frame.core           :as rf]
+            [reagent.core            :as r]))
 
 (defn- missing-input? [value]
   (or (nil? value) (empty? value)))
@@ -97,7 +97,7 @@
           [c/button {:label         @(<t (bp "required"))
                      :variant       "transparent-highlight"
                      :icon-name     :help2
-                     :icon-position "left"}]])      ]]]))
+                     :icon-position "left"}]])]]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
@@ -108,22 +108,23 @@
                                repeat-group?
                                edit-route]
   (let [values (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])]
-    [:div.wizard-input--review
-     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/text-input {:label     @(<t group-translation-key)
-                    :value     @values
-                    :disabled? true}]
-     (when-not repeat-group?
-       [c/button {:variant  "primary"
-                  :label    @(<t (bp "change_text"))
-                  :size     "small"
-                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}])]))
+    [:div.wizard-input
+     [:div.wizard-review__input
+      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+      [c/text-input {:label     @(<t group-translation-key)
+                     :value     @values
+                     :disabled? true}]
+      (when-not repeat-group?
+        [c/button {:variant  "primary"
+                   :label    @(<t (bp "change_text"))
+                   :size     "small"
+                   :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}])]]))
 
 (defn- repeat-group-input [variables ws-uuid group repeat-id route]
   (let [{group-uuid :bp/uuid} group
         first-value           @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid (first variables))])
         ws-values             (map #(deref (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid %)]))
-                         (rest variables))]
+                                   (rest variables))]
     [:div.wizard-review-repeat-group__input
      [wizard-input (first variables) ws-uuid group repeat-id true route]
      (when (and (some #(missing-input? %) ws-values) first-value)
@@ -152,8 +153,8 @@
 
 (defn repeat-group [ws-uuid group variables edit-route]
   (let [{group-name :group/name
-         group-uuid :bp/uuid} group
-        *repeat-ids           (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])]
+         group-uuid :bp/uuid}   group
+        *repeat-ids             (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])]
     [:<>
      (map-indexed
       (fn [index repeat-id]
