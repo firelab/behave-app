@@ -48,7 +48,7 @@
                 hiccup/hiccup                           {:mvn/version "2.0.0-alpha2"}
                 io.github.tonsky/datascript-storage-sql {:mvn/version "1.0.0"}
                 io.replikativ/datahike                  {:mvn/version "0.5.1506"}
-                me.friwi/jcefmaven                      {:mvn/version "110.0.25"}
+                me.friwi/jcefmaven                      {:mvn/version "146.0.10"}
                 me.raynes/fs                            {:mvn/version "1.4.6"}
                 net.coobird/thumbnailator               {:mvn/version "0.4.19"}
                 org.clj-commons/digest                  {:mvn/version "1.4.100"}
