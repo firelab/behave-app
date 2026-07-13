@@ -221,7 +221,9 @@
      (find-input-by-label driver \"1-h Fuel Moisture\")
      (find-input-by-label driver \"Air Temperature\")"
   [driver label-text]
-  (find-element driver {:text label-text}))
+  ;; Wait, don't immediately find: conditionally-visible inputs render a beat after the
+  ;; output that reveals them, and a slow (CI) runner isn't there yet on an immediate find.
+  (wait-for-element-by-selector driver {:text label-text} 15000))
 
 ;;; =============================================================================
 ;;; Submodule Selection
@@ -338,7 +340,9 @@
                            "[normalize-space(.) = \"" label-text "\"]"
                            "/following-sibling::div[contains(@class, 'wizard-group__inputs')]"
                            "//input[1]")
-        input-element (find-element driver {:xpath xpath})
+        ;; Wait for the group to render (it's revealed by the preceding output selection);
+        ;; an immediate find is the CI-only "no such element" failure on a slow runner.
+        input-element (wait-for-element-by-selector driver {:xpath xpath} 15000)
         set-and-fire  (str "var el = arguments[0];"
                            "var nativeSetter = Object.getOwnPropertyDescriptor("
                            "window.HTMLInputElement.prototype,'value').set;"
@@ -362,7 +366,9 @@
      (click-radio-or-dropdown-option driver \"GR4\")"
   [driver option-text]
   (try
-    (-> (find-element driver {:text option-text})
+    ;; Wait for the option to render (conditionally-visible groups appear a beat after the
+    ;; output that reveals them) rather than an immediate find, which fails on a slow runner.
+    (-> (wait-for-element-by-selector driver {:text option-text} 15000)
         (e/click!))
     (catch Exception e
       (throw (ex-info (str "Could not find or select option: " option-text)
