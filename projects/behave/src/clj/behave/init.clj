@@ -34,6 +34,13 @@
                           os-path)]
     (log-str "LOADED CONFIG" (get-config :database :config))
     (io/make-parents (get-in config [:store :path]))
+    ;; Test-only (config-gated): delete the store before reconnecting so every session
+    ;; starts from an empty DB. Keeps /api/init's export-datoms tiny for cucumber runs
+    ;; (the store otherwise accumulates worksheets and slows the app O(N)). The conn was
+    ;; already released by init-handler, so the file is safe to delete here. Not set in
+    ;; dev/prod configs ⇒ no behavior change (worksheets persist).
+    (when (get-config :database :reset-on-init?)
+      (io/delete-file (get-in config [:store :path]) true))
     (store/connect! config)))
 
 (defn init-handler [{:keys [request-method accept] :as req}]

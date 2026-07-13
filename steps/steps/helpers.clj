@@ -100,14 +100,15 @@
 
 (defn wait-for-wizard
   "Wait for the wizard interface to be present."
-  ([driver] (wait-for-wizard driver 10000))
+  ([driver] (wait-for-wizard driver 30000))
   ([driver timeout-ms]
    (wait-for-element-by-selector driver {:css ".wizard"} timeout-ms)))
 
 (defn wait-for-working-area
-  "Wait for the working area to be present."
+  "Wait for the working area to be present. Generous timeout — a busy app (large store,
+   slow /api/init) can take a while to render the initial page."
   [driver]
-  (wait-for-element-by-selector driver {:css ".working-area"} 10000))
+  (wait-for-element-by-selector driver {:css ".working-area"} 30000))
 
 (defn wait-for-nested-element
   "Wait for a nested element to appear within a parent element.
@@ -267,13 +268,25 @@
 ;;; Button Operations
 ;;; =============================================================================
 
+(defn click-el!
+  "Find `selector` and click it, re-finding + retrying on a stale-element reference
+   (the DOM can re-render between locating and clicking). `e/click!` itself already
+   scrolls the element into view and falls back to a JS click on interception."
+  [driver selector]
+  (loop [attempts 3]
+    (let [outcome (try (e/click! (find-element driver selector)) :ok
+                       (catch org.openqa.selenium.StaleElementReferenceException e
+                         (if (pos? attempts) :retry (throw e))))]
+      (when (= outcome :retry)
+        (Thread/sleep 200)
+        (recur (dec attempts))))))
+
 (defn click-highlighted-button
   "Click the highlighted button in the current view.
 
    This is typically the primary action button (e.g., Next, Finish)."
   [driver]
-  (-> (find-element driver {:css ".button--highlight"})
-      (e/click!)))
+  (click-el! driver {:css ".button--highlight"}))
 
 (defn click-button-with-text
   "Click a button with specific text content.
@@ -282,8 +295,7 @@
      driver - WebDriver instance
      text   - Text content of the button to click"
   [driver text]
-  (-> (find-element driver {:text text})
-      (e/click!)))
+  (click-el! driver {:text text}))
 
 (defn wait-and-click-button-with-text
   "Wait for a button with the given text to appear, then click it.
@@ -291,8 +303,9 @@
    Args:
      driver     - WebDriver instance
      text       - Text content of the button to click
-     timeout-ms - Max wait in milliseconds (default 2000)"
-  ([driver text] (wait-and-click-button-with-text driver text 2000))
+     timeout-ms - Max wait in milliseconds (default 15000; waits return as soon as the
+                  element appears, so a generous cap only matters when the app is slow)"
+  ([driver text] (wait-and-click-button-with-text driver text 15000))
   ([driver text timeout-ms]
    (wait-for-element-by-selector driver {:text text} timeout-ms)
    (click-button-with-text driver text)))

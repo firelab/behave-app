@@ -3,8 +3,7 @@
 
    This namespace handles the creation of new worksheets in guided mode,
    including navigating through the workflow wizard and selecting module types."
-  (:require [cucumber.element   :as e]
-            [cucumber.webdriver :as w]
+  (:require [cucumber.webdriver :as w]
             [steps.helpers      :as h]))
 
 ;;; =============================================================================
@@ -55,26 +54,25 @@
    Example:
      (start-worksheet [:surface :crown] {:driver driver :url \"http://localhost:8081/worksheets\"})"
   [modules {:keys [driver url]}]
-  (w/maximize driver)
+  ;; Deterministic viewport: headless `maximize` can leave a short viewport where the
+  ;; fixed page__footer overlaps wizard buttons (intercepting clicks). Set an explicit
+  ;; size instead.
+  (w/set-window-size driver 1920 1080)
 
-  ;; Pre-populate local storage to prevent disclaimer modal
-  ;; First navigate to base URL to establish domain context
-  (w/goto driver url)
-
-  ;; Set local storage with EDN format matching the app's structure
-  ;; The key "behave-settings" is defined in behave/events.cljs:30
-  ;; The value must be EDN format: {:show-disclaimer? false}
+  ;; Disable the Disclaimer modal, then RELOAD so the app re-initializes with it already
+  ;; set. Setting local storage after the first load only wins a race (the app reads it
+  ;; at :initialize), which fails intermittently in CI. Key "behave-settings" is defined
+  ;; in behave/events.cljs; value is EDN.
+  (w/goto driver url)                         ; establish origin so localStorage is writable
   (w/execute-script! driver
                      "localStorage.setItem('behave-settings', '{:show-disclaimer? false}');")
-
-  ;; NOTE: Removed the old try-catch disclaimer click workaround
-  ;; which was fragile and added 300ms+ to test execution time
+  (w/goto driver url)                         ; reload → app inits with :show-disclaimer? false
 
   ;; Wait for the working area to confirm the page has rendered before proceeding
   (h/wait-for-working-area driver)
 
   ;; Click "New Run" button — generous timeout for the initial route load
-  (h/wait-and-click-button-with-text driver "New Run" 10000)
+  (h/wait-and-click-button-with-text driver "New Run" 25000)
 
   ;; Proceed through initial dialog
   (h/wait-and-click-button-with-text driver "Next")
@@ -97,6 +95,6 @@
   (h/scroll-to-top driver)
 
   ;; Wait for the worksheet wizard to finish rendering before returning
-  (h/wait-for-wizard driver 15000)
+  (h/wait-for-wizard driver 30000)
 
   {:driver driver})

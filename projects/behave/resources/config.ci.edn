@@ -10,10 +10,14 @@
                 :dbname   "behave"
                 :user     "behave"
                 :password ""
-                :config   {:store {:backend :file
-                                   ;; created fresh & empty on connect; resolved from
-                                   ;; figwheel's CWD (projects/behave). Gitignored.
-                                   :path    "resources/ci-db.sqlite"}}}
+                ;; Reset the store on every /api/init (behave.init/init!) so each scenario
+                ;; starts empty — keeps the app fast (no O(N) export-datoms accumulation).
+                ;; Test-only; real dev/prod configs omit it so worksheets persist.
+                :reset-on-init? true
+                :config         {:store {:backend :file
+                                         ;; created fresh & empty on connect; resolved from
+                                         ;; figwheel's CWD (projects/behave). Gitignored.
+                                         :path    "resources/ci-db.sqlite"}}}
  :client       {:jar-local? false}
  :site         {:title       "BehavePlus"
                 :description "Wildfire Analysis toolkit."}
