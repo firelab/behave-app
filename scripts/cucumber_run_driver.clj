@@ -1,7 +1,7 @@
 (ns cucumber-run-driver
-  "JVM-side cucumber runner + incremental org reporter. Invoked by the babashka
-   orchestrator (scripts/run_cucumber_tests.clj) because babashka can't drive
-   Selenium/tegere.
+  "JVM-side cucumber runner. Invoked by the babashka orchestrator
+   (scripts/run_cucumber_tests.clj) because babashka can't drive Selenium/tegere.
+   Reporting (org/EDN rendering + failure formatting) lives in cucumber.report.
 
    Usage:
      clojure -M:dev:behave/cms scripts/cucumber_run_driver.clj <config-edn-file>
@@ -15,6 +15,7 @@
   (:require [clojure.edn        :as edn]
             [clojure.java.io    :as io]
             [clojure.string     :as str]
+            [cucumber.report    :as report]
             [cucumber.runner    :as cr]
             [cucumber.webdriver :as w]
             [tegere.loader      :as tl]
@@ -22,7 +23,7 @@
             [tegere.steps       :as tsteps]))
 
 ;;; ---------------------------------------------------------------------------
-;;; Report helpers (org rendering)
+;;; Feature discovery
 ;;; ---------------------------------------------------------------------------
 
 (defn all-feature-files [features-dir]
@@ -39,76 +40,6 @@
                       m       (re-find #"(?m)^\s*Feature:\s*(.+?)\s*$" content)]
                   (when m [(str/trim (second m)) rel])))
               (all-feature-files features-dir))))
-
-(defn fmt-duration [secs]
-  (let [s (long secs) m (quot s 60) r (rem s 60)] (format "%dm %02ds" m r)))
-
-(defn clean-reason [r]
-  (-> (str r)
-      (str/replace #"\s*\|?\s*(Build info:|System info:|Driver info:|Capabilities \{|Session ID:|For documentation on this error|\(Session info:).*$" "")
-      (str/replace #"\s*\n\s*" " ")
-      str/trim))
-
-(defn- scenario-title [ex]
-  (let [sc (:tegere.runner/scenario ex)]
-    (or (:tegere.parser/description sc) (:tegere.parser/name sc) "(unnamed scenario)")))
-
-(defn- step-err [step] (get-in step [:tegere.runner/execution :tegere.runner/err]))
-
-(defn- ex-failure
-  "nil if the executable passed, else {:scenario :type :step :reason}."
-  [ex]
-  (when-let [bad (some (fn [st] (when-let [e (step-err st)] [st e]))
-                       (:tegere.parser/steps ex))]
-    (let [[st e] bad
-          msg    (or (not-empty (:tegere.runner/message e))
-                     (first (:tegere.runner/stack-trace e))
-                     (name (:tegere.runner/type e :fail)))
-          stept  (str (some-> (:tegere.parser/type st) name str/capitalize) " "
-                      (:tegere.parser/text st))]
-      {:scenario (scenario-title ex)
-       :type     (:tegere.runner/type e)
-       :step     (str/trim stept)
-       :reason   (str/replace (str/trim msg) #"\s*\n\s*" " | ")})))
-
-(defn counts [all-files status executables]
-  (let [state-of (fn [f] (:state (get status f)))]
-    {:passed           (count (filter #(= :pass    (state-of %)) all-files))
-     :failed           (count (filter #(= :fail    (state-of %)) all-files))
-     :skipped          (count (filter #(= :skip    (state-of %)) all-files))
-     :pending          (count (filter #(= :pending (state-of %)) all-files))
-     :scenarios-passed (- (count executables) (count (filter :failure executables)))
-     :scenarios-failed (count (filter :failure executables))
-     :failed-files     (->> all-files (filter #(= :fail (state-of %))) vec)}))
-
-(defn render-org
-  [{:keys [url query headless stop elapsed all-files status executables]}]
-  (let [{:keys [passed failed skipped pending scenarios-passed scenarios-failed]}
-        (counts all-files status executables)
-        sb                                                                        (StringBuilder.)]
-    (.append sb "#+TITLE: Cucumber Test Results\n")
-    (.append sb (str "#+DATE: " (java.time.LocalDate/now) "\n"))
-    (.append sb (str "# Config: query " query ", :headless? " (boolean headless)
-                     ", :stop " (boolean stop) "\n"))
-    (.append sb (str "#         url " url "\n"))
-    (.append sb (str "# Elapsed" (when (pos? pending) " so far") ": "
-                     (fmt-duration elapsed) " (" (format "%.1f" elapsed) "s)\n"))
-    (.append sb (str "# Files: " (count all-files) " total — " passed " passed, " failed " failed, "
-                     skipped " skipped" (when (pos? pending) (str ", " pending " pending")) "\n"))
-    (.append sb (str "# Scenarios: " scenarios-passed " passed, " scenarios-failed " failed\n\n"))
-    (.append sb "* Results\n")
-    (doseq [file all-files]
-      (let [{:keys [state fails]} (get status file)]
-        (case state
-          :pass    (.append sb (str "- [X] " file "\n"))
-          :skip    (.append sb (str "- [-] " file "  (SKIPPED: no matching scenario for query)\n"))
-          :pending (.append sb (str "- [ ] " file "  :PENDING:\n"))
-          :fail    (do (.append sb (str "- [ ] " file "\n"))
-                       (doseq [f fails]
-                         (.append sb (str "  - Scenario \"" (:scenario f) "\": "
-                                          (str/upper-case (name (:type f)))
-                                          " at step [" (:step f) "] — " (clean-reason (:reason f)) "\n")))))))
-    (.toString sb)))
 
 ;;; ---------------------------------------------------------------------------
 ;;; Run
@@ -132,7 +63,7 @@
       (let [results (tr/run [feat] @tsteps/registry
                             {:tegere.query/query-tree query :tegere.runner/stop stop}
                             :initial-ctx {:driver driver :url url})]
-        (mapv (fn [ex] {:feature fname :scenario (scenario-title ex) :failure (ex-failure ex)})
+        (mapv (fn [ex] {:feature fname :scenario (report/scenario-title ex) :failure (report/ex-failure ex)})
               (:tegere.runner/executables results)))
       (catch Throwable t
         [{:feature fname                                                     :scenario "(feature errored)"
@@ -140,25 +71,34 @@
                     :reason   (str (.getMessage t))}}]))))
 
 (defn -main [config-path]
-  (let [{:keys [features-dir steps-dir url headless stop query org edn retry-failed browser-path]}
-        (edn/read-string (slurp config-path))
-        query                                                                                      (if (string? query) (read-string query) query)
-        all-files                                                                                  (all-feature-files features-dir)
-        n->f                                                                                       (feature-name->file features-dir)
-        status                                                                                     (atom (into {} (map (fn [f] [f {:state :pending :fails []}]) all-files)))
-        executables                                                                                (atom [])
-        t0                                                                                         (System/nanoTime)
-        elapsed                                                                                    (fn [] (/ (- (System/nanoTime) t0) 1e9))
-        write!                                                                                     (fn []
-                                                                                                     (spit org (render-org {:url     url       :query       query        :headless headless :stop stop
-                                                                                                                            :elapsed (elapsed) :all-files   all-files
-                                                                                                                            :status  @status   :executables @executables}))
-                                                                                                     (spit edn (pr-str {:elapsed-seconds (elapsed) :executables @executables})))
-        record!                                                                                    (fn [file fname exs]
+  (let [{:keys [features-dir
+                steps-dir
+                url
+                headless
+                stop
+                query
+                org
+                edn
+                retry-failed
+                browser-path]} (edn/read-string (slurp config-path))
+        query                  (if (string? query) (read-string query) query)
+        all-files              (all-feature-files features-dir)
+        n->f                   (feature-name->file features-dir)
+        status                 (atom (into {} (map (fn [f] [f {:state :pending :fails []}]) all-files)))
+        executables            (atom [])
+        t0                     (System/nanoTime)
+        elapsed                (fn [] (/ (- (System/nanoTime) t0) 1e9))
+        write!                 (fn [& {:keys [summary?]}]
+                                 (report/write! {:url     url       :query       query        :headless headless :stop stop
+                                                 :elapsed (elapsed) :all-files   all-files
+                                                 :status  @status   :executables @executables
+                                                 :org     org       :edn         edn}
+                                                :summary? summary?))
+        record!                (fn [file fname exs]
                       ;; replace any prior executables for this feature, then re-add
-                                                                                                     (swap! executables (fn [all] (into (vec (remove #(= fname (:feature %)) all)) exs)))
-                                                                                                     (swap! status assoc file (classify exs))
-                                                                                                     (write!))]
+                                 (swap! executables (fn [all] (into (vec (remove #(= fname (:feature %)) all)) exs)))
+                                 (swap! status assoc file (classify exs))
+                                 (write!))]
     (println (format "Loading steps from %s" steps-dir))
     (cr/load-steps! (io/file steps-dir))
     (write!)                                   ; initial all-pending org
@@ -195,13 +135,10 @@
         (finally
           (try (w/quit driver) (catch Throwable _ nil)))))
     ;; final write incl. summary (org first, then EDN with :summary last so it isn't clobbered)
-    (let [summary (counts all-files @status @executables)]
-      (spit org (render-org {:url     url       :query       query        :headless headless :stop stop
-                             :elapsed (elapsed) :all-files   all-files
-                             :status  @status   :executables @executables}))
-      (spit edn (pr-str {:elapsed-seconds (elapsed) :summary summary :executables @executables}))
+    (write! :summary? true)
+    (let [summary (report/counts all-files @status @executables)]
       (println (format "\nDONE in %s — Files: %d passed, %d failed, %d skipped | Scenarios: %d passed, %d failed"
-                       (fmt-duration (elapsed)) (:passed summary) (:failed summary) (:skipped summary)
+                       (report/fmt-duration (elapsed)) (:passed summary) (:failed summary) (:skipped summary)
                        (:scenarios-passed summary) (:scenarios-failed summary))))
     (shutdown-agents)))
 
