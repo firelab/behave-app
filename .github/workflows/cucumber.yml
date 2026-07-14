@@ -70,7 +70,7 @@ jobs:
           SERVE_TIMEOUT: ${{ inputs.serve_timeout }}
         run: |
           case "$SCOPE" in
-            all) QUERY='(and "core" "extended")' ;;
+            all) QUERY='(or "core" "extended")' ;;
             *)   QUERY='(and "core" (not "extended"))' ;;
           esac
           bb cucumber:ci \
