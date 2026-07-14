@@ -22,7 +22,7 @@ on:
 jobs:
   cucumber:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 360  # GitHub-hosted runner max (6h); jobs beyond this are auto-canceled
     steps:
       - uses: actions/checkout@v4
 
