@@ -29,13 +29,16 @@
 
 (defn- find-conditionally-set-output-gvs
   "Return eids of output group-variables that are conditionally set
-   AND have at least one :select action."
+   AND have at least one :select action. Excludes GVs flagged
+   :group-variable/hide-result? true — those are hidden from the results page,
+   so a 'displayed in results' scenario would never pass for them."
   [db]
   (d/q '[:find [?gv ...]
          :where
          [?gv :group-variable/conditionally-set? true]
          [?gv :group-variable/actions ?action]
-         [?action :action/type :select]]
+         [?action :action/type :select]
+         (not [?gv :group-variable/hide-result? true])]
        db))
 
 ;;; ============================================================================
