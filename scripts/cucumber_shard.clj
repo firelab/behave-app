@@ -34,6 +34,11 @@
 (def steps-dir             "steps")
 (def cljs-dir              "projects/behave/resources/public/cljs")
 
+;; config.edn is gitignored (dev-local), so it's absent on a fresh checkout / CI. Each shard
+;; server loads it via behave.server/init-config!, so it must exist before the JVMs boot.
+(def app-config    "projects/behave/resources/config.edn")
+(def ci-config-src "projects/behave/resources/config.ci.edn")
+
 ;;; ---------------------------------------------------------------------------
 ;;; Arg helpers
 ;;; ---------------------------------------------------------------------------
@@ -57,6 +62,13 @@
   (let [{:keys [exit]} (p/shell {:dir "projects/behave" :continue true} "clojure" "-M:compile-cljs")]
     (when-not (zero? exit)
       (println "ERROR: CLJS compile failed") (System/exit 1))))
+
+(defn ensure-config! []
+  ;; Provision config.edn from the tracked config.ci.edn when absent (fresh checkout / CI).
+  ;; Never clobbers a dev's real config. Mirrors scripts/cucumber_ci.clj.
+  (when-not (fs/exists? app-config)
+    (fs/copy ci-config-src app-config)
+    (println (format "cucumber:shard: provisioned %s from %s (was absent)" app-config ci-config-src))))
 
 (defn ensure-manifest! []
   ;; The advanced build is fingerprinted (app-<hash>.js) but the -M:compile-cljs path writes no
@@ -156,6 +168,7 @@
                      n (count all-files) chrome))
     (when (empty? all-files)
       (println "ERROR: no .feature files under" features-dir) (System/exit 1))
+    (ensure-config!)                           ; provision config.edn before any server JVM boots
     (if skip-compile
       (println "• --skip-compile: reusing existing build")
       (compile-once!))
