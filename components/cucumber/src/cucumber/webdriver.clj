@@ -107,9 +107,14 @@
                                                        "--start-maximized"
                                                        "--window-size=2560,1080"]) ; // set window size for headless
                               (not headless?) (conj "--start-maximized")))) ; // maximize when not headless
-    (System/setProperty "webdriver.chrome.driver"
-                        (or (System/getenv "CHROMEDRIVER_PATH")
-                            "/usr/local/bin/chromedriver"))
+    ;; Pin the driver only when we actually have one: $CHROMEDRIVER_PATH, else a local
+    ;; /usr/local/bin/chromedriver IF it exists. Otherwise leave the property unset so Selenium
+    ;; Manager (bundled in Selenium 4.11+) downloads a chromedriver matching the browser at
+    ;; --browser-path — avoids the CI Chrome/chromedriver version drift (setup-chrome can hand
+    ;; out a driver a major version ahead of the installed Chrome).
+    (when-let [drv (or (System/getenv "CHROMEDRIVER_PATH")
+                       (let [f "/usr/local/bin/chromedriver"] (when (.exists (java.io.File. f)) f)))]
+      (System/setProperty "webdriver.chrome.driver" drv))
     (ChromeDriver. options)))
 
 (defn firefox-driver

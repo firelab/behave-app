@@ -48,12 +48,13 @@ jobs:
           key: cljdeps-${{ hashFiles('deps.edn', 'projects/behave/deps.edn') }}
           restore-keys: cljdeps-
 
-      # Matched Chrome + chromedriver (avoids Selenium SessionNotCreated version drift).
+      # Install Chrome only. We deliberately do NOT install/pin chromedriver here — setup-chrome's
+      # "stable" chromedriver can drift a major version ahead of the browser (SessionNotCreated).
+      # Selenium Manager (bundled in Selenium 4.23) downloads the matching driver at runtime.
       - uses: browser-actions/setup-chrome@v1
         id: chrome
         with:
           chrome-version: stable
-          install-chromedriver: true
 
       # Prefetch deps so the run is compile-only (all three classpaths the sharded run uses:
       # driver, per-shard server, and the advanced CLJS compile).
@@ -69,8 +70,8 @@ jobs:
       # to avoid ${{ }} script injection.
       - name: Run cucumber suite (sharded, headless, fresh DBs)
         env:
+          # No CHROMEDRIVER_PATH — Selenium Manager auto-resolves a driver matching CHROME_BIN.
           CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
-          CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
           SCOPE: ${{ inputs.scope }}
           FEATURES_DIR: ${{ inputs.features_dir }}
           SERVE_TIMEOUT: ${{ inputs.serve_timeout }}
