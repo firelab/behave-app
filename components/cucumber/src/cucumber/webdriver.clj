@@ -23,6 +23,12 @@
   [^By parent ^By child]
   (ExpectedConditions/presenceOfNestedElementsLocatedBy parent child))
 
+(defn staleness-of
+  "Expect that `el` is no longer attached to the DOM — i.e. the page re-rendered. Lets a
+   caller wait for a click to take effect (old element goes stale) instead of a fixed sleep."
+  [^org.openqa.selenium.WebElement el]
+  (ExpectedConditions/stalenessOf el))
+
 (defn quit
   "Quit the webdriver."
   [^WebDriver driver]
@@ -42,6 +48,18 @@
   "Executes JavaScript code."
   [^JavascriptExecutor driver script & args]
   (.executeScript driver script (into-array args)))
+
+(defn add-init-script!
+  "Register JS to run on every new document BEFORE the page's own scripts, via CDP
+   (Page.addScriptToEvaluateOnNewDocument). Lets us seed localStorage on the app's
+   origin without a throwaway load-then-reload. Chrome only: returns true when
+   registered, false when the driver doesn't support CDP (caller should fall back)."
+  [driver source]
+  (when (instance? ChromeDriver driver)
+    (.executeCdpCommand ^ChromeDriver driver
+                        "Page.addScriptToEvaluateOnNewDocument"
+                        {"source" source})
+    true))
 
 (defn ready?
   "Returns true if the document is ready."
@@ -84,7 +102,7 @@
                                      "--disable-gpu" ; // applicable to windows os only
                                      "--disable-dev-shm-usage" ; // overcome limited resource problems
                                      "--no-sandbox" ; // Bypass OS security model
-                                     "--remote-debugging-port=9222"]
+                                     "--remote-debugging-port=0"] ; // auto-assign: a fixed port collides when sharding runs N parallel Chromes
                               headless?       (concat ["--headless=new" ; // run in headless mode
                                                        "--start-maximized"
                                                        "--window-size=2560,1080"]) ; // set window size for headless

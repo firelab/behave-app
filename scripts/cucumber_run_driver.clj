@@ -80,29 +80,36 @@
                 org
                 edn
                 retry-failed
-                browser-path]} (edn/read-string (slurp config-path))
-        query                  (if (string? query) (read-string query) query)
-        all-files              (all-feature-files features-dir)
-        n->f                   (feature-name->file features-dir)
-        status                 (atom (into {} (map (fn [f] [f {:state :pending :fails []}]) all-files)))
-        executables            (atom [])
-        t0                     (System/nanoTime)
-        elapsed                (fn [] (/ (- (System/nanoTime) t0) 1e9))
-        write!                 (fn [& {:keys [summary?]}]
-                                 (report/write! {:url     url       :query       query        :headless headless :stop stop
-                                                 :elapsed (elapsed) :all-files   all-files
-                                                 :status  @status   :executables @executables
-                                                 :org     org       :edn         edn}
-                                                :summary? summary?))
-        record!                (fn [file fname exs]
+                browser-path
+                feature-files]} (edn/read-string (slurp config-path))
+        query                   (if (string? query) (read-string query) query)
+        ;; When sharding, the orchestrator passes this shard's subset of features-dir-relative
+        ;; paths; run only those. Absent ⇒ run every file (the N=1 path, unchanged).
+        subset                  (when (seq feature-files) (set feature-files))
+        all-files               (cond->> (all-feature-files features-dir)
+                                  subset (filter subset))
+        n->f                    (feature-name->file features-dir)
+        status                  (atom (into {} (map (fn [f] [f {:state :pending :fails []}]) all-files)))
+        executables             (atom [])
+        t0                      (System/nanoTime)
+        elapsed                 (fn [] (/ (- (System/nanoTime) t0) 1e9))
+        write!                  (fn [& {:keys [summary?]}]
+                                  (report/write! {:url     url       :query       query        :headless headless :stop stop
+                                                  :elapsed (elapsed) :all-files   all-files
+                                                  :status  @status   :executables @executables
+                                                  :org     org       :edn         edn}
+                                                 :summary? summary?))
+        record!                 (fn [file fname exs]
                       ;; replace any prior executables for this feature, then re-add
-                                 (swap! executables (fn [all] (into (vec (remove #(= fname (:feature %)) all)) exs)))
-                                 (swap! status assoc file (classify exs))
-                                 (write!))]
+                                  (swap! executables (fn [all] (into (vec (remove #(= fname (:feature %)) all)) exs)))
+                                  (swap! status assoc file (classify exs))
+                                  (write!))]
     (println (format "Loading steps from %s" steps-dir))
     (cr/load-steps! (io/file steps-dir))
     (write!)                                   ; initial all-pending org
-    (let [features   (tl/load-feature-files (io/file features-dir))
+    (let [features   (cond->> (tl/load-feature-files (io/file features-dir))
+                       ;; restrict to this shard's files (match each feature to its file via n->f)
+                       subset (filter #(subset (get n->f (:tegere.parser/name %) (:tegere.parser/name %)))))
           file->feat (into {} (for [ft features]
                                 (let [nm (:tegere.parser/name ft)]
                                   [(get n->f nm nm) ft])))

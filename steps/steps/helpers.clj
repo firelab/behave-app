@@ -407,9 +407,11 @@
      (click-select-more-button driver)"
   [driver]
   (try
-    (let [expand-btn (find-element driver {:css ".multi-select__selections__header__button button"})]
-      (e/click! expand-btn)
-      (Thread/sleep 500)) ; Wait for expansion animation and options to load
+    (-> (find-element driver {:css ".multi-select__selections__header__button button"})
+        (e/click!))
+    ;; No fixed sleep for the expansion: the caller always follows this with
+    ;; click-radio-or-dropdown-option, which waits (up to 15s) for the specific option to
+    ;; render — that wait covers the expansion + option load, returning as soon as it's ready.
     (catch Exception e
       (throw (ex-info "Could not find or click 'Select More' button"
                       {:error e})))))
@@ -563,9 +565,13 @@
        :else
        (do
          (wait-for-element-by-selector driver {:css ".wizard-navigation__next .button--highlight"} 10000)
-         (-> (find-element driver {:css ".wizard-navigation__next .button--highlight"})
-             (e/click!))
-         (Thread/sleep 500)
+         (let [next-btn (find-element driver {:css ".wizard-navigation__next .button--highlight"})]
+           (e/click! next-btn)
+           ;; Wait for the page to advance — the clicked Next goes stale when the wizard
+           ;; re-renders the next page — instead of a fixed 500ms sleep. Returns as soon as
+           ;; the render happens; a timeout just falls through to the next review-page? check.
+           (try (.until (w/wait driver 10000) (w/staleness-of next-btn))
+                (catch org.openqa.selenium.TimeoutException _ nil)))
          (recur (inc attempts)))))))
 
 (defn wait-for-results

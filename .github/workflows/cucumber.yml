@@ -18,6 +18,10 @@ on:
         description: 'Seconds to wait for the app to become reachable'
         type: string
         default: '300'
+      shards:
+        description: 'Number of parallel shards (each = 1 Chrome + 1 app server; bump cautiously on RAM)'
+        type: string
+        default: '2'
 
 jobs:
   cucumber:
@@ -51,32 +55,35 @@ jobs:
           chrome-version: stable
           install-chromedriver: true
 
-      # Prefetch deps so the readiness window is compile-only (both classpaths the run uses).
+      # Prefetch deps so the run is compile-only (all three classpaths the sharded run uses:
+      # driver, per-shard server, and the advanced CLJS compile).
       - name: Prefetch deps
         run: |
           clojure -P -M:dev:behave/cms
-          (cd projects/behave && clojure -P -M:figwheel-lib)
+          clojure -P -M:dev:behave/app
+          (cd projects/behave && clojure -P -M:compile-cljs)
 
-      # Starts the app (figwheel serve + init-config!/init-db!), runs the selected
-      # scenarios headless against a freshly-created empty DB (connect! creates it; VMS
-      # comes from the tracked layout.msgpack), then tears the app down. Non-zero exit
-      # fails the job. Inputs are read via env to avoid ${{ }} script injection.
-      - name: Run cucumber suite (headless, fresh DB)
+      # Compiles the advanced CLJS build once, starts N isolated app servers (own port + DB
+      # each), splits features across them, runs N headless Chrome drivers in parallel, then
+      # merges + tears everything down. Non-zero exit fails the job. Inputs are read via env
+      # to avoid ${{ }} script injection.
+      - name: Run cucumber suite (sharded, headless, fresh DBs)
         env:
           CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
           CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
           SCOPE: ${{ inputs.scope }}
           FEATURES_DIR: ${{ inputs.features_dir }}
           SERVE_TIMEOUT: ${{ inputs.serve_timeout }}
+          SHARDS: ${{ inputs.shards }}
         run: |
           case "$SCOPE" in
             all) QUERY='(or "core" "extended")' ;;
             *)   QUERY='(and "core" (not "extended"))' ;;
           esac
-          bb cucumber:ci \
+          bb cucumber:shard \
+            --shards "$SHARDS" \
             --query "$QUERY" \
             --features-dir "$FEATURES_DIR" \
-            --db-path ci-db.sqlite \
             --serve-timeout "$SERVE_TIMEOUT"
 
       - uses: actions/upload-artifact@v4
@@ -85,7 +92,8 @@ jobs:
           name: cucumber-results
           path: |
             cucumber_test_results_*.org
-            cucumber_results_*.edn
-            cucumber_figwheel.log
-            cucumber_run.log
+            cucumber_shard_*_results.org
+            cucumber_shard_*_results.edn
+            cucumber_shard_*_run.log
+            cucumber_shard_*_server.log
           if-no-files-found: ignore

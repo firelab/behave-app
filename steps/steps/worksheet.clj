@@ -59,14 +59,20 @@
   ;; size instead.
   (w/set-window-size driver 1920 1080)
 
-  ;; Disable the Disclaimer modal, then RELOAD so the app re-initializes with it already
-  ;; set. Setting local storage after the first load only wins a race (the app reads it
-  ;; at :initialize), which fails intermittently in CI. Key "behave-settings" is defined
-  ;; in behave/events.cljs; value is EDN.
-  (w/goto driver url)                         ; establish origin so localStorage is writable
-  (w/execute-script! driver
-                     "localStorage.setItem('behave-settings', '{:show-disclaimer? false}');")
-  (w/goto driver url)                         ; reload → app inits with :show-disclaimer? false
+  ;; Disable the Disclaimer modal BEFORE the app initializes. The app reads
+  ;; "behave-settings" (defined in behave/events.cljs; value is EDN) at :initialize, so the
+  ;; value must be in localStorage before its scripts run. A CDP init-script seeds it on the
+  ;; app origin at document-start, so a single load is enough (saves a full SPA boot per
+  ;; scenario). Non-Chrome drivers can't do CDP → fall back to the old load-set-reload, which
+  ;; sets it after the first boot and reloads so the second init reads it.
+  (if (w/add-init-script! driver
+                          "try{localStorage.setItem('behave-settings','{:show-disclaimer? false}');}catch(e){}")
+    (w/goto driver url)                       ; single load — settings already seeded at document-start
+    (do
+      (w/goto driver url)                     ; establish origin so localStorage is writable
+      (w/execute-script! driver
+                         "localStorage.setItem('behave-settings', '{:show-disclaimer? false}');")
+      (w/goto driver url)))                   ; reload → app inits with :show-disclaimer? false
 
   ;; Wait for the working area to confirm the page has rendered before proceeding
   (h/wait-for-working-area driver)
