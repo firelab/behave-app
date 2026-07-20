@@ -1,5 +1,5 @@
 #!/usr/bin/env bb
-;; Parallel, sharded cucumber run.
+;; Headless CI cucumber run (optionally sharded in parallel).
 ;;
 ;; The BehavePlus app is single-session (behave.init/init! reloads config.edn and, in cucumber
 ;; config, deletes+reconnects a single global store on every /api/init), so N browsers cannot
@@ -11,8 +11,11 @@
 ;;      each with its feature subset (`:feature-files`) and its own Chrome,
 ;;   5. merges the per-shard reports and tears every server down.
 ;;
+;; Sharding is a flag feature: --shards defaults to 2, so `--shards 1` runs a single
+;; unsharded server + driver.
+;;
 ;; Usage:
-;;   bb cucumber:shard [opts]   (or: bb scripts/cucumber_shard.clj [opts])
+;;   bb cucumber:ci [opts]   (or: bb scripts/cucumber_ci.clj [opts])
 ;;   --shards N          number of parallel shards           (default 2)
 ;;   --feature F         run only this one feature file      (rel path, nested path, or bare
 ;;                       (forces 1 shard; runs all its scenarios unless --query given)
@@ -22,7 +25,7 @@
 ;;   --db-prefix P       per-shard sqlite path prefix        (default cucumber-shard-db)
 ;;   --base-port N       first shard's port (i uses N+i)     (default 8091)
 ;;   --skip-compile      reuse the existing compiled build (skip step 1)
-(ns cucumber-shard
+(ns cucumber-ci
   (:require [babashka.fs      :as fs]
             [babashka.process :as p]
             [browser          :as browser]
@@ -70,7 +73,7 @@
   ;; Never clobbers a dev's real config.
   (when-not (fs/exists? app-config)
     (fs/copy ci-config-src app-config)
-    (println (format "cucumber:shard: provisioned %s from %s (was absent)" app-config ci-config-src))))
+    (println (format "cucumber:ci: provisioned %s from %s (was absent)" app-config ci-config-src))))
 
 (defn ensure-manifest! []
   ;; The advanced build is fingerprinted (app-<hash>.js) but the -M:compile-cljs path writes no
@@ -219,7 +222,7 @@
                               (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd_HH-mm-ss"))
         run-dir      (str "logs/cucumber/cucumber_test_results_" ts)]
     (fs/create-dirs run-dir)
-    (println (format "▶ cucumber:shard — %d shard(s) | %d feature files | Chrome: %s"
+    (println (format "▶ cucumber:ci — %d shard(s) | %d feature files | Chrome: %s"
                      n (count all-files) chrome))
     (when feature
       (println (format "▶ single feature: %s | query: %s" (first all-files) (or query "all scenarios"))))

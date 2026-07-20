@@ -36,8 +36,8 @@
   cucumber    {:doc  "Run the cucumber suite (app must already be running). Opts forwarded to scripts/run_cucumber_tests.clj: --headless --query --features-dir --steps-dir --retry-failed --stop --url --help"
                :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/run_cucumber_tests.clj" *command-line-args*)))}
 
-  cucumber:shard {:doc  "Parallel sharded run: compile the advanced CLJS build once, start N isolated app servers (own port + DB each), split features across them, run N headless Chrome drivers in parallel, then merge + tear down. Requires chromedriver on PATH. Opts: --shards N (default 2), --query, --features-dir, --serve-timeout, --db-prefix, --base-port, --skip-compile."
-                  :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/cucumber_shard.clj" *command-line-args*)))}
+  cucumber:ci {:doc  "Headless CI cucumber run: compile the advanced CLJS build once, start isolated app server(s) (own port + DB each), run headless Chrome driver(s), then merge + tear down. Shards in parallel when --shards > 1 (default 2). Requires chromedriver on PATH. Opts: --shards N (default 2), --feature F, --query, --features-dir, --serve-timeout, --db-prefix, --base-port, --skip-compile."
+               :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/cucumber_ci.clj" *command-line-args*)))}
 
   ;;; Datomic
   -today      (str (java.time.LocalDate/now))

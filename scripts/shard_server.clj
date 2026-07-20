@@ -7,7 +7,7 @@
 ;; config.edn), the port from -Dshard.port. vms-sync! is intentionally skipped (the suite
 ;; serves the pre-exported layout.msgpack).
 ;;
-;; Launched by scripts/cucumber_shard.clj:
+;; Launched by scripts/cucumber_ci.clj:
 ;;   clojure -J-Dbehave.store.path=<db> -J-Dshard.port=<port> -M:dev:behave/app scripts/shard_server.clj
 (require '[behave.server    :as server]
          '[server.interface :as srv]
