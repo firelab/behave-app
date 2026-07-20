@@ -1,10 +1,27 @@
 name: cucumber
 
 on:
-  pull_request:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Which scenarios to run'
+        type: choice
+        default: core
+        options:
+          - core   # @core, excluding @extended
+          - all    # @core + @extended
+      features_dir:
+        description: 'Features dir (narrow to a subset, e.g. features/results-page)'
+        type: string
+        default: features
+      serve_timeout:
+        description: 'Seconds to wait for the app to become reachable'
+        type: string
+        default: '300'
+      shards:
+        description: 'Number of parallel shards (each = 1 Chrome + 1 app server; bump cautiously on RAM)'
+        type: string
+        default: '2'
 
 jobs:
   cucumber-core:
