@@ -36,9 +36,6 @@
   cucumber    {:doc  "Run the cucumber suite (app must already be running). Opts forwarded to scripts/run_cucumber_tests.clj: --headless --query --features-dir --steps-dir --retry-failed --stop --url --help"
                :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/run_cucumber_tests.clj" *command-line-args*)))}
 
-  cucumber:ci {:doc  "Start the app (figwheel serve) with server-side init (config + DB), run the cucumber suite headless, then tear the app down. Requires chromedriver on PATH (major version matching installed Chrome). Opts: --db-path <sqlite> (default projects/behave/resources/db.sqlite), --serve-timeout <secs>; remaining opts forwarded to scripts/run_cucumber_tests.clj."
-               :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/cucumber_ci.clj" *command-line-args*)))}
-
   cucumber:shard {:doc  "Parallel sharded run: compile the advanced CLJS build once, start N isolated app servers (own port + DB each), split features across them, run N headless Chrome drivers in parallel, then merge + tear down. Requires chromedriver on PATH. Opts: --shards N (default 2), --query, --features-dir, --serve-timeout, --db-prefix, --base-port, --skip-compile."
                   :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/cucumber_shard.clj" *command-line-args*)))}
 

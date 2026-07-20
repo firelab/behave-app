@@ -92,9 +92,5 @@ jobs:
         with:
           name: cucumber-results
           path: |
-            cucumber_test_results_*.org
-            cucumber_shard_*_results.org
-            cucumber_shard_*_results.edn
-            cucumber_shard_*_run.log
-            cucumber_shard_*_server.log
+            logs/cucumber/**
           if-no-files-found: ignore

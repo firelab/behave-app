@@ -158,12 +158,13 @@
    tag is :core (one representative value) or :extended (all values)."
   [{:keys [output-name module required-modules required-outputs required-inputs]}
    varying-row
-   tag]
+   tag
+   & [name-suffix]]
   (let [module-combo   (effective-module-combo required-modules module)
         tag-str        (if (= tag :core) "@core" "@extended")
-        sname          (if (= tag :core)
-                         (str output-name " is displayed in results when inputs are set")
-                         (str output-name " is displayed in results when inputs are set (Extended)"))
+        sname          (str output-name " is displayed in results when inputs are set"
+                            (when (= tag :extended) " (Extended)")
+                            name-suffix)
         outline-header (str SCENARIO-INDENT tag-str "\n"
                             SCENARIO-INDENT "Scenario Outline: " sname)
         given-step     (str STEP-INDENT (module-to-given-statement module-combo))
@@ -270,7 +271,8 @@
    @extended: all of them). Otherwise, when any required-input row carries a :values
    list of length ≥2 (an :in range), emits two input Scenario Outlines. Otherwise
    falls back to a single plain Scenario."
-  [{:keys [output-name module required-inputs required-outputs-operator gating-outputs]
+  [{:keys [output-name module required-inputs required-outputs-operator gating-outputs
+           input-visibility-classes varying-input-key]
     :as   test-case}]
   (let [module-title (or module "")
         header       (str "@core\n"
@@ -281,11 +283,32 @@
         or-outputs?  (and (= :or required-outputs-operator)
                           (>= (count gating-outputs) 2))
         varying-row  (find-varying-row required-inputs)
+        ;; Locate the varying row in a class's inputs by its [submodule group subgroup]
+        ;; key — a singleton class has one :values entry, so find-varying-row can't.
+        vrow-of      (fn [inputs]
+                       (or (first (filter #(= [(:submodule %) (:group %) (:subgroup %)] varying-input-key)
+                                          inputs))
+                           (find-varying-row inputs)))
         body         (cond
                        or-outputs?
                        (str/join "\n\n"
                                  [(render-output-outline test-case :core)
                                   (render-output-outline test-case :extended)])
+                       ;; Varying input splits visibility: @core uses the first class's
+                       ;; representative; @extended emits one outline per class so each value
+                       ;; group sets exactly the inputs its values reveal (e.g. only the
+                       ;; Bark Char Height species that show Crown Ratio get a Crown Ratio row).
+                       (seq input-visibility-classes)
+                       (str/join "\n\n"
+                                 (cons (render-scenario-outline
+                                        (assoc test-case :required-inputs (first input-visibility-classes))
+                                        (vrow-of (first input-visibility-classes)) :core)
+                                       (map-indexed
+                                        (fn [i ci]
+                                          (render-scenario-outline
+                                           (assoc test-case :required-inputs ci)
+                                           (vrow-of ci) :extended (str " — Group " (inc i))))
+                                        input-visibility-classes)))
                        varying-row
                        (str/join "\n\n"
                                  [(render-scenario-outline test-case varying-row :core)
@@ -448,6 +471,33 @@
           (some true? results)
           (every? true? results))))))
 
+(defn- included-baseline-inputs
+  "Fixpoint over `base-inputs`: admit a baseline input once BOTH its group/subgroup
+   conditional AND its submodule conditional pass (empty = no gate), seeding
+   `known-values` with `init-known` and growing it as inputs are admitted (a later
+   input can be revealed by an earlier one). Returns the admitted rows in baseline
+   declaration order. Uses vector + seen-set to avoid array-map overflow losing order."
+  [base-inputs init-known input-visibility module-name-set]
+  (loop [remaining (vec base-inputs)
+         known     init-known
+         acc       []
+         seen      #{}]
+    (let [newly     (remove (fn [row] (seen (input-key row)))
+                            (filter (fn [row]
+                                      (let [g (find-group-entries input-visibility row)
+                                            s (find-submodule-entries input-visibility row)]
+                                        (and (or (empty? g) (some #(conditionals-pass? % known module-name-set) g))
+                                             (or (empty? s) (some #(conditionals-pass? % known module-name-set) s)))))
+                                    remaining))
+          new-acc   (into acc newly)
+          new-seen  (into seen (map input-key newly))
+          new-known (into known (map (fn [{:keys [group subgroup value]}]
+                                       [(or subgroup group) value]) newly))
+          leftover  (remove (fn [row] (new-seen (input-key row))) remaining)]
+      (if (= (count new-acc) (count acc))
+        new-acc
+        (recur leftover new-known new-acc new-seen)))))
+
 (defn- merge-with-baselines
   "Merge a test case with the worksheet-combo baseline.
    The baseline is looked up by a single effective-combo key (:surface,
@@ -525,46 +575,60 @@
                                (map (fn [{:keys [group subgroup value]}] [(or subgroup group) value]) tc-inputs)
                                (map (fn [{:keys [value]}] [value "true"]) all-outputs)
                                (map (fn [{:keys [value]}] [value "true"]) (:default-outputs test-case))))
-        ;; Fixpoint: include baseline inputs whose conditionals pass, in declaration order.
-        ;; Uses vector + seen-set to avoid array-map overflow losing ordering.
-        included-vec    (loop [remaining (vec base-inputs)
-                               known     init-known
-                               acc       []
-                               seen      #{}]
-                          (let [newly     (remove (fn [row] (seen (input-key row)))
-                                                  (filter (fn [row]
-                                                          ;; Visible only when BOTH its group/subgroup conditional
-                                                          ;; AND its submodule conditional pass (empty = no gate).
-                                                            (let [g (find-group-entries input-visibility row)
-                                                                  s (find-submodule-entries input-visibility row)]
-                                                              (and (or (empty? g) (some #(conditionals-pass? % known module-name-set) g))
-                                                                   (or (empty? s) (some #(conditionals-pass? % known module-name-set) s)))))
-                                                          remaining))
-                                new-acc   (into acc newly)
-                                new-seen  (into seen (map input-key newly))
-                                new-known (into known (map (fn [{:keys [group subgroup value]}]
-                                                             [(or subgroup group) value]) newly))
-                                leftover  (remove (fn [row] (new-seen (input-key row))) remaining)]
-                            (if (= (count new-acc) (count acc))
-                              new-acc
-                              (recur leftover new-known new-acc new-seen))))
+        ;; Included baseline inputs for the representative (first) varying value.
+        included-vec    (included-baseline-inputs base-inputs init-known input-visibility module-name-set)
         ;; Input order is implicit: the declaration order of :baseline-inputs (already
         ;; worksheet order). Several baseline inputs (DBH, Air Temperature) appear in no
         ;; test case, so declaration order is the only complete ordering source.
         base-order      (into {} (map-indexed (fn [i r] [(input-key r) i])
                                               (get baseline :baseline-inputs [])))
-        ;; tc-inputs override baseline values for same key; new keys appended after
-        tc-override     (into {} (map #(vector (input-key %) %) tc-inputs))
-        base-keys       (set (map input-key included-vec))
-        merged-raw      (into (mapv #(get tc-override (input-key %) %) included-vec)
-                              (remove #(base-keys (input-key %)) tc-inputs))]
+        ;; Merge an included baseline-input vector with the test-case inputs — restricting
+        ;; the varying row's Examples :values to `vals` — and sort into worksheet order.
+        ;; tc-inputs override baseline values for the same key; test-only keys append after.
+        varying-row     (find-varying-row tc-inputs)
+        varying-key     (when varying-row (input-key varying-row))
+        finalize-inputs (fn [inc-vec example-vals]
+                          (let [tcin        (cond->> tc-inputs
+                                              varying-key
+                                              (mapv #(if (= (input-key %) varying-key)
+                                                       (assoc % :values (vec example-vals) :value (first example-vals))
+                                                       %)))
+                                tc-override (into {} (map (juxt input-key identity)) tcin)
+                                base-keys   (set (map input-key inc-vec))
+                                merged-raw  (into (mapv #(get tc-override (input-key %) %) inc-vec)
+                                                  (remove #(base-keys (input-key %)) tcin))]
+                            (vec (sort-by #(get base-order (input-key %) Long/MAX_VALUE) merged-raw))))
+        ;; Partition the varying values into visibility-equivalence classes: values that
+        ;; reveal the SAME baseline inputs share one class. Evaluating visibility per value
+        ;; (not just the representative) stops species-gated inputs — e.g. Crown Ratio,
+        ;; Canopy Height, Air Temperature, shown only for some Bark Char Height species —
+        ;; from being dropped across the whole @extended table because the first species
+        ;; happened to hide them. array-map preserves first-seen order, so the class holding
+        ;; the first value (used for @core) sorts first.
+        vk-known        (when varying-row (or (:subgroup varying-row) (:group varying-row)))
+        class-map       (when varying-row
+                          (reduce (fn [m v]
+                                    (let [incl (included-baseline-inputs base-inputs
+                                                                         (assoc init-known vk-known v)
+                                                                         input-visibility module-name-set)
+                                          sig  (set (map input-key incl))]
+                                      (if (contains? m sig)
+                                        (update-in m [sig :values] conj v)
+                                        (assoc m sig {:incl incl :values [v]}))))
+                                  (array-map) (:values varying-row)))
+        classes         (mapv (fn [{:keys [incl values]}] (finalize-inputs incl values)) (vals class-map))]
     (assoc test-case
-           ;; stable sort: any test-case-only input (not in baseline) trails in order
-           :required-inputs  (sort-by #(get base-order (input-key %) Long/MAX_VALUE) merged-raw)
+           :required-inputs  (finalize-inputs included-vec (when varying-row (:values varying-row)))
            :required-outputs (sort-by-vms-order all-outputs)
            ;; The test case's own outputs (the conditional gate). Preserved separately
            ;; from the baseline outputs so an :or-gated render can vary just these.
-           :gating-outputs   (vec tc-outputs))))
+           :gating-outputs   (vec tc-outputs)
+           ;; [submodule group subgroup] of the varying row, so the renderer can locate it
+           ;; in each class (a singleton class has only one :values entry).
+           :varying-input-key varying-key
+           ;; Attach class variants only when the varying input actually splits visibility;
+           ;; one class means every value reveals the same inputs (rendering unchanged).
+           :input-visibility-classes (when (> (count classes) 1) classes))))
 
 ;;; ============================================================================
 ;;; File cleanup (only removes results-page_*.feature files)

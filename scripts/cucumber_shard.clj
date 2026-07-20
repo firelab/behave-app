@@ -14,6 +14,8 @@
 ;; Usage:
 ;;   bb cucumber:shard [opts]   (or: bb scripts/cucumber_shard.clj [opts])
 ;;   --shards N          number of parallel shards           (default 2)
+;;   --feature F         run only this one feature file      (rel path, nested path, or bare
+;;                       (forces 1 shard; runs all its scenarios unless --query given)
 ;;   --query <edn>       tegere query-tree                   (default core, not extended)
 ;;   --features-dir D    features root                       (default features)
 ;;   --serve-timeout S   secs to wait per server             (default 300)
@@ -65,7 +67,7 @@
 
 (defn ensure-config! []
   ;; Provision config.edn from the tracked config.ci.edn when absent (fresh checkout / CI).
-  ;; Never clobbers a dev's real config. Mirrors scripts/cucumber_ci.clj.
+  ;; Never clobbers a dev's real config.
   (when-not (fs/exists? app-config)
     (fs/copy ci-config-src app-config)
     (println (format "cucumber:shard: provisioned %s from %s (was absent)" app-config ci-config-src))))
@@ -97,6 +99,19 @@
        (filter #(str/ends-with? (.getName %) ".feature"))
        (map #(str/replace (.getPath %) (str features-dir "/") ""))
        sort vec))
+
+(defn resolve-feature
+  "Resolve a user-supplied --feature value to a features-dir-relative path from
+   `discovered`. Accepts an exact relative path, a features-dir-prefixed path, a
+   nested-path suffix, or a bare filename. Returns nil when nothing matches."
+  [input discovered features-dir]
+  (let [input  (str/replace (str input) #"^\./" "")
+        prefix (str features-dir "/")
+        norm   (if (str/starts-with? input prefix) (subs input (count prefix)) input)
+        base   (str (fs/file-name norm))]
+    (or (some #{norm} discovered)                                      ; exact relative path
+        (first (filter #(str/ends-with? % (str "/" norm)) discovered)) ; nested-path suffix
+        (first (filter #(= (str (fs/file-name %)) base) discovered))))) ; bare filename
 
 (defn shard-split [files n]
   ;; Round-robin so heavy (results-page / extended) files spread evenly across shards.
@@ -136,16 +151,40 @@
   (when (fs/exists? edn-file)
     (try (:summary (edn/read-string (slurp edn-file))) (catch Exception _ nil))))
 
+(defn read-elapsed [edn-file]
+  (when (fs/exists? edn-file)
+    (try (:elapsed-seconds (edn/read-string (slurp edn-file))) (catch Exception _ nil))))
+
+(defn fmt-elapsed [secs]
+  (if secs
+    (let [s (long secs)] (format "%dm %02ds" (quot s 60) (rem s 60)))
+    "?"))
+
+(defn results-body
+  "The file-list section of a shard's org, re-indented +2 spaces so it nests under
+   a `- Results` bullet (file items → col 2, failure-detail lines → col 4)."
+  [org]
+  (when (fs/exists? org)
+    (let [content (slurp org)
+          marker  "* Results\n"
+          idx     (str/index-of content marker)]
+      (when idx
+        (->> (str/split-lines (subs content (+ idx (count marker))))
+             (remove str/blank?)
+             (map #(str "  " %))
+             (str/join "\n"))))))
+
 (defn merge-summaries [summaries]
   (reduce (fn [acc s]
             (-> acc
                 (update :passed           + (:passed s 0))
                 (update :failed           + (:failed s 0))
                 (update :skipped          + (:skipped s 0))
+                (update :pending          + (:pending s 0))
                 (update :scenarios-passed + (:scenarios-passed s 0))
                 (update :scenarios-failed + (:scenarios-failed s 0))
                 (update :failed-files     into (:failed-files s []))))
-          {:passed 0 :failed 0 :skipped 0 :scenarios-passed 0 :scenarios-failed 0 :failed-files []}
+          {:passed 0 :failed 0 :skipped 0 :pending 0 :scenarios-passed 0 :scenarios-failed 0 :failed-files []}
           summaries))
 
 ;;; ---------------------------------------------------------------------------
@@ -154,18 +193,37 @@
 
 (defn -main [args]
   (let [shards       (Integer/parseInt (str (flag-val args "--shards" (str default-shards))))
-        query        (flag-val args "--query" "(and \"core\" (not \"extended\"))")
         features-dir (flag-val args "--features-dir" "features")
+        feature      (flag-val args "--feature" nil)
+        query-given? (or (flag-set? args "--query")
+                         (boolean (some #(str/starts-with? (str %) "--query=") args)))
+        ;; A single --feature run defaults to "all scenarios in that file" (query nil) so
+        ;; the file runs regardless of its core/extended tags — override with --query.
+        query        (let [q (flag-val args "--query" "(and \"core\" (not \"extended\"))")]
+                       (if (and feature (not query-given?)) nil q))
         timeout      (Integer/parseInt (str (flag-val args "--serve-timeout" (str default-serve-timeout))))
         db-prefix    (flag-val args "--db-prefix" "cucumber-shard-db")
         base-port    (Integer/parseInt (str (flag-val args "--base-port" (str default-base-port))))
         skip-compile (flag-set? args "--skip-compile")
         chrome       (browser/find-browser)
-        all-files    (feature-files features-dir)
+        discovered   (feature-files features-dir)
+        all-files    (if feature
+                       (if-let [f (resolve-feature feature discovered features-dir)]
+                         [f]
+                         (do (println (format "ERROR: no feature file matching '%s' under %s" feature features-dir))
+                             (System/exit 1)))
+                       discovered)
         n            (max 1 (min shards (count all-files)))
-        groups       (shard-split all-files n)]
+        groups       (shard-split all-files n)
+        ts           (.format (java.time.LocalDateTime/now)
+                              (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd_HH-mm-ss"))
+        run-dir      (str "logs/cucumber/cucumber_test_results_" ts)]
+    (fs/create-dirs run-dir)
     (println (format "▶ cucumber:shard — %d shard(s) | %d feature files | Chrome: %s"
                      n (count all-files) chrome))
+    (when feature
+      (println (format "▶ single feature: %s | query: %s" (first all-files) (or query "all scenarios"))))
+    (println "▶ run outputs →" run-dir)
     (when (empty? all-files)
       (println "ERROR: no .feature files under" features-dir) (System/exit 1))
     (ensure-config!)                           ; provision config.edn before any server JVM boots
@@ -176,27 +234,27 @@
 
     (let [servers                                                                                                                            (atom [])
           ;; Compute the exit code inside the try so the finally can tear the servers down
-          ;; FIRST — System/exit skips finally blocks, so it must come after (see cucumber_ci.clj).
+          ;; FIRST — System/exit skips finally blocks, so it must come after.
           code
           (try
             ;; 1. start N isolated servers
             (doseq [i (range n)]
               (let [port (+ base-port i)
                     db   (str (fs/absolutize (str db-prefix "-" i ".sqlite")))
-                    logf (io/file (format "cucumber_shard_%d_server.log" i))]
+                    logf (io/file run-dir (format "cucumber_shard_%d_server.log" i))]
                 (fs/delete-if-exists db)
                 (spit logf "")
                 (let [proc (p/process {:out :append :out-file logf :err :append :err-file logf}
                                       "clojure" (str "-J-Dbehave.store.path=" db) (str "-J-Dshard.port=" port)
                                       "-M:dev:behave/app" "scripts/shard_server.clj")]
-                  (swap! servers conj {:proc proc :port port :i i :log logf}))))
+                  (swap! servers conj {:proc proc :port port :i i :log logf :db db}))))
         ;; wait for all to be reachable
             (let [ready? (every? (fn [{:keys [proc port i]}]
                                    (wait-ready! (format "http://localhost:%d/worksheets" port)
                                                 proc timeout (format "shard-%d server" i)))
                                  @servers)]
               (when-not ready?
-                (println "ERROR: not all shard servers came up; see cucumber_shard_*_server.log")
+                (println "ERROR: not all shard servers came up; see" (str run-dir "/cucumber_shard_*_server.log"))
                 (throw (ex-info "server startup failed" {}))))
 
         ;; 2. run N drivers in parallel, each on its shard's features
@@ -204,15 +262,15 @@
                   (doall
                    (for [{:keys [port i]} @servers]
                      (let [subset (nth groups i)
-                           org    (format "cucumber_shard_%d_results.org" i)
-                           edn    (format "cucumber_shard_%d_results.edn" i)
+                           org    (str run-dir "/" (format "cucumber_shard_%d_results.org" i))
+                           edn    (str run-dir "/" (format "cucumber_shard_%d_results.edn" i))
                            cfg    {:features-dir features-dir                                   :steps-dir     steps-dir
                                    :url          (format "http://localhost:%d/worksheets" port)
                                    :headless     true                                           :stop          false     :query        query
                                    :org          org                                            :edn           edn       :retry-failed 0
                                    :browser-path chrome                                         :feature-files subset}
                            cfg-f  (str (fs/create-temp-file {:prefix (format "shard-%d-cfg-" i) :suffix ".edn"}))
-                           logf   (io/file (format "cucumber_shard_%d_run.log" i))]
+                           logf   (io/file run-dir (format "cucumber_shard_%d_run.log" i))]
                        (spit cfg-f (pr-str cfg))
                        (spit logf "")
                        (println (format "▶ shard-%d: %d feature(s) → %s (log: %s)" i (count subset) org logf))
@@ -241,15 +299,37 @@
                 (when (seq (:failed-files merged))
                   (println "  Failing files:") (doseq [f (:failed-files merged)] (println "    -" f)))
             ;; combined org (concatenate the per-shard bodies)
-                (let [combined (format "cucumber_test_results_shard_%s.org"
-                                       (.format (java.time.LocalDateTime/now)
-                                                (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd_HH-mm-ss")))]
+                (let [combined    (str run-dir "/cucumber_test_summary.org")
+                      max-elapsed (apply max 0.0 (keep read-elapsed (map :edn driver-procs)))
+                      total-files (+ (:passed merged) (:failed merged) (:skipped merged) (:pending merged))]
                   (spit combined
-                        (str "# Sharded cucumber run — " n " shards\n\n"
-                             (str/join "\n\n" (for [{:keys [i org]} driver-procs]
-                                                (str "# ── shard-" i " ──\n"
-                                                     (when (fs/exists? org) (slurp org)))))))
+                        (str "#+TITLE: Cucumber Test Summary\n"
+                             "# Sharded cucumber run — " n " shards\n\n"
+                             "* Summary\n"
+                             (format "- Feature files: %d passed, %d failed, %d skipped%s (%d total)\n"
+                                     (:passed merged) (:failed merged) (:skipped merged)
+                                     (if (pos? (:pending merged)) (format ", %d pending" (:pending merged)) "")
+                                     total-files)
+                             (format "- Scenarios: %d passed, %d failed\n"
+                                     (:scenarios-passed merged) (:scenarios-failed merged))
+                             (format "- Max shard runtime: %s\n\n" (fmt-elapsed max-elapsed))
+                             (str/join "\n"
+                                       (for [{:keys [i org edn]} driver-procs]
+                                         (let [s       (read-summary edn)
+                                               elapsed (read-elapsed edn)
+                                               summary (if s
+                                                         (format " — %d passed, %d failed, %d skipped | scenarios %d/%d pass/fail | %s"
+                                                                 (:passed s) (:failed s) (:skipped s)
+                                                                 (:scenarios-passed s) (:scenarios-failed s) (fmt-elapsed elapsed))
+                                                         " — NO SUMMARY")]
+                                           (str "* shard-" i summary "\n"
+                                                "- Results\n"
+                                                (results-body org) "\n"))))))
                   (println "  Combined org:" combined))
+            ;; per-shard EDNs are intermediate — their summaries are now folded into the
+            ;; combined org above, so drop them once everything's been read.
+                (doseq [{:keys [edn]} driver-procs]
+                  (try (fs/delete-if-exists edn) (catch Exception _ nil)))
             ;; non-zero on any failure or missing summary — returned, exited after teardown
                 (if (and (empty? missing)
                          (zero? (:failed merged))
@@ -260,7 +340,7 @@
               1)
             (finally
               (println "\nStopping shard servers…")
-              (doseq [{:keys [proc port]} @servers]
+              (doseq [{:keys [proc port db]} @servers]
                 (p/destroy-tree proc)
                 ;; destroy-tree kills the `clojure` wrapper, but it forks a java child that
                 ;; re-parents and outlives it — SIGKILL anything still holding this shard's
@@ -268,7 +348,11 @@
                 (try (p/shell {:out :string :err :string :continue true}
                               "pkill" "-9" "-f" (str "Dshard.port=" port))
                      (catch Exception _ nil))
-                (try @proc (catch Exception _ nil)))))]
+                (try @proc (catch Exception _ nil))
+                ;; remove this shard's sqlite store (+ WAL/SHM/journal sidecars) now the
+                ;; JVM holding it is dead — they're throwaway per-run scratch DBs.
+                (doseq [suffix ["" "-wal" "-shm" "-journal"]]
+                  (try (fs/delete-if-exists (str db suffix)) (catch Exception _ nil))))))]
       (System/exit code))))
 
 (-main *command-line-args*)

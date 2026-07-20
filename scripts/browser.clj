@@ -1,6 +1,6 @@
 (ns browser
   "Shared headless-capable Chrome/Chromium resolution for babashka tasks.
-   Lifted from projects/behave/bb.edn's test:ci :init so the cucumber:ci task can
+   Lifted from projects/behave/bb.edn's test:ci :init so the cucumber:shard task can
    feed the resolved binary to Selenium as :browser-path."
   (:require [babashka.fs    :as fs]
             [clojure.string :as str]))
