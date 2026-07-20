@@ -366,22 +366,6 @@
        :submodule/order 5,
        :group/single-select? false}}],
     :conditionals-operator :or}},
-  [{:name "Mortality", :key "behaveplus:mortality"}
-   {:name "Scorch", :key "behaveplus:mortality:input:scorch"}
-   :input
-   {:name "Wind Measured at",
-    :key
-    "behaveplus:mortality:compute-scorch-height:wind_measured_at"}]
-  {:group/translated-name "Wind Measured at",
-   :group/research? nil,
-   :group/hidden? nil,
-   :parent-submodule/io :input,
-   :group/order 6,
-   :submodule/order 2,
-   :conditionals
-   {:conditionals
-    [{:type :module, :operator :equal, :values ["surface"]}],
-    :conditionals-operator :or}},
   [{:name "Crown", :key "behaveplus:crown"}
    {:name "Weather", :key "behaveplus:crown:input:weather"}
    :input
@@ -1800,37 +1784,6 @@
        :submodule/order 5,
        :group/single-select? nil}}],
     :conditionals-operator :and}},
-  [{:name "Mortality", :key "behaveplus:mortality"}
-   {:name "Scorch", :key "behaveplus:mortality:input:scorch"}
-   :input
-   {:name "Wind Adjustment Factor",
-    :key
-    "behaveplus:mortality:compute-scorch-height:wind_adjustment_factor"}]
-  {:group/translated-name "Wind Adjustment Factor",
-   :group/research? nil,
-   :group/hidden? nil,
-   :parent-submodule/io :input,
-   :group/order 8,
-   :submodule/order 2,
-   :conditionals
-   {:conditionals
-    [{:type :module, :operator :equal, :values ["surface"]}],
-    :conditionals-operator :or}},
-  [{:name "Mortality", :key "behaveplus:mortality"}
-   {:name "Scorch", :key "behaveplus:mortality:input:scorch"}
-   :input
-   {:name "Wind Speed",
-    :key "behaveplus:mortality:compute-scorch-height:wind_speed"}]
-  {:group/translated-name "Wind Speed",
-   :group/research? nil,
-   :group/hidden? nil,
-   :parent-submodule/io :input,
-   :group/order 7,
-   :submodule/order 2,
-   :conditionals
-   {:conditionals
-    [{:type :module, :operator :equal, :values ["surface"]}],
-    :conditionals-operator :or}},
   [{:name "Crown", :key "behaveplus:crown"}
    {:name "Spot", :key "behaveplus:crown:input:spotting"}
    :input
@@ -1927,23 +1880,6 @@
    {:conditionals
     [{:type :module, :operator :equal, :values ["surface"]}],
     :conditionals-operator :or}},
-  [{:name "Mortality", :key "behaveplus:mortality"}
-   {:name "Tree Characteristics",
-    :key "behaveplus:mortality:input:fuelvegetation_overstory"}
-   :input
-   {:name "Bark Char Height",
-    :key
-    "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height"}]
-  {:group/translated-name "Bark Char Height",
-   :group/research? nil,
-   :group/hidden? nil,
-   :parent-submodule/io :input,
-   :group/order 4,
-   :submodule/order 0,
-   :conditionals
-   {:conditionals
-    [{:type :module, :operator :equal, :values ["mortality"]}],
-    :conditionals-operator nil}},
   [{:name "Surface", :key "behaveplus:surface"}
    {:name "Fuel Model", :key "behaveplus:surface:input:fuel_models"}
    :input
@@ -8889,6 +8825,23 @@
    :conditionals
    {:conditionals
     [{:type :module, :operator :equal, :values ["contain"]}],
+    :conditionals-operator nil}},
+  [{:name "Mortality", :key "behaveplus:mortality"}
+   {:name "Tree Characteristics",
+    :key "behaveplus:mortality:input:fuelvegetation_overstory"}
+   :input
+   {:name "Bole Char Height",
+    :key
+    "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height"}]
+  {:group/translated-name "Bole Char Height",
+   :group/research? nil,
+   :group/hidden? nil,
+   :parent-submodule/io :input,
+   :group/order 4,
+   :submodule/order 0,
+   :conditionals
+   {:conditionals
+    [{:type :module, :operator :equal, :values ["mortality"]}],
     :conditionals-operator nil}},
   [{:name "Surface", :key "behaveplus:surface"}
    {:name "Wind and Slope", :key "behaveplus:surface:input:wind_speed"}
