@@ -129,10 +129,12 @@
   "Creates a CEF app frame with the following options map:
    - `:title`         [Req.] - Title of the app.
    - `:url`           [Req.] - URL to start the browser at.
-   - `:on-close`      [Opt.] - Function to execute when the window closes.
-   - `:use-osr?`      [Opt.] - Use Windowless Rendering (Default: false)
-   - `:transparent?`  [Opt.] - Transparent window (Default: false)
-   - `:address-bar?`  [Opt.] - Show an address bar. (Default: false)
+   - `:on-close`           [Opt.] - Function to execute when the window closes.
+   - `:on-console-message` [Opt.] - Function called with `{:level :message :source :line}`
+                                    for every browser console message.
+   - `:use-osr?`           [Opt.] - Use Windowless Rendering (Default: false)
+   - `:transparent?`       [Opt.] - Transparent window (Default: false)
+   - `:address-bar?`       [Opt.] - Show an address bar. (Default: false)
 
    Returns a map with:
   - `:frame`   - `JFrame` Application
@@ -140,7 +142,7 @@
   - `:client`  - `CefClient`"
   [{:keys [title menu url use-osr? size request-handler cache-path remote-debug-port
            transparent? address-bar? fullscreen? dev-tools?
-           on-close on-blur on-focus on-hidden on-shown on-before-launch]
+           on-close on-blur on-focus on-hidden on-shown on-before-launch on-console-message]
     :or   {use-osr? false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
   (let [builder       (jcef-builder)
         settings      (.getCefSettings builder)
@@ -185,6 +187,15 @@
       (.addDisplayHandler (proxy [CefDisplayHandlerAdapter] []
                             (onAddressChange [_ _ url]
                               (.setText address url))
+
+                            (onConsoleMessage [_ level message source line]
+                              (when (fn? on-console-message)
+                                (on-console-message {:level   (str level)
+                                                     :message message
+                                                     :source  source
+                                                     :line    line}))
+                              ;; false = keep CEF's default handling
+                              false)
 
                             (onCursorChange [browser cursorType]
                               (.. browser

@@ -107,6 +107,8 @@
       :on-shown                                             (fn [app & _]
                                                               (reset! the-app app)
                                                               (.dispose (:frame loader)))
+      :on-console-message                                   (fn [{:keys [level message source line]}]
+                                                              (log-str "[BROWSER " level "] " source ":" line " - " message))
       :request-handler                                      request-handler
       :on-before-launch
       (fn [{:keys [frame]}]
