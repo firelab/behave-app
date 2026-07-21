@@ -1,6 +1,6 @@
 (ns behave.components.inputs
   (:require
-   [behave.components.a11y      :refer [on-space on-enter]]
+   [behave.components.a11y      :refer [on-enter]]
    [behave.components.button    :refer [button]]
    [behave.components.icon.core :refer [icon]]
    [clojure.string              :as str]
@@ -18,10 +18,7 @@
                    (when disabled? "input-checkbox--disabled")
                    (when error? "input-checkbox--error")]
            :for   id}
-   [:div
-    {:class        "input-checkbox__box"
-     :tabindex     0
-     :on-key-press (on-space on-change)}
+   [:div {:class "input-checkbox__box"}
     [:div {:class "input-checkbox__box__check"}]]
    [:input
     {:type      "checkbox"
@@ -115,20 +112,22 @@
                    (when checked? "input-radio--checked")
                    (when error? "input-radio--error")
                    (when disabled? "input-radio--disabled")]}
-   [:div
-    {:class        "input-radio__circle"
-     :tabindex     0
-     :on-key-press (on-space on-change)}
+   [:div {:class "input-radio__circle"}
     [:div {:class "input-radio__circle__dot"}]]
    [:input
-    {:type      "radio"
-     :class     "input-radio__input"
-     :checked   checked?
-     :disabled  disabled?
-     :id        id
-     :name      name
-     :value     value
-     :on-change on-change}]
+    {:type        "radio"
+     :class       "input-radio__input"
+     :checked     checked?
+     :disabled    disabled?
+     :id          id
+     :name        name
+     :value       value
+     ;; Select on Space (natively radios only select on arrow keys)
+     :on-key-down (fn [e]
+                    (when (contains? #{" " "Spacebar"} (.-key e))
+                      (.preventDefault e)
+                      (.click (.-currentTarget e))))
+     :on-change   on-change}]
    [:span {:class "input-radio__label"} label]])
 
 (defn radio-group [{:keys [label options disabled?]}]

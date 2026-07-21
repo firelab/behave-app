@@ -405,7 +405,15 @@ p {
 }
 
 .accordion-toggle {
-  display: none;
+  position: absolute;
+  width: 0px;
+  height: 0px;
+  outline: none; /* focus ring is drawn on the label instead */
+}
+
+/* Keyboard focus highlights the toggle icon square (the native input is 0x0) */
+.accordion__item:has(.accordion-toggle:focus-visible) .accordion-toggle-vertical-bar {
+  background: var(--darkblue-4);
 }
 
 .accordion-toggle-vertical-bar {
@@ -434,6 +442,7 @@ p {
 
 .accordion-toggle:checked ~ .accordion__item__collapse {
   max-height: 100vh;
+  visibility: visible;
 }
 
 .accordion-toggle:checked + .accordion__item__label > .accordion-toggle-vertical-bar > svg {
@@ -445,7 +454,9 @@ p {
 .accordion__item__collapse {
   overflow: hidden;
   max-height: 0px;
-  transition: max-height .25s ease-in-out;
+  /* hidden removes collapsed contents from the tab order */
+  visibility: hidden;
+  transition: max-height .25s ease-in-out, visibility .25s;
 }
 
 /* - End Accordion - */
@@ -1024,10 +1035,10 @@ p {
 }
 
 .input-checkbox__input {
-  visibility: hidden;
   position: absolute;
   width: 0px;
   height: 0px;
+  outline: none; /* focus ring is drawn on the box instead */
 }
 
 .input-checkbox__label {
@@ -1035,6 +1046,12 @@ p {
 }
 
 /* --- Checkbox States --- */
+/* Keyboard focus ring (the native input is 0x0) */
+.input-checkbox:has(.input-checkbox__input:focus-visible) .input-checkbox__box {
+  outline: 2px solid var(--darkblue-4);
+  outline-offset: 2px;
+}
+
 .input-checkbox:not(.input-checkbox--checked):not(.input-checkbox--disabled):not(.input-checkbox--error):hover .input-checkbox__box__check {
   background-color: var(--gray-3);
 }
@@ -1385,6 +1402,7 @@ p {
   position: absolute;
   width: 0px;
   height: 0px;
+  outline: none; /* focus ring is drawn on the circle instead */
 }
 
 .input-radio__label {
@@ -1392,6 +1410,11 @@ p {
 }
 
 /* --- Radio States --- */
+/* Keyboard focus ring (the native input is 0x0) */
+.input-radio:has(.input-radio__input:focus-visible) > .input-radio__circle {
+  outline: 2px solid var(--darkblue-4);
+  outline-offset: 2px;
+}
 .input-radio:hover:not(.input-radio--checked) > .input-radio__circle > .input-radio__circle__dot {
   background-color: var(--gray-3);
 }
