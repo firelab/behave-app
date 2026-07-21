@@ -62,7 +62,7 @@
 
 (defmulti get-help-keys
   (fn [{:keys [workflow]}]
-    (or workflow :guided)))
+    (keyword (or workflow :guided))))
 
 (defmethod get-help-keys :guided
   [params]
