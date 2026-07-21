@@ -82,6 +82,7 @@ jobs:
             *)   QUERY='(and "core" (not "extended"))' ;;
           esac
           bb cucumber:ci \
+            --headless \
             --shards "$SHARDS" \
             --query "$QUERY" \
             --features-dir "$FEATURES_DIR" \

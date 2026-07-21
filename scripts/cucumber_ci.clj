@@ -16,7 +16,8 @@
 ;;
 ;; Usage:
 ;;   bb cucumber:ci [opts]   (or: bb scripts/cucumber_ci.clj [opts])
-;;   --shards N          number of parallel shards           (default 2)
+;;   --shards N          number of parallel shards           (default 2 with --headless;
+;;                       forced to 1 in the default visible mode unless set)
 ;;   --feature F         run only this one feature file      (rel path, nested path, or bare
 ;;                       (forces 1 shard; runs all its scenarios unless --query given)
 ;;   --query <edn>       tegere query-tree                   (default core, not extended)
@@ -25,8 +26,10 @@
 ;;   --db-prefix P       per-shard sqlite path prefix        (default cucumber-shard-db)
 ;;   --base-port N       first shard's port (i uses N+i)     (default 8091)
 ;;   --skip-compile      reuse the existing compiled build (skip step 1)
-;;   --no-headless       show Chrome (visible browser); forces 1 shard unless --shards
-;;                       given. Needs a display (WSLg on WSL2).
+;;   --headless          run headless (no visible browser); enables parallel sharding and
+;;                       auto-closes on finish. DEFAULT is a visible browser: 1 shard, and
+;;                       browser + server stay open until Ctrl-C. Visible mode needs a
+;;                       display (WSLg on WSL2).
 ;;   --stop              halt at the first failing scenario; forces 1 shard unless
 ;;                       --shards given
 (ns cucumber-ci
@@ -199,7 +202,9 @@
 ;;; ---------------------------------------------------------------------------
 
 (defn -main [args]
-  (let [headed?       (flag-set? args "--no-headless")
+  (let [headless?     (flag-set? args "--headless")
+        ;; Visible browser is the DEFAULT now; --headless opts into the headless/CI path.
+        headed?       (not headless?)
         stop?         (flag-set? args "--stop")
         shards-given? (or (flag-set? args "--shards")
                           (boolean (some #(str/starts-with? (str %) "--shards=") args)))
@@ -242,7 +247,7 @@
     (when stop?
       (println "▶ --stop: halting at first failure"))
     (when headed?
-      (println "▶ --no-headless: browser + server stay open after the run — Ctrl-C to close and tear down"))
+      (println "▶ visible browser: 1 shard, browser + server stay open after the run — Ctrl-C to close (use --headless for a headless, sharded run)"))
     (println "▶ run outputs →" run-dir)
     (when (empty? all-files)
       (println "ERROR: no .feature files under" features-dir) (System/exit 1))
@@ -286,7 +291,7 @@
                            edn    (str run-dir "/" (format "cucumber_shard_%d_results.edn" i))
                            cfg    {:features-dir features-dir                                   :steps-dir     steps-dir
                                    :url          (format "http://localhost:%d/worksheets" port)
-                                   :headless     (not headed?)                                  :stop          stop?     :query        query
+                                   :headless     headless?                                      :stop          stop?     :query        query
                                    :org          org                                            :edn           edn       :retry-failed 0
                                    :browser-path chrome                                         :feature-files subset
                                    :keep-open    headed?}

@@ -36,7 +36,7 @@
   cucumber    {:doc  "Run the cucumber suite (app must already be running). Opts forwarded to scripts/run_cucumber_tests.clj: --headless --query --features-dir --steps-dir --retry-failed --stop --url --help"
                :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/run_cucumber_tests.clj" *command-line-args*)))}
 
-  cucumber:ci {:doc  "Headless CI cucumber run: compile the advanced CLJS build once, start isolated app server(s) (own port + DB each), run headless Chrome driver(s), then merge + tear down. Shards in parallel when --shards > 1 (default 2). Requires chromedriver on PATH. Opts: --shards N (default 2), --feature F, --query, --features-dir, --serve-timeout, --db-prefix, --base-port, --skip-compile, --no-headless (visible browser; forces 1 shard unless --shards given), --stop (halt at first failure; forces 1 shard unless --shards given)."
+  cucumber:ci {:doc  "Cucumber run: compile the advanced CLJS build once, start isolated app server(s) (own port + DB each), run Chrome driver(s), then merge + tear down. DEFAULT is a visible browser: 1 shard, browser + server stay open until Ctrl-C. Pass --headless for the headless CI path: parallel sharding (default 2) and auto-close. Requires chromedriver on PATH. Opts: --headless (headless + parallel shards, auto-close), --shards N (default 2 with --headless; 1 in visible mode unless set), --feature F, --query, --features-dir, --serve-timeout, --db-prefix, --base-port, --skip-compile, --stop (halt at first failure; forces 1 shard unless --shards given)."
                :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/cucumber_ci.clj" *command-line-args*)))}
 
   ;;; Datomic
