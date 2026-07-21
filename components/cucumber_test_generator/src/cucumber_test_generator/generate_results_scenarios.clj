@@ -217,44 +217,57 @@
    (registered in steps/When.clj). The baseline outputs (Direction Mode / Surface
    Fire that make the worksheet compute) and all required inputs stay static.
 
-   tag is :core (one representative gating output) or :extended (all of them)."
-  [{:keys [output-name module required-modules required-outputs required-inputs gating-outputs]}
-   tag]
-  (let [module-combo   (effective-module-combo required-modules module)
-        tag-str        (if (= tag :core) "@core" "@extended")
-        sname          (if (= tag :core)
-                         (str output-name " is displayed in results when inputs are set")
-                         (str output-name " is displayed in results when inputs are set (Extended)"))
-        outline-header (str SCENARIO-INDENT tag-str "\n"
-                            SCENARIO-INDENT "Scenario Outline: " sname)
-        given-step     (str STEP-INDENT (module-to-given-statement module-combo))
-        ;; Static outputs = the merged outputs minus the gating set (the baseline
-        ;; Direction Mode + Surface Fire prerequisites), set once for every row.
-        gating-set     (set gating-outputs)
-        static-outputs (remove gating-set required-outputs)
-        out-headers    (when (seq static-outputs)
-                         (present-headers [:submodule :group :value] static-outputs))
-        output-step    (when (seq static-outputs)
-                         (str STEP-INDENT "When these output paths are selected\n"
-                              (render-table out-headers static-outputs)))
-        input-headers  (when (seq required-inputs)
-                         (present-headers [:submodule :group :subgroup :value] required-inputs))
-        input-step     (when (seq required-inputs)
-                         (str STEP-INDENT "When these input paths are selected\n"
-                              (render-table input-headers required-inputs)))
+   tag is :core (one representative gating output) or :extended (all of them).
+
+   The optional third arg is an output visibility class
+   {:gating-outputs :required-inputs :name-suffix}: when present, its :gating-outputs
+   supply the Examples rows and its :required-inputs the input table, and :name-suffix is
+   appended to the scenario name. Without it, the whole test case's gating-outputs /
+   required-inputs are used (unchanged behavior)."
+  [{:keys     [output-name module required-modules required-outputs]
+    tc-gating :gating-outputs
+    tc-inputs :required-inputs}
+   tag
+   & [{cls-gating :gating-outputs cls-inputs :required-inputs name-suffix :name-suffix}]]
+  (let [gating-outputs  (or cls-gating tc-gating)
+        required-inputs (or cls-inputs tc-inputs)
+        module-combo    (effective-module-combo required-modules module)
+        tag-str         (if (= tag :core) "@core" "@extended")
+        sname           (str output-name " is displayed in results when inputs are set"
+                             (when (= tag :extended) " (Extended)")
+                             name-suffix)
+        outline-header  (str SCENARIO-INDENT tag-str "\n"
+                             SCENARIO-INDENT "Scenario Outline: " sname)
+        given-step      (str STEP-INDENT (module-to-given-statement module-combo))
+        ;; Static outputs = the merged outputs minus the FULL gating set (the baseline
+        ;; Direction Mode + Surface Fire prerequisites), set once for every row. Uses the
+        ;; whole test case's gating set (not just this class) so baseline outputs are
+        ;; subtracted correctly even when rendering a single output class.
+        gating-set      (set tc-gating)
+        static-outputs  (remove gating-set required-outputs)
+        out-headers     (when (seq static-outputs)
+                          (present-headers [:submodule :group :value] static-outputs))
+        output-step     (when (seq static-outputs)
+                          (str STEP-INDENT "When these output paths are selected\n"
+                               (render-table out-headers static-outputs)))
+        input-headers   (when (seq required-inputs)
+                          (present-headers [:submodule :group :subgroup :value] required-inputs))
+        input-step      (when (seq required-inputs)
+                          (str STEP-INDENT "When these input paths are selected\n"
+                               (render-table input-headers required-inputs)))
         ;; Varying output — placeholders in step TEXT (reified by tegere). Grouped with
         ;; the static outputs, before the inputs, so the tested output is selected first
         ;; (consistent with render-scenario / render-scenario-outline). Output rows never
         ;; carry a subgroup, so the 3-arg form.
-        varying-step   (str STEP-INDENT
-                            "When this output path is selected <submodule> : <group> : <value>")
-        then-step      (str STEP-INDENT "Then \"the following outputs are displayed in the results page\"\n"
-                            (render-table [:output] [{:output output-name}]))
-        gating-sorted  (sort-by-vms-order gating-outputs)
-        example-rows   (if (= tag :core) [(first gating-sorted)] gating-sorted)
-        examples-rows  (mapv #(select-keys % [:submodule :group :value]) example-rows)
-        examples-step  (str STEP-INDENT "Examples: This scenario is repeated for each of these rows\n"
-                            (render-table [:submodule :group :value] examples-rows))]
+        varying-step    (str STEP-INDENT
+                             "When this output path is selected <submodule> : <group> : <value>")
+        then-step       (str STEP-INDENT "Then \"the following outputs are displayed in the results page\"\n"
+                             (render-table [:output] [{:output output-name}]))
+        gating-sorted   (sort-by-vms-order gating-outputs)
+        example-rows    (if (= tag :core) [(first gating-sorted)] gating-sorted)
+        examples-rows   (mapv #(select-keys % [:submodule :group :value]) example-rows)
+        examples-step   (str STEP-INDENT "Examples: This scenario is repeated for each of these rows\n"
+                             (render-table [:submodule :group :value] examples-rows))]
     (str/join "\n" (remove nil? [outline-header given-step output-step varying-step
                                  input-step
                                  then-step "" examples-step]))))
@@ -291,9 +304,24 @@
                            (find-varying-row inputs)))
         body         (cond
                        or-outputs?
-                       (str/join "\n\n"
-                                 [(render-output-outline test-case :core)
-                                  (render-output-outline test-case :extended)])
+                       ;; Split the gating outputs into visibility classes (outputs revealing
+                       ;; the same inputs share one @extended outline) so each row sets exactly
+                       ;; the inputs its selected output reveals — e.g. only the Size outputs
+                       ;; (Fire Area/Perimeter/Spread Distance) carry the Elapsed Time input.
+                       (let [ocls (:output-visibility-classes test-case)]
+                         (if (seq ocls)
+                           (str/join "\n\n"
+                                     (cons (render-output-outline test-case :core (first ocls))
+                                           (map-indexed
+                                            (fn [i c]
+                                              (render-output-outline
+                                               test-case :extended
+                                               (assoc c :name-suffix (when (> (count ocls) 1)
+                                                                       (str " — Group " (inc i))))))
+                                            ocls)))
+                           (str/join "\n\n"
+                                     [(render-output-outline test-case :core)
+                                      (render-output-outline test-case :extended)])))
                        ;; Varying input splits visibility: @core uses the first class's
                        ;; representative; @extended emits one outline per class so each value
                        ;; group sets exactly the inputs its values reveal (e.g. only the
@@ -616,7 +644,35 @@
                                         (update-in m [sig :values] conj v)
                                         (assoc m sig {:incl incl :values [v]}))))
                                   (array-map) (:values varying-row)))
-        classes         (mapv (fn [{:keys [incl values]}] (finalize-inputs incl values)) (vals class-map))]
+        classes         (mapv (fn [{:keys [incl values]}] (finalize-inputs incl values)) (vals class-map))
+        ;; Output visibility classes — the varying-OUTPUT analog of class-map above. For an
+        ;; :or gate over ≥2 gating outputs, each Examples row selects ONE gating output, so
+        ;; an input revealed only by SOME outputs (e.g. Size's "Elapsed Time", shown only
+        ;; when a Size output is selected) must not leak onto the other rows. Seed
+        ;; known-values with the always-on outputs ONLY (surviving baseline outputs +
+        ;; :default-outputs — NOT the gating outputs), then add one gating output at a time
+        ;; and group outputs that reveal the same baseline inputs into a class.
+        or-gate?        (and (= :or (:required-outputs-operator test-case))
+                             (>= (count tc-outputs) 2))
+        base-known      (into {}
+                              (concat
+                               (map (fn [{:keys [group subgroup value]}] [(or subgroup group) value]) tc-inputs)
+                               (map (fn [{:keys [value]}] [value "true"]) base-outputs)
+                               (map (fn [{:keys [value]}] [value "true"]) (:default-outputs test-case))))
+        output-cls-map  (when or-gate?
+                          (reduce (fn [m g]
+                                    (let [incl (included-baseline-inputs base-inputs
+                                                                         (assoc base-known (:value g) "true")
+                                                                         input-visibility module-name-set)
+                                          sig  (set (map input-key incl))]
+                                      (if (contains? m sig)
+                                        (update-in m [sig :gating] conj g)
+                                        (assoc m sig {:incl incl :gating [g]}))))
+                                  (array-map) (sort-by-vms-order tc-outputs)))
+        output-classes  (mapv (fn [{:keys [incl gating]}]
+                                {:gating-outputs  (vec gating)
+                                 :required-inputs (finalize-inputs incl nil)})
+                              (vals output-cls-map))]
     (assoc test-case
            :required-inputs  (finalize-inputs included-vec (when varying-row (:values varying-row)))
            :required-outputs (sort-by-vms-order all-outputs)
@@ -628,7 +684,11 @@
            :varying-input-key varying-key
            ;; Attach class variants only when the varying input actually splits visibility;
            ;; one class means every value reveals the same inputs (rendering unchanged).
-           :input-visibility-classes (when (> (count classes) 1) classes))))
+           :input-visibility-classes (when (> (count classes) 1) classes)
+           ;; Per-gating-output input sets for the :or-output render (see output-cls-map).
+           ;; Present whenever it's an :or gate — even one class, since its inputs are the
+           ;; correct per-output set rather than the old all-outputs-seeded union.
+           :output-visibility-classes (when or-gate? output-classes))))
 
 ;;; ============================================================================
 ;;; File cleanup (only removes results-page_*.feature files)

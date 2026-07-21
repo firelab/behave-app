@@ -154,7 +154,9 @@
   [processed raw-cond]
   (when (and (= (:type processed) :group-variable)
              (= (get-in processed [:group-variable :io]) :input)
-             (not (get-in processed [:group-variable :group-variable/conditionally-set?])))
+             (not (get-in processed [:group-variable :group-variable/conditionally-set?]))
+             ;; Research group-variables must never be set in a generated test.
+             (not (get-in processed [:group-variable :group-variable/research?])))
     (when-let [value (pick-first-value processed)]
       (cond-> {:gv-uuid (:conditional/group-variable-uuid raw-cond)
                :value   value
@@ -170,7 +172,9 @@
   [processed]
   (when (and (= (:type processed) :group-variable)
              (= (get-in processed [:group-variable :io]) :output)
-             (= (:values processed) ["true"]))
+             (= (:values processed) ["true"])
+             ;; Research group-variables must never be selected in a generated test.
+             (not (get-in processed [:group-variable :group-variable/research?])))
     (let [gv      (:group-variable processed)
           comps   (path->components (:path gv))
           gv-name (:group-variable/translated-name gv)]

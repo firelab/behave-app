@@ -25,6 +25,10 @@
 ;;   --db-prefix P       per-shard sqlite path prefix        (default cucumber-shard-db)
 ;;   --base-port N       first shard's port (i uses N+i)     (default 8091)
 ;;   --skip-compile      reuse the existing compiled build (skip step 1)
+;;   --no-headless       show Chrome (visible browser); forces 1 shard unless --shards
+;;                       given. Needs a display (WSLg on WSL2).
+;;   --stop              halt at the first failing scenario; forces 1 shard unless
+;;                       --shards given
 (ns cucumber-ci
   (:require [babashka.fs      :as fs]
             [babashka.process :as p]
@@ -195,37 +199,50 @@
 ;;; ---------------------------------------------------------------------------
 
 (defn -main [args]
-  (let [shards       (Integer/parseInt (str (flag-val args "--shards" (str default-shards))))
-        features-dir (flag-val args "--features-dir" "features")
-        feature      (flag-val args "--feature" nil)
-        query-given? (or (flag-set? args "--query")
-                         (boolean (some #(str/starts-with? (str %) "--query=") args)))
+  (let [headed?       (flag-set? args "--no-headless")
+        stop?         (flag-set? args "--stop")
+        shards-given? (or (flag-set? args "--shards")
+                          (boolean (some #(str/starts-with? (str %) "--shards=") args)))
+        ;; Each shard opens its own maximized Chrome, and each shard stops at its OWN first
+        ;; failure — so a visible or stop-on-failure run defaults to a single shard (one
+        ;; window, one global stop point) unless the user asked for a specific --shards.
+        shards        (if (and (or headed? stop?) (not shards-given?))
+                        1
+                        (Integer/parseInt (str (flag-val args "--shards" (str default-shards)))))
+        features-dir  (flag-val args "--features-dir" "features")
+        feature       (flag-val args "--feature" nil)
+        query-given?  (or (flag-set? args "--query")
+                          (boolean (some #(str/starts-with? (str %) "--query=") args)))
         ;; A single --feature run defaults to "all scenarios in that file" (query nil) so
         ;; the file runs regardless of its core/extended tags — override with --query.
-        query        (let [q (flag-val args "--query" "(and \"core\" (not \"extended\"))")]
-                       (if (and feature (not query-given?)) nil q))
-        timeout      (Integer/parseInt (str (flag-val args "--serve-timeout" (str default-serve-timeout))))
-        db-prefix    (flag-val args "--db-prefix" "cucumber-shard-db")
-        base-port    (Integer/parseInt (str (flag-val args "--base-port" (str default-base-port))))
-        skip-compile (flag-set? args "--skip-compile")
-        chrome       (browser/find-browser)
-        discovered   (feature-files features-dir)
-        all-files    (if feature
-                       (if-let [f (resolve-feature feature discovered features-dir)]
-                         [f]
-                         (do (println (format "ERROR: no feature file matching '%s' under %s" feature features-dir))
-                             (System/exit 1)))
-                       discovered)
-        n            (max 1 (min shards (count all-files)))
-        groups       (shard-split all-files n)
-        ts           (.format (java.time.LocalDateTime/now)
-                              (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd_HH-mm-ss"))
-        run-dir      (str "logs/cucumber/cucumber_test_results_" ts)]
+        query         (let [q (flag-val args "--query" "(and \"core\" (not \"extended\"))")]
+                        (if (and feature (not query-given?)) nil q))
+        timeout       (Integer/parseInt (str (flag-val args "--serve-timeout" (str default-serve-timeout))))
+        db-prefix     (flag-val args "--db-prefix" "cucumber-shard-db")
+        base-port     (Integer/parseInt (str (flag-val args "--base-port" (str default-base-port))))
+        skip-compile  (flag-set? args "--skip-compile")
+        chrome        (browser/find-browser)
+        discovered    (feature-files features-dir)
+        all-files     (if feature
+                        (if-let [f (resolve-feature feature discovered features-dir)]
+                          [f]
+                          (do (println (format "ERROR: no feature file matching '%s' under %s" feature features-dir))
+                              (System/exit 1)))
+                        discovered)
+        n             (max 1 (min shards (count all-files)))
+        groups        (shard-split all-files n)
+        ts            (.format (java.time.LocalDateTime/now)
+                               (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd_HH-mm-ss"))
+        run-dir       (str "logs/cucumber/cucumber_test_results_" ts)]
     (fs/create-dirs run-dir)
-    (println (format "▶ cucumber:ci — %d shard(s) | %d feature files | Chrome: %s"
-                     n (count all-files) chrome))
+    (println (format "▶ cucumber:ci — %d shard(s) | %d feature files | mode: %s | Chrome: %s"
+                     n (count all-files) (if headed? "headed" "headless") chrome))
     (when feature
       (println (format "▶ single feature: %s | query: %s" (first all-files) (or query "all scenarios"))))
+    (when stop?
+      (println "▶ --stop: halting at first failure"))
+    (when headed?
+      (println "▶ --no-headless: browser + server stay open after the run — Ctrl-C to close and tear down"))
     (println "▶ run outputs →" run-dir)
     (when (empty? all-files)
       (println "ERROR: no .feature files under" features-dir) (System/exit 1))
@@ -269,9 +286,10 @@
                            edn    (str run-dir "/" (format "cucumber_shard_%d_results.edn" i))
                            cfg    {:features-dir features-dir                                   :steps-dir     steps-dir
                                    :url          (format "http://localhost:%d/worksheets" port)
-                                   :headless     true                                           :stop          false     :query        query
+                                   :headless     (not headed?)                                  :stop          stop?     :query        query
                                    :org          org                                            :edn           edn       :retry-failed 0
-                                   :browser-path chrome                                         :feature-files subset}
+                                   :browser-path chrome                                         :feature-files subset
+                                   :keep-open    headed?}
                            cfg-f  (str (fs/create-temp-file {:prefix (format "shard-%d-cfg-" i) :suffix ".edn"}))
                            logf   (io/file run-dir (format "cucumber_shard_%d_run.log" i))]
                        (spit cfg-f (pr-str cfg))

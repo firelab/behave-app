@@ -82,6 +82,7 @@
    {:module "Surface" :submodule "Wind and Slope" :group "Wind Adjustment Factor" :subgroup "Wind Adjustment Factor - User Input" :value "1"}
    {:module "Surface" :submodule "Wind and Slope" :group "Wind and slope are" :subgroup nil :value "Aligned (Wind is ≤30° from upslope)."}
    {:module "Surface" :submodule "Wind and Slope" :group "Slope" :subgroup nil :value "0"}
+   {:module "Surface" :submodule "Size" :group "Elapsed Time" :subgroup nil :value "1"}
    {:module "Crown" :submodule "Crown Fire Method" :group "Calculate Crown Fire Using:" :subgroup nil :value "Finney"}
    {:module "Crown" :submodule "Foliar Moisture" :group "Foliar Moisture" :subgroup nil :value "30"}
    {:module "Crown" :submodule "Canopy Fuel" :group "Canopy Height" :subgroup nil :value "10"}

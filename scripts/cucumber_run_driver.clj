@@ -81,6 +81,7 @@
                 edn
                 retry-failed
                 browser-path
+                keep-open
                 feature-files]} (edn/read-string (slurp config-path))
         query                   (if (string? query) (read-string query) query)
         ;; When sharding, the orchestrator passes this shard's subset of features-dir-relative
@@ -140,13 +141,19 @@
                              (run-feature driver feat {:url url :query query :stop false}))))
                 (recur (inc i))))))
         (finally
-          (try (w/quit driver) (catch Throwable _ nil)))))
+          ;; Keep the browser open for inspection when requested — leaving the driver
+          ;; alive (below) keeps its Chrome up.
+          (when-not keep-open
+            (try (w/quit driver) (catch Throwable _ nil))))))
     ;; final write incl. summary (org first, then EDN with :summary last so it isn't clobbered)
     (write! :summary? true)
     (let [summary (report/counts all-files @status @executables)]
       (println (format "\nDONE in %s — Files: %d passed, %d failed, %d skipped | Scenarios: %d passed, %d failed"
                        (report/fmt-duration (elapsed)) (:passed summary) (:failed summary) (:skipped summary)
                        (:scenarios-passed summary) (:scenarios-failed summary))))
+    (when keep-open
+      (println "\n▶ browser left open for inspection — Ctrl-C the cucumber:ci run to close it.")
+      @(promise))                              ; block forever: JVM stays alive → chromedriver → Chrome stays open
     (shutdown-agents)))
 
 (apply -main *command-line-args*)
