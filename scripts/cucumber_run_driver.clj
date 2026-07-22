@@ -104,7 +104,10 @@
                       ;; replace any prior executables for this feature, then re-add
                                   (swap! executables (fn [all] (into (vec (remove #(= fname (:feature %)) all)) exs)))
                                   (swap! status assoc file (classify exs))
-                                  (write!))]
+                                  (write!))
+        ;; True once any feature has failed/errored — gates keep-open so a clean pass
+        ;; still tears down.
+        any-failures?           (fn [] (some (fn [[_ v]] (= :fail (:state v))) @status))]
     (println (format "Loading steps from %s" steps-dir))
     (cr/load-steps! (io/file steps-dir))
     (write!)                                   ; initial all-pending org
@@ -141,9 +144,10 @@
                              (run-feature driver feat {:url url :query query :stop false}))))
                 (recur (inc i))))))
         (finally
-          ;; Keep the browser open for inspection when requested — leaving the driver
-          ;; alive (below) keeps its Chrome up.
-          (when-not keep-open
+          ;; Quit the browser unless we're deliberately holding a FAILED run open for
+          ;; inspection (keep-open + failures) — leaving the driver alive (below) keeps
+          ;; its Chrome up. A clean pass always tears down.
+          (when-not (and keep-open (any-failures?))
             (try (w/quit driver) (catch Throwable _ nil))))))
     ;; final write incl. summary (org first, then EDN with :summary last so it isn't clobbered)
     (write! :summary? true)
@@ -151,8 +155,8 @@
       (println (format "\nDONE in %s — Files: %d passed, %d failed, %d skipped | Scenarios: %d passed, %d failed"
                        (report/fmt-duration (elapsed)) (:passed summary) (:failed summary) (:skipped summary)
                        (:scenarios-passed summary) (:scenarios-failed summary))))
-    (when keep-open
-      (println "\n▶ browser left open for inspection — Ctrl-C the cucumber:ci run to close it.")
+    (when (and keep-open (any-failures?))
+      (println "\n▶ failures detected — browser + server left open for inspection; Ctrl-C the cucumber:ci run to close and tear down.")
       @(promise))                              ; block forever: JVM stays alive → chromedriver → Chrome stays open
     (shutdown-agents)))
 
