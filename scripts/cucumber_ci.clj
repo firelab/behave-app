@@ -247,7 +247,7 @@
     (when stop?
       (println "▶ --stop: halting at first failure"))
     (when headed?
-      (println "▶ visible browser: 1 shard, browser + server stay open after the run — Ctrl-C to close (use --headless for a headless, sharded run)"))
+      (println "▶ visible browser: 1 shard; on failure the browser + server stay open for inspection (Ctrl-C to close), on success everything tears down (use --headless for a headless, sharded run)"))
     (println "▶ run outputs →" run-dir)
     (when (empty? all-files)
       (println "ERROR: no .feature files under" features-dir) (System/exit 1))
