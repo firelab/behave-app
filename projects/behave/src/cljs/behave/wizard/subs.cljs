@@ -190,7 +190,7 @@
                       [* {:variable/_group-variables
                           [* {:variable/list
                               [* {:list/options [*]}]}]}]
-                      :group/children        [*]}]}]
+                      :group/children                     [*]}]}]
                group-id]))
 
  (fn [group]
@@ -496,6 +496,19 @@
  (fn [tab-selected _]
    tab-selected))
 
+(defn- opaque-over-white
+  "Flattens an `#RRGGBBAA` hex `color` over white into an opaque `#RRGGBB`,
+  passing through colors that have no alpha channel unchanged."
+  [color]
+  (if (and (string? color) (= 9 (count color)))
+    (let [a     (/ (js/parseInt (subs color 7 9) 16) 255.0)
+          blend (fn [from to] (Math/round (+ (* (js/parseInt (subs color from to) 16) a)
+                                             (* 255 (- 1 a)))))
+          hex2  (fn [c] (let [s (.toString c 16)]
+                          (if (= 1 (count s)) (str "0" s) s)))]
+      (str "#" (hex2 (blend 1 3)) (hex2 (blend 3 5)) (hex2 (blend 5 7))))
+    color))
+
 (reg-sub
  :wizard/gv-list-options-with-colors
  (fn [[_ gv-uuid]]
@@ -513,7 +526,7 @@
                  (when-let [color (get-in opt [:list-option/color-tag-ref :tag/color])]
                    {:value (:list-option/value opt)
                     :t-key (:list-option/translation-key opt)
-                    :color color})))
+                    :color (opaque-over-white color)})))
          (get-in gv [:variable/_group-variables 0 :variable/list :list/options]))))
 
 (reg-sub
