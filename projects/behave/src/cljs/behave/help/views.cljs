@@ -61,6 +61,7 @@
       node)))
 
 (defmulti get-help-keys
+  "Resolve the help content keys for the current `workflow` (defaults to `:guided`)."
   (fn [{:keys [workflow]}]
     (keyword (or workflow :guided))))
 

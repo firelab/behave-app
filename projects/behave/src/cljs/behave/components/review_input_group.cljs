@@ -2,15 +2,16 @@
   (:require [behave.components.core  :as c]
             [behave.translate        :refer [<t bp]]
             [clojure.string :as str]
-            [re-frame.core           :as rf]
-            [reagent.core            :as r]))
+            [re-frame.core           :as rf]))
 
 (defn- missing-input? [value]
   (or (nil? value) (empty? value)))
 
-(defmulti wizard-input (fn [variable _ _ _ _] (if (:group-variable/discrete-multiple? variable)
-                                                :multi-discrete
-                                                (:variable/kind variable))))
+(defmulti wizard-input
+  "Render a read-only review row for `variable`, dispatched on its kind."
+  (fn [variable _ _ _ _] (if (:group-variable/discrete-multiple? variable)
+                           :multi-discrete
+                           (:variable/kind variable))))
 
 (defmethod wizard-input :continuous [{gv-uuid  :bp/uuid
                                       help-key :group-variable/help-key}
@@ -151,7 +152,9 @@
                   :icon-name "edit"
                   :on-click  #(rf/dispatch [:wizard/edit-input route repeat-id (:bp/uuid (first variables))])}]]]]))
 
-(defn repeat-group [ws-uuid group variables edit-route]
+(defn repeat-group
+  "Render each repeat instance of a repeatable `group` with its `variables`."
+  [ws-uuid group variables edit-route]
   (let [{group-name :group/name
          group-uuid :bp/uuid}   group
         *repeat-ids             (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])]
@@ -173,7 +176,9 @@
                     :align-items     "center"
                     :justify-content "center"}}]]))
 
-(defn input-group [{:keys [edit-route ws-uuid]} group variables]
+(defn input-group
+  "Render the review section for `group` and its `variables`, repeating when the group repeats."
+  [{:keys [edit-route ws-uuid]} group variables]
   (let [variables (sort-by :group-variable/variable-order variables)]
     (when (seq variables)
       [:<>

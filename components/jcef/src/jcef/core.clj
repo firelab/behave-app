@@ -1,6 +1,5 @@
 (ns jcef.core
-  (:require [clojure.string :as str]
-            [clojure.java.browse :refer [browse-url]]
+  (:require [clojure.java.browse :refer [browse-url]]
             [jcef.setup :refer [jcef-builder]]
             [jcef.resource-handlers :as rh]
             [me.raynes.fs :as fs])
@@ -14,8 +13,7 @@
             CefMessageRouterHandler]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
            [java.awt.event ActionListener ComponentAdapter WindowAdapter]
-           [javax.swing JFileChooser JFrame JMenu JMenuBar JMenuItem JTextField KeyStroke SwingUtilities]
-           [javax.swing.filechooser FileNameExtensionFilter]))
+           [javax.swing JFrame JMenu JMenuBar JMenuItem JTextField KeyStroke SwingUtilities]))
 
 ;;; Helpers
 
@@ -260,23 +258,6 @@
   "Wrap builder in `invokeLater` to ensure it executes on separate thread."
   [& args]
   (SwingUtilities/invokeLater #(apply build-cef-app! args)))
-
-(defn- open-file-chooser [callback frame title & extensions]
-  (let [file-filter (FileNameExtensionFilter. title (into-array String extensions))
-        chooser     (JFileChooser.)]
-  (.setFileFilter chooser file-filter)
-  (let [return-val (.showOpenDialog chooser frame)]
-    (when (= return-val JFileChooser/APPROVE_OPTION)
-      (callback (.getSelectedFile chooser))))))
-
-(defn- open-save-file [callback frame title & extensions]
-  (let [file-filter (FileNameExtensionFilter. title (into-array String extensions))
-        chooser     (JFileChooser.)]
-    (.setFileFilter chooser file-filter)
-    (let [return-val (.showSaveDialog chooser frame)]
-      (when (= return-val JFileChooser/APPROVE_OPTION)
-        (callback (.getSelectedFile chooser))))))
-
 
 (comment
   (require '[config.interface :refer [get-config]])
