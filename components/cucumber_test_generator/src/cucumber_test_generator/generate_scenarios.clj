@@ -1390,6 +1390,32 @@
         path-str   (format-path-for-gherkin path)]
     (str "@core\nFeature: " module-str " Input - " path-str "\n")))
 
+(defn merge-features-by-title
+  "Collapse feature entries whose generated Feature: header is identical into one feature.
+   Sibling groups sharing the same name + path (differing only by leaf :key) render the same
+   Feature: title but distinct :group-paths, so they land in separate files. Cucumber identifies
+   a feature by its Feature: line and processes only one file per title, silently dropping the
+   other's scenarios. Merging them into a single feature avoids that.
+
+   Arguments:
+   - grouped-scenarios: map of entity-path -> scenarios (from group-scenarios-by-feature)
+
+   Returns:
+   Map of one representative entity-path -> combined scenarios, one entry per unique title."
+  [grouped-scenarios]
+  (->> grouped-scenarios
+       (group-by (fn [[path scenarios]]
+                   (let [module-combo (or (:module (first scenarios))
+                                          #{(extract-module-from-path path)})]
+                     (generate-feature-header path module-combo))))
+       (into {}
+             (map (fn [[_ entries]]
+                    ;; Stable order: e.g. 'fuelmodel' sorts before 'wind-driven-fuel-model', so the
+                    ;; representative path yields the base filename and the scenario order is
+                    ;; deterministic across regenerations.
+                    (let [ordered (sort-by (comp disambiguated-filename first) entries)]
+                      [(ffirst ordered) (vec (mapcat second ordered))]))))))
+
 (defn write-feature-file
   "Write scenarios to file with header.
    Use spit to write to file path.
@@ -1482,9 +1508,13 @@
            ;; Group scenarios by entity path (all module-combo outlines in one file)
            grouped-scenarios       (group-scenarios-by-feature all-scenarios)
 
+           ;; Merge entries that render to the same Feature: title (sibling groups with the same
+           ;; name + path) into one feature, so cucumber doesn't silently drop a duplicate-title file.
+           merged-features         (merge-features-by-title grouped-scenarios)
+
            ;; Assign unique filenames — disambiguates siblings that share a display name
            ;; by falling back to their leaf :key segment. Must succeed before any deletion.
-           filenames               (assign-feature-filenames (keys grouped-scenarios))
+           filenames               (assign-feature-filenames (keys merged-features))
 
            ;; Safe to delete now: scenarios and filenames are fully computed.
            _                       (delete-old-generated-files features-dir)
@@ -1493,7 +1523,7 @@
            files-written           (atom 0)
            scenarios-generated     (atom 0)]
 
-       (doseq [[entity-path scenarios] grouped-scenarios]
+       (doseq [[entity-path scenarios] merged-features]
          (let [module-combo (or (:module (first scenarios)) #{(extract-module-from-path entity-path)})
                header       (generate-feature-header entity-path module-combo)
                filename     (get filenames entity-path)

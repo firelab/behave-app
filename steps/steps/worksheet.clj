@@ -88,10 +88,11 @@
 
   ;; Proceed to module selection
   (h/click-highlighted-button driver)
-  (Thread/sleep 100)
 
-  ;; Select the desired module type
-  (h/click-button-with-text driver (get worksheet-modules modules))
+  ;; Select the desired module type. Wait for the module button to render before
+  ;; clicking — the module-selection screen paints asynchronously after the highlight
+  ;; button advances the wizard, and an immediate find (implicit wait 0) can lose the race.
+  (h/wait-and-click-button-with-text driver (get worksheet-modules modules))
 
   ;; Scroll to the next button and click it
   (let [el (h/find-element driver {:text "Next"})]

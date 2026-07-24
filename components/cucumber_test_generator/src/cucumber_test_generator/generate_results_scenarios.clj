@@ -276,74 +276,78 @@
 ;;; Feature file rendering
 ;;; ============================================================================
 
-(defn- render-feature
-  "Render the full .feature file content for one test case.
+(defn- render-feature-header
+  "The file-level @core tag + Feature title for a results test case. Two test cases that share
+   the same module + output-name render the same header, so their bodies can share one file."
+  [{:keys [output-name module]}]
+  (str "@core\n"
+       "Feature: " (or module "") " Results - " output-name "\n"))
+
+(defn- render-feature-body
+  "Render the Scenario/Scenario-Outline body (no Feature header) for one test case.
 
    When the asserted output is gated by an :or over ≥2 outputs (any one reveals it),
    emits two output Scenario Outlines (@core: one representative gating output;
    @extended: all of them). Otherwise, when any required-input row carries a :values
    list of length ≥2 (an :in range), emits two input Scenario Outlines. Otherwise
    falls back to a single plain Scenario."
-  [{:keys [output-name module required-inputs required-outputs-operator gating-outputs
+  [{:keys [required-inputs required-outputs-operator gating-outputs
            input-visibility-classes varying-input-key]
     :as   test-case}]
-  (let [module-title (or module "")
-        header       (str "@core\n"
-                          "Feature: " module-title " Results - " output-name "\n")
-        ;; :or gate over multiple outputs → vary the output selection (inputs stay
+  (let [;; :or gate over multiple outputs → vary the output selection (inputs stay
         ;; static). Takes precedence over an :in input outline; a case with both would
         ;; keep its varying input at its representative value.
-        or-outputs?  (and (= :or required-outputs-operator)
-                          (>= (count gating-outputs) 2))
-        varying-row  (find-varying-row required-inputs)
+        or-outputs? (and (= :or required-outputs-operator)
+                         (>= (count gating-outputs) 2))
+        varying-row (find-varying-row required-inputs)
         ;; Locate the varying row in a class's inputs by its [submodule group subgroup]
         ;; key — a singleton class has one :values entry, so find-varying-row can't.
-        vrow-of      (fn [inputs]
-                       (or (first (filter #(= [(:submodule %) (:group %) (:subgroup %)] varying-input-key)
-                                          inputs))
-                           (find-varying-row inputs)))
-        body         (cond
-                       or-outputs?
+        vrow-of     (fn [inputs]
+                      (or (first (filter #(= [(:submodule %) (:group %) (:subgroup %)] varying-input-key)
+                                         inputs))
+                          (find-varying-row inputs)))
+        body        (cond
+                      or-outputs?
                        ;; Split the gating outputs into visibility classes (outputs revealing
                        ;; the same inputs share one @extended outline) so each row sets exactly
                        ;; the inputs its selected output reveals — e.g. only the Size outputs
                        ;; (Fire Area/Perimeter/Spread Distance) carry the Elapsed Time input.
-                       (let [ocls (:output-visibility-classes test-case)]
-                         (if (seq ocls)
-                           (str/join "\n\n"
-                                     (cons (render-output-outline test-case :core (first ocls))
-                                           (map-indexed
-                                            (fn [i c]
-                                              (render-output-outline
-                                               test-case :extended
-                                               (assoc c :name-suffix (when (> (count ocls) 1)
-                                                                       (str " — Group " (inc i))))))
-                                            ocls)))
-                           (str/join "\n\n"
-                                     [(render-output-outline test-case :core)
-                                      (render-output-outline test-case :extended)])))
+                      (let [ocls (:output-visibility-classes test-case)]
+                        (if (seq ocls)
+                          (str/join "\n\n"
+                                    (cons (render-output-outline test-case :core (first ocls))
+                                          (map-indexed
+                                           (fn [i c]
+                                             (render-output-outline
+                                              test-case :extended
+                                              (assoc c :name-suffix (when (> (count ocls) 1)
+                                                                      (str " — Group " (inc i))))))
+                                           ocls)))
+                          (str/join "\n\n"
+                                    [(render-output-outline test-case :core)
+                                     (render-output-outline test-case :extended)])))
                        ;; Varying input splits visibility: @core uses the first class's
                        ;; representative; @extended emits one outline per class so each value
                        ;; group sets exactly the inputs its values reveal (e.g. only the
                        ;; Bark Char Height species that show Crown Ratio get a Crown Ratio row).
-                       (seq input-visibility-classes)
-                       (str/join "\n\n"
-                                 (cons (render-scenario-outline
-                                        (assoc test-case :required-inputs (first input-visibility-classes))
-                                        (vrow-of (first input-visibility-classes)) :core)
-                                       (map-indexed
-                                        (fn [i ci]
-                                          (render-scenario-outline
-                                           (assoc test-case :required-inputs ci)
-                                           (vrow-of ci) :extended (str " — Group " (inc i))))
-                                        input-visibility-classes)))
-                       varying-row
-                       (str/join "\n\n"
-                                 [(render-scenario-outline test-case varying-row :core)
-                                  (render-scenario-outline test-case varying-row :extended)])
-                       :else
-                       (render-scenario test-case))]
-    (str header "\n" body)))
+                      (seq input-visibility-classes)
+                      (str/join "\n\n"
+                                (cons (render-scenario-outline
+                                       (assoc test-case :required-inputs (first input-visibility-classes))
+                                       (vrow-of (first input-visibility-classes)) :core)
+                                      (map-indexed
+                                       (fn [i ci]
+                                         (render-scenario-outline
+                                          (assoc test-case :required-inputs ci)
+                                          (vrow-of ci) :extended (str " — Group " (inc i))))
+                                       input-visibility-classes)))
+                      varying-row
+                      (str/join "\n\n"
+                                [(render-scenario-outline test-case varying-row :core)
+                                 (render-scenario-outline test-case varying-row :extended)])
+                      :else
+                      (render-scenario test-case))]
+    body))
 
 ;;; ============================================================================
 ;;; Combined matrix loading
@@ -743,14 +747,25 @@
          deleted          (delete-results-feature-files features-dir)
          _                (when (pos? deleted)
                             (println (format "Deleted %d old results-page_*.feature files" deleted)))
-         written          (atom 0)]
-     (doseq [[gv-uuid test-case] matrix]
-       (let [tc       (-> test-case
-                          (assoc :gv-uuid gv-uuid)
-                          (merge-with-baselines baselines input-visibility output-order-idx))
-             filename (feature-filename (:module tc) (:output-name tc))
+         written          (atom 0)
+         ;; Prepare every test case, then group by [module output-name] — the pair that determines
+         ;; both the filename and the Feature: title. Test cases that share it would otherwise
+         ;; overwrite each other's file (and collide on title); merge their bodies into one file.
+         prepared         (map (fn [[gv-uuid test-case]]
+                                 (-> test-case
+                                     (assoc :gv-uuid gv-uuid)
+                                     (merge-with-baselines baselines input-visibility output-order-idx)))
+                               matrix)
+         by-title         (->> prepared
+                               (group-by (juxt :module :output-name))
+                               (sort-by key))]              ; deterministic file order
+     (doseq [[[module output-name] tcs] by-title]
+       (let [tcs*     (sort-by :gv-uuid tcs)                ; deterministic scenario order
+             filename (feature-filename module output-name)
              filepath (str features-dir filename)
-             content  (render-feature tc)]
+             header   (render-feature-header (first tcs*))
+             body     (str/join "\n\n" (map render-feature-body tcs*))
+             content  (str header "\n" body)]
          (io/make-parents filepath)
          (spit filepath content)
          (swap! written inc)
