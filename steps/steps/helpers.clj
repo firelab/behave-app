@@ -127,6 +127,10 @@
                   (selector->by parent-selector)
                   (selector->by {:text text})))))
 
+(def ^:private group-wait-ms
+  "Timeout (ms) for each group text node to render after the wizard re-navigates."
+  5000)
+
 (defn wait-for-groups
   "Wait for groups to appear as properly nested elements in hierarchical order.
 
@@ -148,9 +152,9 @@
     (wait-for-nested-element driver
                              {:css ".wizard-page__body"}
                              (first groups)
-                             300)
+                             group-wait-ms)
     (doseq [[parent child] (partition 2 1 groups)]
-      (let [wait (w/wait driver 300)]
+      (let [wait (w/wait driver group-wait-ms)]
         (.until wait (w/presence-of-nested-elements
                       (selector->by {:text parent})
                       (selector->by {:text child})))))))
