@@ -314,6 +314,28 @@
       :search
       :no-search)))
 
+(defn- filter-tag-buttons
+  "Tag buttons that narrow the options list. A clicked tag stays active
+  until another tag is clicked or the filter is cleared."
+  [filter-tags selected-tag]
+  [:div.multi-select__tags
+   (for [{:keys [id label]} (if (-> filter-tags (first) (:order))
+                              (sort-by :order filter-tags)
+                              (sort-by :label filter-tags))]
+     ^{:key id}
+     [:div.multi-select__tags__tag
+      [button {:label     label
+               :variant   "outline-secondary"
+               :size      "small"
+               :selected? (= @selected-tag id)
+               :on-click  #(reset! selected-tag id)}]])
+   (when @selected-tag
+     [:div.multi-select__tags__tag
+      [button {:label    "Clear"
+               :variant  "transparent-secondary"
+               :size     "small"
+               :on-click #(reset! selected-tag nil)}]])])
+
 (defmethod multi-select-input :no-search
   [{:keys [input-label prompt1 prompt2 prompt3 expand-options-button-label
            collapse-options-button-label options filter-tags color-tags disable-multi-valued-input?]}]
@@ -329,19 +351,7 @@
        [:<>
         [:div.multi-select__prompt prompt1]
         (when filter-tags
-          [:div.multi-select__tags
-           (for [{:keys [id label]} (if (-> filter-tags (first) (:order))
-                                      (sort-by :order filter-tags)
-                                      (sort-by :label filter-tags))]
-             ^{:key id}
-             [:div.multi-select__tags__tag
-              [button {:label     label
-                       :variant   "outline-secondary"
-                       :size      "small"
-                       :selected? (= @selected-tag id)
-                       :on-click  #(if (= @selected-tag id)
-                                     (reset! selected-tag nil)
-                                     (reset! selected-tag id))}]])])
+          [filter-tag-buttons filter-tags selected-tag])
         (when (seq color-tags)
           [:div.multi-select__color-tags
            (for [{:keys [label color]} color-tags]
@@ -395,7 +405,7 @@
                                                 label])])]]))
 
 (defmethod multi-select-input :search
-  [{:keys [input-label prompt1 expand-options-button-label collapse-options-button-label options color-tags
+  [{:keys [input-label prompt1 expand-options-button-label collapse-options-button-label options filter-tags color-tags
            disable-multi-valued-input?]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
@@ -404,7 +414,8 @@
                                        (into (sorted-set))))
                show-options? (r/atom false)
                search (r/atom "")
-               filtered-options (r/atom options)]
+               filtered-options (r/atom options)
+               selected-tag (r/atom nil)]
     [:div.multi-select--search
      [:div.multi-select__prompt
       prompt1]
@@ -457,6 +468,8 @@
                                                                                         (str/lower-case @search)))
                                                                        options)))
                    :value-atom   search}]]
+     (when (and @show-options? filter-tags)
+       [filter-tag-buttons filter-tags selected-tag])
      (when (or (seq @search) @show-options?)
        [:div.multi-select__options
         (doall
@@ -464,9 +477,11 @@
                        value
                        on-select
                        on-deselect
-                       color-tag]} (if (and @show-options? (not (seq @search)))
-                                     options
-                                     @filtered-options)]
+                       color-tag]} (cond->> (if (and @show-options? (not (seq @search)))
+                                              options
+                                              @filtered-options)
+                                     (and filter-tags @selected-tag)
+                                     (filter #(contains? (:tags %) @selected-tag)))]
            ^{:key label}
            (let [selection [label value on-deselect on-select]]
              [multi-select-option {:selected? (contains? @selections selection)

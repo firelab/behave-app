@@ -2428,7 +2428,8 @@ p {
   top: 0px;
 }
 
-.multi-select .button--selected {
+.multi-select .button--selected,
+.multi-select--search .button--selected {
   color: var(--white);
   background-color: var(--medblue-2);
 }
@@ -2436,6 +2437,7 @@ p {
 .multi-select__tags {
   display: flex;
   flex-direction: row;
+  padding-top: 15px;
   padding-bottom: 15px;
   padding-left: 20px;
 }
@@ -2447,6 +2449,12 @@ p {
 .multi-select__tags__tag > button {
   font-size: var(--font-size-12);
   font-weight: bold;
+}
+
+/* Keep a border on hover so the button doesn't shift by the 1px
+   border that .button--outline-secondary:hover removes */
+.multi-select__tags__tag > button:hover {
+  border: 1px solid var(--medblue-2);
 }
 
 
