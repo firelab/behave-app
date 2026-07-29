@@ -14,6 +14,7 @@
             [behave.test-solver-queries]
             [behave.test-support :as ts]
             [behave.tests-used-in-fixtures]
+            [behave.units-test]
             [behave.utils-test]
             [behave.vms.subs]
             [behave.wizard.events]
@@ -38,6 +39,7 @@
              'behave.tests-used-in-fixtures
              'behave.test-solver-generators
              'behave.test-solver-queries
+             'behave.units-test
              'behave.utils-test
              'behave.worksheet-events-test
              'behave.worksheet-subs-test))
