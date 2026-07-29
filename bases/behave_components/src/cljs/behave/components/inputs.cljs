@@ -416,77 +416,81 @@
                search (r/atom "")
                filtered-options (r/atom options)
                selected-tag (r/atom nil)]
-    [:div.multi-select--search
-     [:div.multi-select__prompt
-      prompt1]
-     (when (seq color-tags)
-       [:div.multi-select__color-tags
-        (for [{:keys [label color]} color-tags]
-          ^{:key color}
-          [:div {:class "multi-select__color-tags__tag"
-                 :style {:border-color color}}
-           label])])
-     [:div.multi-select__selections
-      [:div.multi-select__selections__header
-       [:div (gstring/format "Selected %s" input-label)]
-       [:div.multi-select__selections__header__button (if @show-options?
-                                                        [button {:label     collapse-options-button-label
-                                                                 :variant   "secondary"
-                                                                 :icon-name "minus"
-                                                                 :size      "small"
-                                                                 :on-click  #(do (reset! show-options? (not @show-options?))
-                                                                                 (reset! search nil))}]
-                                                        [button {:label     expand-options-button-label
-                                                                 :variant   "primary"
-                                                                 :icon-name "plus"
-                                                                 :size      "small"
-                                                                 :on-click  #(reset! show-options? (not @show-options?))}])]]
-      [:div.multi-select-search__selections__body
-       (for [[label value on-deselect color-tag :as selection] @selections]
-         [:div
-          (cond-> {:class    ["multi-select-search"
-                              "multi-select__option--selected"
-                              (when color-tag "multi-select__option__color-tag")]
-                   :style    {}
-                   :on-click #(do
-                                (reset! selections (disj @selections selection))
-                                (when on-deselect (on-deselect value)))}
-            color-tag
-            (assoc-in [:style :border-color] (:color color-tag)))
-          [:div.multi-select__option__icon--minus
-           [icon "minus"]]
-          label])]
-      [text-input {:label        "Search"
-                   :on-key-press (on-enter (fn []
-                                             (when-let [{:keys [label value on-deselect on-select]} (first @filtered-options)]
-                                               (let [selection [label value on-deselect on-select]]
-                                                 (multi-select-on-select selections selection disable-multi-valued-input?))
-                                               (reset! search nil))))
-                   :on-change    #(do (reset! search (input-value %))
-                                      (reset! filtered-options (filter (fn [the-option]
-                                                                         (str/includes? (str/lower-case (:label the-option))
-                                                                                        (str/lower-case @search)))
-                                                                       options)))
-                   :value-atom   search}]]
-     (when (and @show-options? filter-tags)
-       [filter-tag-buttons filter-tags selected-tag])
-     (when (or (seq @search) @show-options?)
-       [:div.multi-select__options
-        (doall
-         (for [{:keys [label
-                       value
-                       on-select
-                       on-deselect
-                       color-tag]} (cond->> (if (and @show-options? (not (seq @search)))
-                                              options
-                                              @filtered-options)
-                                     (and filter-tags @selected-tag)
-                                     (filter #(contains? (:tags %) @selected-tag)))]
-           ^{:key label}
-           (let [selection [label value on-deselect on-select]]
-             [multi-select-option {:selected? (contains? @selections selection)
-                                   :color-tag color-tag
-                                   :label     label
-                                   :on-click  #(do
-                                                 (multi-select-on-select selections selection disable-multi-valued-input?)
-                                                 (reset! search nil))}])))])]))
+    (let [visible-options (cond->> (if (and @show-options? (not (seq @search)))
+                                     options
+                                     @filtered-options)
+                            (and filter-tags @selected-tag)
+                            (filter #(contains? (:tags %) @selected-tag)))]
+      [:div.multi-select--search
+       [:div.multi-select__prompt
+        prompt1]
+       (when (seq color-tags)
+         [:div.multi-select__color-tags
+          (for [{:keys [label color]} color-tags]
+            ^{:key color}
+            [:div {:class "multi-select__color-tags__tag"
+                   :style {:border-color color}}
+             label])])
+       [:div.multi-select__selections
+        [:div.multi-select__selections__header
+         [:div (gstring/format "Selected %s" input-label)]
+         [:div.multi-select__selections__header__button (if @show-options?
+                                                          [button {:label     collapse-options-button-label
+                                                                   :variant   "secondary"
+                                                                   :icon-name "minus"
+                                                                   :size      "small"
+                                                                   :on-click  #(do (reset! show-options? (not @show-options?))
+                                                                                   (reset! search nil))}]
+                                                          [button {:label     expand-options-button-label
+                                                                   :variant   "primary"
+                                                                   :icon-name "plus"
+                                                                   :size      "small"
+                                                                   :on-click  #(reset! show-options? (not @show-options?))}])]]
+        [:div.multi-select-search__selections__body
+         (for [[label value on-deselect color-tag :as selection] @selections]
+           [:div
+            (cond-> {:class    ["multi-select-search"
+                                "multi-select__option--selected"
+                                (when color-tag "multi-select__option__color-tag")]
+                     :style    {}
+                     :on-click #(do
+                                  (reset! selections (disj @selections selection))
+                                  (when on-deselect (on-deselect value)))}
+              color-tag
+              (assoc-in [:style :border-color] (:color color-tag)))
+            [:div.multi-select__option__icon--minus
+             [icon "minus"]]
+            label])]
+        [text-input {:label        "Search"
+                     :on-key-press (on-enter (fn []
+                                               (when-let [{:keys [label value on-deselect on-select]} (first visible-options)]
+                                                 (let [selection [label value on-deselect on-select]]
+                                                   (multi-select-on-select selections selection disable-multi-valued-input?))
+                                                 (reset! search nil))))
+                     :on-change    #(do (reset! search (input-value %))
+                                        (reset! filtered-options (filter (fn [the-option]
+                                                                           (str/includes? (str/lower-case (:label the-option))
+                                                                                          (str/lower-case @search)))
+                                                                         options)))
+                     :value-atom   search}]]
+       (when (and @show-options? filter-tags)
+         [filter-tag-buttons filter-tags selected-tag])
+       (when (or (seq @search) @show-options?)
+       ;; --searching enables the first-option highlight that previews
+       ;; what pressing Enter will select
+         [:div {:class ["multi-select__options"
+                        (when (seq @search) "multi-select__options--searching")]}
+          (doall
+           (for [{:keys [label
+                         value
+                         on-select
+                         on-deselect
+                         color-tag]} visible-options]
+             ^{:key label}
+             (let [selection [label value on-deselect on-select]]
+               [multi-select-option {:selected? (contains? @selections selection)
+                                     :color-tag color-tag
+                                     :label     label
+                                     :on-click  #(do
+                                                   (multi-select-on-select selections selection disable-multi-valued-input?)
+                                                   (reset! search nil))}])))])])))

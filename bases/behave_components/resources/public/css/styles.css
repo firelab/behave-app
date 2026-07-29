@@ -2370,7 +2370,7 @@ p {
   top: -2px;
 }
 
-.multi-select--search .multi-select__option:first-child,
+.multi-select__options--searching .multi-select__option:first-child,
 .multi-select__option--selected,
 .multi-select__option:hover {
   width: max-content;
@@ -2383,7 +2383,7 @@ p {
   background-color: var(--medblue-3);
 }
 
-.multi-select--search .multi-select__option:first-child,
+.multi-select__options--searching .multi-select__option:first-child,
 .multi-select__option--selected:hover,
 .multi-select__option:hover {
   background-color: var(--medblue-2);
