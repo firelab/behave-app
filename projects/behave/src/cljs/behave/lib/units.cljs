@@ -70,7 +70,8 @@
    {:short "mi"          :system "english" :enum enum/length-units                  :dimension :length                  :unit "Miles"}
    {:short "mi/h"        :system "english" :enum enum/speed-units                   :dimension :speed                   :unit "MilesPerHour"}
    {:short "ms"} ; FIXME
-   {:short "oF"          :system "english" :enum enum/temperature-units             :dimension :temperature             :unit "Fahrenheit"}
+   {:short "oF"          :system "english" :enum enum/temperature-units             :dimension :temperature             :unit "Fahrenheit"} ; legacy alias (saved worksheets)
+   {:short "°F"          :system "english" :enum enum/temperature-units             :dimension :temperature             :unit "Fahrenheit"}
    {:short "per ac"} ; FIXME Tree Count
    {:short "ton/ac"      :system "english" :enum enum/loading-units                 :dimension :loading                 :unit "TonsPerAcre"}
    {:short "psi"         :system "english" :enum enum/pressure-units                :dimension :pressure                :unit "PoundPerSquareInch"}])
@@ -102,7 +103,8 @@
    {:short "m2/ha"    :system "metric" :enum enum/basal-area-units              :dimension :basal-area              :unit "SquareMetersPerHectare"}
    {:short "m2/m3"    :system "metric" :enum enum/surface-area-to-volume-units  :dimension :surface-area-to-volume  :unit "SquareMetersOverCubicMeters"}
    {:short "mm"       :system "metric" :enum enum/length-units                  :dimension :length                  :unit "Millimeters"}
-   {:short "oC"       :system "metric" :enum enum/temperature-units             :dimension :temperature             :unit "Celsius"}
+   {:short "oC"       :system "metric" :enum enum/temperature-units             :dimension :temperature             :unit "Celsius"} ; legacy alias (saved worksheets)
+   {:short "°C"       :system "metric" :enum enum/temperature-units             :dimension :temperature             :unit "Celsius"}
    {:short "per ha"} ; FIXME Tree Density
    {:short "tonne/ha" :system "metric" :enum enum/loading-units                 :dimension :loading                 :unit "TonnesPerHectare"}
    {:short "Pa"       :system "metric" :enum enum/pressure-units                :dimension :pressure                :unit "Pascal"}

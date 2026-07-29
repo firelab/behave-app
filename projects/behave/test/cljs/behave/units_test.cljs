@@ -32,8 +32,16 @@
                                  (sut/convert "cm2/cm3" "m2/m3")))))
 
 (deftest kelvin-conversion-test
-  (is (within-hundredth? 273.15 (sut/convert 32 "oF" "K")))
-  (is (within-hundredth? 32 (sut/convert 273.15 "K" "oF"))))
+  (is (within-hundredth? 273.15 (sut/convert 32 "°F" "K")))
+  (is (within-hundredth? 32 (sut/convert 273.15 "K" "°F"))))
+
+;; BHP1-1592 — temperature short codes renamed oF/oC -> °F/°C
+(deftest degree-symbol-temperature-conversion-test
+  (is (within-hundredth? 100 (sut/convert 212 "°F" "°C")))
+  (is (within-hundredth? 212 (sut/convert 100 "°C" "°F")))
+  ;; legacy aliases still resolve (result headers saved in old worksheets)
+  (is (within-hundredth? 100 (sut/convert 212 "oF" "oC")))
+  (is (within-hundredth? 212 (sut/convert 100 "oC" "°F"))))
 
 (deftest new-heat-units-conversion-test
   (is (within-hundredth? 11.37 (sut/convert 1 "Btu/ft2" "kW-s/m2")))

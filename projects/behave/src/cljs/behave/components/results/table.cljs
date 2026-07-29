@@ -39,7 +39,8 @@
         csv-rows   (str/join "\n" (map print-row rows))
         csv        (str csv-header "\n" csv-rows)
         download!  (fn []
-                     (let [blob (js/Blob. [csv] #js {:type "text/csv"})
+                     ;; UTF-8 BOM so Excel decodes non-ASCII (e.g. °F) correctly
+                     (let [blob (js/Blob. [(str "\ufeff" csv)] #js {:type "text/csv;charset=utf-8"})
                            url  (js/window.URL.createObjectURL blob)
                            a    (doto (js/document.createElement "a")
                                   (aset "href" url)
