@@ -8,6 +8,8 @@
             [behave.events]
             [behave.help.subs]
             [behave.mortality-test]
+            [behave.results-table-test]
+            [behave.shading-test]
             [behave.solver-test]
             [behave.subs]
             [behave.surface-test]
@@ -15,6 +17,7 @@
             [behave.test-solver-queries]
             [behave.test-support :as ts]
             [behave.tests-used-in-fixtures]
+            [behave.units-test]
             [behave.utils-test]
             [behave.vms.subs]
             [behave.wizard.events]
@@ -32,12 +35,15 @@
                       'behave.crown-test
                       'behave.contain-test
                       'behave.mortality-test
+                      'behave.results-table-test
+                      'behave.shading-test
                       'behave.diagram-test
                       'behave.surface-test
                       'behave.solver-test
                       'behave.tests-used-in-fixtures
                       'behave.test-solver-generators
                       'behave.test-solver-queries
+                      'behave.units-test
                       'behave.utils-test
                       'behave.worksheet-events-test
                       'behave.worksheet-subs-test)))
