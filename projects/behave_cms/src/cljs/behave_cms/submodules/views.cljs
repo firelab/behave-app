@@ -66,8 +66,7 @@
                             :type      :keyword-select
                             :options   [{:value :contain :label "Contain"}
                                         {:value :optimized-contain :label "Optimized Contain"}
-                                        {:value :fire-shape :label "Fire Shape"}
-                                        {:value :wind-slope-spread-direction :label "Wind/Slope/Spread Direction"}]}
+                                        {:value :fire-shape :label "Fire Shape"}]}
                            {:label     "Title"
                             :required? true
                             :field-key :diagram/title}
@@ -80,6 +79,10 @@
                             :field-key :diagram/x-axis-title}
                            {:label     "Y-Axis Title"
                             :field-key :diagram/y-axis-title}
+                           {:label     "Y-Axis Positive Label"
+                            :field-key :diagram/y-axis-positive-label}
+                           {:label     "Y-Axis Negative Label"
+                            :field-key :diagram/y-axis-negative-label}
                            {:label     "X-Axis Units"
                             :field-key :diagram/x-units-uuid
                             :type      :unit}
@@ -103,7 +106,9 @@
                             :type      :boolean}]
       :translation-attrs  [{:label "Title Translation" :attr :diagram/title-translation-key}
                            {:label "X-Axis Title Translation" :attr :diagram/x-axis-title-translation-key}
-                           {:label "Y-Axis Title Translation" :attr :diagram/y-axis-title-translation-key}]}]))
+                           {:label "Y-Axis Title Translation" :attr :diagram/y-axis-title-translation-key}
+                           {:label "Y-Axis Positive Label Translation" :attr :diagram/y-axis-positive-label-translation-key}
+                           {:label "Y-Axis Negative Label Translation" :attr :diagram/y-axis-negative-label-translation-key}]}]))
 
 (defn- submodules-table [module-id]
   (let [selected-state-path [:selected :submodule]

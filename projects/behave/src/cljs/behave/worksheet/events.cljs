@@ -788,9 +788,15 @@
                     elliptical-A
                     elliptical-B
                     direction-of-max-spread
+                    max-spread-dist
                     wind-direction
-                    _wind-speed
-                    _elapsed-time]]
+                    wind-dist
+                    flanking-dir
+                    flanking-dist
+                    backing-dir
+                    backing-dist
+                    flanking-enabled?
+                    backing-enabled?]]
    (let [existing-eid    (d/q '[:find ?d .
                                 :in $ ?uuid ?gv-uuid ?row-id
                                 :where
@@ -800,105 +806,60 @@
                                 [?d :worksheet.diagram/row-id ?row-id]]
                               ds ws-uuid group-variable-uuid row-id)
          semi-major-axis (max elliptical-A elliptical-B)
-         semi-minor-axis (min elliptical-A elliptical-B)]
+         semi-minor-axis (min elliptical-A elliptical-B)
+         ;; Focal distance of the fire ellipse. The ignition point (plot origin)
+         ;; sits at the focus, so the ellipse center is offset from the origin by
+         ;; this much along the max-spread direction. Heading/backing arrow tips
+         ;; then land on the major-axis vertices, and the flanking arrows (offset
+         ;; to start at the center) span the minor axis.
+         focal-offset    (Math/sqrt (- (* semi-major-axis semi-major-axis)
+                                       (* semi-minor-axis semi-minor-axis)))]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
                   :worksheet.diagram/group-variable-uuid group-variable-uuid
                   :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/ellipses            [{:ellipse/legend-id       "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire"
-                                                           :ellipse/semi-major-axis semi-major-axis
-                                                           :ellipse/semi-minor-axis semi-minor-axis
-                                                           :ellipse/rotation        direction-of-max-spread
-                                                           :ellipse/color           "red"}]
-                  :worksheet.diagram/arrows              [{:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:wind"
-                                                           :arrow/length    semi-major-axis
-                                                           ;; :arrow/length   (* wind-speed elapsed-time)
-                                                           ;; NOTE Using the wind speed converted to the
-                                                           ;; chains makes this value possibly too large. The
-                                                           ;; arrow points much further out of othe ellipse.
-                                                           ;; Discuss if if we should use this or not.
-                                                           :arrow/rotation  wind-direction
-                                                           :arrow/color     "blue"
-                                                           :arrow/dashed?   true}
+                  :worksheet.diagram/ellipses            [{:ellipse/legend-id              "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire"
+                                                           :ellipse/semi-major-axis        semi-major-axis
+                                                           :ellipse/semi-minor-axis        semi-minor-axis
+                                                           :ellipse/rotation               direction-of-max-spread
+                                                           :ellipse/center-offset-distance focal-offset
+                                                           :ellipse/color                  "red"}]
+                  ;; Wind + max-spread always draw. Flanking/backing arrows only draw
+                  ;; when their direction outputs are enabled (they follow the same
+                  ;; conditionals that gate the Direction of Flanking/Backing outputs).
+                  :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:wind"
+                                                                   :arrow/length    wind-dist
+                                                                   :arrow/rotation  wind-direction
+                                                                   :arrow/color     "blue"
+                                                                   :arrow/dashed?   true}
 
-                                                          {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:max_spread"
-                                                           :arrow/length    semi-major-axis
-                                                           :arrow/rotation  direction-of-max-spread
-                                                           :arrow/color     "black"}
+                                                                  {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:max_spread"
+                                                                   :arrow/length    max-spread-dist
+                                                                   :arrow/rotation  direction-of-max-spread
+                                                                   :arrow/color     "black"}]
 
-                                                          {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
-                                                           :arrow/length    semi-major-axis
-                                                           :arrow/rotation  0
-                                                           :arrow/color     "red"
-                                                           :arrow/dashed?   true}]}]})))
-(rp/reg-event-fx
- :worksheet/add-wind-slope-spread-direction-diagram
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_
-                    ws-uuid
-                    group-variable-uuid
-                    row-id
-                    max-spread-dir
-                    max-spread-rate
-                    has-direction-of-interest?
-                    interest-dir
-                    interest-spread-rate
-                    flanking-dir
-                    flanking-spread-rate
-                    backing-dir
-                    backing-spread-rate
-                    wind-dir
-                    wind-speed]]
-   (let [existing-eid (d/q '[:find ?d .
-                             :in $ ?uuid ?gv-uuid ?row-id
-                             :where
-                             [?ws :worksheet/uuid ?uuid]
-                             [?ws :worksheet/diagrams ?d]
-                             [?d :worksheet.diagram/group-variable-uuid ?gv-uuid]
-                             [?d :worksheet.diagram/row-id ?row-id]]
-                           ds ws-uuid group-variable-uuid row-id)]
-     {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
-                 {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                  :worksheet.diagram/group-variable-uuid group-variable-uuid
-                  :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:max_spread"
-                                                                   :arrow/length    max-spread-rate
-                                                                   :arrow/rotation  max-spread-dir
-                                                                   :arrow/color     "red"}
+                                                           flanking-enabled?
+                                                           (into [{:arrow/legend-id        "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_1"
+                                                                   :arrow/length           flanking-dist
+                                                                   :arrow/rotation         flanking-dir
+                                                                   :arrow/offset-distance  focal-offset
+                                                                   :arrow/offset-rotation  direction-of-max-spread
+                                                                   :arrow/default-visible? false
+                                                                   :arrow/color            "#81c3cb"}
 
-                                                                  {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_1"
-                                                                   :arrow/length    flanking-spread-rate
-                                                                   :arrow/rotation  flanking-dir
-                                                                   :arrow/color     "#81c3cb"}
+                                                                  {:arrow/legend-id        "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_2"
+                                                                   :arrow/length           flanking-dist
+                                                                   :arrow/rotation         (mod (+ flanking-dir 180) 360)
+                                                                   :arrow/offset-distance  focal-offset
+                                                                   :arrow/offset-rotation  direction-of-max-spread
+                                                                   :arrow/default-visible? false
+                                                                   :arrow/color            "#347da0"}])
 
-                                                                  {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_2"
-                                                                   :arrow/length    flanking-spread-rate
-                                                                   :arrow/rotation  (mod (+ flanking-dir 180) 360)
-                                                                   :arrow/color     "#347da0"}
-
-                                                                  {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"
-                                                                   :arrow/length    backing-spread-rate
-                                                                   :arrow/rotation  backing-dir
-                                                                   :arrow/color     "orange"}
-
-                                                                  (let [l (min max-spread-rate wind-speed)]
-                                                                    {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:wind"
-                                                                     ;; NOTE for visual purposes
-                                                                     ;; make wind 10% larger than
-                                                                     ;; max spread rate.
-                                                                     ;; :arrow/length   wind-speed
-                                                                     :arrow/length    (if (> wind-speed max-spread-rate)
-                                                                                        (* l 1.1)
-                                                                                        l)
-                                                                     :arrow/rotation  wind-dir
-                                                                     :arrow/color     "blue"
-                                                                     :arrow/dashed?   true})]
-
-                                                           has-direction-of-interest?
-                                                           (conj {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:interest"
-                                                                  :arrow/length    interest-spread-rate
-                                                                  :arrow/rotation  interest-dir
-                                                                  :arrow/color     "black"}))}]})))
+                                                           backing-enabled?
+                                                           (conj {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"
+                                                                  :arrow/length    backing-dist
+                                                                  :arrow/rotation  backing-dir
+                                                                  :arrow/color     "orange"}))}]})))
 
 (rf/reg-event-fx
  :worksheet/delete-existing-result-table

@@ -473,6 +473,11 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :ellipse/center-offset-distance
+    :db/doc         "Distance from the plot origin to the ellipse center, along :ellipse/rotation. Used to place the ignition point at the ellipse focus (offset = focal distance). Defaults to the semi-major axis when absent."
+    :db/valueType   :db.type/double
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :ellipse/color
     :db/doc         "The color of the ellipse"
     :db/valueType   :db.type/string
@@ -494,6 +499,16 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :arrow/offset-distance
+    :db/doc         "Distance from the plot origin to the arrow's base point, along :arrow/offset-rotation. Defaults to 0 (arrow drawn from the origin) when absent."
+    :db/valueType   :db.type/double
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/offset-rotation
+    :db/doc         "The degrees clockwise from positive y-axis of the arrow's base offset direction."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :arrow/color
     :db/doc         "The color of the arrow"
     :db/valueType   :db.type/string
@@ -501,6 +516,11 @@
 
    {:db/ident       :arrow/dashed?
     :db/doc         "Weather the arrow should be dashed"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/default-visible?
+    :db/doc         "Whether this arrow's series starts visible in the diagram legend. Absent = visible; false = starts hidden (grayed) and can be revealed by clicking the legend."
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
