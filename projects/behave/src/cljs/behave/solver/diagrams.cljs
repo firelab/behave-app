@@ -50,9 +50,6 @@
   [{:keys [ws-uuid row-id diagram module all-outputs]}]
   (let [gv-uuid           (get-in diagram [:diagram/group-variable :bp/uuid])
         elapsed-time-h    (surface/getElapsedTime module (enums/time-units "Hours"))
-        ;; The flanking/backing arrows follow the same conditionals that gate the
-        ;; Direction of Flanking/Backing outputs: only draw them when those outputs
-        ;; are enabled.
         output-set        (set all-outputs)
         flanking-enabled? (contains? output-set (q/output-gv-uuid "Direction of Flanking"))
         backing-enabled?  (contains? output-set (q/output-gv-uuid "Direction of Backing"))]
