@@ -790,7 +790,6 @@
                     direction-of-max-spread
                     max-spread-dist
                     wind-direction
-                    wind-dist
                     flanking-dir
                     flanking-dist
                     backing-dir
@@ -823,20 +822,27 @@
                                                            :ellipse/semi-minor-axis        semi-minor-axis
                                                            :ellipse/rotation               direction-of-max-spread
                                                            :ellipse/center-offset-distance focal-offset
-                                                           :ellipse/color                  "red"}]
+                                                           :ellipse/dashed?                true
+                                                           :ellipse/color                  "black"}]
                   ;; Wind + max-spread always draw. Flanking/backing arrows only draw
                   ;; when their direction outputs are enabled (they follow the same
                   ;; conditionals that gate the Direction of Flanking/Backing outputs).
                   :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:wind"
-                                                                   :arrow/length    wind-dist
+                                                                   :arrow/length    semi-major-axis
                                                                    :arrow/rotation  wind-direction
                                                                    :arrow/color     "blue"
+                                                                   :arrow/dashed?   true}
+
+                                                                  {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
+                                                                   :arrow/length    semi-major-axis
+                                                                   :arrow/rotation  0
+                                                                   :arrow/color     "green"
                                                                    :arrow/dashed?   true}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:max_spread"
                                                                    :arrow/length    max-spread-dist
                                                                    :arrow/rotation  direction-of-max-spread
-                                                                   :arrow/color     "black"}]
+                                                                   :arrow/color     "red"}]
 
                                                            flanking-enabled?
                                                            (into [{:arrow/legend-id        "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_1"
@@ -845,7 +851,7 @@
                                                                    :arrow/offset-distance  focal-offset
                                                                    :arrow/offset-rotation  direction-of-max-spread
                                                                    :arrow/default-visible? false
-                                                                   :arrow/color            "#81c3cb"}
+                                                                   :arrow/color            "orange"}
 
                                                                   {:arrow/legend-id        "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_2"
                                                                    :arrow/length           flanking-dist
@@ -853,13 +859,13 @@
                                                                    :arrow/offset-distance  focal-offset
                                                                    :arrow/offset-rotation  direction-of-max-spread
                                                                    :arrow/default-visible? false
-                                                                   :arrow/color            "#347da0"}])
+                                                                   :arrow/color            "orange"}])
 
                                                            backing-enabled?
                                                            (conj {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"
                                                                   :arrow/length    backing-dist
                                                                   :arrow/rotation  backing-dir
-                                                                  :arrow/color     "orange"}))}]})))
+                                                                  :arrow/color     "gray"}))}]})))
 
 (rf/reg-event-fx
  :worksheet/delete-existing-result-table

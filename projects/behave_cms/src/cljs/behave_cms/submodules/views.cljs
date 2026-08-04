@@ -103,6 +103,9 @@
                             :type      :boolean}
                            {:label     "Connect Points?"
                             :field-key :diagram/connect-points?
+                            :type      :boolean}
+                           {:label     "Hide Axis Numbers?"
+                            :field-key :diagram/hide-axis-numbers?
                             :type      :boolean}]
       :translation-attrs  [{:label "Title Translation" :attr :diagram/title-translation-key}
                            {:label "X-Axis Title Translation" :attr :diagram/x-axis-title-translation-key}

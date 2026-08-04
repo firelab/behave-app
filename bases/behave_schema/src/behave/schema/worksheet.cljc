@@ -483,6 +483,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :ellipse/dashed?
+    :db/doc         "Whether the ellipse renders as a dashed line."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    ;; Diagram Arrow
    {:db/ident       :arrow/legend-id
     :db/doc         "Id used for the legend"

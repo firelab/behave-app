@@ -33,11 +33,12 @@
       (update-in [:encoding :color :scale :range] #(conj % color))))
 
 (defn- add-ellipse
-  [schema {:keys [legend-id color a b phi x-offset stroke-dash center-offset-distance]
+  [schema {:keys [legend-id color a b phi x-offset stroke-dash center-offset-distance dashed?]
            :or   {a           0
                   b           0
                   phi         0
                   x-offset    0
+                  dashed?     false
                   stroke-dash [1 0]}}]
   (let [legend-id-cleaned (str/replace legend-id " " "_")
         a-name            (str "A_" legend-id-cleaned)
@@ -52,7 +53,7 @@
     (-> schema
         (update :layer
                 #(conj % {:mark      {:type       "line"
-                                      :strokeDash stroke-dash
+                                      :strokeDash (if dashed? [4 4] stroke-dash)
                                       :clip       true}
                           :data      {:sequence {:start -1.00
                                                  :stop  1.01
@@ -118,7 +119,7 @@
                                              :point       {:shape  "arrow"
                                                            :filled true
                                                            :color  legend-id
-                                                           :angle  {:expr theta}
+                                                           :angle  theta
                                                            :size   {:expr (str "isDefined(datum.origin) ? 0 : " arrow-head-size)}}}
                                  :encoding  {:color {:field "series"
                                                      :type  "nominal"}
@@ -191,7 +192,7 @@
    :color     - Color for the scatter plot
    :data      - sequence of maps of coordinates [{x 0 y 0}, {x 1 y 1}, ...]. x and y key are strings
   "
-  [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots hidden-by-default-series]}]
+  [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots hidden-by-default-series hide-axis-numbers?]}]
   (let [base-schema   {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
                        :title       {:text     title
                                      :fontSize 20}
@@ -203,6 +204,8 @@
                                                                       (:title x-axis "x"))
                                                        :titleAnchor "start"
                                                        :titleAlign  "left"
+                                                       :labels      (not hide-axis-numbers?)
+                                                       :grid        (not hide-axis-numbers?)
                                                        :offset      (compute-axis-offset (:domain y-axis)
                                                                                          height)
                                                        :tickMinStep (or (:tick-min-step x-axis) 1)}
@@ -214,6 +217,8 @@
                                                        :titleAnchor "end"
                                                        :titleAngle  0
                                                        :titleAlign  "left"
+                                                       :labels      (not hide-axis-numbers?)
+                                                       :grid        (not hide-axis-numbers?)
                                                        :offset      (compute-axis-offset (:domain x-axis)
                                                                                          width)
                                                        :tickMinStep (or (:tick-min-step y-axis) 1)}
@@ -239,9 +244,13 @@
                                                :value     0}}
                        :layer       []
                        :params      []}
+        ;; Marks are reduced in legend order (color-scale :domain is built by
+        ;; appending each series). Arrows first, then ellipses, then scatter-plots —
+        ;; so the Fire Shape ellipse (Fire Perimeter) lands last. Diagrams without
+        ;; arrows (contain) keep ellipses-before-scatter, unchanged.
         spec          (as-> base-schema $
-                        (reduce (fn [acc ellipse] (add-ellipse acc ellipse)) $ ellipses)
                         (reduce (fn [acc arrow] (add-arrow acc arrow)) $ arrows)
+                        (reduce (fn [acc ellipse] (add-ellipse acc ellipse)) $ ellipses)
                         (reduce (fn [acc scatter-plot] (add-scatter-plot acc scatter-plot)) $ scatter-plots))
         ;; The legend-bound selection must live on a SINGLE layer: a top-level param in a
         ;; layered spec is instantiated once per layer, raising "Duplicate signal name".

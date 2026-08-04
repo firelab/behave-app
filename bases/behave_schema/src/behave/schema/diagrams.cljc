@@ -78,6 +78,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :diagram/hide-axis-numbers?
+    :db/doc         "When true, hides the numeric tick labels on both axes (axis titles are kept)."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :diagram/x-units-uuid
     :db/doc         "Diagram x-axis units UUID"
     :db/valueType   :db.type/string

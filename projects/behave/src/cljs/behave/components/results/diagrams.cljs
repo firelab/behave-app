@@ -130,6 +130,7 @@
         show-q3?                 (get cms-diagram :diagram/show-quadrant-3? true)
         show-q4?                 (get cms-diagram :diagram/show-quadrant-4? true)
         connect-points?          (:diagram/connect-points? cms-diagram)
+        hide-axis-numbers?       (:diagram/hide-axis-numbers? cms-diagram)
         x-units-short-code       (when x-units-uuid @(subscribe [:vms/units-uuid->short-code x-units-uuid]))
         y-units-short-code       (when y-units-uuid @(subscribe [:vms/units-uuid->short-code y-units-uuid]))
         {:keys [x-domain
@@ -150,6 +151,7 @@
      [output-diagram {:title                    (build-title ws-uuid title row-id)
                       :width                    500
                       :height                   500
+                      :hide-axis-numbers?       hide-axis-numbers?
                       :x-axis                   {:domain        x-domain
                                                  :units         x-units-short-code
                                                  :title         (or x-axis-title "x")
@@ -168,6 +170,7 @@
                                                                          :ellipse/semi-minor-axis        :b
                                                                          :ellipse/rotation               :phi
                                                                          :ellipse/center-offset-distance :center-offset-distance
+                                                                         :ellipse/dashed?                :dashed?
                                                                          :ellipse/color                  :color})
                                                            (update :legend-id (fn [k] @(<t k))))
                                                       ellipses)
