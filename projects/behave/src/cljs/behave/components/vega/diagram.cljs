@@ -83,6 +83,9 @@
         (update-in [:encoding :color :scale :domain] #(conj % legend-id))
         (update-in [:encoding :color :scale :range] #(conj % color)))))
 
+(def ^:private arrow-stroke-width 5)
+(def ^:private arrow-head-size (* arrow-stroke-width 200))   ; point-mark area in px²
+
 (defn- add-arrow [schema {:keys [legend-id color r theta dashed? offset-distance offset-rotation]
                           :or   {r               0
                                  theta           0
@@ -92,8 +95,6 @@
   (let [legend-id-cleaned (str/replace legend-id " " "_")
         r-name            (str "R_" legend-id-cleaned)
         theta-name        (str "THETA_" legend-id-cleaned)
-        stroke-width      5
-        arrow-head-size   (* stroke-width 200)
         ;; Base point of the arrow, offset from the plot origin by
         ;; offset-distance along offset-rotation (same sin/cos convention as the
         ;; tip and the ellipse center). Both the base and tip shift by (ox, oy).
@@ -114,7 +115,7 @@
                                  :mark      {:type        "line"
                                              :clip        true
                                              :strokeDash  (if dashed? [4,4] [1,0])
-                                             :strokeWidth stroke-width
+                                             :strokeWidth arrow-stroke-width
                                              :color       legend-id
                                              :point       {:shape  "arrow"
                                                            :filled true
@@ -244,6 +245,18 @@
                                                :value     0}}
                        :layer       []
                        :params      []}
+        ;; The arrowhead is a fixed-pixel point mark CENTERED on the arrow tip, so only
+        ;; half its length pokes past the line end. Pull each arrow back by that half —
+        ;; converting the arrowhead's pixel length to data units via the (square) plot
+        ;; scale — so the head lands at the tip instead of overshooting the ellipse.
+        [x-min x-max] (:domain x-axis)
+        head-len-data (if (and x-min x-max (pos? width) (> x-max x-min))
+                        (* 0.5
+                           (Math/sqrt arrow-head-size)      ; ≈ arrowhead length (px)
+                           (/ (- x-max x-min) width))       ; data units per px
+                        0)
+        arrows        (mapv (fn [a] (update a :r (fn [r] (max 0 (- (or r 0) head-len-data)))))
+                            arrows)
         ;; Marks are reduced in legend order (color-scale :domain is built by
         ;; appending each series). Arrows first, then ellipses, then scatter-plots —
         ;; so the Fire Shape ellipse (Fire Perimeter) lands last. Diagrams without
