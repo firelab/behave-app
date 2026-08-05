@@ -94,6 +94,7 @@
        "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_2" "Flanking 2 Fire"
        "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"    "Backing Fire"
        "behaveplus:diagram:surface_fire_shape:legend_id:slope"               "Slope Vector"
+       "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread" "Surface Fire Spread"
        "behaveplus:diagram:surface_fire_shape:legend_id:wind"                "Wind Vector"}))))
 
 ;; ===========================================================================================================
