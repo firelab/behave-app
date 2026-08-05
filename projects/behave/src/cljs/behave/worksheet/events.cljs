@@ -839,10 +839,11 @@
                                                                    :arrow/color     "green"
                                                                    :arrow/dashed?   true}
 
-                                                                  {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread"
-                                                                   :arrow/length    semi-major-axis
-                                                                   :arrow/rotation  direction-of-max-spread
-                                                                   :arrow/color     "black"}
+                                                                  {:arrow/legend-id        "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread"
+                                                                   :arrow/length           semi-major-axis
+                                                                   :arrow/rotation         direction-of-max-spread
+                                                                   :arrow/default-visible? false
+                                                                   :arrow/color            "black"}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:max_spread"
                                                                    :arrow/length    max-spread-dist
