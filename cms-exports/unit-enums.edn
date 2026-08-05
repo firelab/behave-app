@@ -50,7 +50,8 @@
   :MetersPerMinute
   :MetersPerHour
   :MilesPerHour
-  :KilometersPerHour]
+  :KilometersPerHour
+  :FurlongsPerFortnight]
 
  :FractionUnits_FractionUnitsEnum
  [:Fraction

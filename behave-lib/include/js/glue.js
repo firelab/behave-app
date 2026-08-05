@@ -6890,9 +6890,13 @@ SafeSeparationDistanceCalculator.prototype['__destroy__'] = SafeSeparationDistan
 
     Module['SpeedUnits']['MetersPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute();
 
+    Module['SpeedUnits']['MetersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerHour();
+
     Module['SpeedUnits']['MilesPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour();
 
     Module['SpeedUnits']['KilometersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour();
+
+    Module['SpeedUnits']['FurlongsPerFortnight'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FurlongsPerFortnight();
 
     
 // $PressureUnits_PressureUnitsEnum
@@ -6995,6 +6999,10 @@ SafeSeparationDistanceCalculator.prototype['__destroy__'] = SafeSeparationDistan
     Module['TimeUnits']['Seconds'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds();
 
     Module['TimeUnits']['Hours'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours();
+
+    Module['TimeUnits']['Days'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Days();
+
+    Module['TimeUnits']['Years'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Years();
 
     
 // $ContainTactic_ContainTacticEnum

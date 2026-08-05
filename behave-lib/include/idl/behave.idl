@@ -124,8 +124,10 @@ enum SpeedUnits_SpeedUnitsEnum {
   "SpeedUnits::ChainsPerHour",
   "SpeedUnits::MetersPerSecond",
   "SpeedUnits::MetersPerMinute",
+  "SpeedUnits::MetersPerHour",
   "SpeedUnits::MilesPerHour",
-  "SpeedUnits::KilometersPerHour"
+  "SpeedUnits::KilometersPerHour",
+  "SpeedUnits::FurlongsPerFortnight"
 };
 
 interface SpeedUnits {
@@ -241,7 +243,9 @@ interface TemperatureUnits {
 enum TimeUnits_TimeUnitsEnum {
   "TimeUnits::Minutes",
   "TimeUnits::Seconds",
-  "TimeUnits::Hours"
+  "TimeUnits::Hours",
+  "TimeUnits::Days",
+  "TimeUnits::Years"
 };
 
 interface TimeUnits {
