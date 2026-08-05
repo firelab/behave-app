@@ -75,6 +75,14 @@
                             :required? true
                             :type      :group-variable
                             :app-id    app-id}
+                           {:label     "Output Group Variables"
+                            :field-key :diagram/output-group-variables
+                            :type      :group-variables
+                            :app-id    app-id}
+                           {:label     "Input Group Variables"
+                            :field-key :diagram/input-group-variables
+                            :type      :group-variables
+                            :app-id    app-id}
                            {:label     "X-Axis Title"
                             :field-key :diagram/x-axis-title}
                            {:label     "Y-Axis Title"
