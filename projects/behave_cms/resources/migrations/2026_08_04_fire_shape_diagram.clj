@@ -32,16 +32,51 @@
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(defn- translation-exists? [db t-key]
-  (boolean (d/q '[:find ?e . :in $ ?k :where [?e :translation/key ?k]] db t-key)))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn- upsert-translations
-  "Update existing translations (by shortcode) and create any that don't exist yet."
-  [db shortcode t-key->text]
-  (let [{to-update true to-create false} (group-by (comp #(translation-exists? db %) key) t-key->text)]
-    (concat (when (seq to-create) (sm/build-translations-payload db (into {} to-create)))
-            (when (seq to-update) (sm/update-translations-payload db shortcode (into {} to-update))))))
+(defn- spread-distance-force-actions
+  "Force the directional Spread Distance outputs to compute whenever the Fire Shape
+  diagram is an output, so the summary table has a value to show for each drawn arrow.
+  Each force-action mirrors its arrow's own gate: Heading always draws (diagram-output
+  only); Flanking and Backing additionally require wind_and_slope_alignment_mode == \"0\"
+  AND the Heading/Backing/Flanking direction mode — the same gate as Direction of
+  Flanking/Backing (which draw those arrows). So each output is enabled iff its arrow is
+  drawn, and the summary table's enabled+computed intersection omits it otherwise.
+  Idempotent: prior copies of these named actions are retracted (component conditionals
+  cascade) before re-adding."
+  [db]
+  (let [fs-cond    {:conditional/group-variable-uuid (sm/t-key->uuid db "behaveplus:surface:output:size:surface___fire_size:fire-shape-diagram")
+                    :conditional/type                :group-variable
+                    :conditional/operator            :equal
+                    :conditional/values              #{"true"}}
+        align-cond {:conditional/group-variable-uuid (sm/t-key->uuid db "behaveplus:surface:input:wind_speed:wind_and_slope_are:wind_and_slope_alignment_mode")
+                    :conditional/type                :group-variable
+                    :conditional/operator            :equal
+                    :conditional/values              #{"0"}}
+        hbf-cond   {:conditional/group-variable-uuid (sm/t-key->uuid db "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading_backing_flanking")
+                    :conditional/type                :group-variable
+                    :conditional/operator            :equal
+                    :conditional/values              #{"true"}}
+        specs      [["behaveplus:surface:output:size:surface___fire_size:heading-spread-distance"
+                     "fire-shape-diagram: force heading spread distance"  #{fs-cond}]
+                    ["behaveplus:surface:output:size:surface___fire_size:flanking-spread-distance"
+                     "fire-shape-diagram: force flanking spread distance" #{fs-cond align-cond hbf-cond}]
+                    ["behaveplus:surface:output:size:surface___fire_size:backing-spread-distance"
+                     "fire-shape-diagram: force backing spread distance"  #{fs-cond align-cond hbf-cond}]]]
+    (concat
+     ;; idempotency: drop any previously-added action with our marker name
+     (for [[k action-name _] specs
+           a-eid             (d/q '[:find [?a ...] :in $ ?gv ?name
+                                    :where
+                                    [?gv :group-variable/actions ?a]
+                                    [?a :action/name ?name]]
+                                  db (sm/t-key->eid db k) action-name)]
+       [:db.fn/retractEntity a-eid])
+     ;; add the fresh force-enable actions
+     (for [[k action-name conds] specs]
+       {:db/id                  (sm/t-key->eid db k)
+        :group-variable/actions [{:action/name                  action-name
+                                  :action/type                  :select
+                                  :action/conditionals-operator :and
+                                  :action/conditionals          conds}]}))))
 
 ;; ===========================================================================================================
 ;; Payload
@@ -75,7 +110,10 @@
        :diagram/output-group-variables
        [(sm/t-key->eid db "behaveplus:surface:output:fire_behavior:surface_fire:direction_of_heading")
         (sm/t-key->eid db "behaveplus:surface:output:fire_behavior:surface_fire:direction_of_flanking")
-        (sm/t-key->eid db "behaveplus:surface:output:fire_behavior:surface_fire:direction_of_backing")]
+        (sm/t-key->eid db "behaveplus:surface:output:fire_behavior:surface_fire:direction_of_backing")
+        (sm/t-key->eid db "behaveplus:surface:output:size:surface___fire_size:heading-spread-distance")
+        (sm/t-key->eid db "behaveplus:surface:output:size:surface___fire_size:flanking-spread-distance")
+        (sm/t-key->eid db "behaveplus:surface:output:size:surface___fire_size:backing-spread-distance")]
        :diagram/input-group-variables
        [(sm/t-key->eid db "behaveplus:surface:input:wind_speed:wind-direction:wind-direction-degrees")
         (sm/t-key->eid db "behaveplus:surface:input:wind_speed:wind_and_slope_are:wind-direction:wind-direction-degrees")]
@@ -84,7 +122,7 @@
        :diagram/hide-axis-numbers?                    true}]
 
      ;; (3) y-axis end labels + renamed legend labels (create-if-absent / update-if-present).
-     (upsert-translations
+     (sm/upsert-translations
       db "en-US"
       {"behaveplus:surface:diagrams:fire-shape:y-axis-positive-label"        "Upslope"
        "behaveplus:surface:diagrams:fire-shape:y-axis-negative-label"        "Downslope"
@@ -95,7 +133,11 @@
        "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"    "Backing Fire"
        "behaveplus:diagram:surface_fire_shape:legend_id:slope"               "Slope Vector"
        "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread" "Surface Fire Spread"
-       "behaveplus:diagram:surface_fire_shape:legend_id:wind"                "Wind Vector"}))))
+       "behaveplus:diagram:surface_fire_shape:legend_id:wind"                "Wind Vector"})
+
+     ;; (4) Force the directional Spread Distance outputs to compute when the diagram is
+     ;; an output, so the summary table can show a value for each drawn arrow.
+     (spread-distance-force-actions db))))
 
 ;; ===========================================================================================================
 ;; Manual REPL usage

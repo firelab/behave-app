@@ -102,6 +102,11 @@
        :doc      "Creates a payload to update existing translations for specific language shortcode. Accepts a Datomic conn or db."}
   update-translations-payload c/update-translations-payload)
 
+(def ^{:arglists '([db language-shortcode t-key->translation-map])
+       :doc      "Update existing translations (by language-shortcode) and create any that don't exist yet.
+                  Idempotent create-if-absent / update-if-present. Accepts a Datomic conn or db."}
+  upsert-translations c/upsert-translations)
+
 (def ^{:arglists '([db t-key])
        :doc      "Removes an entity's (and it's components) translation keys. Accepts a Datomic conn or db."}
   remove-nested-i18ns-tx c/remove-nested-i18ns-tx)

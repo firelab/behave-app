@@ -263,6 +263,12 @@
         ;; arrows (contain) keep ellipses-before-scatter, unchanged.
         spec          (as-> base-schema $
                         (reduce (fn [acc arrow] (add-arrow acc arrow)) $ arrows)
+                        ;; Reverse only the arrow layers so an arrow that appears earlier in the
+                        ;; legend draws on top of a later one (e.g. Surface Fire Spread above
+                        ;; Heading Fire). The color-scale :domain — and thus the legend order —
+                        ;; is left untouched. This was done specificially for the Fire Shape Diagram
+                        ;; If other diagrams where layers need specific order rules, this will need to be reworked.
+                        (update $ :layer (comp vec reverse))
                         (reduce (fn [acc ellipse] (add-ellipse acc ellipse)) $ ellipses)
                         (reduce (fn [acc scatter-plot] (add-scatter-plot acc scatter-plot)) $ scatter-plots))
         ;; The legend-bound selection must live on a SINGLE layer: a top-level param in a
