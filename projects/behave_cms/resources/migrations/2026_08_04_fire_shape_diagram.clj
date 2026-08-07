@@ -116,7 +116,11 @@
         (sm/t-key->eid db "behaveplus:surface:output:size:surface___fire_size:backing-spread-distance")]
        :diagram/input-group-variables
        [(sm/t-key->eid db "behaveplus:surface:input:wind_speed:wind-direction:wind-direction-degrees")
-        (sm/t-key->eid db "behaveplus:surface:input:wind_speed:wind_and_slope_are:wind-direction:wind-direction-degrees")]
+        (sm/t-key->eid db "behaveplus:surface:input:wind_speed:wind_and_slope_are:wind-direction:wind-direction-degrees")
+        (sm/t-key->eid db "behaveplus:surface:input:wind_speed:wind_speed:wind_speed")
+        (sm/t-key->eid db "behaveplus:surface:input:wind_speed:10_meter_wind_speed:10_meter_wind_speed")
+        (sm/t-key->eid db "behaveplus:surface:input:wind_speed:midflame-wind-speed:midflame-eye-level-wind-speed")
+        (sm/t-key->eid db "behaveplus:surface:input:size:slope:slope")]
        :diagram/y-axis-positive-label-translation-key "behaveplus:surface:diagrams:fire-shape:y-axis-positive-label"
        :diagram/y-axis-negative-label-translation-key "behaveplus:surface:diagrams:fire-shape:y-axis-negative-label"
        :diagram/hide-axis-numbers?                    true}]
