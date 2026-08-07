@@ -106,80 +106,103 @@
                            scatter-plots       :worksheet.diagram/scatter-plots
                            group-variable-uuid :worksheet.diagram/group-variable-uuid}]
 
-  (let [scatter-plot-legacy? (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.5"))
-        cms-diagram          @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
-        title                (if-let [tk (:diagram/title-translation-key cms-diagram)]
-                               @(<t tk)
-                               (:diagram/title cms-diagram))
-        x-units-uuid         (:diagram/x-units-uuid cms-diagram)
-        y-units-uuid         (:diagram/y-units-uuid cms-diagram)
-        x-axis-title         (if-let [tk (:diagram/x-axis-title-translation-key cms-diagram)]
-                               @(<t tk)
-                               (:diagram/x-axis-title cms-diagram))
-        y-axis-title         (if-let [tk (:diagram/y-axis-title-translation-key cms-diagram)]
-                               @(<t tk)
-                               (:diagram/y-axis-title cms-diagram))
-        show-q1?             (get cms-diagram :diagram/show-quadrant-1? true)
-        show-q2?             (get cms-diagram :diagram/show-quadrant-2? true)
-        show-q3?             (get cms-diagram :diagram/show-quadrant-3? true)
-        show-q4?             (get cms-diagram :diagram/show-quadrant-4? true)
-        connect-points?      (:diagram/connect-points? cms-diagram)
-        x-units-short-code   (when x-units-uuid @(subscribe [:vms/units-uuid->short-code x-units-uuid]))
-        y-units-short-code   (when y-units-uuid @(subscribe [:vms/units-uuid->short-code y-units-uuid]))
+  (let [scatter-plot-legacy?     (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.5"))
+        cms-diagram              @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
+        title                    (if-let [tk (:diagram/title-translation-key cms-diagram)]
+                                   @(<t tk)
+                                   (:diagram/title cms-diagram))
+        x-units-uuid             (:diagram/x-units-uuid cms-diagram)
+        y-units-uuid             (:diagram/y-units-uuid cms-diagram)
+        x-axis-title             (if-let [tk (:diagram/x-axis-title-translation-key cms-diagram)]
+                                   @(<t tk)
+                                   (:diagram/x-axis-title cms-diagram))
+        y-axis-title             (if-let [tk (:diagram/y-axis-title-translation-key cms-diagram)]
+                                   @(<t tk)
+                                   (:diagram/y-axis-title cms-diagram))
+        y-axis-pos-label         (if-let [tk (:diagram/y-axis-positive-label-translation-key cms-diagram)]
+                                   @(<t tk)
+                                   (:diagram/y-axis-positive-label cms-diagram))
+        y-axis-neg-label         (if-let [tk (:diagram/y-axis-negative-label-translation-key cms-diagram)]
+                                   @(<t tk)
+                                   (:diagram/y-axis-negative-label cms-diagram))
+        show-q1?                 (get cms-diagram :diagram/show-quadrant-1? true)
+        show-q2?                 (get cms-diagram :diagram/show-quadrant-2? true)
+        show-q3?                 (get cms-diagram :diagram/show-quadrant-3? true)
+        show-q4?                 (get cms-diagram :diagram/show-quadrant-4? true)
+        connect-points?          (:diagram/connect-points? cms-diagram)
+        hide-axis-numbers?       (:diagram/hide-axis-numbers? cms-diagram)
+        x-units-short-code       (when x-units-uuid @(subscribe [:vms/units-uuid->short-code x-units-uuid]))
+        y-units-short-code       (when y-units-uuid @(subscribe [:vms/units-uuid->short-code y-units-uuid]))
         {:keys [x-domain
-                y-domain]}   (compute-domains {:ellipses      ellipses
-                                               :arrows        arrows
-                                               :scatter-plots scatter-plots
-                                               :show-q1?      show-q1?
-                                               :show-q2?      show-q2?
-                                               :show-q3?      show-q3?
-                                               :show-q4?      show-q4?})]
+                y-domain]}       (compute-domains {:ellipses      ellipses
+                                                   :arrows        arrows
+                                                   :scatter-plots scatter-plots
+                                                   :show-q1?      show-q1?
+                                                   :show-q2?      show-q2?
+                                                   :show-q3?      show-q3?
+                                                   :show-q4?      show-q4?})
+        ;; Series (by translated legend label) that should start hidden/grayed in the
+        ;; legend — any arrow flagged :arrow/default-visible? false (e.g. flanking).
+        hidden-by-default-series (into #{}
+                                       (comp (filter #(false? (:arrow/default-visible? %)))
+                                             (map (fn [a] @(<t (:arrow/legend-id a)))))
+                                       arrows)]
     [:div.diagram
-     [output-diagram {:title         (build-title ws-uuid title row-id)
-                      :width         500
-                      :height        500
-                      :x-axis        {:domain        x-domain
-                                      :units         x-units-short-code
-                                      :title         (or x-axis-title "x")
-                                      :tick-min-step 5}
-                      :y-axis        {:domain        y-domain
-                                      :title         (or y-axis-title "y")
-                                      :units         y-units-short-code
-                                      :tick-min-step 5}
-                      :ellipses      (mapv #(-> (rename-keys (into {} %)
-                                                             {:ellipse/legend-id       :legend-id
-                                                              :ellipse/semi-major-axis :a
-                                                              :ellipse/semi-minor-axis :b
-                                                              :ellipse/rotation        :phi
-                                                              :ellipse/color           :color})
-                                                (update :legend-id (fn [k] @(<t k))))
-                                           ellipses)
-                      :arrows        (mapv #(-> (rename-keys (into {} %)
-                                                             {:arrow/legend-id :legend-id
-                                                              :arrow/length    :r
-                                                              :arrow/rotation  :theta
-                                                              :arrow/color     :color
-                                                              :arrow/dashed?   :dashed?})
-                                                (update :legend-id (fn [k] @(<t k))))
-                                           arrows)
-                      :scatter-plots (mapv (fn [{legend-id     :scatter-plot/legend-id
-                                                 x-coordinates :scatter-plot/x-coordinates
-                                                 y-coordinates :scatter-plot/y-coordinates
-                                                 color         :scatter-plot/color}]
-                                             (let [x-doubles (map double (str/split x-coordinates ","))
-                                                   y-doubles (map double (str/split y-coordinates ","))]
-                                               {:legend-id @(<t legend-id)
-                                                :color     color
-                                                :connect?  connect-points?
-                                                :data      (let [pts (mapv (fn [x y] {"x" x "y" y})
-                                                                           x-doubles
-                                                                           y-doubles)]
-                                                             (if scatter-plot-legacy?
-                                                               (into pts (mapv (fn [x y] {"x" x "y" (* -1 y)})
-                                                                               x-doubles
-                                                                               y-doubles))
-                                                               pts))}))
-                                           scatter-plots)}]
+     [output-diagram {:title                    (build-title ws-uuid title row-id)
+                      :width                    500
+                      :height                   500
+                      :hide-axis-numbers?       hide-axis-numbers?
+                      :x-axis                   {:domain        x-domain
+                                                 :units         x-units-short-code
+                                                 :title         (or x-axis-title "x")
+                                                 :tick-min-step 5}
+                      :y-axis                   {:domain        y-domain
+                                                 :title         (or y-axis-title "y")
+                                                 :units         y-units-short-code
+                                                 :tick-min-step 5
+                                      ;; Optional directional end-labels sourced from the diagram
+                                      ;; entity (e.g. Upslope/Downslope on Fire Shape). nil → none.
+                                                 :pos-label     y-axis-pos-label
+                                                 :neg-label     y-axis-neg-label}
+                      :ellipses                 (mapv #(-> (rename-keys (into {} %)
+                                                                        {:ellipse/legend-id              :legend-id
+                                                                         :ellipse/semi-major-axis        :a
+                                                                         :ellipse/semi-minor-axis        :b
+                                                                         :ellipse/rotation               :phi
+                                                                         :ellipse/center-offset-distance :center-offset-distance
+                                                                         :ellipse/dashed?                :dashed?
+                                                                         :ellipse/color                  :color})
+                                                           (update :legend-id (fn [k] @(<t k))))
+                                                      ellipses)
+                      :arrows                   (mapv #(-> (rename-keys (into {} %)
+                                                                        {:arrow/legend-id       :legend-id
+                                                                         :arrow/length          :r
+                                                                         :arrow/rotation        :theta
+                                                                         :arrow/offset-distance :offset-distance
+                                                                         :arrow/offset-rotation :offset-rotation
+                                                                         :arrow/color           :color
+                                                                         :arrow/dashed?         :dashed?})
+                                                           (update :legend-id (fn [k] @(<t k))))
+                                                      arrows)
+                      :scatter-plots            (mapv (fn [{legend-id     :scatter-plot/legend-id
+                                                            x-coordinates :scatter-plot/x-coordinates
+                                                            y-coordinates :scatter-plot/y-coordinates
+                                                            color         :scatter-plot/color}]
+                                                        (let [x-doubles (map double (str/split x-coordinates ","))
+                                                              y-doubles (map double (str/split y-coordinates ","))]
+                                                          {:legend-id @(<t legend-id)
+                                                           :color     color
+                                                           :connect?  connect-points?
+                                                           :data      (let [pts (mapv (fn [x y] {"x" x "y" y})
+                                                                                      x-doubles
+                                                                                      y-doubles)]
+                                                                        (if scatter-plot-legacy?
+                                                                          (into pts (mapv (fn [x y] {"x" x "y" (* -1 y)})
+                                                                                          x-doubles
+                                                                                          y-doubles))
+                                                                          pts))}))
+                                                      scatter-plots)
+                      :hidden-by-default-series hidden-by-default-series}]
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 
 (defn result-diagrams

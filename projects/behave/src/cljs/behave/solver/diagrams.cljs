@@ -1,9 +1,10 @@
 (ns behave.solver.diagrams
-  (:require [behave.lib.contain :as contain]
-            [behave.lib.enums   :as enums]
-            [behave.lib.surface :as surface]
-            [clojure.string     :as str]
-            [re-frame.core      :as rf]))
+  (:require [behave.lib.contain    :as contain]
+            [behave.lib.enums      :as enums]
+            [behave.lib.surface    :as surface]
+            [behave.solver.queries :as q]
+            [clojure.string        :as str]
+            [re-frame.core         :as rf]))
 
 (defmulti build-event-vector
   "Builds an re-frame event vector to store a diagram's solver outputs, dispatched on `:diagram/type`."
@@ -46,8 +47,12 @@
           (str/join ","))]))
 
 (defmethod build-event-vector :fire-shape
-  [{:keys [ws-uuid row-id diagram module]}]
-  (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
+  [{:keys [ws-uuid row-id diagram module all-outputs]}]
+  (let [gv-uuid           (get-in diagram [:diagram/group-variable :bp/uuid])
+        elapsed-time-h    (surface/getElapsedTime module (enums/time-units "Hours"))
+        output-set        (set all-outputs)
+        flanking-enabled? (contains? output-set (q/output-gv-uuid "Direction of Flanking"))
+        backing-enabled?  (contains? output-set (q/output-gv-uuid "Direction of Backing"))]
     [:worksheet/add-surface-fire-shape-diagram
      ws-uuid
      gv-uuid
@@ -55,31 +60,17 @@
      (surface/getEllipticalA module (enums/length-units "Chains"))
      (surface/getEllipticalB module (enums/length-units "Chains"))
      (surface/getDirectionOfMaxSpread module)
+     (* (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
+        elapsed-time-h)
      (surface/getWindDirection module)
-     (surface/getWindSpeed module
-                           (enums/speed-units "ChainsPerHour")
-                           (surface/getWindHeightInputMode module))
-     (surface/getElapsedTime module (enums/time-units "Hours"))]))
-
-(defmethod build-event-vector :wind-slope-spread-direction
-  [{:keys [ws-uuid row-id diagram module]}]
-  (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
-    [:worksheet/add-wind-slope-spread-direction-diagram
-     ws-uuid
-     gv-uuid
-     row-id
-     (surface/getDirectionOfMaxSpread module)
-     (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
-     (= (surface/getSurfaceRunInDirectionOf module) (enums/surface-run-in-direction-of "DirectionOfInterest"))
-     (surface/getDirectionOfInterest module)
-     (surface/getSpreadRateInDirectionOfInterest module (enums/speed-units "ChainsPerHour"))
      (surface/getDirectionOfFlanking module)
-     (surface/getFlankingSpreadRate module (enums/speed-units "ChainsPerHour"))
+     (* (surface/getFlankingSpreadRate module (enums/speed-units "ChainsPerHour"))
+        elapsed-time-h)
      (surface/getDirectionOfBacking module)
-     (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
-     (surface/getWindDirection module)
-     (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
-                           (surface/getWindHeightInputMode module))]))
+     (* (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
+        elapsed-time-h)
+     flanking-enabled?
+     backing-enabled?]))
 
 (defn store-all-diagrams!
   "Dispatches store events for every diagram whose group-variable is an active worksheet output."
@@ -88,7 +79,8 @@
     (doseq [diagram diagrams]
       (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
         (when (some #{group-variable-uuid} all-outputs)
-          (rf/dispatch (build-event-vector {:ws-uuid ws-uuid
-                                            :diagram diagram
-                                            :row-id  row-id
-                                            :module  module})))))))
+          (rf/dispatch (build-event-vector {:ws-uuid     ws-uuid
+                                            :diagram     diagram
+                                            :row-id      row-id
+                                            :module      module
+                                            :all-outputs all-outputs})))))))

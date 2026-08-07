@@ -1,19 +1,19 @@
 (ns behave.solver.core
-  (:require [behave.solver.diagrams   :refer [store-all-diagrams!]]
+  (:require [behave.lib.contain       :as contain]
+            [behave.lib.crown         :as crown]
+            [behave.lib.ignite        :as ignite]
+            [behave.lib.mortality     :as mortality]
+            [behave.lib.spot          :as spot]
+            [behave.lib.surface       :as surface]
+            [behave.logger            :refer [log]]
+            [behave.solver.diagrams   :refer [store-all-diagrams!]]
             [behave.solver.generators :refer [generate-runs inputs-map-to-vector]]
             [behave.solver.queries    :as q]
             [behave.solver.table      :as t]
-            [behave.lib.contain       :as contain]
-            [behave.lib.crown         :as crown]
-            [behave.lib.mortality     :as mortality]
-            [behave.lib.surface       :as surface]
-            [behave.lib.spot          :as spot]
-            [behave.lib.ignite        :as ignite]
-            [behave.logger            :refer [log]]
-            [clojure.string           :as str]
             [clojure.set              :as set]
-            [re-frame.core            :as rf]
-            [map-utils.interface      :refer [index-by]]))
+            [clojure.string           :as str]
+            [map-utils.interface      :refer [index-by]]
+            [re-frame.core            :as rf]))
 
 ;;; Helpers
 
@@ -61,20 +61,20 @@
         _               (log-solver [:FN-ID fn-id] [:MULTI-PARAMS params])
 
                                         ; Step 2 - Match the parameters to group inputs/units
-        fn-args (map-indexed (fn [idx [param-id _ param-type]]
-                               (if (is-unit? param-type)
+        fn-args         (map-indexed (fn [idx [param-id _ param-type]]
+                                       (if (is-unit? param-type)
                                  ;; Retrieve previous parameter's units
-                                 (let [[param-id]    (nth params (dec idx))
-                                       gv-uuid       (q/parameter->group-variable param-id)
-                                       [_ unit-uuid] (get repeat-group gv-uuid)
-                                       unit          (q/unit-uuid->enum-value unit-uuid)]
-                                   (log-solver [:MULTI-UNITS gv-uuid unit])
-                                   unit)
-                                 (let [gv-uuid   (q/parameter->group-variable param-id)
-                                       [value _] (get repeat-group gv-uuid)]
-                                   (log-solver [:MULTI-VALUE gv-uuid value])
-                                   (q/parsed-value gv-uuid value))))
-                             params)]
+                                         (let [[param-id]    (nth params (dec idx))
+                                               gv-uuid       (q/parameter->group-variable param-id)
+                                               [_ unit-uuid] (get repeat-group gv-uuid)
+                                               unit          (q/unit-uuid->enum-value unit-uuid)]
+                                           (log-solver [:MULTI-UNITS gv-uuid unit])
+                                           unit)
+                                         (let [gv-uuid   (q/parameter->group-variable param-id)
+                                               [value _] (get repeat-group gv-uuid)]
+                                           (log-solver [:MULTI-VALUE gv-uuid value])
+                                           (q/parsed-value gv-uuid value))))
+                                     params)]
 
     (log-solver [:MULTI-INPUT fn-name fn-args])
 
@@ -203,10 +203,10 @@
                           destination-links
                           diagrams
                           ws-uuid]}]
-  (let [module (init-fn)
+  (let [module         (init-fn)
         ;; Apply links
-        inputs (apply-output-links outputs inputs destination-links)
-        inputs (apply-input-links inputs destination-links)
+        inputs         (apply-output-links outputs inputs destination-links)
+        inputs         (apply-input-links inputs destination-links)
 
         ;; Filter IO's for module
         module-inputs  (filter-module-inputs inputs gv-uuids)
@@ -220,7 +220,7 @@
     ;; Run module
     (run-fn module)
 
-    ;; Store diagrams
+;; Store diagrams
     (store-all-diagrams! {:ws-uuid  ws-uuid
                           :row-id   row-id
                           :diagrams diagrams
@@ -249,7 +249,7 @@
          (t/add-to-results-table ws-uuid))))
 
   ([ws-uuid modules all-inputs all-outputs]
-   (let [counter (atom 0)
+   (let [counter                                                     (atom 0)
          surface-module
          (-> {:init-fn  surface/init
               :run-fn   surface/doSurfaceRun

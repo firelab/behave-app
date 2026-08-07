@@ -1,5 +1,5 @@
 (ns behave-cms.components.entity-form
-  (:require [behave-cms.components.common                  :refer [dropdown btn-sm]]
+  (:require [behave-cms.components.common                  :refer [dropdown btn-sm simple-table]]
             [behave-cms.components.conditionals.views      :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
             [behave-cms.components.translations            :refer [all-translations]]
@@ -413,6 +413,40 @@
          [conditionals-graph entity-id entity-id field-key cond-op-attr]]
         [:div.col-3
          [manage-conditionals entity-id field-key]]]])))
+
+;; Manages a cardinality-many ref to group-variables (e.g.
+;; :diagram/output-group-variables) as a table with Add/Delete. Adds/removes are
+;; transacted immediately against the entity (mirrors the conditionals
+;; :conditional/values editor); the entity must already exist.
+(defmethod field-input :group-variables
+  [{:keys [label field-key app-id state-path original]}]
+  (r/with-let [show-selector? (r/atom false)]
+    (let [entity-id (:db/id original)]
+      (if-not entity-id
+        [:div.mb-3
+         (when label [:label.form-label label])
+         [:p.text-muted "Save the diagram first to add group variables."]]
+        (let [gv-refs (get @(rf/subscribe [:entity entity-id]) field-key)
+              rows    (mapv (fn [{gv-eid :db/id}]
+                              {:db/id         gv-eid
+                               :variable/name @(rf/subscribe [:gv-eid->variable-name gv-eid])})
+                            gv-refs)]
+          [:div.mb-3
+           [simple-table
+            [:variable/name]
+            rows
+            {:caption       label
+             :add-entity-fn #(reset! show-selector? true)
+             :on-delete     (fn [{gv-eid :db/id}]
+                              (rf/dispatch [:ds/transact [[:db/retract entity-id field-key gv-eid]]]))}]
+           (when @show-selector?
+             [group-variable-selector
+              {:app-id     app-id
+               :state-path (conj state-path :gv-multi-lookup field-key)
+               :title      label
+               :on-submit  (fn [gv-eid]
+                             (rf/dispatch [:ds/transact [[:db/add entity-id field-key gv-eid]]])
+                             (reset! show-selector? false))}])])))))
 
 ;;; Public Fns
 
