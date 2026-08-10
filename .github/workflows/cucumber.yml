@@ -1,4 +1,4 @@
-name: cucumber
+name: cucumber (manual dispatch)
 
 on:
   workflow_dispatch:
@@ -25,73 +25,9 @@ on:
 
 jobs:
   cucumber:
-    runs-on: ubuntu-latest
-    timeout-minutes: 360  # GitHub-hosted runner max (6h); jobs beyond this are auto-canceled
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - uses: DeLaGuardo/setup-clojure@13.0
-        with:
-          cli: latest        # clojure CLI
-          bb: latest         # babashka
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            ~/.gitlibs
-          key: cljdeps-${{ hashFiles('deps.edn', 'projects/behave/deps.edn') }}
-          restore-keys: cljdeps-
-
-      # Install Chrome only. We deliberately do NOT install/pin chromedriver here — setup-chrome's
-      # "stable" chromedriver can drift a major version ahead of the browser (SessionNotCreated).
-      # Selenium Manager (bundled in Selenium 4.23) downloads the matching driver at runtime.
-      - uses: browser-actions/setup-chrome@v1
-        id: chrome
-        with:
-          chrome-version: stable
-
-      # Prefetch deps so the run is compile-only (all three classpaths the sharded run uses:
-      # driver, per-shard server, and the advanced CLJS compile).
-      - name: Prefetch deps
-        run: |
-          clojure -P -M:dev:behave/cms
-          clojure -P -M:dev:behave/app
-          (cd projects/behave && clojure -P -M:compile-cljs)
-
-      # Compiles the advanced CLJS build once, starts N isolated app servers (own port + DB
-      # each), splits features across them, runs N headless Chrome drivers in parallel, then
-      # merges + tears everything down. Non-zero exit fails the job. Inputs are read via env
-      # to avoid ${{ }} script injection.
-      - name: Run cucumber suite (sharded, headless, fresh DBs)
-        env:
-          # No CHROMEDRIVER_PATH — Selenium Manager auto-resolves a driver matching CHROME_BIN.
-          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
-          SCOPE: ${{ inputs.scope }}
-          FEATURES_DIR: ${{ inputs.features_dir }}
-          SERVE_TIMEOUT: ${{ inputs.serve_timeout }}
-          SHARDS: ${{ inputs.shards }}
-        run: |
-          case "$SCOPE" in
-            all) QUERY='(or "core" "extended")' ;;
-            *)   QUERY='(and "core" (not "extended"))' ;;
-          esac
-          bb cucumber:ci \
-            --headless \
-            --shards "$SHARDS" \
-            --query "$QUERY" \
-            --features-dir "$FEATURES_DIR" \
-            --serve-timeout "$SERVE_TIMEOUT"
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: cucumber-results
-          path: |
-            logs/cucumber/**
-          if-no-files-found: ignore
+    uses: ./.github/workflows/cucumber-run.yml
+    with:
+      scope: ${{ inputs.scope }}
+      features_dir: ${{ inputs.features_dir }}
+      serve_timeout: ${{ inputs.serve_timeout }}
+      shards: ${{ inputs.shards }}
