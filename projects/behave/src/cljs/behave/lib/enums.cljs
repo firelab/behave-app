@@ -193,7 +193,7 @@
   (enum "HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum"
         ["HeatPerUnitAreaUnits::BtusPerSquareFoot"
          "HeatPerUnitAreaUnits::KilojoulesPerSquareMeter"
-         "HeatPerUnitAreaUnits::KilowattsPerSquareMeterPerSecond"]))
+         "HeatPerUnitAreaUnits::KilowattSecondsPerSquareMeter"]))
 
 (def ignition-fuel-bed-type
   (enum "IgnitionFuelBedType_IgnitionFuelBedTypeEnum"
@@ -336,7 +336,8 @@
          "SpeedUnits::MetersPerMinute"
          "SpeedUnits::MetersPerHour"
          "SpeedUnits::MilesPerHour"
-         "SpeedUnits::KilometersPerHour"]))
+         "SpeedUnits::KilometersPerHour"
+         "SpeedUnits::FurlongsPerFortnight"]))
 
 (def spot-array-constants
   (enum "SpotArrayConstants_SpotArrayConstantsEnum"
@@ -378,7 +379,7 @@
         ["SurfaceAreaToVolumeUnits::SquareFeetOverCubicFeet"
          "SurfaceAreaToVolumeUnits::SquareMetersOverCubicMeters"
          "SurfaceAreaToVolumeUnits::SquareInchesOverCubicInches"
-         "SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimers"]))
+         "SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimeters"]))
 
 (def surface-fire-spread-direction-mode
   (enum "SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum"
@@ -395,7 +396,9 @@
   (enum "TimeUnits_TimeUnitsEnum"
         ["TimeUnits::Minutes"
          "TimeUnits::Seconds"
-         "TimeUnits::Hours"]))
+         "TimeUnits::Hours"
+         "TimeUnits::Days"
+         "TimeUnits::Years"]))
 
 (def two-fuel-models-method
   (enum "TwoFuelModelsMethod_TwoFuelModelsMethodEnum"

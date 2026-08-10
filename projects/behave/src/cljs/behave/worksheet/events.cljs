@@ -85,6 +85,14 @@
            (< normalized 7)   5
            :else              10)))))
 
+(defn default-y-axis-max
+  "Obtain a rounded max Y axis value for Graph Settings."
+  [max-val]
+  (let [y-max (+ max-val (nice-step-size max-val))]
+    (if (< y-max 1)
+      (/ (Math/ceil (* y-max 10)) 10)
+      (Math/ceil y-max))))
+
 ;;; Events
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
@@ -441,9 +449,7 @@
                   (let [[_min-to-use max-to-use] (if-let [direcitonal-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
                                                    (get output-min-max-values direcitonal-parent-uuid)
                                                    [min-val max-val])
-                        ;; FIX: BHP1-1532 - do not clip max values
-                        step                     (nice-step-size max-to-use)
-                        y-max                    (+ max-to-use step)]
+                        y-max                    (default-y-axis-max max-to-use)]
                     (-> acc
                         (conj [:dispatch [:worksheet/update-y-axis-limit-attr
                                           ws-uuid

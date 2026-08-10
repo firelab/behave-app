@@ -2,7 +2,7 @@
   (:require
    [behave.fixtures :as fx]
    [behave.test-utils :as utils]
-   [behave.worksheet.events]
+   [behave.worksheet.events :as events]
    [behave.worksheet.subs]
    [cljs.test :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
    [datascript.core :as d]
@@ -382,3 +382,19 @@
 ;; =================================================================================================
 ;; :worksheet/update-furthest-visited-step
 ;; =================================================================================================
+
+;; =================================================================================================
+;; default-y-axis-max
+;; =================================================================================================
+
+(deftest default-y-axis-max-test
+  (testing "rounds up to the next whole number above 1 [BHP1-1615]"
+    (are [max-val expected] (= expected (events/default-y-axis-max max-val))
+      8.79 10
+      10.4 12
+      0    1))
+  (testing "rounds up to the next tenth below 1"
+    (is (= 0.5 (events/default-y-axis-max 0.43))))
+  (testing "never clips below max + nice step [BHP1-1532]"
+    (doseq [max-val [0.2 0.9 1.1 8.79 47.9 163.4]]
+      (is (> (events/default-y-axis-max max-val) max-val)))))

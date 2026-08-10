@@ -1,30 +1,31 @@
 (ns behave.components.settings-form.views
   (:require [behave.components.core :as c]
-            [dom-utils.interface    :refer [input-float-value input-int-value]]
+            [dom-utils.interface    :refer [input-value]]
             [goog.string            :as gstring]
             [goog.string.format]
             [re-frame.core          :refer [dispatch subscribe]]
             [reagent.core           :as r]))
 
 (defn- number-inputs
-  [{:keys [saved-entries on-change default-values enabled?]}]
+  [{:keys [saved-entries on-change enabled?]}]
   (map (fn [[gv-uuid saved-value row-enabled?]]
-         (let [value-atom            (r/atom saved-value)
-               show-tenth-precision? (< (get default-values gv-uuid) 1)
-               disabled?             (if (some? enabled?)
-                                       (not enabled?)
-                                       (if (some? row-enabled?)
-                                         (not row-enabled?)
-                                         false))]
-           [c/number-input (cond-> {:disabled?  disabled?
-                                    :on-change  #(let [v (if show-tenth-precision?
-                                                           (input-float-value %)
-                                                           (input-int-value %))]
-                                                   (reset! value-atom v))
-                                    :on-blur    #(on-change gv-uuid @value-atom)
-                                    :value-atom value-atom}
-                             show-tenth-precision?
-                             (assoc :step "0.1"))]))
+         (let [value-atom (r/atom (str saved-value))
+               disabled?  (if (some? enabled?)
+                            (not enabled?)
+                            (if (some? row-enabled?)
+                              (not row-enabled?)
+                              false))]
+           ;; Hold the raw string while typing so decimals — including an
+           ;; in-progress "1." — survive; coerce to a float only on blur, where
+           ;; the value is committed. `:step "any"` lets the field accept
+           ;; non-integers. (BHP1-1610)
+           [c/number-input {:disabled?  disabled?
+                            :step       "any"
+                            :on-change  #(reset! value-atom (input-value %))
+                            :on-blur    #(let [v (js/parseFloat @value-atom)]
+                                           (when-not (js/isNaN v)
+                                             (on-change gv-uuid v)))
+                            :value-atom value-atom}]))
        saved-entries))
 
 (defn settings-form

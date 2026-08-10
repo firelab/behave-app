@@ -19,7 +19,7 @@
   (let [cef?       (some? (System/getProperty "app.dir"))
         mode       (or (get-config :server :mode)
                        (if cef? "prod" "dev"))
-        jar-local? (and (= mode "prod") (not cef?))]
+        jar-local? (and (= mode "prod") cef?)]
     (merge-config! {:server {:mode mode}
                     :client {:jar-local? jar-local?}})))
 

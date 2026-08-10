@@ -2,10 +2,10 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str]
             [me.raynes.fs    :as fs])
-  (:import [java.io File OutputStream ByteArrayInputStream ByteArrayOutputStream]
-           [javax.imageio ImageIO]
-           [java.awt.image BufferedImage]
+  (:import [java.awt.image BufferedImage]
+           [java.io File OutputStream ByteArrayInputStream ByteArrayOutputStream]
            [java.util.zip ZipEntry ZipOutputStream ZipInputStream]
+           [javax.imageio ImageIO]
            [net.coobird.thumbnailator Thumbnails]))
 
 ;;; Constants
@@ -38,7 +38,7 @@
                              (.size image-max-size image-max-size)
                              (.outputQuality image-quality))
                            (.asBufferedImage))]
-    (try 
+    (try
       (if output-file
         (write-image-to-file buffered-image fmt output-file)
         (write-image buffered-image fmt output-stream))
@@ -58,7 +58,7 @@
     - `new-path`       - string which replaces the path of each file with `new-path`,
                          or a function which takes the original path and outputs a new path."
   [input-file-or-folder out-file & [{:keys [rel-path? new-path resize-images? image-max-size image-quality]
-                                     :or {image-max-size resize-max-width image-quality resize-quality}}]]
+                                     :or   {image-max-size resize-max-width image-quality resize-quality}}]]
   (with-open [zip (ZipOutputStream. (io/output-stream out-file))]
     (doseq [f (file-seq (io/file input-file-or-folder)) :when (.isFile f)]
       (.putNextEntry zip (ZipEntry. (cond
@@ -112,38 +112,48 @@
   "Returns the OS-specific location for application data."
   [org-name app-name]
   (apply io/file
-   (concat
-    (condp = (os-type)
-      :windows
-      [(System/getenv "LOCALAPPDATA")]
+         (concat
+          (condp = (os-type)
+            :windows
+            [(System/getenv "LOCALAPPDATA")]
 
-      :mac
-      [(System/getenv "HOME") "Library" "Application Support"]
+            :mac
+            [(System/getenv "HOME") "Library" "Application Support"]
 
-      :linux
-      [(System/getenv "XDG_STATE_HOME")])
-    [org-name app-name])))
+            :linux
+            [(System/getenv "XDG_STATE_HOME")])
+          [org-name app-name])))
+
+(defn- expand-path-segment
+  "Expands a single path segment, resolving leading `~`, `$HOME`,
+  `$VAR`, and `%VAR%` tokens against the environment."
+  [segment]
+  (cond
+    (str/starts-with? segment "~")
+    (str (fs/home))
+
+    (= "$HOME" segment)
+    (str (fs/home))
+
+    (str/starts-with? segment "$")
+    (or (System/getenv (subs segment 1)) segment)
+
+    (str/starts-with? segment "%")
+    (or (System/getenv (str/replace segment #"%" "")) segment)
+
+    :else
+    segment))
 
 (defn os-path
   "Translates a path in either Windows/Unix format
-  into a path compatible with the current system."
+  into a path compatible with the current system.
+
+  Expands leading `~`, `$HOME`, `$VAR`, and `%VAR%` tokens. A bare
+  Windows drive segment (e.g. `C:`) keeps its root separator so the
+  result stays absolute rather than drive-relative."
   [path]
-  (let [path (str/split path #"[/\\]")]
-    (str
-     (apply io/file 
-            (map
-             #(cond
-                (str/starts-with? % "~")
-                (fs/home)
-
-                (= "$HOME" %)
-                (fs/home)
-
-                (str/starts-with? % "$")
-                (or (System/getenv (subs % 1)) %)
-
-                (str/starts-with? % "%")
-                (or (System/getenv (str/replace % #"%" "")) %)
-
-                :else
-                %) path)))))
+  (let [segments (map expand-path-segment (str/split path #"[/\\]"))
+        segments (if (re-matches #"[A-Za-z]:" (first segments))
+                   (cons (str (first segments) File/separator) (rest segments))
+                   segments)]
+    (str (apply io/file segments))))
