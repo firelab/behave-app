@@ -2457,6 +2457,16 @@ p {
   border: 1px solid var(--medblue-2);
 }
 
+.multi-select__search {
+  padding: 0 20px 10px 20px;
+}
+
+.multi-select__no-results {
+  padding: 0 20px 15px 20px;
+  color: var(--gray-4);
+  font-style: italic;
+}
+
 
 .multi-select__color-tags__tag,
 .multi-select__option__color-tag {
