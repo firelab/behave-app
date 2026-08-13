@@ -2333,8 +2333,8 @@ p {
 
 .multi-select__options {
   overflow-y: scroll;
-  height:  230px;
-  margin-top: 10px;
+  max-height: 100px;
+  margin-top: 6px;
   margin-bottom: 7px;
   padding: 0px 12px 0px 12px;
 }
@@ -2437,8 +2437,8 @@ p {
 .multi-select__tags {
   display: flex;
   flex-direction: row;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   padding-left: 20px;
 }
 
@@ -2458,7 +2458,16 @@ p {
 }
 
 .multi-select__search {
-  padding: 0 20px 10px 20px;
+  padding: 0 20px 4px 20px;
+}
+
+.multi-select__search .input-text__input {
+  height: 28px;
+}
+
+.multi-select .multi-select__selections__body {
+  max-height: 72px;
+  overflow-y: auto;
 }
 
 .multi-select__no-results {
@@ -2478,8 +2487,8 @@ p {
 }
 
 .multi-select__color-tags {
-  padding: 10px;
-  margin: 0px 20px 15px 20px;
+  padding: 6px;
+  margin: 0px 20px 8px 20px;
   display: flex;
   flex-direction: row;
   border: 1px solid var(--darkblue-4);
@@ -2488,7 +2497,7 @@ p {
 
 .multi-select__color-tags__tag {
   margin-left: 10px;
-  padding: 10px;
+  padding: 6px;
 }
 
 /* - End Multi Select - */
