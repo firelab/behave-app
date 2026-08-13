@@ -314,17 +314,22 @@
 (reg-event-fx
  :api/reorder
  (fn [_ [_ entity all-entities order-field direction]]
-   (let [curr-order (get entity order-field)
-         sorted     (sort-by order-field all-entities)
-         next-order (condp = direction
-                      :inc (when (< curr-order (dec (count sorted)))
-                             (inc curr-order))
-                      :dec (when (> curr-order 0)
-                             (dec curr-order)))]
-     (when next-order
-       (let [swap (nth sorted next-order)]
-         {:transact [(assoc (select-keys swap [:db/id]) order-field curr-order)
-                     (assoc (select-keys entity [:db/id]) order-field next-order)]})))))
+   (let [sorted (vec (sort-by order-field all-entities))
+         pos    (first (keep-indexed
+                        (fn [i e] (when (= (:db/id e) (:db/id entity)) i))
+                        sorted))
+         target (case direction
+                  :inc (when (and pos (< pos (dec (count sorted)))) (inc pos))
+                  :dec (when (and pos (> pos 0)) (dec pos)))]
+     (when target
+       (let [swapped (assoc sorted
+                            pos    (nth sorted target)
+                            target (nth sorted pos))]
+         {:transact (vec (keep-indexed
+                          (fn [i e]
+                            (when (not= i (get e order-field))
+                              (assoc (select-keys e [:db/id]) order-field i)))
+                          swapped))})))))
 
 (reg-event-fx
  :scroll-into-view
