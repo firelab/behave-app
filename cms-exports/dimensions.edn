@@ -310,13 +310,13 @@
   :enum-name      "TemperatureUnits_TemperatureUnitsEnum"
   :dimension/units
   [#:unit{:enum-member-name "Fahrenheit"
-          :name             "Fahrenheit (oF)"
+          :name             "Fahrenheit (°F)"
           :system           :english
-          :short-code       "oF"}
+          :short-code       "°F"}
    #:unit{:enum-member-name "Celsius"
-          :name             "Celsius (oC)"
+          :name             "Celsius (°C)"
           :system           :metric
-          :short-code       "oC"}
+          :short-code       "°C"}
    #:unit{:enum-member-name "Kelvin"
           :name             "Kelvin (K)"
           :system           :metric
