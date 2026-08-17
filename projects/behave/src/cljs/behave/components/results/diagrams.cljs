@@ -58,11 +58,12 @@
                                        (filter (fn [[gv-uuid _ _]]
                                                  (contains? multi-valued-input-uuids gv-uuid)))
                                        (map (fn [[gv-uuid value unit]]
-                                              (gstring/format
-                                               "%s=%s (%s) "
-                                               @(subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
-                                               value
-                                               unit)))
+                                              (let [fmt-pattern (if unit "%s=%s (%s) " "%s=%s ")]
+                                                (gstring/format
+                                                 fmt-pattern
+                                                 @(subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                                                 value
+                                                 unit))))
                                        (apply str))]
     (if (str/blank? result)
       diagram-title
