@@ -477,7 +477,7 @@ body {
 }
 
 /* Guided options should grow 1:1 with the viewport */
-.multi-select > .multi-select__options {
+.wizard-input--guided .multi-select > .multi-select__options {
   max-height: none;
   height: calc(100vh - 900px);
   min-height: 100px;

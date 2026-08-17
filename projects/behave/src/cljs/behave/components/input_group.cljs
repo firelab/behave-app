@@ -1,12 +1,12 @@
 (ns behave.components.input-group
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [goog.string                     :as gstring]
             [behave.translate                :refer [<t bp]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
             [data-utils.core                 :refer-macros [vmap]]
             [dom-utils.interface             :refer [input-value]]
+            [goog.string                     :as gstring]
             [re-frame.core                   :as rf]
             [reagent.core                    :as r]
             [string-utils.interface          :refer [->kebab]]))
@@ -127,7 +127,7 @@
 (defmethod wizard-input :discrete [variable {:keys [ws-uuid]} group-uuid repeat-id repeat-group?]
   (r/with-let [{gv-uuid  :bp/uuid
                 help-key :group-variable/help-key
-                v-list    :variable/list} variable
+                v-list   :variable/list} variable
                selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                default-option            (rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
                disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid gv-uuid])
@@ -194,17 +194,16 @@
     (let [*disable-multi-valued-input? (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid])
           *variable-name               (rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
       [:div.wizard-input
-       {:on-click on-focus-click
+       {:class    (when workflow (str "wizard-input--" (name workflow)))
+        :on-click on-focus-click
         :on-focus on-focus-click}
        [c/multi-select-input
         (cond-> {:input-label                 @*variable-name
                  :disable-multi-valued-input? @*disable-multi-valued-input?
-                 :search                      (= workflow :standard)
                  :options                     (doall (map ->option options))}
 
           (= workflow :standard)
-          (merge {:search                        true
-                  :prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:search:prompt1")) @*variable-name)
+          (merge {:prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:search:prompt1")) @*variable-name)
                   :expand-options-button-label   (gstring/format @(<t (bp "behave-components:input:multi-select:search:expand-options-button-label")) @*variable-name)
                   :collapse-options-button-label (gstring/format @(<t (bp "behave-components:input:multi-select:search:collapse-options-button-label")) @*variable-name)})
 
@@ -261,12 +260,12 @@
 
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
   (let [{group-translation-key :group/translation-key
-         group-uuid            :bp/uuid} group
-        repeat-ids                       (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
-                                             (deref)
-                                             (sort))
-        next-repeat-id                   (or  (some->> repeat-ids seq (apply max) inc)
-                                              0)]
+         group-uuid            :bp/uuid}              group
+        repeat-ids                                    (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+                                                          (deref)
+                                                          (sort))
+        next-repeat-id                                (or  (some->> repeat-ids seq (apply max) inc)
+                                                           0)]
     [:<>
      (map-indexed
       (fn [index repeat-id]
