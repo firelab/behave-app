@@ -18,9 +18,9 @@
   Where clauses must use the format `[$ws <entity> <attr> <value>]`
   to retrieve data from the Worksheet datastore."
   [query & args]
-  (let [[find in+where] (split-with (complement #{:in :where}) query)
-        [in where]      (split-with (complement #{:where}) in+where)
-        query-after     (vec (concat find '(:in $ $ws %) (rest in) where))]
+  (let [[find-clause in+where] (split-with (complement #{:in :where}) query)
+        [in where]             (split-with (complement #{:where}) in+where)
+        query-after            (vec (concat find-clause '(:in $ $ws %) (rest in) where))]
     (apply d/q query-after @@vms-conn @@store/conn rules args)))
 
 (defn variable
