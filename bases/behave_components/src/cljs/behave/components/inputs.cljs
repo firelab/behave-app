@@ -295,7 +295,7 @@
 (defn- filter-tag-buttons
   "Tag buttons that narrow the options list. A clicked tag stays active
   until another tag is clicked or the filter is cleared."
-  [filter-tags selected-tag]
+  [filter-tags selected-tag scroll-to-top!]
   [:div.multi-select__tags
    (for [{:keys [id label]} (if (-> filter-tags (first) (:order))
                               (sort-by :order filter-tags)
@@ -306,13 +306,15 @@
                :variant   "outline-secondary"
                :size      "small"
                :selected? (= @selected-tag id)
-               :on-click  #(reset! selected-tag id)}]])
+               :on-click  #(do (reset! selected-tag id)
+                               (scroll-to-top!))}]])
    (when @selected-tag
      [:div.multi-select__tags__tag
       [button {:label    "Clear"
                :variant  "transparent-secondary"
                :size     "small"
-               :on-click #(reset! selected-tag nil)}]])])
+               :on-click #(do (reset! selected-tag nil)
+                              (scroll-to-top!))}]])])
 
 (defn- matches-search?
   "Whether an option's label contains `search`, case-insensitively."
@@ -362,7 +364,8 @@
                                            (filter #(true? (:selected? %)) options)))
                show-options? (r/atom false)
                selected-tag  (r/atom nil)
-               search        (r/atom "")]
+               search        (r/atom "")
+               options-node  (atom nil)]
     (let [visible-options (cond->> options
                             (and filter-tags @selected-tag)
                             (filter #(contains? (:tags %) @selected-tag))
@@ -371,7 +374,10 @@
                             (filter (partial matches-search? @search)))
           select-option!  (fn [opt]
                             (multi-select-on-select selections opt disable-multi-valued-input?)
-                            (reset! search ""))]
+                            (reset! search ""))
+          scroll-to-top!  (fn []
+                            (when-let [n @options-node]
+                              (set! (.-scrollTop n) 0)))]
       [:div.multi-select
        [:div.multi-select__prompt prompt1]
        (when (seq color-tags)
@@ -412,14 +418,15 @@
                      :on-change    #(reset! search (input-value %))
                      :value-atom   search}]]
        (when (and @show-options? filter-tags)
-         [filter-tag-buttons filter-tags selected-tag])
+         [filter-tag-buttons filter-tags selected-tag scroll-to-top!])
        (when (and (seq @search) (empty? visible-options))
          [no-results-message])
        (when (or (seq @search) @show-options?)
          ;; --searching enables the first-option highlight that previews
          ;; what pressing Enter will select
          [:div {:class ["multi-select__options"
-                        (when (seq @search) "multi-select__options--searching")]}
+                        (when (seq @search) "multi-select__options--searching")]
+                :ref   #(reset! options-node %)}
           (doall
            (for [{:keys [label color-tag] :as opt} visible-options]
              ^{:key label}
