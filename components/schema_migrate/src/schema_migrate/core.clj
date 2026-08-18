@@ -339,6 +339,19 @@
            {:db/id                   (query-translation-eid language-eid t-key)
             :translation/translation translation}) translation-map)))
 
+(defn- translation-exists?
+  "True when a translation entity already exists for `t-key`. Accepts a Datomic conn or db."
+  [db t-key]
+  (boolean (d/q '[:find ?e . :in $ ?k :where [?e :translation/key ?k]] (ds/unwrap-db db) t-key)))
+
+(defn upsert-translations
+  "Update existing translations (by shortcode) and create any that don't exist yet.
+   Idempotent create-if-absent / update-if-present. Accepts a Datomic conn or db."
+  [db language-shortcode t-key->translation-map]
+  (let [{to-update true to-create false} (group-by (comp #(translation-exists? db %) key) t-key->translation-map)]
+    (concat (when (seq to-create) (build-translations-payload db (into {} to-create)))
+            (when (seq to-update) (update-translations-payload db language-shortcode (into {} to-update))))))
+
 (defn remove-nested-i18ns-tx
   "Removes an entity (and it's components), along with all nested
    translation keys. Accepts a Datomic conn or db."

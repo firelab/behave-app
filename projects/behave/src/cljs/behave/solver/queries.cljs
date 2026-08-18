@@ -1,9 +1,9 @@
 (ns behave.solver.queries
-  (:require [datascript.core    :as d]
+  (:require [behave.schema.core   :refer [rules]]
+            [behave.store         :as store]
+            [behave.vms.store     :refer [vms-conn]]
             [data-utils.interface :refer [is-digit? parse-int parse-float]]
-            [behave.store        :as store]
-            [behave.schema.core  :refer [rules]]
-            [behave.vms.store    :refer [vms-conn]]))
+            [datascript.core      :as d]))
 
 ;;; helpers
 (defn uuid->entity
@@ -18,9 +18,9 @@
   Where clauses must use the format `[$ws <entity> <attr> <value>]`
   to retrieve data from the Worksheet datastore."
   [query & args]
-  (let [[find in+where] (split-with (complement #{:in :where}) query)
-        [in where]      (split-with (complement #{:where}) in+where)
-        query-after     (vec (concat find '(:in $ $ws %) (rest in) where))]
+  (let [[find-clause in+where] (split-with (complement #{:in :where}) query)
+        [in where]             (split-with (complement #{:where}) in+where)
+        query-after            (vec (concat find-clause '(:in $ $ws %) (rest in) where))]
     (apply d/q query-after @@vms-conn @@store/conn rules args)))
 
 (defn variable
@@ -90,11 +90,11 @@
                    (-> var-entity
                        :variable/english-unit-uuid))
       :metric  (or (-> var-entity
-                      :variable/domain-uuid
-                      uuid->entity
-                      :domain/metric-unit-uuid)
-                  (-> var-entity
-                      :variable/metric-unit-uuid)))))
+                       :variable/domain-uuid
+                       uuid->entity
+                       :domain/metric-unit-uuid)
+                   (-> var-entity
+                       :variable/metric-unit-uuid)))))
 
 (defn unit-uuid->enum-value
   "Given a uuid to a unit entity return the enum value for that unit."
@@ -161,6 +161,19 @@
          [?m :module/diagrams ?d]]
        @@vms-conn
        module-name))
+
+(defn output-gv-uuid
+  "Given a variable name, return the :bp/uuid of its group-variable. Used to check
+  whether a specific output (e.g. \"Direction of Flanking\") is enabled. Assumes the
+  name resolves to a single group-variable (true for the surface direction outputs)."
+  [variable-name]
+  (d/q '[:find ?uuid .
+         :in $ ?name
+         :where
+         [?v :variable/name ?name]
+         [?v :variable/group-variables ?gv]
+         [?gv :bp/uuid ?uuid]]
+       @@vms-conn variable-name))
 
 (defn parameter->group-variable
   "Given a prameter entity id return the uuid for it's associated group variable."

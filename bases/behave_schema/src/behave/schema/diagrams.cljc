@@ -58,6 +58,31 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :diagram/y-axis-positive-label
+    :db/doc         "Label drawn at the positive (top) end of the y-axis (e.g. 'Upslope')."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram/y-axis-positive-label-translation-key
+    :db/doc         "Translation key for the positive y-axis end label; resolved via <t in the app."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram/y-axis-negative-label
+    :db/doc         "Label drawn at the negative (bottom) end of the y-axis (e.g. 'Downslope')."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram/y-axis-negative-label-translation-key
+    :db/doc         "Translation key for the negative y-axis end label; resolved via <t in the app."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram/hide-axis-numbers?
+    :db/doc         "When true, hides the numeric tick labels on both axes (axis titles are kept)."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :diagram/x-units-uuid
     :db/doc         "Diagram x-axis units UUID"
     :db/valueType   :db.type/string
