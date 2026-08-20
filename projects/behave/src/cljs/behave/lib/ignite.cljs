@@ -16,14 +16,8 @@
 (defn getMoistureHundredHour [self desiredUnits]
   (.getMoistureHundredHour self desiredUnits))
 
-(defn getLightningChargeType [self]
-  (.getLightningChargeType self))
-
 (defn setMoistureOneHour [self moistureOneHour moistureUnits]
   (.setMoistureOneHour self moistureOneHour moistureUnits))
-
-(defn calculateLightningIgnitionProbability [self desiredUnits]
-  (.calculateLightningIgnitionProbability self desiredUnits))
 
 (defn getDuffDepth [self desiredUnits]
   (.getDuffDepth self desiredUnits))
@@ -58,13 +52,10 @@
 (defn getMoistureOneHour [self desiredUnits]
   (.getMoistureOneHour self desiredUnits))
 
-(defn setLightningChargeType [self lightningChargeType]
-  (.setLightningChargeType self lightningChargeType))
-
 (defn setDuffDepth [self duffDepth lengthUnits]
   (.setDuffDepth self duffDepth lengthUnits))
 
-(defn updateIgniteInputs [self moistureOneHour moistureHundredHour moistureUnits airTemperature temperatureUnits sunShade sunShadeUnits fuelBedType duffDepth duffDepthUnits lightningChargeType]
-  (.updateIgniteInputs self moistureOneHour moistureHundredHour moistureUnits airTemperature temperatureUnits sunShade sunShadeUnits fuelBedType duffDepth duffDepthUnits lightningChargeType))
+(defn updateIgniteInputs [self moistureOneHour moistureHundredHour moistureUnits airTemperature temperatureUnits sunShade sunShadeUnits fuelBedType duffDepth duffDepthUnits]
+  (.updateIgniteInputs self moistureOneHour moistureHundredHour moistureUnits airTemperature temperatureUnits sunShade sunShadeUnits fuelBedType duffDepth duffDepthUnits))
 
 (def ^:export ns-public-fns (update-keys (ns-publics 'behave.lib.ignite) name))
