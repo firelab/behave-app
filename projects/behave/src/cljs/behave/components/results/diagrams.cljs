@@ -37,7 +37,7 @@
              [:tr
               [:td (str variable-name ":")]
               [:td (if (seq units)
-                     (str value " (" units ")")
+                     (str value " " units)
                      value)]])
            inputs)]
      [:table.diagram__table
@@ -45,7 +45,7 @@
              [:tr
               [:td (str variable-name ":")]
               [:td (if (seq units)
-                     (str value " (" units ")")
+                     (str value " " units)
                      value)]])
            outputs)]]))
 
@@ -105,7 +105,8 @@
                            ellipses            :worksheet.diagram/ellipses
                            arrows              :worksheet.diagram/arrows
                            scatter-plots       :worksheet.diagram/scatter-plots
-                           group-variable-uuid :worksheet.diagram/group-variable-uuid}]
+                           group-variable-uuid :worksheet.diagram/group-variable-uuid}
+                          print?]
 
   (let [scatter-plot-legacy?     (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.5"))
         cms-diagram              @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
@@ -144,10 +145,14 @@
                                                    :show-q4?      show-q4?})
         ;; Series (by translated legend label) that should start hidden/grayed in the
         ;; legend — any arrow flagged :arrow/default-visible? false (e.g. flanking).
-        hidden-by-default-series (into #{}
-                                       (comp (filter #(false? (:arrow/default-visible? %)))
-                                             (map (fn [a] @(<t (:arrow/legend-id a)))))
-                                       arrows)]
+        ;; In the print/PDF view every hideable component is always shown, so the
+        ;; hidden set is forced empty there.
+        hidden-by-default-series (if print?
+                                   #{}
+                                   (into #{}
+                                         (comp (filter #(false? (:arrow/default-visible? %)))
+                                               (map (fn [a] @(<t (:arrow/legend-id a)))))
+                                         arrows))]
     [:div.diagram
      [output-diagram {:title                    (build-title ws-uuid title row-id)
                       :width                    500
@@ -207,12 +212,13 @@
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 
 (defn result-diagrams
-  "Reagent component rendering all diagrams for a worksheet."
-  [ws-uuid]
+  "Reagent component rendering all diagrams for a worksheet. When `print?` is truthy
+  (the PDF/print view), every legend-hideable component is forced visible."
+  [ws-uuid & [print?]]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
       [:div.wizard-results__diagrams {:id "diagram"}
        [:div.wizard-notes__header "Diagram"]
-       (map #(construct-diagram ws-uuid %)
+       (map #(construct-diagram ws-uuid % print?)
             (sort-by :worksheet.diagram/row-id
                      (:worksheet/diagrams @*ws)))])))
