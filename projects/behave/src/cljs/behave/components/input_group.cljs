@@ -1,12 +1,12 @@
 (ns behave.components.input-group
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [goog.string                     :as gstring]
             [behave.translate                :refer [<t bp]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
             [data-utils.core                 :refer-macros [vmap]]
             [dom-utils.interface             :refer [input-value]]
+            [goog.string                     :as gstring]
             [re-frame.core                   :as rf]
             [reagent.core                    :as r]
             [string-utils.interface          :refer [->kebab]]))
@@ -127,7 +127,7 @@
 (defmethod wizard-input :discrete [variable {:keys [ws-uuid]} group-uuid repeat-id repeat-group?]
   (r/with-let [{gv-uuid  :bp/uuid
                 help-key :group-variable/help-key
-                v-list    :variable/list} variable
+                v-list   :variable/list} variable
                selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                default-option            (rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
                disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid gv-uuid])
@@ -261,12 +261,12 @@
 
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
   (let [{group-translation-key :group/translation-key
-         group-uuid            :bp/uuid} group
-        repeat-ids                       (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
-                                             (deref)
-                                             (sort))
-        next-repeat-id                   (or  (some->> repeat-ids seq (apply max) inc)
-                                              0)]
+         group-uuid            :bp/uuid}              group
+        repeat-ids                                    (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+                                                          (deref)
+                                                          (sort))
+        next-repeat-id                                (or  (some->> repeat-ids seq (apply max) inc)
+                                                           0)]
     [:<>
      (map-indexed
       (fn [index repeat-id]
