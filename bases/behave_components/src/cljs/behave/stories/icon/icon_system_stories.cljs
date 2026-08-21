@@ -13,6 +13,7 @@
 (def ^:export HomeIcon       (template :home))
 (def ^:export MinusIcon      (template :minus))
 (def ^:export PlusIcon       (template :plus))
+(def ^:export PopOutIcon     (template :pop-out))
 (def ^:export EditIcon       (template :edit))
 (def ^:export PrintIcon      (template :print))
 (def ^:export SaveIcon       (template :save))

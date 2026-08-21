@@ -28,7 +28,7 @@
 
     :render
     (fn [this]
-      [:div#vega-canvas
+      [:div.vega-canvas
        {:style {:height (:box-height (r/props this))
                 :width  (:box-width  (r/props this))}}])}))
 

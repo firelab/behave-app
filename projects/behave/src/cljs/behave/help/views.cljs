@@ -7,7 +7,18 @@
             [behave.components.core :as c]
             [behave.translate       :refer [<t]]
             [behave.help.events]
-            [behave.help.subs]))
+            [behave.help.subs]
+            [behave.modal.core      :refer [modal-content]]))
+
+;;; Modals
+
+(defmethod modal-content :help-image [{:keys [src alt]}]
+  [:div.image-viewer
+   [:img.image-viewer__image {:src src}]
+   [:p.image-viewer__description alt]])
+
+(defmethod modal-content :help-table [{:keys [table]}]
+  [:div.table-viewer table])
 
 ;;; HTML Decoding
 

@@ -595,6 +595,19 @@ body {
   background-color: var(--lightblue-2);
 }
 
+.wizard-graph__output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wizard-results__graph-pop-out {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
 .wizard-group--level-2 > .wizard-group__header {
   padding: 5px 36px;
   font-weight: var(--font-weight-500);
@@ -1588,6 +1601,23 @@ body {
   max-width: 80%;
   max-height: 60%;
   transform: translate(-50%, -50%);
+}
+
+/* Size variants. Without these a modal is capped at 60% of the viewport
+   height and its body has no scrollbar, so taller content is clipped. */
+.app-shell .modal--large {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.app-shell .modal--fullscreen {
+  max-width: 95%;
+  max-height: 95%;
+}
+
+.app-shell .modal__body {
+  min-height: 0;
+  overflow: auto;
 }
 
 .app-shell .modal__background {

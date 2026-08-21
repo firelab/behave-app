@@ -6,6 +6,7 @@
             [behave.demo.views               :refer [demo-output-diagram-page]]
             [behave.events]
             [behave.help.views               :refer [help-area]]
+            [behave.modal.views              :refer [modal-root]]
             [behave.print.views              :refer [print-page]]
             [behave.settings.views           :as settings]
             [behave.store                    :refer [flush-sync-beacon! load-store!]]
@@ -62,23 +63,6 @@
   (when (= mode "prod")
     (.addEventListener js/window "beforeunload" before-unload-fn)))
 
-(defn- image-modal []
-  (let [*image-modal   (rf/subscribe [:state [:help-area :image-modal]])
-        close-modal-fn #(rf/dispatch [:state/set [:help-area :image-modal] nil])]
-    [:div {:style {:display (if @*image-modal "block" "none")}}
-     [modal {:title          (:title @*image-modal)
-             :close-on-click close-modal-fn
-             :content        [:div.image-viewer
-                              [:img.image-viewer__image {:src (:src @*image-modal)}]
-                              [:p.image-viewer__description (:alt @*image-modal)]]}]]))
-
-(defn- table-modal []
-  (let [*table-modal   (rf/subscribe [:state [:help-area :table-modal]])
-        close-modal-fn #(rf/dispatch [:state/set [:help-area :table-modal] nil])]
-    [:div {:style {:display (if @*table-modal "block" "none")}}
-     [modal {:close-on-click close-modal-fn
-             :content        [:div.table-viewer @*table-modal]}]]))
-
 (defn app-shell [{:keys [app-version] :as params}]
   (rf/dispatch-sync
    [:state/set :show-disclaimer? @(rf/subscribe [:settings/show-disclaimer?])])
@@ -91,8 +75,7 @@
                                (assoc :route-handler (:handler @route)))
         show-disclaimer?   @(rf/subscribe [:state :show-disclaimer?])]
     [:div.app-shell
-     [image-modal]
-     [table-modal]
+     [modal-root]
      (if (= (:handler @route) :ws/print)
        (if (and @vms-loaded? @sync-loaded?)
          [page params]

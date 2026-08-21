@@ -99,7 +99,10 @@
  :navigate
  (fn [{db :db} [_ new-route]]
    (when-let [[new-history new-position new-route] (navigate (:router db) new-route)]
-     {:db                 (assoc db :router {:history new-history :curr-position new-position})
+     {:db                 (-> db
+                              (assoc :router {:history new-history :curr-position new-position})
+                              ;; a modal belongs to the page that opened it
+                              (assoc-in [:state :modals] []))
       :browser/scroll-top {}
       :help/scroll-top    {}
       :history/push-state {:position new-position
@@ -107,10 +110,11 @@
 
 (rf/reg-event-db
  :popstate
- (rf/path :router)
- (fn [router [_ e]]
+ (fn [db [_ e]]
    (let [new-position (.-state e)]
-     (assoc router :curr-position (or new-position 0)))))
+     (-> db
+         (assoc-in [:router :curr-position] (or new-position 0))
+         (assoc-in [:state :modals] [])))))
 
 ;;; Local Storage
 
