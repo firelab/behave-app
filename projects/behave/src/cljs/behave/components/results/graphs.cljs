@@ -80,8 +80,8 @@
                                 :height         height}))]))
 
 (defn- pop-out-button
-  "Opens `output-uuid`'s graph in a modal. Kept out of the chart itself so that
-  Vega's own export menu stays clickable."
+  "Opens `output-uuid`'s graph in a modal. Sits in the chart's top-right corner
+  next to Vega's own \"…\" export menu, styled to match it."
   [ws-uuid output-uuid output-name]
   [:div.wizard-graph__pop-out-button
    [c/button {:icon-name "pop-out"
@@ -120,13 +120,13 @@
                                                      output-uuid])]]
            ^{:key output-uuid}
            [:div.wizard-results__graph
-            [:div.wizard-graph__output-header
-             output-name
-             (when-not hide-controls?
-               [pop-out-button ws-uuid output-uuid output-name])]
+            [:div.wizard-graph__output-header output-name]
             [:div.wizard-results__graph
-             (result-chart (chart-spec {:graph-settings graph-settings
-                                        :data           graph-data
-                                        :output-uuid    output-uuid
-                                        :width          inline-chart-size
-                                        :height         inline-chart-size}))]])]))))
+             [:div.wizard-graph__chart
+              (result-chart (chart-spec {:graph-settings graph-settings
+                                         :data           graph-data
+                                         :output-uuid    output-uuid
+                                         :width          inline-chart-size
+                                         :height         inline-chart-size}))
+              (when-not hide-controls?
+                [pop-out-button ws-uuid output-uuid output-name])]]])]))))

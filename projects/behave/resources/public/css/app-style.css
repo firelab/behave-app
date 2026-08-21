@@ -595,11 +595,45 @@ body {
   background-color: var(--lightblue-2);
 }
 
-.wizard-graph__output-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+/* The pop-out control sits in the chart's top-right corner, next to Vega's own
+   "…" export menu, and is positioned and styled to match it: same 28px round
+   button, same fade-in on hover. Vega positions its menu against the chart
+   container, so this wrapper shrink-wraps the chart to share that box. */
+.wizard-graph__chart {
+  position: relative;
+  display: inline-block;
+}
+
+.wizard-graph__pop-out-button {
+  position: absolute;
+  top: 0;
+  right: 34px;
+  z-index: 1000;
+  opacity: 0.2;
+  transition: opacity 0.4s ease-in;
+}
+
+.wizard-graph__chart:hover .wizard-graph__pop-out-button,
+.wizard-graph__pop-out-button:focus-within {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.wizard-graph__pop-out-button .button {
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border: 1px solid var(--gray-4);
+  border-radius: 999px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  fill: var(--darkblue-3);
+  background-color: var(--white);
+}
+
+.wizard-graph__pop-out-button .button:hover {
+  fill: var(--white);
+  background-color: var(--medblue-4);
 }
 
 .wizard-results__graph-pop-out {
