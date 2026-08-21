@@ -2,8 +2,8 @@
   (:require [behave.components.icon.core :refer [icon]]))
 
 (defn button
-  "A button. `:title` is a tooltip, and doubles as the accessible name for
-  icon-only buttons (those without a `:label`)."
+  "A button. `:title` is a tooltip, and the accessible name when there is no
+  `:label`."
   [& [{:keys [variant size icon-name icon-position label title on-click disabled? flat-edge selected?]
        :or   {icon-position "left"}}]]
   [:button (cond-> {:class    ["button"

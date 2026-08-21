@@ -2,7 +2,7 @@
   (:require [re-frame.core :as rf]))
 
 (defn open
-  "Pushes a modal onto `stack`. See [[behave.modal.core/modal-content]]."
+  "Pushes a modal onto `stack`."
   [stack id opts]
   (conj (vec stack) (assoc opts :modal/id id)))
 

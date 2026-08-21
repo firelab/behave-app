@@ -6,12 +6,11 @@
             [re-frame.core                       :refer [dispatch subscribe]]))
 
 (def ^:private inline-chart-size
-  "Width/height of a graph as it sits on the Results page."
+  "Graph size on the Results page."
   250)
 
 (defn- cell-data->graph-data
-  "Turns result-table cell data into the row maps Vega plots, keyed by result
-  variable name."
+  "Result-table cells -> the rows Vega plots, keyed by result variable name."
   [cell-data]
   (->> cell-data
        (group-by first)
@@ -28,7 +27,7 @@
                [])))
 
 (defn- chart-spec
-  "Builds the `result-chart` params for one output variable at `width`×`height`."
+  "`result-chart` params for one output variable at `width`×`height`."
   [{:keys [graph-settings data output-uuid width height]}]
   (let [x-axis-limit                (:graph-settings/x-axis-limits graph-settings)
         x-min                       (:x-axis-limit/min x-axis-limit)
@@ -60,8 +59,7 @@
      :height height}))
 
 (defn- pop-out-size
-  "Chart size for the pop-out modal, bounded by the viewport so the whole graph
-  (and Vega's export menu) stays inside the modal."
+  "Chart size for the pop-out modal, bounded by the viewport."
   []
   (let [width  (min 1000 (max 300 (- (.-innerWidth js/window) 240)))
         height (min 700 (max 250 (- (.-innerHeight js/window) 280)))]
@@ -80,8 +78,7 @@
                                 :height         height}))]))
 
 (defn- pop-out-button
-  "Opens `output-uuid`'s graph in a modal. Sits in the chart's top-right corner
-  next to Vega's own \"…\" export menu, styled to match it."
+  "Opens `output-uuid`'s graph in a modal."
   [ws-uuid output-uuid output-name]
   [:div.wizard-graph__pop-out-button
    [c/button {:icon-name "pop-out"
@@ -96,10 +93,8 @@
 (defn result-graphs
   "Renders the Results graphs for the worksheet `ws-uuid`.
 
-  Options:
-  - `:hide-controls?` omits the on-screen-only controls (Graph Settings and the
-    pop-out button), which have nothing to act on outside the app — e.g. on the
-    printed page."
+  `:hide-controls?` omits the on-screen-only controls (Graph Settings, pop-out),
+  which have nothing to act on outside the app — e.g. on the printed page."
   [ws-uuid cell-data & [{:keys [hide-controls?]}]]
   (let [graph-enabled? @(subscribe [:wizard/enable-graph-settings? ws-uuid])
         graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]

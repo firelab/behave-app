@@ -6,8 +6,7 @@
             [re-frame.core          :as rf]))
 
 (defn modal-root
-  "Renders the top-most modal on the stack. Mounted once, in the app shell, so
-  no feature has to mount a modal of its own."
+  "Renders the top-most modal on the stack. Mounted once, in the app shell."
   []
   (when-let [{:keys [modal/title modal/size modal/icon] :as current}
              @(rf/subscribe [:modal/current])]

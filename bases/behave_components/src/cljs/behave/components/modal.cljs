@@ -20,8 +20,7 @@
   (contains? #{"Escape" "Esc"} (.-key event)))
 
 (defn- on-escape
-  "Wraps `child` so that `f` is called whenever Escape is pressed while it is
-  mounted. The listener is removed on unmount."
+  "Calls `f` on Escape while `child` is mounted."
   [f _child]
   (let [handler #(when (escape-key? %) (f))]
     (r/create-class
@@ -32,18 +31,9 @@
 (defn modal
   "A modal dialog.
 
-  Options:
-  - `:title`                text shown in the header
-  - `:icon`                 optional `{:icon-name \"…\"}` shown left of the title
-  - `:close-on-click`       called when the user closes the modal
-  - `:buttons`              optional footer buttons
-  - `:content`              the modal's body
-  - `:size`                 `:medium` (default), `:large` or `:fullscreen`,
-                            controlling how much of the viewport the modal takes
-  - `:dismiss-on-backdrop?` close when the backdrop is clicked (default true)
-  - `:dismiss-on-escape?`   close when Escape is pressed (defaults to
-                            `:dismiss-on-backdrop?`, so a modal that must be
-                            acknowledged stays put either way)"
+  Options: `:title`, `:icon`, `:close-on-click`, `:buttons`, `:content`, `:size`
+  (`:medium`, `:large` or `:fullscreen`), `:dismiss-on-backdrop?` (default true)
+  and `:dismiss-on-escape?` (defaults to `:dismiss-on-backdrop?`)."
   [{:keys [title icon close-on-click buttons content size
            dismiss-on-backdrop? dismiss-on-escape?]
     :or   {size                 :medium
