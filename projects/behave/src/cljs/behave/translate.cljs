@@ -1,5 +1,6 @@
 (ns behave.translate
-  (:require [re-frame.core :refer [dispatch-sync subscribe]]))
+  (:require [behave.schema.group :refer [repeat-translation-key]]
+            [re-frame.core       :refer [dispatch-sync subscribe]]))
 
 ;;; Configuration
 
@@ -27,6 +28,13 @@
   ```"
   [translation-key]
   (subscribe [:t translation-key]))
+
+(defn repeat-item-name
+  "Name for a single item of a repeating group (\"Resource\"), falling back to the
+  group's own translation (\"Resources\") when the repeat translation is unset."
+  [translation-key]
+  (or @(<t (repeat-translation-key translation-key))
+      @(<t translation-key)))
 
 (defn load-translations! []
   (let [browser   (browser-lang)

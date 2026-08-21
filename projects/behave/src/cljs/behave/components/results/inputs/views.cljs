@@ -2,7 +2,7 @@
   (:require [behave.components.core :as c]
             [behave.components.results.inputs.subs]
             [behave.print.subs]
-            [behave.translate       :refer [<t]]
+            [behave.translate       :refer [<t repeat-item-name]]
             [clojure.string         :as str]
             [goog.string            :as gstring]
             [re-frame.core          :refer [subscribe]]))
@@ -65,7 +65,7 @@
                                                               (deref)
                                                               (sort))]
                                            (mapcat (fn [repeat-id]
-                                                     (into [{:input (indent-name (inc level) (str @(<t (:group/translation-key current-group)) " " (inc repeat-id)))}]
+                                                     (into [{:input (indent-name (inc level) (str (repeat-item-name (:group/translation-key current-group)) " " (inc repeat-id)))}]
                                                            (flatten
                                                             (for [variable (sort-by :group-variable/order variables)
                                                                   :let     [gv-uuid (:bp/uuid variable)

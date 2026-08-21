@@ -2,7 +2,7 @@
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
             [goog.string                     :as gstring]
-            [behave.translate                :refer [<t bp]]
+            [behave.translate                :refer [<t bp repeat-item-name]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
             [data-utils.core                 :refer-macros [vmap]]
@@ -266,7 +266,8 @@
                                              (deref)
                                              (sort))
         next-repeat-id                   (or  (some->> repeat-ids seq (apply max) inc)
-                                              0)]
+                                              0)
+        item-name                        (repeat-item-name group-translation-key)]
     [:<>
      (map-indexed
       (fn [index repeat-id]
@@ -274,7 +275,7 @@
         [:<>
          [:div.wizard-repeat-group
           [:div.wizard-repeat-group__header
-           (str @(<t group-translation-key) " #" (inc index))]]
+           (str item-name " #" (inc index))]]
          [:div.wizard-group__inputs
           (for [variable variables]
             ^{:key (:db/id variable)}
@@ -291,7 +292,7 @@
                     :align-items     "center"
                     :justify-content "center"}}
       [c/button {:variant  "primary"
-                 :label    "Add Resource"
+                 :label    (str @(<t (bp "add")) " " item-name)
                  :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid next-repeat-id])}]]]))
 
 (defn input-group [{:keys [workflow] :as params} group variables level]
