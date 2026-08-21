@@ -2321,20 +2321,20 @@ p {
   width: 100%;
 }
 
-.multi-select--search {
-  width: 100%;
-}
-
 .multi-select__prompt {
   padding: 12px;
   font-size: var(--font-size-14);
   color: var(--gray-7);
 }
 
+.multi-select__search {
+  padding: 0px 20px 4px 20px;
+}
+
 .multi-select__options {
   overflow-y: scroll;
-  height:  230px;
-  margin-top: 10px;
+  max-height: 100px;
+  margin-top: 6px;
   margin-bottom: 7px;
   padding: 0px 12px 0px 12px;
 }
@@ -2354,10 +2354,6 @@ p {
   background-color: var(--gray-2);
 }
 
-.multi-select-search {
-  margin-right: 10px;
-}
-
 .multi-select__option__icon--minus,
 .multi-select__option__icon--plus {
   position: relative;
@@ -2370,7 +2366,7 @@ p {
   top: -2px;
 }
 
-.multi-select--search .multi-select__option:first-child,
+.multi-select__options--searching .multi-select__option:first-child,
 .multi-select__option--selected,
 .multi-select__option:hover {
   width: max-content;
@@ -2383,7 +2379,7 @@ p {
   background-color: var(--medblue-3);
 }
 
-.multi-select--search .multi-select__option:first-child,
+.multi-select__options--searching .multi-select__option:first-child,
 .multi-select__option--selected:hover,
 .multi-select__option:hover {
   background-color: var(--medblue-2);
@@ -2414,13 +2410,10 @@ p {
 }
 
 .multi-select__selections__body {
-  padding: 10px 0px 0px 0px;
-}
-
-.multi-select-search__selections__body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  gap: 0px 10px;
   padding: 10px 0px 0px 0px;
 }
 
@@ -2436,7 +2429,8 @@ p {
 .multi-select__tags {
   display: flex;
   flex-direction: row;
-  padding-bottom: 15px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   padding-left: 20px;
 }
 
@@ -2447,6 +2441,23 @@ p {
 .multi-select__tags__tag > button {
   font-size: var(--font-size-12);
   font-weight: bold;
+}
+
+/* Keep a border on hover so the button doesn't shift by the 1px
+   border that .button--outline-secondary:hover removes */
+.multi-select__tags__tag > button:hover {
+  border: 1px solid var(--medblue-2);
+}
+
+.multi-select .multi-select__selections__body {
+  max-height: 72px;
+  overflow-y: auto;
+}
+
+.multi-select__no-results {
+  padding: 0 20px 15px 20px;
+  color: var(--gray-4);
+  font-style: italic;
 }
 
 
@@ -2460,8 +2471,8 @@ p {
 }
 
 .multi-select__color-tags {
-  padding: 10px;
-  margin: 0px 20px 15px 20px;
+  padding: 6px;
+  margin: 0px 20px 8px 20px;
   display: flex;
   flex-direction: row;
   border: 1px solid var(--darkblue-4);
@@ -2470,7 +2481,7 @@ p {
 
 .multi-select__color-tags__tag {
   margin-left: 10px;
-  padding: 10px;
+  padding: 6px;
 }
 
 /* - End Multi Select - */
