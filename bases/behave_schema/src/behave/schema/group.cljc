@@ -32,6 +32,14 @@
                                    :group/research?
                                    :group/conditionals]))
 
+;;; Translation Keys
+
+(defn repeat-translation-key
+  "Translation key for a single item of a repeating group, e.g.
+  \"…:resources\" -> \"…:resources:repeat\"."
+  [translation-key]
+  (str translation-key ":repeat"))
+
 ;;; Schema
 
 #_{:clj-kondo/ignore [:missing-docstring]}

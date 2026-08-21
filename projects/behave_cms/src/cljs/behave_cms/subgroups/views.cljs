@@ -9,6 +9,7 @@
             [behave-cms.help.views                    :refer [help-editor]]
             [behave-cms.subs]
             [behave-cms.utils                         :as u]
+            [behave.schema.group                      :refer [repeat-translation-key]]
             [clojure.set                              :refer [difference]]
             [clojure.string                           :as str]
             [re-frame.core                            :as rf]
@@ -135,7 +136,11 @@
         [:h5 "Worksheet Translations"]
         [all-translations (:group/translation-key @group)]
         [:h5 "Result Translations"]
-        [all-translations (:group/result-translation-key @group)]]
+        [all-translations (:group/result-translation-key @group)]
+        (when (:group/repeat? @group)
+          [:<>
+           [:h5 "Repeat Item Translations"]
+           [all-translations (repeat-translation-key (:group/translation-key @group))]])]
        [:hr]
        ^{:key "help"}
        [accordion

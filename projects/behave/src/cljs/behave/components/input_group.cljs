@@ -1,12 +1,12 @@
 (ns behave.components.input-group
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [behave.translate                :refer [<t bp]]
+            [goog.string                     :as gstring]
+            [behave.translate                :refer [<t bp repeat-item-name]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
             [data-utils.core                 :refer-macros [vmap]]
             [dom-utils.interface             :refer [input-value]]
-            [goog.string                     :as gstring]
             [re-frame.core                   :as rf]
             [reagent.core                    :as r]
             [string-utils.interface          :refer [->kebab]]))
@@ -260,12 +260,13 @@
 
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
   (let [{group-translation-key :group/translation-key
-         group-uuid            :bp/uuid}              group
-        repeat-ids                                    (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
-                                                          (deref)
-                                                          (sort))
-        next-repeat-id                                (or  (some->> repeat-ids seq (apply max) inc)
-                                                           0)]
+         group-uuid            :bp/uuid} group
+        repeat-ids                       (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+                                             (deref)
+                                             (sort))
+        next-repeat-id                   (or (some->> repeat-ids seq (apply max) inc)
+                                             0)
+        item-name                        (repeat-item-name group-translation-key)]
     [:<>
      (map-indexed
       (fn [index repeat-id]
@@ -273,7 +274,7 @@
         [:<>
          [:div.wizard-repeat-group
           [:div.wizard-repeat-group__header
-           (str @(<t group-translation-key) " #" (inc index))]]
+           (str item-name " #" (inc index))]]
          [:div.wizard-group__inputs
           (for [variable variables]
             ^{:key (:db/id variable)}
@@ -290,7 +291,7 @@
                     :align-items     "center"
                     :justify-content "center"}}
       [c/button {:variant  "primary"
-                 :label    "Add Resource"
+                 :label    (str @(<t (bp "add")) " " item-name)
                  :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid next-repeat-id])}]]]))
 
 (defn input-group [{:keys [workflow] :as params} group variables level]
