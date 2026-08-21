@@ -607,10 +607,16 @@ body {
 .wizard-graph__pop-out-button {
   position: absolute;
   top: 0;
-  right: 34px;
+  right: 0;
   z-index: 1000;
   opacity: 0.2;
   transition: opacity 0.4s ease-in;
+}
+
+/* Vega anchors its "…" menu at the container's right edge; shift it left so the
+   pop-out control can sit to its right. */
+.wizard-graph__chart .vega-embed summary {
+  right: 34px;
 }
 
 .wizard-graph__chart:hover .wizard-graph__pop-out-button,
@@ -627,12 +633,13 @@ body {
   border: 1px solid var(--gray-4);
   border-radius: 999px;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-  fill: var(--darkblue-3);
+  /* the icon is `fill: currentColor`, so `color` is what tints it */
+  color: var(--gray-5);
   background-color: var(--white);
 }
 
 .wizard-graph__pop-out-button .button:hover {
-  fill: var(--white);
+  color: var(--white);
   background-color: var(--medblue-4);
 }
 
