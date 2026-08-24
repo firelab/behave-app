@@ -32,6 +32,41 @@
 ;;                       display (WSLg on WSL2).
 ;;   --stop              halt at the first failing scenario; forces 1 shard unless
 ;;                       --shards given
+;;
+;; Examples:
+;;   bb cucumber:ci
+;;       Default dev run: one visible Chrome, 1 shard, core (non-extended) scenarios.
+;;       On failure the browser + server stay open for inspection (Ctrl-C to close);
+;;       on success everything tears down.
+;;
+;;   bb cucumber:ci --headless
+;;       CI run: headless, 2 parallel shards, core scenarios; auto-closes on finish.
+;;
+;;   bb cucumber:ci --headless --shards 4
+;;       Same, but split the feature files across 4 parallel servers/drivers.
+;;
+;;   bb cucumber:ci --feature surface-input_fuel-model_special-case_chaparral-upland_direct-fuel-load.feature
+;;       Run a single feature file (bare name, nested path, or full rel path all resolve),
+;;       visible, ALL its scenarios (a lone --feature ignores the core/extended query).
+;;
+;;   bb cucumber:ci --headless --feature crown-input_weather_wind-and-slope-are_wind-direction.feature \
+;;                  --query '(and "core" (not "extended"))'
+;;       Single feature, headless, restricted to a tegere query.
+;;
+;;   bb cucumber:ci --headless --query '"core"'
+;;       All features, headless, every scenario tagged core (including extended).
+;;
+;;   bb cucumber:ci --headless --skip-compile
+;;       Reuse the CLJS build from a previous run — fast iteration when only steps/features changed.
+;;
+;;   bb cucumber:ci --stop
+;;       Stop at the first failing scenario (single shard) — quickest way to triage a break.
+;;
+;;   bb cucumber:ci --headless --features-dir features --base-port 8091 --db-prefix cucumber-shard-db
+;;       Explicit defaults shown; shard i listens on 8091+i with its own sqlite <db-prefix>-i.sqlite.
+;;
+;; Outputs land in logs/cucumber/cucumber_test_results_<timestamp>/ : a combined
+;; cucumber_test_summary.org, plus per-shard *_results.org and *_{server,run}.log files.
 (ns cucumber-ci
   (:require [babashka.fs      :as fs]
             [babashka.process :as p]
