@@ -72,7 +72,15 @@
    #:unit{:enum-member-name "KilowattsPerMeter"
           :name             "Kilowatts Per Meter (kW/m)"
           :system           :metric
-          :short-code       "kW/m"}]}
+          :short-code       "kW/m"}
+   #:unit{:enum-member-name "KilojoulesPerMeterPerSecond"
+          :name             "Kilojoules Per Meter Per Second (kJ/m/s)"
+          :system           :metric
+          :short-code       "kJ/m/s"}
+   #:unit{:enum-member-name "KilojoulesPerMeterPerMinute"
+          :name             "Kilojoules Per Meter Per Minute (kJ/m/min)"
+          :system           :metric
+          :short-code       "kJ/m/min"}]}
 
  {:dimension/name "Heat of Combustion"
   :enum-name      "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
@@ -112,7 +120,15 @@
    #:unit{:enum-member-name "KilowattsPerSquareMeter"
           :name             "Kilowatts Per Square Meter (kW/m2)"
           :system           :metric
-          :short-code       "kW/m2"}]}
+          :short-code       "kW/m2"}
+   #:unit{:enum-member-name "KilojoulesPerSquareMeterPerSecond"
+          :name             "Kilojoules Per Square Meter Per Second (kJ/m2/s)"
+          :system           :metric
+          :short-code       "kJ/m2/s"}
+   #:unit{:enum-member-name "KilojoulesPerSquareMeterPerMinute"
+          :name             "Kilojoules Per Square Meter Per Minute (kJ/m2/min)"
+          :system           :metric
+          :short-code       "kJ/m2/min"}]}
 
  {:dimension/name "Heat Per Unit Area"
   :enum-name      "HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum"
@@ -124,7 +140,11 @@
    #:unit{:enum-member-name "KilojoulesPerSquareMeter"
           :name             "Kilojoules Per Square Meter (kJ/m2)"
           :system           :metric
-          :short-code       "kJ/m2"}]}
+          :short-code       "kJ/m2"}
+   #:unit{:enum-member-name "KilowattSecondsPerSquareMeter"
+          :name             "Kilowatt Seconds Per Square Meter (kW-s/m2)"
+          :system           :metric
+          :short-code       "kW-s/m2"}]}
 
  {:dimension/name "Length"
   :enum-name      "LengthUnits_LengthUnitsEnum"
@@ -172,7 +192,15 @@
    #:unit{:enum-member-name "TonnesPerHectare"
           :name             "Tonnes Per Hectare (tonne/ha)"
           :system           :metric
-          :short-code       "tonne/ha"}]}
+          :short-code       "tonne/ha"}
+   #:unit{:enum-member-name "PoundsPerSquareFoot"
+          :name             "Pounds Per Square Foot (lb/ft2)"
+          :system           :english
+          :short-code       "lb/ft2"}
+   #:unit{:enum-member-name "KilogramsPerSquareMeter"
+          :name             "Kilograms Per Square Meter (kg/m2)"
+          :system           :metric
+          :short-code       "kg/m2"}]}
 
  {:dimension/name "Pressure"
   :enum-name      "PressureUnits_PressureUnitsEnum"
@@ -248,7 +276,15 @@
    #:unit{:enum-member-name "MetersPerMinute"
           :name             "Meters Per Minute (m/min)"
           :system           :metric
-          :short-code       "m/min"}]}
+          :short-code       "m/min"}
+   #:unit{:enum-member-name "MetersPerSecond"
+          :name             "Meters Per Second (m/s)"
+          :system           :metric
+          :short-code       "m/s"}
+   #:unit{:enum-member-name "FurlongsPerFortnight"
+          :name             "Furlongs Per Fortnight (fur/fortnight)"
+          :system           :english
+          :short-code       "fur/fortnight"}]}
 
  {:dimension/name "Surface Area To Volume"
   :enum-name      "SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum"
@@ -260,7 +296,15 @@
    #:unit{:enum-member-name "SquareMetersOverCubicMeters"
           :name             "Square Meters Over Cubic Meters (m2/m3)"
           :system           :metric
-          :short-code       "m2/m3"}]}
+          :short-code       "m2/m3"}
+   #:unit{:enum-member-name "SquareInchesOverCubicInches"
+          :name             "Square Inches Over Cubic Inches (in2/in3)"
+          :system           :english
+          :short-code       "in2/in3"}
+   #:unit{:enum-member-name "SquareCentimetersOverCubicCentimeters"
+          :name             "Square Centimeters Over Cubic Centimeters (cm2/cm3)"
+          :system           :metric
+          :short-code       "cm2/cm3"}]}
 
  {:dimension/name "Temperature"
   :enum-name      "TemperatureUnits_TemperatureUnitsEnum"
@@ -272,7 +316,11 @@
    #:unit{:enum-member-name "Celsius"
           :name             "Celsius (oC)"
           :system           :metric
-          :short-code       "oC"}]}
+          :short-code       "oC"}
+   #:unit{:enum-member-name "Kelvin"
+          :name             "Kelvin (K)"
+          :system           :metric
+          :short-code       "K"}]}
 
  {:dimension/name "Time"
   :enum-name      "TimeUnits_TimeUnitsEnum"

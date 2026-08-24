@@ -32,6 +32,13 @@
                 (shell "find projects/behave/resources/public/help/images -type f ( -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.png\" ) -exec sh -c 'for file do convert \"$file\" \"${file%.*}.webp\" && echo \"Converted $file to ${file%.*}.webp\"; done' sh {} +")
                 (shell "find projects/behave/resources/public/help/images -type f ( -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.png\" ) -exec rm {} +"))
 
+  ;;; Cucumber
+  cucumber    {:doc  "Run the cucumber suite (app must already be running). Opts forwarded to scripts/run_cucumber_tests.clj: --headless --query --features-dir --steps-dir --retry-failed --stop --url --help"
+               :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/run_cucumber_tests.clj" *command-line-args*)))}
+
+  cucumber:ci {:doc  "Cucumber run: compile the advanced CLJS build once, start isolated app server(s) (own port + DB each), run Chrome driver(s), then merge + tear down. DEFAULT is a visible browser: 1 shard, browser + server stay open until Ctrl-C. Pass --headless for the headless CI path: parallel sharding (default 2) and auto-close. Requires chromedriver on PATH. Opts: --headless (headless + parallel shards, auto-close), --shards N (default 2 with --headless; 1 in visible mode unless set), --feature F, --query, --features-dir, --serve-timeout, --db-prefix, --base-port, --skip-compile, --stop (halt at first failure; forces 1 shard unless --shards given)."
+               :task (System/exit (:exit (apply shell {:continue true} "bb" "scripts/cucumber_ci.clj" *command-line-args*)))}
+
   ;;; Datomic
   -today      (str (java.time.LocalDate/now))
 

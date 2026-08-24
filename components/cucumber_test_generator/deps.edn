@@ -1,0 +1,4 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/math.combinatorics {:mvn/version "0.3.0"}
+        com.datomic/peer                {:mvn/version "1.0.7075"}}
+ :aliases {:test {:extra-paths ["test"]}}}

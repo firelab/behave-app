@@ -48,11 +48,11 @@
 (def ^:private english-units
   [{:short "Btu/ft/s"    :system "english" :enum enum/fireline-intensity-units      :dimension :fireline-intensity      :unit "BtusPerFootPerSecond"}
    {:short "Btu/ft/min"  :system "english" :enum enum/fireline-intensity-units      :dimension :fireline-intensity      :unit "BtusPerFootPerMinute"}
-   {:short "Btu/ft2"     :system "english" :enum enum/heat-unit-per-unit-area-units :dimension :heat-unit-per-unit-area :unit "BtusPerSquareFoot"}
-   {:short "Btu/ft2/min" :system "english" :enum enum/heat-source-reaction-units    :dimension :heat-source-reaction    :unit "BtusPerSquareFootPerMinute"}
-   {:short "Btu/ft2/sec" :system "english" :enum enum/heat-source-reaction-units    :dimension :heat-source-reaction    :unit "BtusPerSquareFootPerSecond"}
+   {:short "Btu/ft2"     :system "english" :enum enum/heat-unit-per-unit-area-units :dimension :heat-per-unit-area      :unit "BtusPerSquareFoot"}
+   {:short "Btu/ft2/min" :system "english" :enum enum/heat-source-reaction-units    :dimension :heat-source-and-reaction-intensity :unit "BtusPerSquareFootPerMinute"}
+   {:short "Btu/ft2/sec" :system "english" :enum enum/heat-source-reaction-units    :dimension :heat-source-and-reaction-intensity :unit "BtusPerSquareFootPerSecond"}
    {:short "Btu/ft3"     :system "english" :enum enum/heat-sink-units               :dimension :heat-sink               :unit "BtusPerCubicFoot"}
-   {:short "Btu/lb"      :system "english" :enum enum/heat-combustion-units         :dimension :heat-combustion         :unit "BtusPerPound"}
+   {:short "Btu/lb"      :system "english" :enum enum/heat-combustion-units         :dimension :heat-of-combustion      :unit "BtusPerPound"}
    {:short "ac"          :system "english" :enum enum/area-units                    :dimension :area                    :unit "Acres"}
    {:short "ch"          :system "english" :enum enum/length-units                  :dimension :length                  :unit "Chains"}
    {:short "ch/h"        :system "english" :enum enum/speed-units                   :dimension :speed                   :unit "ChainsPerHour"}
@@ -61,7 +61,10 @@
    {:short "ft2"         :system "english" :enum enum/area-units                    :dimension :area                    :unit "SquareFeet"}
    {:short "ft2/ac"      :system "english" :enum enum/basal-area-units              :dimension :basal-area              :unit "SquareFeetPerAcre"}
    {:short "ft2/ft3"     :system "english" :enum enum/surface-area-to-volume-units  :dimension :surface-area-to-volume  :unit "SquareFeetOverCubicFeet"}
+   {:short "fur/fortnight" :system "english" :enum enum/speed-units                 :dimension :speed                   :unit "FurlongsPerFortnight"}
    {:short "in"          :system "english" :enum enum/length-units                  :dimension :length                  :unit "Inches"}
+   {:short "in2/in3"     :system "english" :enum enum/surface-area-to-volume-units  :dimension :surface-area-to-volume  :unit "SquareInchesOverCubicInches"}
+   {:short "lb/ft2"      :system "english" :enum enum/loading-units                 :dimension :loading                 :unit "PoundsPerSquareFoot"}
    {:short "lb/ft3"      :system "english" :enum enum/density-units                 :dimension :density                 :unit "PoundsPerCubicFoot"}
    {:short "lbs/ft3"     :system "english" :enum enum/density-units                 :dimension :density                 :unit "PoundsPerCubicFoot"}
    {:short "mi"          :system "english" :enum enum/length-units                  :dimension :length                  :unit "Miles"}
@@ -69,22 +72,31 @@
    {:short "ms"} ; FIXME
    {:short "oF"          :system "english" :enum enum/temperature-units             :dimension :temperature             :unit "Fahrenheit"}
    {:short "per ac"} ; FIXME Tree Count
-   {:short "ton/ac"      :system "english" :enum enum/loading-units                 :dimension :loading-units           :unit "TonnesPerAcre"}
-   {:short "psi"         :system "english" :enum enum/pressure-units                :dimension :pressure-units          :unit "PoundPerSquareInch"}])
+   {:short "ton/ac"      :system "english" :enum enum/loading-units                 :dimension :loading                 :unit "TonsPerAcre"}
+   {:short "psi"         :system "english" :enum enum/pressure-units                :dimension :pressure                :unit "PoundPerSquareInch"}])
 
 (def ^:private metric-units
-  [{:short "cm"       :system "metric" :enum enum/length-units                  :dimension :length                  :unit "Centimeters"}
+  [{:short "K"        :system "metric" :enum enum/temperature-units             :dimension :temperature             :unit "Kelvin"}
+   {:short "cm"       :system "metric" :enum enum/length-units                  :dimension :length                  :unit "Centimeters"}
+   {:short "cm2/cm3"  :system "metric" :enum enum/surface-area-to-volume-units  :dimension :surface-area-to-volume  :unit "SquareCentimetersOverCubicCentimeters"}
    {:short "ha"       :system "metric" :enum enum/area-units                    :dimension :area                    :unit "Hectares"}
-   {:short "kJ/kg"    :system "metric" :enum enum/heat-combustion-units         :dimension :heat-combustion         :unit "KilojoulesPerKilogram"}
-   {:short "kJ/m2"    :system "metric" :enum enum/heat-unit-per-unit-area-units :dimension :heat-unit-per-unit-area :unit "KilojoulesPerSquareMeter"}
+   {:short "kJ/kg"    :system "metric" :enum enum/heat-combustion-units         :dimension :heat-of-combustion      :unit "KilojoulesPerKilogram"}
+   {:short "kJ/m/s"   :system "metric" :enum enum/fireline-intensity-units      :dimension :fireline-intensity      :unit "KilojoulesPerMeterPerSecond"}
+   {:short "kJ/m/min" :system "metric" :enum enum/fireline-intensity-units      :dimension :fireline-intensity      :unit "KilojoulesPerMeterPerMinute"}
+   {:short "kJ/m2"    :system "metric" :enum enum/heat-unit-per-unit-area-units :dimension :heat-per-unit-area      :unit "KilojoulesPerSquareMeter"}
+   {:short "kJ/m2/s"  :system "metric" :enum enum/heat-source-reaction-units    :dimension :heat-source-and-reaction-intensity :unit "KilojoulesPerSquareMeterPerSecond"}
+   {:short "kJ/m2/min" :system "metric" :enum enum/heat-source-reaction-units   :dimension :heat-source-and-reaction-intensity :unit "KilojoulesPerSquareMeterPerMinute"}
    {:short "kJ/m3"    :system "metric" :enum enum/heat-sink-units               :dimension :heat-sink               :unit "KilojoulesPerCubicMeter"}
+   {:short "kW-s/m2"  :system "metric" :enum enum/heat-unit-per-unit-area-units :dimension :heat-per-unit-area      :unit "KilowattSecondsPerSquareMeter"}
    {:short "kW/m"     :system "metric" :enum enum/fireline-intensity-units      :dimension :fireline-intensity      :unit "KilowattsPerMeter"}
-   {:short "kW/m2"    :system "metric" :enum enum/heat-source-reaction-units    :dimension :heat-source-reaction    :unit "KilowattsPerSquareMeter"}
+   {:short "kW/m2"    :system "metric" :enum enum/heat-source-reaction-units    :dimension :heat-source-and-reaction-intensity :unit "KilowattsPerSquareMeter"}
+   {:short "kg/m2"    :system "metric" :enum enum/loading-units                 :dimension :loading                 :unit "KilogramsPerSquareMeter"}
    {:short "kg/m3"    :system "metric" :enum enum/density-units                 :dimension :density                 :unit "KilogramsPerCubicMeter"}
    {:short "km"       :system "metric" :enum enum/length-units                  :dimension :length                  :unit "Kilometers"}
    {:short "km/h"     :system "metric" :enum enum/speed-units                   :dimension :speed                   :unit "KilometersPerHour"}
    {:short "m"        :system "metric" :enum enum/length-units                  :dimension :length                  :unit "Meters"}
-   {:short "m/h"      :system "metric" :enum enum/speed-units                   :dimension :speed                   :unit "MetersPerHour"} ; FIXME
+   {:short "m/s"      :system "metric" :enum enum/speed-units                   :dimension :speed                   :unit "MetersPerSecond"}
+   {:short "m/h"      :system "metric" :enum enum/speed-units                   :dimension :speed                   :unit "MetersPerHour"}
    {:short "m/min"    :system "metric" :enum enum/speed-units                   :dimension :speed                   :unit "MetersPerMinute"}
    {:short "m2"       :system "metric" :enum enum/area-units                    :dimension :area                    :unit "SquareMeters"}
    {:short "m2/ha"    :system "metric" :enum enum/basal-area-units              :dimension :basal-area              :unit "SquareMetersPerHectare"}

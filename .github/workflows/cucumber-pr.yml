@@ -1,0 +1,20 @@
+name: cucumber (on PR core only)
+
+# Runs the core cucumber suite automatically on every PR to main. The full/all scope
+# stays on the manual push-button workflow (cucumber.yml).
+on:
+  pull_request:
+    branches:
+      - main
+
+# Cancel a still-running core run when the PR gets a new commit.
+concurrency:
+  group: cucumber-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    uses: ./.github/workflows/cucumber-run.yml
+    with:
+      scope: core
+      timeout_minutes: 120  # core-only is far smaller than the 360 push-button cap; tune as needed
