@@ -53,8 +53,9 @@
 ;;                  --query '(and "core" (not "extended"))'
 ;;       Single feature, headless, restricted to a tegere query.
 ;;
-;;   bb cucumber:ci --headless --query '"core"'
-;;       All features, headless, every scenario tagged core (including extended).
+;;   bb cucumber:ci --headless --query '(or "core" "extended")'
+;;       Full suite, headless — the query the GitHub Actions `all` scope uses
+;;       (the default/PR scope uses '(and "core" (not "extended"))', shown above).
 ;;
 ;;   bb cucumber:ci --headless --skip-compile
 ;;       Reuse the CLJS build from a previous run — fast iteration when only steps/features changed.
