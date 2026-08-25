@@ -58,24 +58,15 @@
      :width  width
      :height height}))
 
-(defn- pop-out-size
-  "Chart size for the pop-out modal, bounded by the viewport."
-  []
-  (let [width  (min 1000 (max 300 (- (.-innerWidth js/window) 240)))
-        height (min 700 (max 250 (- (.-innerHeight js/window) 280)))]
-    [width height]))
-
+;; Creates a graph modal
 (defmethod modal-content :graph
   [{:keys [ws-uuid output-uuid]}]
   (let [graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])
-        cell-data      @(subscribe [:worksheet/result-table-cell-data ws-uuid])
-        [width height] (pop-out-size)]
+        cell-data      @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.wizard-results__graph-pop-out
      (result-chart (chart-spec {:graph-settings graph-settings
                                 :data           (cell-data->graph-data cell-data)
-                                :output-uuid    output-uuid
-                                :width          width
-                                :height         height}))]))
+                                :output-uuid    output-uuid}))]))
 
 (defn- pop-out-button
   "Opens `output-uuid`'s graph in a modal."
