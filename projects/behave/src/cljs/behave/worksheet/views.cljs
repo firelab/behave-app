@@ -31,7 +31,7 @@
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
         :header      @(<t (bp "welcome_to_behave7"))
-        :description @(<t (bp "create_a_new-worksheet_or_import_an_existing_one"))}]
+        :description @(<t (bp "create_a_new_worksheet_or_import_an_existing_one"))}]
       [:div.workflow-select__content
        [c/card-group {:on-select      #(rf/dispatch [:wizard/update-cached-new-worksheet-or-import (:workflow %)])
                       :flex-direction "column"
@@ -194,10 +194,10 @@
          [:div.workflow-select__warning
           (str
            (gstring/format
-            @(<t (bp "the-application-version-is-%s-but-your-run-is-%s"))
+            @(<t (bp "the_application_version_is_%s_but_your_run_is_%s"))
             @app-version @ws-version)
            " "
-           @(<t (bp "review-your-outputs-and-inputs-before-calculating-this-run")))])
+           @(<t (bp "review_your_outputs_and_inputs_before_calculating_this_run")))])
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
                            :on-back    #(rf/dispatch [:navigate "/worksheets/workflow-selection"])

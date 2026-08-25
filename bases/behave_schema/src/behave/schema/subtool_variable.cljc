@@ -80,7 +80,7 @@
   (s/explain :behave/subtool-variable {:bp/uuid                          (str (random-uuid))
                                        :subtool-variable/io              :input
                                        :subtool-variable/order           0
-                                       :subtool-variable/translation-key "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:var"
+                                       :subtool-variable/translation-key "behaveplus:relative_humidity:dry_temp_wet_temp_elevation:var"
                                        :subtool-variable/help-key        "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:var:help"
                                        :subtool-variable/cpp-class       "BehaveRelativeHumidity"
                                        :subtool-variable/cpp-namespace   "global"

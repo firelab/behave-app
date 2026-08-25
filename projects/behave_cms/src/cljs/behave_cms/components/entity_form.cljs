@@ -10,7 +10,7 @@
             [map-utils.interface                           :refer [index-by]]
             [re-frame.core                                 :as rf]
             [reagent.core                                  :as r]
-            [string-utils.interface                        :refer [->kebab ->str]]))
+            [string-utils.interface                        :refer [->snake ->str]]))
 
 ;;; Constants
 (def ^:private db-attrs                  (map :db/ident all-schemas))
@@ -85,8 +85,8 @@
                             (filter #(str/ends-with? % "/name"))
                             (first)
                             (keyword))
-            name-kebab (->kebab (get parent name-key))]
-        (str/replace (get parent h-or-t-key name-kebab) #":help$" "")))))
+            name-snake (->snake (get parent name-key))]
+        (str/replace (get parent h-or-t-key name-snake) #":help$" "")))))
 
 (defn- merge-parent-fields [state original entity parent-field parent-id parent]
   (let [gen-attr           #(keyword (str (->str entity) "/" %))
@@ -96,18 +96,17 @@
         parent-translation (parent-translation-key parent)
         translation-key    (str parent-translation
                                 ":"
+                                (when (= entity :search-table) "search-table:")
+                                (->snake (get state name-attr))
+                                ;; io goes AFTER the submodule name: module:submodule:io
                                 (cond
                                   (and (= entity :submodule) (= (:submodule/io state) :input))
-                                  "input:"
+                                  ":input"
 
                                   (and (= entity :submodule) (= (:submodule/io state) :output))
-                                  "output:"
+                                  ":output"
 
-                                  (= entity :search-table)
-                                  "search-table:"
-
-                                  :else nil)
-                                (->kebab (get state name-attr)))
+                                  :else nil))
         help-key           (str translation-key ":help")]
     (merge state
            {parent-field parent-id}

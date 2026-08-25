@@ -11,7 +11,7 @@
             [clojure.set                           :refer [difference]]
             [re-frame.core                         :as rf]
             [reagent.core                          :as r]
-            [string-utils.interface                :refer [->kebab]]))
+            [string-utils.interface                :refer [->snake]]))
 
 ;;; Constants
 
@@ -40,8 +40,8 @@
       :on-select #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
                     (rf/dispatch [:api/create-entity
                                   {:variable/_subtool-variables      %
-                                   :subtool-variable/translation-key (str translation-key ":" (->kebab (:variable/name variable)))
-                                   :subtool-variable/help-key        (str translation-key ":" (->kebab (:variable/name variable)) ":help")
+                                   :subtool-variable/translation-key (str translation-key ":" (->snake (:variable/name variable)))
+                                   :subtool-variable/help-key        (str translation-key ":" (->snake (:variable/name variable)) ":help")
                                    :subtool-variable/io              io
                                    :subtool/_variables               subtool-id}
                                   {:order-attr :subtool-variable/order :siblings variables}]))

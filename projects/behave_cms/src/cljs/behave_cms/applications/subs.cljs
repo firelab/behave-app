@@ -4,7 +4,7 @@
             [bidi.bidi              :refer [path-for]]
             [datascript.core        :as d]
             [re-frame.core          :as rf]
-            [string-utils.interface :refer [->kebab]]))
+            [string-utils.interface :refer [->snake]]))
 
 (rf/reg-sub
  :applications
@@ -18,7 +18,7 @@
    (rf/subscribe [:entity id]))
  (fn [result _]
    (let [app-name        (:application/name result)
-         translation-key (->kebab app-name)
+         translation-key (->snake app-name)
          help-key        (str translation-key ":help")]
      (assoc result
             :application/help-key help-key

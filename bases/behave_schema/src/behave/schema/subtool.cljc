@@ -83,5 +83,5 @@
                              :subtool/name            "Relative Humidity"
                              :subtool/order           1
                              :subtool/auto-compute?   false
-                             :subtool/translation-key "behaveplus:relative-humidity:dry-temp-wet-temp-elevation"
+                             :subtool/translation-key "behaveplus:relative_humidity:dry_temp_wet_temp_elevation"
                              :subtool/help-key        "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:help"}))

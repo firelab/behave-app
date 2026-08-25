@@ -130,9 +130,9 @@
              {:title          "Disclaimer"
               :close-on-click #(rf/dispatch [:wizard/toggle-disclaimer])
               :content        [:div.disclaimer
-                               [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-1"))]
-                               [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-2"))]
-                               [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-3"))]]}])
+                               [:div.disclaimer__paragraph @(<t (bp "disclaimer_paragraph_1"))]
+                               [:div.disclaimer__paragraph @(<t (bp "disclaimer_paragraph_2"))]
+                               [:div.disclaimer__paragraph @(<t (bp "disclaimer_paragraph_3"))]]}])
           (if (and @vms-loaded? @sync-loaded?)
             [page params]
             [:h3 "Loading..."])]
