@@ -59,10 +59,10 @@
         names                          (map (fn [[gv-uuid _min _max]]
                                               (gstring/format "%s (%s)"
                                                               @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
-                                                              (get units-lookup
-                                                                   (if-let [directional-children (seq @(subscribe [:vms/directional-children gv-uuid]))]
-                                                                     (:bp/uuid (first directional-children))
-                                                                     gv-uuid))))
+                                                              (let [child-uuids (map :bp/uuid @(subscribe [:vms/directional-children gv-uuid]))]
+                                                                (if (seq child-uuids)
+                                                                  (some units-lookup child-uuids)
+                                                                  (get units-lookup gv-uuid)))))
                                             gv-uuid+min+max-entries-sorted)
         checkboxes                     (when on-toggle-row
                                          (map (fn [[gv-uuid _min _max row-enabled?]]
