@@ -598,12 +598,12 @@ body {
 /* The pop-out control matches Vega's "…" menu: same 28px round button, same
    fade-in. Vega anchors that menu to the chart container, so this wrapper
    shrink-wraps to share its box. */
-.wizard-graph__chart {
+.pop-out-anchor {
   position: relative;
   display: inline-block;
 }
 
-.wizard-graph__pop-out-button {
+.pop-out-button {
   position: absolute;
   top: 0;
   right: 0;
@@ -613,17 +613,17 @@ body {
 }
 
 /* Shift Vega's menu left so the pop-out control sits to its right. */
-.wizard-graph__chart .vega-embed summary {
+.pop-out-anchor .vega-embed summary {
   right: 34px;
 }
 
-.wizard-graph__chart:hover .wizard-graph__pop-out-button,
-.wizard-graph__pop-out-button:focus-within {
+.pop-out-anchor:hover .pop-out-button,
+.pop-out-button:focus-within {
   opacity: 1;
   transition: opacity 0.2s ease;
 }
 
-.wizard-graph__pop-out-button .button {
+.pop-out-button .button {
   justify-content: center;
   width: 28px;
   height: 28px;
@@ -636,7 +636,7 @@ body {
   background-color: var(--white);
 }
 
-.wizard-graph__pop-out-button .button:hover {
+.pop-out-button .button:hover {
   color: var(--white);
   background-color: var(--medblue-4);
 }

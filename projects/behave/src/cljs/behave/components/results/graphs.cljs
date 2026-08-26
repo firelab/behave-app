@@ -1,6 +1,8 @@
 (ns behave.components.results.graphs
   (:require [behave.components.core              :as c]
-            [behave.components.vega.result-chart :refer [result-chart]]
+            [behave.components.results.pop-out   :refer [pop-out-button pop-out-size]]
+            [behave.components.vega.core         :refer [vega-box]]
+            [behave.components.vega.result-chart :refer [build-line-chart result-chart]]
             [behave.modal.core                   :refer [modal-content]]
             [number-utils.core                   :refer [parse-float]]
             [re-frame.core                       :refer [dispatch subscribe]]))
@@ -58,28 +60,18 @@
      :width  width
      :height height}))
 
-;; Creates a graph modal
 (defmethod modal-content :graph
   [{:keys [ws-uuid output-uuid]}]
   (let [graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])
-        cell-data      @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
+        cell-data      @(subscribe [:worksheet/result-table-cell-data ws-uuid])
+        [width height] (pop-out-size)]
     [:div.wizard-results__graph-pop-out
-     (result-chart (chart-spec {:graph-settings graph-settings
-                                :data           (cell-data->graph-data cell-data)
-                                :output-uuid    output-uuid}))]))
-
-(defn- pop-out-button
-  "Opens `output-uuid`'s graph in a modal."
-  [ws-uuid output-uuid output-name]
-  [:div.wizard-graph__pop-out-button
-   [c/button {:icon-name "pop-out"
-              :variant   "secondary"
-              :size      "small"
-              :title     "Enlarge graph"
-              :on-click  #(dispatch [:modal/open :graph {:ws-uuid     ws-uuid
-                                                         :output-uuid output-uuid
-                                                         :modal/title output-name
-                                                         :modal/size  :large}])}]])
+     [vega-box (build-line-chart (chart-spec {:graph-settings graph-settings
+                                              :data           (cell-data->graph-data cell-data)
+                                              :output-uuid    output-uuid
+                                              :width          width
+                                              :height         height}))
+      nil nil]]))
 
 (defn result-graphs
   "Renders the Results graphs for the worksheet `ws-uuid`.
@@ -108,11 +100,14 @@
            [:div.wizard-results__graph
             [:div.wizard-graph__output-header output-name]
             [:div.wizard-results__graph
-             [:div.wizard-graph__chart
+             [:div.pop-out-anchor
               (result-chart (chart-spec {:graph-settings graph-settings
                                          :data           graph-data
                                          :output-uuid    output-uuid
                                          :width          inline-chart-size
                                          :height         inline-chart-size}))
               (when-not hide-controls?
-                [pop-out-button ws-uuid output-uuid output-name])]]])]))))
+                [pop-out-button :graph {:ws-uuid     ws-uuid
+                                        :output-uuid output-uuid
+                                        :modal/title output-name
+                                        :modal/size  :large}])]]])]))))

@@ -1,5 +1,7 @@
 (ns behave.components.results.diagrams
-  (:require [behave.components.vega.diagram :refer [output-diagram]]
+  (:require [behave.components.results.pop-out :refer [pop-out-button pop-out-size]]
+            [behave.components.vega.diagram :refer [output-diagram]]
+            [behave.modal.core              :refer [modal-content]]
             [behave.translate               :refer [<t]]
             [clojure.set                    :refer [rename-keys]]
             [clojure.string                 :as str]
@@ -105,7 +107,8 @@
                            ellipses            :worksheet.diagram/ellipses
                            arrows              :worksheet.diagram/arrows
                            scatter-plots       :worksheet.diagram/scatter-plots
-                           group-variable-uuid :worksheet.diagram/group-variable-uuid}]
+                           group-variable-uuid :worksheet.diagram/group-variable-uuid}
+                          & [{:keys [size hide-controls?] :or {size 500}}]]
 
   (let [scatter-plot-legacy?     (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.5"))
         cms-diagram              @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
@@ -148,10 +151,10 @@
                                        (comp (filter #(false? (:arrow/default-visible? %)))
                                              (map (fn [a] @(<t (:arrow/legend-id a)))))
                                        arrows)]
-    [:div.diagram
+    [:div.diagram.pop-out-anchor
      [output-diagram {:title                    (build-title ws-uuid title row-id)
-                      :width                    500
-                      :height                   500
+                      :width                    size
+                      :height                   size
                       :hide-axis-numbers?       hide-axis-numbers?
                       :x-axis                   {:domain        x-domain
                                                  :units         x-units-short-code
@@ -204,15 +207,32 @@
                                                                           pts))}))
                                                       scatter-plots)
                       :hidden-by-default-series hidden-by-default-series}]
+     (when-not hide-controls?
+       [pop-out-button :diagram {:ws-uuid             ws-uuid
+                                 :row-id              row-id
+                                 :group-variable-uuid group-variable-uuid
+                                 :modal/title         (build-title ws-uuid title row-id)
+                                 :modal/size          :large}])
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 
+(defmethod modal-content :diagram
+  [{:keys [ws-uuid row-id group-variable-uuid]}]
+  (let [diagrams (:worksheet/diagrams @(subscribe [:worksheet-entity ws-uuid]))]
+    (when-let [diagram (first (filter #(and (= row-id (:worksheet.diagram/row-id %))
+                                            (= group-variable-uuid (:worksheet.diagram/group-variable-uuid %)))
+                                      diagrams))]
+      ;; the diagram is square, so fit it to whichever dimension is tighter
+      (construct-diagram ws-uuid diagram {:size (apply min (pop-out-size)) :hide-controls? true}))))
+
 (defn result-diagrams
-  "Reagent component rendering all diagrams for a worksheet."
-  [ws-uuid]
+  "Reagent component rendering all diagrams for a worksheet.
+
+  `:hide-controls?` omits the pop-out control — e.g. on the printed page."
+  [ws-uuid & [opts]]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
       [:div.wizard-results__diagrams {:id "diagram"}
        [:div.wizard-notes__header "Diagram"]
-       (map #(construct-diagram ws-uuid %)
+       (map #(construct-diagram ws-uuid % opts)
             (sort-by :worksheet.diagram/row-id
                      (:worksheet/diagrams @*ws)))])))
