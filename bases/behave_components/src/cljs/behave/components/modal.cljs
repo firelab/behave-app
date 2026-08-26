@@ -34,12 +34,13 @@
   Options: `:title`, `:icon`, `:close-on-click`, `:buttons`, `:content`, `:size`
   (`:medium`, `:large` or `:fullscreen`), `:dismiss-on-backdrop?` (default true)
   and `:dismiss-on-escape?` (defaults to `:dismiss-on-backdrop?`)."
-  [{:keys [title icon close-on-click buttons content size
-           dismiss-on-backdrop? dismiss-on-escape?]
-    :or   {size                 :medium
-           dismiss-on-backdrop? true}}]
+  [{icon-opts :icon
+    :keys     [title close-on-click buttons content size
+               dismiss-on-backdrop? dismiss-on-escape?]
+    :or       {size                 :medium
+               dismiss-on-backdrop? true}}]
   (let [buttons          (js->clj buttons :keywordize-keys true)
-        icon             (js->clj icon :keywordize-keys true)
+        icon-opts        (js->clj icon-opts :keywordize-keys true)
         dismiss-on-esc?  (if (some? dismiss-on-escape?)
                            dismiss-on-escape?
                            dismiss-on-backdrop?)
@@ -52,7 +53,7 @@
                                  :role       "dialog"
                                  :aria-modal "true"
                                  :aria-label title}
-                           [header icon close-on-click title]
+                           [header icon-opts close-on-click title]
                            [:div {:class "modal__body"} content]
                            (when (seq buttons)
                              [:div {:class "modal__buttons"}
