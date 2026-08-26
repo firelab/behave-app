@@ -376,7 +376,7 @@
         map-rep-frac-atom         (r/atom map-rep-frac)]
     [:div.table-settings__map-units-form
      [:div.table-settings__map-units-form__units
-      [c/radio-group {:label   (s/capitalize-words @(<t (bp "map_representative_fraction")))
+      [c/radio-group {:label   (s/capitalize-words @(<t (bp "map_units")))
                       :options (mapv (fn [option]
                                        {:value     option
                                         :label     option
