@@ -371,17 +371,20 @@ interface SIGIgnite {
   void initializeMembers();
 
   IgnitionFuelBedType_IgnitionFuelBedTypeEnum getFuelBedType();
-  LightningCharge_LightningChargeEnum getLightningChargeType();
+  /* Deprecated: the science is no longer considered reliable. There is no known
+     method to accurately calculate Probability of Ignition from a lightning strike.
+     The LightningCharge enum is retained because it is still defined in igniteInputs.h. */
+  // LightningCharge_LightningChargeEnum getLightningChargeType();
   void calculateFirebrandIgnitionProbability();
-  double calculateLightningIgnitionProbability(FractionUnits_FractionUnitsEnum desiredUnits);
+  // double calculateLightningIgnitionProbability(FractionUnits_FractionUnitsEnum desiredUnits);
   void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnites);
   void setDuffDepth(double duffDepth, LengthUnits_LengthUnitsEnum lengthUnits);
   void setIgnitionFuelBedType(IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType_);
-  void setLightningChargeType(LightningCharge_LightningChargeEnum lightningChargeType);
+  // void setLightningChargeType(LightningCharge_LightningChargeEnum lightningChargeType);
   void setMoistureHundredHour(double moistureHundredHour, FractionUnits_FractionUnitsEnum moistureUnits);
   void setMoistureOneHour(double moistureOneHour, FractionUnits_FractionUnitsEnum moistureUnits);
   void setSunShade(double sunShade, FractionUnits_FractionUnitsEnum sunShadeUnits);
-  void updateIgniteInputs(double moistureOneHour, double moistureHundredHour, FractionUnits_FractionUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, FractionUnits_FractionUnitsEnum sunShadeUnits, IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits, LightningCharge_LightningChargeEnum lightningChargeType);
+  void updateIgniteInputs(double moistureOneHour, double moistureHundredHour, FractionUnits_FractionUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, FractionUnits_FractionUnitsEnum sunShadeUnits, IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits);
 
   double getAirTemperature(TemperatureUnits_TemperatureUnitsEnum desiredUnits);
   double getDuffDepth(LengthUnits_LengthUnitsEnum desiredUnits);

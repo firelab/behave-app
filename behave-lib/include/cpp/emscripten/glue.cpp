@@ -710,16 +710,8 @@ IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind
   return self->getFuelBedType();
 }
 
-LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getLightningChargeType_0(SIGIgnite* self) {
-  return self->getLightningChargeType();
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0(SIGIgnite* self) {
   self->calculateFirebrandIgnitionProbability();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1(SIGIgnite* self, FractionUnits_FractionUnitsEnum desiredUnits) {
-  return self->calculateLightningIgnitionProbability(desiredUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setAirTemperature_2(SIGIgnite* self, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnites) {
@@ -734,10 +726,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1(SIG
   self->setIgnitionFuelBedType(fuelBedType_);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setLightningChargeType_1(SIGIgnite* self, LightningCharge_LightningChargeEnum lightningChargeType) {
-  self->setLightningChargeType(lightningChargeType);
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setMoistureHundredHour_2(SIGIgnite* self, double moistureHundredHour, FractionUnits_FractionUnitsEnum moistureUnits) {
   self->setMoistureHundredHour(moistureHundredHour, moistureUnits);
 }
@@ -750,8 +738,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setSunShade_2(SIGIgnite* sel
   self->setSunShade(sunShade, sunShadeUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_updateIgniteInputs_11(SIGIgnite* self, double moistureOneHour, double moistureHundredHour, FractionUnits_FractionUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, FractionUnits_FractionUnitsEnum sunShadeUnits, IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits, LightningCharge_LightningChargeEnum lightningChargeType) {
-  self->updateIgniteInputs(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_updateIgniteInputs_10(SIGIgnite* self, double moistureOneHour, double moistureHundredHour, FractionUnits_FractionUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, FractionUnits_FractionUnitsEnum sunShadeUnits, IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits) {
+  self->updateIgniteInputs(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getAirTemperature_1(SIGIgnite* self, TemperatureUnits_TemperatureUnitsEnum desiredUnits) {

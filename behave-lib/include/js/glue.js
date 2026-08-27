@@ -1480,22 +1480,9 @@ SIGIgnite.prototype['getFuelBedType'] = SIGIgnite.prototype.getFuelBedType = fun
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
-SIGIgnite.prototype['getLightningChargeType'] = SIGIgnite.prototype.getLightningChargeType = function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGIgnite_getLightningChargeType_0(self);
-};
-
-/** @suppress {undefinedVars, duplicate} @this{Object} */
 SIGIgnite.prototype['calculateFirebrandIgnitionProbability'] = SIGIgnite.prototype.calculateFirebrandIgnitionProbability = function() {
   var self = this.ptr;
   _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0(self);
-};
-
-/** @suppress {undefinedVars, duplicate} @this{Object} */
-SIGIgnite.prototype['calculateLightningIgnitionProbability'] = SIGIgnite.prototype.calculateLightningIgnitionProbability = function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1(self, desiredUnits);
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
@@ -1519,13 +1506,6 @@ SIGIgnite.prototype['setIgnitionFuelBedType'] = SIGIgnite.prototype.setIgnitionF
   var self = this.ptr;
   if (fuelBedType_ && typeof fuelBedType_ === 'object') fuelBedType_ = fuelBedType_.ptr;
   _emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1(self, fuelBedType_);
-};
-
-/** @suppress {undefinedVars, duplicate} @this{Object} */
-SIGIgnite.prototype['setLightningChargeType'] = SIGIgnite.prototype.setLightningChargeType = function(lightningChargeType) {
-  var self = this.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgnite_setLightningChargeType_1(self, lightningChargeType);
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
@@ -1553,7 +1533,7 @@ SIGIgnite.prototype['setSunShade'] = SIGIgnite.prototype.setSunShade = function(
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
-SIGIgnite.prototype['updateIgniteInputs'] = SIGIgnite.prototype.updateIgniteInputs = function(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType) {
+SIGIgnite.prototype['updateIgniteInputs'] = SIGIgnite.prototype.updateIgniteInputs = function(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits) {
   var self = this.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
   if (moistureHundredHour && typeof moistureHundredHour === 'object') moistureHundredHour = moistureHundredHour.ptr;
@@ -1565,8 +1545,7 @@ SIGIgnite.prototype['updateIgniteInputs'] = SIGIgnite.prototype.updateIgniteInpu
   if (fuelBedType && typeof fuelBedType === 'object') fuelBedType = fuelBedType.ptr;
   if (duffDepth && typeof duffDepth === 'object') duffDepth = duffDepth.ptr;
   if (duffDepthUnits && typeof duffDepthUnits === 'object') duffDepthUnits = duffDepthUnits.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgnite_updateIgniteInputs_11(self, moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType);
+  _emscripten_bind_SIGIgnite_updateIgniteInputs_10(self, moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits);
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
