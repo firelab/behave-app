@@ -231,6 +231,8 @@
                                                         :symbolType        "stroke"
                                                         :symbolSize        500
                                                         :symbolStrokeWidth 5.0
+                                                      ;; 0 = no truncation; show full label text
+                                                        :labelLimit        0
                                                       ;; gray out the legend entry of any series
                                                       ;; that has been toggled off (unselected)
                                                         :unselectedOpacity 0.35
