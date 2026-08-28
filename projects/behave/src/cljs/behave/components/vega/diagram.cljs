@@ -232,7 +232,6 @@
                                                         :symbolSize        500
                                                         :symbolStrokeWidth 5.0
                                                       ;; 0 = no truncation; show full label text
-                                                      ;; (default labelLimit of 200px cuts off long labels)
                                                         :labelLimit        0
                                                       ;; gray out the legend entry of any series
                                                       ;; that has been toggled off (unselected)
