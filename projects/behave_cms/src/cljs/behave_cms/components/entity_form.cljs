@@ -96,17 +96,18 @@
         parent-translation (parent-translation-key parent)
         translation-key    (str parent-translation
                                 ":"
-                                (when (= entity :search-table) "search-table:")
-                                (->snake (get state name-attr))
-                                ;; io goes AFTER the submodule name: module:submodule:io
                                 (cond
                                   (and (= entity :submodule) (= (:submodule/io state) :input))
-                                  ":input"
+                                  "input:"
 
                                   (and (= entity :submodule) (= (:submodule/io state) :output))
-                                  ":output"
+                                  "output:"
 
-                                  :else nil))
+                                  (= entity :search-table)
+                                  "search-table:"
+
+                                  :else nil)
+                                (->snake (get state name-attr)))
         help-key           (str translation-key ":help")]
     (merge state
            {parent-field parent-id}
