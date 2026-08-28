@@ -16,21 +16,7 @@
 ;;   missing-io keys : behaveplus:crown:topography:aspect        ->  behaveplus:crown:input:topography:aspect
 ;;                     (result) behaveplus:crown:topography:aspect
 ;;                                                               ->  behaveplus:crown:input:result:topography:aspect
-;;
-;; This REVERSES the io-after-submodule reformatting that briefly lived on this branch (io now sits after
-;; the module again). The RESULT key deliberately RETAINS io (behaveplus:<module>:<io>:result:<submodule>)
-;; so that an input group and an output group under the same submodule never collapse onto the same result
-;; key — the "Burning Pile" clash on the UNIQUE `:group/result-translation-key`. This matches the
-;; generators (`subgroups/views.cljs`, `schema_migrate/core.clj`), which insert `:result:` after io.
-;;
-;; The CMS db has been reverted to the dev snapshot, so translation keys are mostly already io-after-module;
-;; the real work here is (1) inserting io for the "case-C" keys authored WITHOUT io (crown/mortality
-;; topography-style submodules) and (2) rewriting dev result keys (io dropped, `:result:` in io's slot) to
-;; the io-retaining form. All branches are idempotent — they no-op on keys already in the target shape.
-;;
-;; io is derived from the owning submodule (`:submodule/io`), not string parsing. This runs BEFORE
-;; 2026_08_24_snake_case_translation_keys (sorted by filename), while keys are still kebab.
-;;
+;
 ;; SCOPE: `:submodule/translation-key`, and `:group/`+`:group-variable/` translation-key and
 ;; result-translation-key for every group/group-variable that descends from an input/output submodule.
 ;; HELP KEYS ARE LEFT UNTOUCHED (any key ending in ":help"; they tie to a separate DITA/MadCap system).
