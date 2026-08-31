@@ -37,7 +37,7 @@
       :always                            (assoc :selected?  (= selected-step idx)))))
 
 (defmulti progress-bar
-  (fn [{:keys [route-handler workflow] :as params}]
+  (fn [{:keys [route-handler workflow]}]
     (cond
       (or (= route-handler :home)
           (= route-handler :settings/all)) :ws/home
@@ -241,10 +241,10 @@
                            :on-click (when ws-uuid
                                        #(rf/dispatch [:toolbar/print ws-uuid]))}
                           #_{:icon     :zoom-in
-                             :label    (bp "zoom-in")
+                             :label    (bp "zoom_in")
                              :on-click on-click}
                           #_{:icon     :zoom-out
-                             :label    (bp "zoom-out")
+                             :label    (bp "zoom_out")
                              :on-click on-click}]
                    (not (:jar-local? params))
                    (conj {:icon     :share

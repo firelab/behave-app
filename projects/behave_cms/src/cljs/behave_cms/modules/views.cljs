@@ -8,7 +8,7 @@
    [clojure.string                          :as str]
    [map-utils.interface                     :refer [index-by]]
    [re-frame.core                           :as rf]
-   [string-utils.interface                  :refer [->kebab]]))
+   [string-utils.interface                  :refer [->snake]]))
 
 ;;; Modules
 
@@ -114,7 +114,7 @@
       :parent-field       :application/_note-categories
       :table-header-attrs [:note-category/name :note-category/module-names]
       :order-attr         :note-category/order
-      :translation-config {:key-fn  #(str "behaveplus:note-categories:" (->kebab (:note-category/name %)))
+      :translation-config {:key-fn  #(str "behaveplus:note_categories:" (->snake (:note-category/name %)))
                            :text-fn :note-category/name}
       :entity-form-fields [{:label     "Name"
                             :required? true

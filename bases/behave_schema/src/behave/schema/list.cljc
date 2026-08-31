@@ -223,10 +223,10 @@
   (s/valid? :behave/list {:list/uuid            (str (random-uuid))
                           :list/name            "My List"
                           :list/options         #{1}
-                          :list/translation-key "behave:my-list"})
+                          :list/translation-key "behave:my_list"})
 
   (s/valid? :behave/list-option {:list-option/uuid            (str (random-uuid))
                                  :list-option/name            "My Option"
                                  :list-option/value           "2"
                                  :list-option/order           1
-                                 :list-option/translation-key "behave:my-list:my-option"}))
+                                 :list-option/translation-key "behave:my_list:my_option"}))

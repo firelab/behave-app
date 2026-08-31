@@ -53,5 +53,5 @@
   (s/valid? :behave/module {:bp/uuid              (str (random-uuid))
                             :tool/name            "Relative Humidity"
                             :tool/order           1
-                            :tool/translation-key "behaveplus:relative-humidity"
+                            :tool/translation-key "behaveplus:relative_humidity"
                             :tool/help-key        "behaveplus:relative-humidity:help"}))

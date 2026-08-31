@@ -13,7 +13,7 @@
             [clojure.set                              :refer [difference]]
             [clojure.string                           :as str]
             [re-frame.core                            :as rf]
-            [string-utils.interface                   :refer [->kebab]]))
+            [string-utils.interface                   :refer [->snake]]))
 
 ;;; Private Views
 (defn- subgroups-table [group-id]
@@ -66,10 +66,12 @@
                      (rf/dispatch [:api/create-entity
                                    {:group/_group-variables                group-id
                                     :variable/_group-variables             %
-                                    :group-variable/translation-key        (str @translation-key ":" (->kebab (:variable/name variable)))
-                                    :group-variable/result-translation-key (-> (str/replace @translation-key #":input:|:output:" ":result:")
-                                                                               (str ":" (->kebab (:variable/name variable))))
-                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")}
+                                    :group-variable/translation-key        (str @translation-key ":" (->snake (:variable/name variable)))
+                                    :group-variable/result-translation-key (-> @translation-key
+                                                                               (str/replace ":input:" ":input:result:")
+                                                                               (str/replace ":output:" ":output:result:")
+                                                                               (str ":" (->snake (:variable/name variable))))
+                                    :group-variable/help-key               (str @translation-key ":" (->snake (:variable/name variable)) ":help")}
                                    {:order-attr :group-variable/order :siblings @group-variables}]))
        :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]]))
 

@@ -131,5 +131,5 @@
   (s/valid? :behave/group {:group/uuid            (str (random-uuid))
                            :group/name            "Inner Group"
                            :group/order           1
-                           :group/translation-key "behaveplus:fire:inner-group"
+                           :group/translation-key "behaveplus:fire:inner_group"
                            :group/help-key        "behaveplus:fire:inner-group:help"}))

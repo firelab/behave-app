@@ -1,12 +1,12 @@
 (ns behave.components.input-group
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [goog.string                     :as gstring]
             [behave.translate                :refer [<t bp repeat-item-name]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
             [data-utils.core                 :refer-macros [vmap]]
             [dom-utils.interface             :refer [input-value]]
+            [goog.string                     :as gstring]
             [re-frame.core                   :as rf]
             [reagent.core                    :as r]
             [string-utils.interface          :refer [->kebab]]))
@@ -203,16 +203,16 @@
                  :options                     (doall (map ->option options))}
 
           (= workflow :standard)
-          (merge {:prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:search:prompt1")) @*variable-name)
-                  :expand-options-button-label   (gstring/format @(<t (bp "behave-components:input:multi-select:search:expand-options-button-label")) @*variable-name)
-                  :collapse-options-button-label (gstring/format @(<t (bp "behave-components:input:multi-select:search:collapse-options-button-label")) @*variable-name)})
+          (merge {:prompt1                       (gstring/format @(<t (bp "behave_components:input:multi_select:search:prompt1")) @*variable-name)
+                  :expand-options-button-label   (gstring/format @(<t (bp "behave_components:input:multi_select:search:expand_options_button_label")) @*variable-name)
+                  :collapse-options-button-label (gstring/format @(<t (bp "behave_components:input:multi_select:search:collapse_options_button_label")) @*variable-name)})
 
           (= workflow :guided)
-          (merge {:prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:prompt1")) @*variable-name)
-                  :prompt2                       (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:prompt2")) @*variable-name)
-                  :prompt3                       (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:prompt3")) @*variable-name)
-                  :expand-options-button-label   (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:expand-options-button-label")) @*variable-name)
-                  :collapse-options-button-label (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:collapse-options-button-label")) @*variable-name)})
+          (merge {:prompt1                       (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:prompt1")) @*variable-name)
+                  :prompt2                       (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:prompt2")) @*variable-name)
+                  :prompt3                       (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:prompt3")) @*variable-name)
+                  :expand-options-button-label   (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:expand_options_button_label")) @*variable-name)
+                  :collapse-options-button-label (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:collapse_options_button_label")) @*variable-name)})
 
           (:list/tag-set llist)
           (assoc :filter-tags (map (fn [{id              :bp/nid
@@ -260,13 +260,13 @@
 
 (defn repeat-group [{:keys [ws-uuid] :as params} group variables]
   (let [{group-translation-key :group/translation-key
-         group-uuid            :bp/uuid} group
-        repeat-ids                       (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
-                                             (deref)
-                                             (sort))
-        next-repeat-id                   (or (some->> repeat-ids seq (apply max) inc)
-                                             0)
-        item-name                        (repeat-item-name group-translation-key)]
+         group-uuid            :bp/uuid}              group
+        repeat-ids                                    (-> (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+                                                          (deref)
+                                                          (sort))
+        next-repeat-id                                (or (some->> repeat-ids seq (apply max) inc)
+                                                          0)
+        item-name                                     (repeat-item-name group-translation-key)]
     [:<>
      (map-indexed
       (fn [index repeat-id]
