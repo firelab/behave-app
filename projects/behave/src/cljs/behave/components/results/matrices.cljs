@@ -509,18 +509,21 @@
         all-output-entities             (map (fn [gv] (merge gv {:units (get units-lookup (:bp/uuid gv))})) all-group-variables)
         discrete-outputs-with-colors    (find-discrete-outputs-with-colors all-output-entities)
         color-output-state              @(subscribe [:wizard/selected-output-cell-coloring])
-        cell-color-gv-uuid              (when-not (= :none color-output-state) color-output-state)
+        ;; Cell coloring only applies to matrix tables, which need a ranged input.
+        ranged-inputs?                  (boolean (seq multi-valued-inputs))
+        cell-color-gv-uuid              (when (and ranged-inputs? (not= :none color-output-state))
+                                          color-output-state)
         ;; Non-directional outputs rely on the Heading direction for shading.
         heading-direction               (some (fn [d] (when (= "heading" (str/lower-case (name d))) d)) directions)
         heading-gv-uuids                (when heading-direction
                                           (filter #(deref (subscribe [:vms/group-variable-is-directional? % heading-direction]))
                                                   directional-gv-uuids))
         any-filters-enabled?            (boolean (some (fn [[_ _ _ enabled?]] enabled?) table-setting-filters))]
-    (when (and (seq discrete-outputs-with-colors) (nil? color-output-state))
+    (when (and ranged-inputs? (seq discrete-outputs-with-colors) (nil? color-output-state))
       (dispatch-sync [:wizard/set-discrete-color-output (:bp/uuid (first discrete-outputs-with-colors))]))
     (when (seq all-output-gv-uuids)
       [:div.wizard-results
-       (when (seq discrete-outputs-with-colors)
+       (when (and ranged-inputs? (seq discrete-outputs-with-colors))
          [discrete-color-selector discrete-outputs-with-colors])
        (when (seq directional-gv-uuids)
          (for [direction directions]
