@@ -37,7 +37,7 @@
       :always                            (assoc :selected?  (= selected-step idx)))))
 
 (defmulti progress-bar
-  (fn [{:keys [route-handler workflow] :as params}]
+  (fn [{:keys [route-handler workflow]}]
     (cond
       (or (= route-handler :home)
           (= route-handler :settings/all)) :ws/home

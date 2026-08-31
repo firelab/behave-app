@@ -60,7 +60,7 @@
         *modules            (rf/subscribe [:local-storage/get-in [:state  :worksheet :*modules]])
         ;; *modules            (rf/subscribe [:state [:worksheet :*modules]])
         *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
-        name                (rf/subscribe [:state [:worksheet :name]])
+        *name               (rf/subscribe [:state [:worksheet :name]])
         show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
@@ -74,10 +74,10 @@
         :header      @(<t (bp "module_selection"))
         :description @(<t (bp "select_from_the_following_options"))}]
       [:div.workflow-select__content
-       [c/card-group {:on-select #(do
-                                    (rf/dispatch [:local-storage/update-in [:state :worksheet :*modules] (:module %)])
-                                    (rf/dispatch [:sidebar/set-modules (set (:module %))])
-                                    (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
+       [c/card-group {:on-select      #(do
+                                         (rf/dispatch [:local-storage/update-in [:state :worksheet :*modules] (:module %)])
+                                         (rf/dispatch [:sidebar/set-modules (set (:module %))])
+                                         (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
 
                       :flex-direction "row"
                       :cards          [{:order     1
@@ -123,7 +123,7 @@
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)
                           :on-back        #(rf/dispatch [:navigate "/worksheets/workflow-selection"])
-                          :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule @*workflow])}]]]))
+                          :on-next        #(rf/dispatch [:wizard/new-worksheet @*name @*modules @*submodule @*workflow])}]]]))
 
 (defn workflow-selection-page [_params]
   (let [*workflow           (rf/subscribe [:wizard/get-cached-workflow])
@@ -177,7 +177,7 @@
                                   nil))
         app-version (r/track #(or @(rf/subscribe [:state :app-version])
                                   nil))
-        *workflow           (rf/subscribe [:wizard/get-cached-workflow])]
+        *workflow   (rf/subscribe [:wizard/get-cached-workflow])]
     [:<>
      [:div.workflow-select
       [workflow-select-header
