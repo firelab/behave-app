@@ -16,6 +16,7 @@
    [behave.diagram-test]
    [behave.events]
    [behave.help.subs]
+   [behave.modal-test]
    [behave.mortality-test]
    [behave.results-table-test]
    [behave.shading-test]

@@ -28,16 +28,14 @@
  (fn [db [_ new-tab]]
    (assoc-in db [:state :help-tab] (:tab new-tab))))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :help/open-image-viewer
- (fn [db [_ url alt]]
-   (assoc-in db
-             [:state :help-area :image-modal]
-             {:title "Help Image" :src url :alt alt})))
+ (fn [_ [_ url alt]]
+   {:fx [[:dispatch [:modal/open :help-image {:modal/title "Help Image"
+                                              :src         url
+                                              :alt         alt}]]]}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :help/open-table-viewer
- (fn [db [_ table]]
-   (assoc-in db
-             [:state :help-area :table-modal]
-             table)))
+ (fn [_ [_ table]]
+   {:fx [[:dispatch [:modal/open :help-table {:table table}]]]}))

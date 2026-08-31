@@ -48,5 +48,5 @@
       [search-tables ws-uuid]
       [pivot-tables ws-uuid]
       [result-matrices ws-uuid]
-      [result-graphs ws-uuid graph-data]
-      [result-diagrams ws-uuid]]]))
+      [result-graphs ws-uuid graph-data {:hide-controls? true}]
+      [result-diagrams ws-uuid {:hide-controls? true}]]]))

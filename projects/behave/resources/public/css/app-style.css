@@ -621,6 +621,58 @@ body {
   background-color: var(--lightblue-2);
 }
 
+/* The pop-out control matches Vega's "…" menu: same 28px round button, same
+   fade-in. Vega anchors that menu to the chart container, so this wrapper
+   shrink-wraps to share its box. */
+.pop-out-anchor {
+  position: relative;
+  display: inline-block;
+}
+
+.pop-out-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  opacity: 0.2;
+  transition: opacity 0.4s ease-in;
+}
+
+/* Shift Vega's menu left so the pop-out control sits to its right. */
+.pop-out-anchor .vega-embed summary {
+  right: 34px;
+}
+
+.pop-out-anchor:hover .pop-out-button,
+.pop-out-button:focus-within {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.pop-out-button .button {
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border: 1px solid var(--gray-4);
+  border-radius: 999px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  /* the icon is fill: currentColor, so color is what tints it */
+  color: var(--gray-5);
+  background-color: var(--white);
+}
+
+.pop-out-button .button:hover {
+  color: var(--white);
+  background-color: var(--medblue-4);
+}
+
+.wizard-results__graph-pop-out {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
 .wizard-group--level-2 > .wizard-group__header {
   padding: 5px 36px;
   font-weight: var(--font-weight-500);
@@ -1614,6 +1666,22 @@ body {
   max-width: 80%;
   max-height: 60%;
   transform: translate(-50%, -50%);
+}
+
+/* Size variants; without them a modal is capped at 60% height and clips. */
+.app-shell .modal--large {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.app-shell .modal--fullscreen {
+  max-width: 95%;
+  max-height: 95%;
+}
+
+.app-shell .modal__body {
+  min-height: 0;
+  overflow: auto;
 }
 
 .app-shell .modal__background {
