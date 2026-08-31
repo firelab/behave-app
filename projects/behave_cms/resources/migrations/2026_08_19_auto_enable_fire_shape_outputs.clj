@@ -34,7 +34,7 @@
                   "fire-shape-diagram: force fire area"]
                  ["behaveplus:surface:output:size:surface___fire_size:fire_perimeter"
                   "fire-shape-diagram: force fire perimeter"]
-                 ["behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio"
+                 ["behaveplus:surface:output:size:surface___fire_size:length_to_width_ratio"
                   "fire-shape-diagram: force length-to-width ratio"]]]
     (mapv (fn [[k action-name]]
             {:db/id                  (sm/t-key->eid db k)
