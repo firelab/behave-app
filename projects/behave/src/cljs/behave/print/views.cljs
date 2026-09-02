@@ -1,11 +1,11 @@
 (ns behave.print.views
-  (:require [re-frame.core                          :refer [subscribe dispatch]]
-            [behave.print.subs]
+  (:require [behave.components.results.diagrams     :refer [result-diagrams]]
             [behave.components.results.graphs       :refer [result-graphs]]
-            [behave.components.results.diagrams     :refer [result-diagrams]]
-            [behave.components.results.matrices     :refer [result-matrices]]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table        :refer [pivot-tables search-tables]]))
+            [behave.components.results.matrices     :refer [result-matrices]]
+            [behave.components.results.table        :refer [pivot-tables search-tables]]
+            [behave.print.subs]
+            [re-frame.core                          :refer [subscribe dispatch]]))
 
 (defn- wizard-notes [notes]
   (when (seq notes)
@@ -24,12 +24,12 @@
 (defn print-page [{:keys [ws-uuid]}]
   (dispatch [:dev/close-after-print])
   (js/setTimeout #(dispatch [:dev/print]) 1000)
-  (let [worksheet           @(subscribe [:worksheet ws-uuid])
-        ws-date-created     (:worksheet/created worksheet)
-        ws-version          (:worksheet/version worksheet)
-        ws-description      (:worksheet/run-description worksheet)
-        notes               @(subscribe [:wizard/notes ws-uuid])
-        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
+  (let [worksheet       @(subscribe [:worksheet ws-uuid])
+        ws-date-created (:worksheet/created worksheet)
+        ws-version      (:worksheet/version worksheet)
+        ws-description  (:worksheet/run-description worksheet)
+        notes           @(subscribe [:wizard/notes ws-uuid])
+        graph-data      @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.print
      [:div.print__header
       [:img {:src "/images/logo.svg"}]
@@ -49,4 +49,4 @@
       [pivot-tables ws-uuid]
       [result-matrices ws-uuid]
       [result-graphs ws-uuid graph-data {:hide-controls? true}]
-      [result-diagrams ws-uuid {:hide-controls? true}]]]))
+      [result-diagrams ws-uuid {:hide-controls? true :show-all-series? true}]]]))

@@ -4,6 +4,13 @@
             [clojure.string              :as str]
             [goog.string                 :as gstring]))
 
+(defn- ->vega-name
+  "Sanitize a legend label into a valid Vega expression identifier
+  (letters/digits/underscore only) so labels containing spaces, parentheses,
+  etc. can't be mis-parsed as function calls when used as param/signal names."
+  [legend-id]
+  (str/replace legend-id #"[^A-Za-z0-9]" "_"))
+
 (defn- ->str-literal
   "A double-quoted Vega expression string literal for `legend-id`, used in a
   `:calculate` transform to tag every row of a layer with a `series` field."
@@ -40,7 +47,7 @@
                   x-offset    0
                   dashed?     false
                   stroke-dash [1 0]}}]
-  (let [legend-id-cleaned (str/replace legend-id " " "_")
+  (let [legend-id-cleaned (->vega-name legend-id)
         a-name            (str "A_" legend-id-cleaned)
         b-name            (str "B_" legend-id-cleaned)
         phi-name          (str "PHI_" legend-id-cleaned)
@@ -92,7 +99,7 @@
                                  dashed?         false
                                  offset-distance 0
                                  offset-rotation 0}}]
-  (let [legend-id-cleaned (str/replace legend-id " " "_")
+  (let [legend-id-cleaned (->vega-name legend-id)
         r-name            (str "R_" legend-id-cleaned)
         theta-name        (str "THETA_" legend-id-cleaned)
         ;; Base point of the arrow, offset from the plot origin by

@@ -1,13 +1,13 @@
 (ns behave.components.results.diagrams
   (:require [behave.components.results.pop-out :refer [pop-out-button pop-out-size]]
-            [behave.components.vega.diagram :refer [output-diagram]]
-            [behave.modal.core              :refer [modal-content]]
-            [behave.translate               :refer [<t]]
-            [clojure.set                    :refer [rename-keys]]
-            [clojure.string                 :as str]
-            [goog.string                    :as gstring]
-            [re-frame.core                  :refer [subscribe]]
-            [version-utils.interface        :as vu]))
+            [behave.components.vega.diagram    :refer [output-diagram]]
+            [behave.modal.core                 :refer [modal-content]]
+            [behave.translate                  :refer [<t]]
+            [clojure.set                       :refer [rename-keys]]
+            [clojure.string                    :as str]
+            [goog.string                       :as gstring]
+            [re-frame.core                     :refer [subscribe]]
+            [version-utils.interface           :as vu]))
 
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
   (let [gv-order          @(subscribe [:vms/group-variable-order])
@@ -39,7 +39,7 @@
              [:tr
               [:td (str variable-name ":")]
               [:td (if (seq units)
-                     (str value " (" units ")")
+                     (str value " " units)
                      value)]])
            inputs)]
      [:table.diagram__table
@@ -47,7 +47,7 @@
              [:tr
               [:td (str variable-name ":")]
               [:td (if (seq units)
-                     (str value " (" units ")")
+                     (str value " " units)
                      value)]])
            outputs)]]))
 
@@ -108,7 +108,7 @@
                            arrows              :worksheet.diagram/arrows
                            scatter-plots       :worksheet.diagram/scatter-plots
                            group-variable-uuid :worksheet.diagram/group-variable-uuid}
-                          & [{:keys [size hide-controls?] :or {size 500}}]]
+                          & [{:keys [size hide-controls? show-all-series?] :or {size 500}}]]
 
   (let [scatter-plot-legacy?     (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.5"))
         cms-diagram              @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
@@ -147,10 +147,14 @@
                                                    :show-q4?      show-q4?})
         ;; Series (by translated legend label) that should start hidden/grayed in the
         ;; legend — any arrow flagged :arrow/default-visible? false (e.g. flanking).
-        hidden-by-default-series (into #{}
-                                       (comp (filter #(false? (:arrow/default-visible? %)))
-                                             (map (fn [a] @(<t (:arrow/legend-id a)))))
-                                       arrows)]
+        ;; In the print/PDF view (`:show-all-series?`) every hideable component is
+        ;; always shown, so the hidden set is forced empty there.
+        hidden-by-default-series (if show-all-series?
+                                   #{}
+                                   (into #{}
+                                         (comp (filter #(false? (:arrow/default-visible? %)))
+                                               (map (fn [a] @(<t (:arrow/legend-id a)))))
+                                         arrows))]
     [:div.diagram.pop-out-anchor
      [output-diagram {:title                    (build-title ws-uuid title row-id)
                       :width                    size
@@ -227,7 +231,8 @@
 (defn result-diagrams
   "Reagent component rendering all diagrams for a worksheet.
 
-  `:hide-controls?` omits the pop-out control — e.g. on the printed page."
+  `:hide-controls?` omits the pop-out control and `:show-all-series?` forces every
+  legend-hideable component visible — e.g. on the printed page."
   [ws-uuid & [opts]]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
