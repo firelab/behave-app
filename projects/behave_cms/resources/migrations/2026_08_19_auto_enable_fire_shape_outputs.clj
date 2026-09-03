@@ -26,7 +26,7 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn payload-fn [db]
-  (let [fs-cond {:conditional/group-variable-uuid (sm/t-key->uuid db "behaveplus:surface:output:size:surface___fire_size:fire-shape-diagram")
+  (let [fs-cond {:conditional/group-variable-uuid (sm/t-key->uuid db "behaveplus:surface:output:size:surface___fire_size:fire_shape_diagram")
                  :conditional/type                :group-variable
                  :conditional/operator            :equal
                  :conditional/values              #{"true"}}
