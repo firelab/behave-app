@@ -586,8 +586,8 @@
                           :icon-name "settings"
                           :on-click  #(dispatch [:table-settings/toggle])}]])
             [result-matrices ws-uuid]])
-         (result-graphs ws-uuid @*cell-data)
-         (result-diagrams ws-uuid)]]
+         [result-graphs ws-uuid @*cell-data]
+         [result-diagrams ws-uuid]]]
        [:div.wizard-navigation
         [c/button {:label    @(<t (bp "back"))
                    :variant  "secondary"
