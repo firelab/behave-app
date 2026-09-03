@@ -1,8 +1,11 @@
 (ns datom-compressor.core
-  (:require [clojure.set :refer [map-invert]]
-            [msgpack.core :as msg]
-            #?(:clj [msgpack.extensions])
-            #?(:clj [msgpack.macros :refer [extend-msgpack]]))
+  (:require #?(:clj [msgpack.extensions])
+            #?(:clj [msgpack.macros :refer [extend-msgpack]])
+            ;; Applies the negative-fixint decode fix (msgpack-cljc 2.0.359 bug);
+            ;; load-time side effect, must be required wherever cljs unpack runs.
+            #?(:cljs [datom-compressor.msgpack-patch])
+            [clojure.set    :refer [map-invert]]
+            [msgpack.core   :as msg])
   #?(:clj (:import [java.text SimpleDateFormat]
                    [java.util TimeZone])))
 
