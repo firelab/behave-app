@@ -13,6 +13,25 @@
             [re-frame.core                 :as rf]
             [vimsical.re-frame.cofx.inject :as inject]))
 
+;;; Guards
+
+(rf/reg-global-interceptor
+ (rf/->interceptor
+  :id    ::map-effects
+  :after (fn [context]
+           ;; A non-map return throws in `do-fx`, and re-frame answers by purging
+           ;; the whole pending queue -- silently dropping unrelated events.
+           (let [effects (:effects context)]
+             (if (or (nil? effects) (map? effects))
+               context
+               (do
+                 (rf/console :error
+                             "re-frame: event"
+                             (get-in context [:coeffects :event])
+                             "returned a non-map effects value; ignoring it:"
+                             effects)
+                 (assoc context :effects {})))))))
+
 ;;; Initialization
 
 (def initial-state {:router       {:history       []
@@ -144,7 +163,8 @@
  :system/add-script
  (fn [_ [_ src]]
    (when-not (script-exist? src)
-     (add-script src {:crossorigin "anonymous"}))))
+     (add-script src {:crossorigin "anonymous"}))
+   {}))
 
 (rf/reg-event-fx
  :system/close
@@ -196,19 +216,23 @@
 (rf/reg-event-fx
  :dev/print
  (fn [_]
-   (js/window.print)))
+   (js/window.print)
+   {}))
 
 (rf/reg-event-fx
  :dev/close-after-print
  (fn [_]
-   (.addEventListener js/window "afterprint" #(.close js/window))))
+   (.addEventListener js/window "afterprint" #(.close js/window))
+   {}))
 
 (rf/reg-event-fx
  :app/reload
  (fn [_ _]
-   (js/window.location.reload)))
+   (js/window.location.reload)
+   {}))
 
 (rf/reg-event-fx
  :toolbar/print
  (fn [_ [_ ws-uuid]]
-   (.open js/window (str "/worksheets/" ws-uuid "/print"))))
+   (.open js/window (str "/worksheets/" ws-uuid "/print"))
+   {}))

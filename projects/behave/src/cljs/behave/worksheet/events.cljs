@@ -108,7 +108,8 @@
 (rf/reg-event-fx
  :worksheet/solve
  (fn [_ [_ ws-uuid]]
-   (solve-worksheet ws-uuid)))
+   (solve-worksheet ws-uuid)
+   {}))
 
 (rp/reg-event-fx
  :worksheet/new
