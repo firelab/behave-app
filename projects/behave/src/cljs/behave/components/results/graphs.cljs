@@ -11,6 +11,14 @@
   "Graph size on the Results page."
   250)
 
+(defn- cell-value
+  "Discrete inputs keep their translated label - Vega renders them as nominal
+  legend and facet titles. Everything else is plotted numerically."
+  [gv-uuid value]
+  (if @(subscribe [:wizard/discrete-group-variable? gv-uuid])
+    @(subscribe [:vms/resolve-enum-translation gv-uuid value])
+    (parse-float value)))
+
 (defn- cell-data->graph-data
   "Result-table cells -> the rows Vega plots, keyed by result variable name."
   [cell-data]
@@ -21,10 +29,10 @@
                        (->> (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
                                       (assoc acc
                                              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
-                                             (parse-float value)))
+                                             (cell-value col-uuid value)))
                                     {}
                                     cells)
-                            (remove (fn [[_ value]] (= value -1)))
+                            (remove (fn [[_ value]] (or (= value -1) (= value "-1"))))
                             (into {}))))
                [])))
 
