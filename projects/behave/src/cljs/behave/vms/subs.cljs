@@ -403,3 +403,23 @@
  (fn [_ [_ gv-uuid]]
    (directional-parent-entity gv-uuid)))
 
+(defn hide-table-filter-entity?
+  "Whether group-variable `entity` opts out of Table Shading Filters — no row on
+  the Table Shading Filters page and no in-range/out-of-range mark on Results.
+
+  A directional child inherits the flag from its parent, since the two share a
+  single filter range."
+  [entity]
+  (boolean (or (:group-variable/hide-table-filter? entity)
+               (:group-variable/hide-table-filter? (first (:group-variable/_direction-variables entity))))))
+
+(defn hide-table-filter?
+  "[[hide-table-filter-entity?]] for the group variable named by `gv-uuid`."
+  [gv-uuid]
+  (hide-table-filter-entity? (d/entity @@vms-conn [:bp/uuid gv-uuid])))
+
+(reg-sub
+ :vms/hide-table-filter?
+ (fn [_ [_ gv-uuid]]
+   (hide-table-filter? gv-uuid)))
+
