@@ -11,6 +11,8 @@
                                                    assoc-in-local-storage!
                                                    create-local-storage!]]
             [re-frame.core                 :as rf]
+            [reagent.core                  :as r]
+            [reagent.dom                   :as rd]
             [vimsical.re-frame.cofx.inject :as inject]))
 
 ;;; Guards
@@ -188,6 +190,12 @@
    (scroll-top!)
    (when-let [$wizard-body (.querySelector js/document ".wizard-page__body")]
      (scroll-top! $wizard-body))))
+
+(rf/reg-fx
+ :reagent/force-update-all
+ (fn [_]
+   ;; Next tick: app-shell dispatch-syncs during render.
+   (r/next-tick rd/force-update-all)))
 
 ;;; Translations
 
