@@ -198,21 +198,12 @@
         :on-click on-focus-click
         :on-focus on-focus-click}
        [c/multi-select-input
-        (cond-> {:input-label                 @*variable-name
-                 :disable-multi-valued-input? @*disable-multi-valued-input?
-                 :options                     (doall (map ->option options))}
-
-          (= workflow :standard)
-          (merge {:prompt1                       (gstring/format @(<t (bp "behave_components:input:multi_select:search:prompt1")) @*variable-name)
-                  :expand-options-button-label   (gstring/format @(<t (bp "behave_components:input:multi_select:search:expand_options_button_label")) @*variable-name)
-                  :collapse-options-button-label (gstring/format @(<t (bp "behave_components:input:multi_select:search:collapse_options_button_label")) @*variable-name)})
-
-          (= workflow :guided)
-          (merge {:prompt1                       (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:prompt1")) @*variable-name)
-                  :prompt2                       (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:prompt2")) @*variable-name)
-                  :prompt3                       (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:prompt3")) @*variable-name)
-                  :expand-options-button-label   (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:expand_options_button_label")) @*variable-name)
-                  :collapse-options-button-label (gstring/format @(<t (bp "behave_components:input:multi_select:no_search:collapse_options_button_label")) @*variable-name)})
+        (cond-> {:input-label                   @*variable-name
+                 :prompt1                       (gstring/format @(<t (bp "behave_components:input:multi_select:search:prompt1")) @*variable-name)
+                 :expand-options-button-label   (gstring/format @(<t (bp "behave_components:input:multi_select:search:expand_options_button_label")) @*variable-name)
+                 :collapse-options-button-label (gstring/format @(<t (bp "behave_components:input:multi_select:search:collapse_options_button_label")) @*variable-name)
+                 :disable-multi-valued-input?   @*disable-multi-valued-input?
+                 :options                       (doall (map ->option options))}
 
           (:list/tag-set llist)
           (assoc :filter-tags (map (fn [{id              :bp/nid
