@@ -1588,7 +1588,6 @@ body {
     break-inside: avoid;
   }
 
-  /* Belt-and-braces for engines that honour break-after. */
   .wizard-results__diagrams .wizard-notes__header {
     break-after: avoid;
     page-break-after: avoid;
