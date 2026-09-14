@@ -236,8 +236,12 @@
   [ws-uuid & [opts]]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
-      [:div.wizard-results__diagrams {:id "diagram"}
-       [:div.wizard-notes__header "Diagram"]
-       (map #(construct-diagram ws-uuid % opts)
-            (sort-by :worksheet.diagram/row-id
-                     (:worksheet/diagrams @*ws)))])))
+      (let [[first-diagram & more] (sort-by :worksheet.diagram/row-id
+                                            (:worksheet/diagrams @*ws))]
+        [:div.wizard-results__diagrams {:id "diagram"}
+         ;; The header and the first diagram share one block so a print page break
+         ;; can't strand the header alone at the bottom of a page.
+         [:div.wizard-results__diagrams-lead
+          [:div.wizard-notes__header "Diagram"]
+          (construct-diagram ws-uuid first-diagram opts)]
+         (map #(construct-diagram ws-uuid % opts) more)]))))
