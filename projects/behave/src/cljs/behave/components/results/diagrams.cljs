@@ -236,8 +236,10 @@
   [ws-uuid & [opts]]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
-      [:div.wizard-results__diagrams {:id "diagram"}
-       [:div.wizard-notes__header "Diagram"]
-       (map #(construct-diagram ws-uuid % opts)
-            (sort-by :worksheet.diagram/row-id
-                     (:worksheet/diagrams @*ws)))])))
+      (let [[first-diagram & more] (sort-by :worksheet.diagram/row-id
+                                            (:worksheet/diagrams @*ws))]
+        [:div.wizard-results__diagrams {:id "diagram"}
+         [:div.wizard-results__diagrams-lead
+          [:div.wizard-notes__header "Diagram"]
+          (construct-diagram ws-uuid first-diagram opts)]
+         (map #(construct-diagram ws-uuid % opts) more)]))))

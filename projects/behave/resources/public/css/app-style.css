@@ -1582,8 +1582,15 @@ body {
   .print__result-table,
   .wizard-print__results,
   .wizard-results__graphs,
-  .wizard-results__graph {
+  .wizard-results__graph,
+  .wizard-results__diagrams-lead,
+  .diagram {
     break-inside: avoid;
+  }
+
+  .wizard-results__diagrams .wizard-notes__header {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
 }
