@@ -92,6 +92,7 @@
    [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]
    [bool-setting "Hide from CSV Export?" :group-variable/hide-csv? group-variable]
    [bool-setting "Hide from Graphs?" :group-variable/hide-graph? group-variable]
+   [bool-setting "Hide from Table Shading Filters?" :group-variable/hide-table-filter? group-variable]
    [direction-ref-setting group-variable]])
 
 ;;; Public Views

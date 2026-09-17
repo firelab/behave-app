@@ -28,6 +28,7 @@
    [behave.tests-used-in-fixtures]
    [behave.units-test]
    [behave.utils-test]
+   [behave.vms-subs-test]
    [behave.vms.subs]
    [behave.wizard.events]
    [behave.wizard.subs]

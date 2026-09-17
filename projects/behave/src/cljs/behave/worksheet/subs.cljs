@@ -6,7 +6,8 @@
             [behave.translate            :refer [<t]]
             [behave.vms.store            :as vms :refer [vms-conn]]
             [behave.vms.subs             :refer [direction-variables
-                                                 directional-parent-entity]]
+                                                 directional-parent-entity
+                                                 hide-table-filter?]]
             [behave.wizard.subs          :refer [all-conditionals-pass?]]
             [clojure.set                 :as set]
             [clojure.string              :as str]
@@ -673,9 +674,21 @@
     :variables [ws-uuid]}))
 
 (rf/reg-sub
+ :worksheet/table-settings-filters-shadeable
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/table-settings-filters ws-uuid])
+    (rf/subscribe [:worksheet/output-uuids-conditionally-filtered ws-uuid])])
+ (fn [[table-settings-filters visible-output-uuids] _]
+   (let [visible? (set visible-output-uuids)]
+     (remove (fn [[group-var-uuid]]
+               (or (hide-table-filter? group-var-uuid)
+                   (not (visible? group-var-uuid))))
+             table-settings-filters))))
+
+(rf/reg-sub
  :worksheet/table-settings-filters-filtered
  (fn [[_ ws-uuid]]
-   [(rf/subscribe [:worksheet/table-settings-filters ws-uuid])])
+   [(rf/subscribe [:worksheet/table-settings-filters-shadeable ws-uuid])])
  (fn [[table-settings-filters] _]
    (remove
     (fn [[group-var-uuid]]
@@ -742,7 +755,7 @@
    [(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
     (rf/subscribe [:worksheet/table-settings ws-uuid])
     (rf/subscribe [:worksheet/graph-settings ws-uuid])
-    (rf/subscribe [:worksheet/table-settings-filters ws-uuid])])
+    (rf/subscribe [:worksheet/table-settings-filters-shadeable ws-uuid])])
  (fn [[multi-valued-inputs table-settings graph-settings table-setting-filters]
       [_ ws-uuid output-gv-uuids]]
    (let [filters    (shading/filters-by-uuid table-setting-filters)
