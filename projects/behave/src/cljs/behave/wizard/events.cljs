@@ -352,8 +352,9 @@
  :wizard/open
  (fn [_ [_ file]]
    (s/open-worksheet! {:file file})
+   ;; Clearing disposes live reactions; re-render so components re-subscribe.
    (rf/clear-subscription-cache!)
-   {}))
+   {:fx [[:reagent/force-update-all nil]]}))
 
 (rf/reg-event-fx
  :wizard/new-worksheet
