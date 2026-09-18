@@ -99,8 +99,7 @@
       (is (= #{"r1"} (shading/shade-set f {} backing))))))
 
 (deftest applicable-filters-test
-  ;; Results show the Heading child, never its directional parent (the parent
-  ;; carries hide-result?), but the parent is the one that gets a filter row.
+  ;; Results render the Heading child; the filter row belongs to its parent.
   (let [tuples [["spread-rate"         5 10 true]   ;; directional parent
                 ["spread-rate-heading" 5 10 true]   ;; its visible child
                 ["midflame-wind"       1 2  false]  ;; flagged hide-table-filter?

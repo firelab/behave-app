@@ -50,15 +50,14 @@
         table-setting-filters))
 
 (defn applicable-filters
-  "Keep only the filter tuples whose output can actually shade.
+  "Drop filters for outputs that are hidden or not shown on Results.
 
-  - `visible?` : set of output gv-uuids currently shown on Results
-  - `hidden?`  : fn of gv-uuid, true when it opts out of table filters
-  - `children` : fn of gv-uuid -> its direction-children gv-uuids
+  - `visible?` : set of output gv-uuids shown on Results
+  - `hidden?`  : gv-uuid -> opts out of table filters?
+  - `children` : gv-uuid -> direction-children gv-uuids
 
-  A directional parent is never a visible output itself (it carries
-  `hide-result?`); its direction children are. The parent is what gets the
-  filter row, so it counts as shown whenever any child is."
+  A directional parent is shown when any child is: Results render the
+  children, but the filter row belongs to the parent."
   [{:keys [visible? hidden? children]} table-setting-filters]
   (let [shown? (fn [gv-uuid]
                  (or (visible? gv-uuid)

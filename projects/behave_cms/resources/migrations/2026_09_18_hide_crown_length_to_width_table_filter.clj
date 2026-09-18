@@ -6,10 +6,8 @@
 ;; Overview
 ;; ===========================================================================================================
 
-;; BHP1-1637 follow-up — Length-to-Width Ratio has two output group variables,
-;; one under Surface and one under Crown. The 2026-08-26 migration flagged only
-;; the Surface one, but a Surface & Crown worksheet shows the Crown one, so its
-;; Table Shading Filter row was still there.
+;; BHP1-1637 follow-up. Length-to-Width Ratio has a Surface and a Crown output
+;; group variable; 2026-08-26 flagged only Surface. Flag Crown too.
 ;;
 ;; After this runs, re-export layout.msgpack.
 
