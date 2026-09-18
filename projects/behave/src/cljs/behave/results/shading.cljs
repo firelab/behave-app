@@ -48,3 +48,22 @@
   [table-setting-filters]
   (into {} (map (fn [[gv-uuid :as filter-tuple]] [gv-uuid filter-tuple]))
         table-setting-filters))
+
+(defn applicable-filters
+  "Keep only the filter tuples whose output can actually shade.
+
+  - `visible?` : set of output gv-uuids currently shown on Results
+  - `hidden?`  : fn of gv-uuid, true when it opts out of table filters
+  - `children` : fn of gv-uuid -> its direction-children gv-uuids
+
+  A directional parent is never a visible output itself (it carries
+  `hide-result?`); its direction children are. The parent is what gets the
+  filter row, so it counts as shown whenever any child is."
+  [{:keys [visible? hidden? children]} table-setting-filters]
+  (let [shown? (fn [gv-uuid]
+                 (or (visible? gv-uuid)
+                     (some visible? (children gv-uuid))))]
+    (remove (fn [[gv-uuid]]
+              (or (hidden? gv-uuid)
+                  (not (shown? gv-uuid))))
+            table-setting-filters)))

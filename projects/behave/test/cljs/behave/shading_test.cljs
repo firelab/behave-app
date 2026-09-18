@@ -97,3 +97,25 @@
       ;; Backing WOULD shade if scoped in — which is exactly why the view excludes
       ;; it from the non-directional table.
       (is (= #{"r1"} (shading/shade-set f {} backing))))))
+
+(deftest applicable-filters-test
+  ;; Results show the Heading child, never its directional parent (the parent
+  ;; carries hide-result?), but the parent is the one that gets a filter row.
+  (let [tuples [["spread-rate"         5 10 true]   ;; directional parent
+                ["spread-rate-heading" 5 10 true]   ;; its visible child
+                ["midflame-wind"       1 2  false]  ;; flagged hide-table-filter?
+                ["contained-area"      1 2  false]] ;; hidden by conditionals
+        ctx    {:visible? #{"spread-rate-heading"}
+                :hidden?  #{"midflame-wind"}
+                :children {"spread-rate" ["spread-rate-heading" "spread-rate-backing"]}}]
+    (testing "a directional parent stays when any direction child is visible"
+      (is (= ["spread-rate" "spread-rate-heading"]
+             (map first (shading/applicable-filters ctx tuples)))))
+
+    (testing "a parent with no visible child is dropped"
+      (is (empty? (shading/applicable-filters (assoc ctx :visible? #{}) tuples))))
+
+    (testing "a flagged output is dropped even when visible"
+      (is (empty? (shading/applicable-filters
+                   (assoc ctx :visible? #{"midflame-wind"})
+                   [["midflame-wind" 1 2 true]]))))))
