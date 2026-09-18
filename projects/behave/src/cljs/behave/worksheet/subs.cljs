@@ -682,11 +682,11 @@
    [(rf/subscribe [:worksheet/table-settings-filters ws-uuid])
     (rf/subscribe [:worksheet/output-uuids-conditionally-filtered ws-uuid])])
  (fn [[table-settings-filters visible-output-uuids] _]
-   (let [visible? (set visible-output-uuids)]
-     (remove (fn [[group-var-uuid]]
-               (or (hide-table-filter? group-var-uuid)
-                   (not (visible? group-var-uuid))))
-             table-settings-filters))))
+   (shading/applicable-filters
+    {:visible? (set visible-output-uuids)
+     :hidden?  hide-table-filter?
+     :children #(map :bp/uuid (direction-variables %))}
+    table-settings-filters)))
 
 (rf/reg-sub
  :worksheet/table-settings-filters-filtered

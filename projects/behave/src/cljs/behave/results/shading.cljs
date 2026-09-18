@@ -48,3 +48,21 @@
   [table-setting-filters]
   (into {} (map (fn [[gv-uuid :as filter-tuple]] [gv-uuid filter-tuple]))
         table-setting-filters))
+
+(defn applicable-filters
+  "Drop filters for outputs that are hidden or not shown on Results.
+
+  - `visible?` : set of output gv-uuids shown on Results
+  - `hidden?`  : gv-uuid -> opts out of table filters?
+  - `children` : gv-uuid -> direction-children gv-uuids
+
+  A directional parent is shown when any child is: Results render the
+  children, but the filter row belongs to the parent."
+  [{:keys [visible? hidden? children]} table-setting-filters]
+  (let [shown? (fn [gv-uuid]
+                 (or (visible? gv-uuid)
+                     (some visible? (children gv-uuid))))]
+    (remove (fn [[gv-uuid]]
+              (or (hidden? gv-uuid)
+                  (not (shown? gv-uuid))))
+            table-setting-filters)))
