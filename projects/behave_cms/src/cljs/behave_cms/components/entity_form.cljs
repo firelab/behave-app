@@ -55,10 +55,16 @@
                    (set/difference old-values new-values)))))
          (apply concat))))
 
-(defn- retract-cardinality-many-values [new-data original]
+(defn- retract-cardinality-many-values [new-data original set-field-keys]
   (let [cardinality-many-attrs (->> original
                                     (keys)
-                                    (filter db-cardinality-many-attrs))]
+                                    (filter db-cardinality-many-attrs)
+                                    ;; Only diff/retract attrs the form actually
+                                    ;; manages via editor state (`:set` fields).
+                                    ;; Ref lists edited out-of-band (e.g.
+                                    ;; :diagram/output-group-variables) must never
+                                    ;; be retracted here.
+                                    (filter (set set-field-keys)))]
     (if-not (seq cardinality-many-attrs)
       new-data
       (into [new-data]
@@ -481,46 +487,47 @@
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
   [{:keys [entity parent-field parent-id fields id on-create on-update state-path]}]
-  (let [state-path   (or state-path [:editors entity parent-id id])
-        original     @(rf/subscribe [:entity id])
-        parent       @(rf/subscribe [:entity parent-id])
-        update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))
-        get-state    (fn [field] (r/track #(let [result (cond
-                                                          (not (nil? @(rf/subscribe [:state (conj state-path field)])))
-                                                          @(rf/subscribe [:state (conj state-path field)])
+  (let [state-path     (or state-path [:editors entity parent-id id])
+        original       @(rf/subscribe [:entity id])
+        parent         @(rf/subscribe [:entity parent-id])
+        update-state   (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))
+        get-state      (fn [field] (r/track #(let [result (cond
+                                                            (not (nil? @(rf/subscribe [:state (conj state-path field)])))
+                                                            @(rf/subscribe [:state (conj state-path field)])
 
-                                                          (not (nil? (:db/id (get original field))))
-                                                          (:db/id (get original field))
+                                                            (not (nil? (:db/id (get original field))))
+                                                            (:db/id (get original field))
 
-                                                          (not (nil? (get original field)))
-                                                          (get original field)
+                                                            (not (nil? (get original field)))
+                                                            (get original field)
 
-                                                          :else
-                                                          "")]
-                                             result)))
-        on-submit    (u/on-submit #(let [state @(rf/subscribe [:state state-path])]
-                                     (cond-> state
-                                       :always
-                                       (dissoc :group-variable-lookup)
+                                                            :else
+                                                            "")]
+                                               result)))
+        set-field-keys (->> fields (filter (fn [f] (= :set (:type f)))) (map :field-key))
+        on-submit      (u/on-submit #(let [state @(rf/subscribe [:state state-path])]
+                                       (cond-> state
+                                         :always
+                                         (dissoc :group-variable-lookup)
 
-                                       id
-                                       (merge {:db/id id})
+                                         id
+                                         (merge {:db/id id})
 
-                                       (and id (fn? on-update))
-                                       (on-update)
+                                         (and id (fn? on-update))
+                                         (on-update)
 
-                                       (and (nil? id) parent-field parent-id)
-                                       (merge-parent-fields original entity parent-field parent-id parent)
+                                         (and (nil? id) parent-field parent-id)
+                                         (merge-parent-fields original entity parent-field parent-id parent)
 
-                                       (and (nil? id) (fn? on-create))
-                                       (on-create)
+                                         (and (nil? id) (fn? on-create))
+                                         (on-create)
 
-                                       (and id (cardinality-many-fields? fields state))
-                                       (retract-cardinality-many-values original)
+                                         (and id (cardinality-many-fields? fields state))
+                                         (retract-cardinality-many-values original set-field-keys)
 
-                                       :always
-                                       (upsert-entity!))
-                                     (rf/dispatch [:state/set-state state-path nil])))]
+                                         :always
+                                         (upsert-entity!))
+                                       (rf/dispatch [:state/set-state state-path nil])))]
     [:form {:on-submit on-submit}
      #_{:clj-kondo/ignore [:shadowed-var]}
      (for [{:keys [field-key type] :as field} fields]

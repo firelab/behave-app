@@ -241,12 +241,15 @@
 
   `opts` can take:
   - `size` - Button size (e.g. `:sm`/`:md`/`:lg`)
-  - `icon` - Font Awesome icon name to display to the left of the label."
-  [style label action & [{:keys [icon size]}]]
+  - `icon` - Font Awesome icon name to display to the left of the label.
+  - `btn-type` - Button `type` attribute (defaults to `\"button\"` so the button does
+                 not act as an implicit form submit when nested inside a `<form>`)."
+  [style label action & [{:keys [icon size btn-type]}]]
   [:button {:class    ["btn"
                        (when style (str "btn-" (name style)))
                        (when size (str "btn-" (name size)))
                        "mx-1"]
+            :type     (or btn-type "button")
             :on-click action}
    (when icon
      [:span {:class ["fa-solid" (str "fa-" icon)]}])

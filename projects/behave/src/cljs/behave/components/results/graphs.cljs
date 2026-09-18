@@ -11,6 +11,14 @@
   "Graph size on the Results page."
   250)
 
+(defn- cell-value
+  "Discrete inputs keep their translated label - Vega renders them as nominal
+  legend and facet titles. Everything else is plotted numerically."
+  [gv-uuid value]
+  (if @(subscribe [:wizard/discrete-group-variable? gv-uuid])
+    @(subscribe [:vms/resolve-enum-translation gv-uuid value])
+    (parse-float value)))
+
 (defn- cell-data->graph-data
   "Result-table cells -> the rows Vega plots, keyed by result variable name."
   [cell-data]
@@ -21,10 +29,10 @@
                        (->> (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
                                       (assoc acc
                                              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
-                                             (parse-float value)))
+                                             (cell-value col-uuid value)))
                                     {}
                                     cells)
-                            (remove (fn [[_ value]] (= value -1)))
+                            (remove (fn [[_ value]] (or (= value -1) (= value "-1"))))
                             (into {}))))
                [])))
 
@@ -60,14 +68,35 @@
      :width  width
      :height height}))
 
+(def ^:private facet-columns 2)
+
+(def ^:private legend-width 260)
+
+(defn- facet-grid
+  "[cols rows] of the z2 facet grid, or [1 1] when unfaceted."
+  [graph-settings data]
+  (if-let [z2-uuid (:graph-settings/z2-axis-group-variable-uuid graph-settings)]
+    (let [z2-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name z2-uuid])
+          facets  (max 1 (count (distinct (keep #(get % z2-name) data))))
+          cols    (min facets facet-columns)]
+      [cols (js/Math.ceil (/ facets cols))])
+    [1 1]))
+
 (defmethod modal-content :graph
   [{:keys [ws-uuid output-uuid]}]
   (let [graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])
         cell-data      @(subscribe [:worksheet/result-table-cell-data ws-uuid])
-        [width height] (pop-out-size)]
+        data           (cell-data->graph-data cell-data)
+        [box-w box-h]  (pop-out-size)
+        [cols rows]    (facet-grid graph-settings data) ; width/height are per facet cell, so divide by grid
+        legend         (if (:graph-settings/z-axis-group-variable-uuid graph-settings)
+                         legend-width
+                         0)
+        width          (max 200 (quot (- box-w legend) cols))
+        height         (max 150 (quot (- box-h (* 60 rows)) rows))]
     [:div.wizard-results__graph-pop-out
      [vega-box (build-line-chart (chart-spec {:graph-settings graph-settings
-                                              :data           (cell-data->graph-data cell-data)
+                                              :data           data
                                               :output-uuid    output-uuid
                                               :width          width
                                               :height         height}))
@@ -76,8 +105,8 @@
 (defn result-graphs
   "Renders the Results graphs for the worksheet `ws-uuid`.
 
-  `:hide-controls?` omits the on-screen-only controls (Graph Settings, pop-out),
-  which have nothing to act on outside the app — e.g. on the printed page."
+  `:hide-controls?` omits the on-screen-only controls (Graph Settings, pop-out) —
+  e.g. on the printed page."
   [ws-uuid cell-data & [{:keys [hide-controls?]}]]
   (let [graph-enabled? @(subscribe [:wizard/enable-graph-settings? ws-uuid])
         graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]

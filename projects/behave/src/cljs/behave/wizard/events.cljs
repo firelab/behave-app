@@ -185,7 +185,8 @@
          section (.getElementById js/document id)
          buffer  (* 0.01 (.-offsetHeight content))
          top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
-     (.scroll content #js {:top top :behavior "smooth"}))))
+     (.scroll content #js {:top top :behavior "smooth"})
+     {})))
 
 (rf/reg-event-fx
  :wizard/delete
@@ -351,12 +352,15 @@
  :wizard/open
  (fn [_ [_ file]]
    (s/open-worksheet! {:file file})
-   (rf/clear-subscription-cache!)))
+   ;; Clearing disposes live reactions; re-render so components re-subscribe.
+   (rf/clear-subscription-cache!)
+   {:fx [[:reagent/force-update-all nil]]}))
 
 (rf/reg-event-fx
  :wizard/new-worksheet
  (fn [_ [_ nname modules submodule workflow]]
-   (s/new-worksheet! nname modules submodule workflow)))
+   (s/new-worksheet! nname modules submodule workflow)
+   {}))
 
 (rf/reg-event-fx
  :wizard/toggle-expand

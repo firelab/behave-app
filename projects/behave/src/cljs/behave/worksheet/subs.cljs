@@ -6,7 +6,8 @@
             [behave.translate            :refer [<t]]
             [behave.vms.store            :as vms :refer [vms-conn]]
             [behave.vms.subs             :refer [direction-variables
-                                                 directional-parent-entity]]
+                                                 directional-parent-entity
+                                                 hide-table-filter?]]
             [behave.wizard.subs          :refer [all-conditionals-pass?]]
             [clojure.set                 :as set]
             [clojure.string              :as str]
@@ -625,16 +626,19 @@
          graph-settings-y-axis-limits @(rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid  all-outputs-uuids-to-process])]
      (remove
       (fn [[group-var-uuid]]
-        (let [kind (d/q '[:find ?kind .
-                          :in  $ ?group-var-uuid
-                          :where
-                          [?gv :bp/uuid ?group-var-uuid]
-                          [?v :variable/group-variables ?gv]
-                          [?v :variable/kind ?kind]]
-                        @@vms-conn
-                        group-var-uuid)]
+        (let [[kind hide-graph?]
+              (d/q '[:find [?kind ?hide-graph]
+                     :in  $ ?group-var-uuid
+                     :where
+                     [?gv :bp/uuid ?group-var-uuid]
+                     [?v :variable/group-variables ?gv]
+                     [?v :variable/kind ?kind]
+                     [(get-else $ ?gv :group-variable/hide-graph? false) ?hide-graph]]
+                   @@vms-conn
+                   group-var-uuid)]
           (or (= kind :discrete)
               (= kind :text)
+              hide-graph?
               (directional-parent-entity group-var-uuid))))
       graph-settings-y-axis-limits))))
 
@@ -673,9 +677,21 @@
     :variables [ws-uuid]}))
 
 (rf/reg-sub
+ :worksheet/table-settings-filters-shadeable
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/table-settings-filters ws-uuid])
+    (rf/subscribe [:worksheet/output-uuids-conditionally-filtered ws-uuid])])
+ (fn [[table-settings-filters visible-output-uuids] _]
+   (let [visible? (set visible-output-uuids)]
+     (remove (fn [[group-var-uuid]]
+               (or (hide-table-filter? group-var-uuid)
+                   (not (visible? group-var-uuid))))
+             table-settings-filters))))
+
+(rf/reg-sub
  :worksheet/table-settings-filters-filtered
  (fn [[_ ws-uuid]]
-   [(rf/subscribe [:worksheet/table-settings-filters ws-uuid])])
+   [(rf/subscribe [:worksheet/table-settings-filters-shadeable ws-uuid])])
  (fn [[table-settings-filters] _]
    (remove
     (fn [[group-var-uuid]]
@@ -742,7 +758,7 @@
    [(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
     (rf/subscribe [:worksheet/table-settings ws-uuid])
     (rf/subscribe [:worksheet/graph-settings ws-uuid])
-    (rf/subscribe [:worksheet/table-settings-filters ws-uuid])])
+    (rf/subscribe [:worksheet/table-settings-filters-shadeable ws-uuid])])
  (fn [[multi-valued-inputs table-settings graph-settings table-setting-filters]
       [_ ws-uuid output-gv-uuids]]
    (let [filters    (shading/filters-by-uuid table-setting-filters)
@@ -888,25 +904,25 @@
 (rp/reg-sub
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find ?row ?col-uuid ?repeat-id ?value
-                 :in $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/result-table ?rt]
-                 [?rt :result-table/rows ?r]
+   {:type     :query
+    :query    '[:find ?row ?col-uuid ?repeat-id ?value
+                :in $ ?ws-uuid
+                :where
+                [?w :worksheet/uuid ?ws-uuid]
+                [?w :worksheet/result-table ?rt]
+                [?rt :result-table/rows ?r]
 
              ;;get row
-                 [?r :result-row/id ?row]
+                [?r :result-row/id ?row]
 
              ;;get-header
-                 [?r :result-row/cells ?c]
-                 [?c :result-cell/header ?h]
-                 [?h :result-header/group-variable-uuid ?col-uuid]
-                 [?h :result-header/repeat-id ?repeat-id]
+                [?r :result-row/cells ?c]
+                [?c :result-cell/header ?h]
+                [?h :result-header/group-variable-uuid ?col-uuid]
+                [?h :result-header/repeat-id ?repeat-id]
 
              ;;get value
-                 [?c :result-cell/value ?value]]
+                [?c :result-cell/value ?value]]
     :variables
     [ws-uuid]}))
 
