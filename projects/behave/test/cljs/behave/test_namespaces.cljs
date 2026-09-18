@@ -13,6 +13,7 @@
   (:require
    [behave.contain-test]
    [behave.crown-test]
+   [behave.datom-compressor-test]
    [behave.diagram-test]
    [behave.events]
    [behave.help.subs]

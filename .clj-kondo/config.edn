@@ -1,6 +1,7 @@
 {:linters {:shadowed-var      {:level :warning}
            :single-key-in     {:level :warning}
-           :missing-docstring {:level :info}}
+           :missing-docstring {:level :info}
+           :unresolved-symbol {:exclude [(msgpack.macros/extend-msgpack)]}}
 
  ;; Legacy data migrations (`development/migrations/`) are write-once,
  ;; historical scripts. Suppress lint noise unique to that style so the
