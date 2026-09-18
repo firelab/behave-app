@@ -1,0 +1,195 @@
+name: Test Build (no release)
+
+# Mirrors release.yml but:
+#   - builds from any ref (branch, tag, or SHA)
+#   - pulls the VMS from either Dev or Prod
+#   - signs Windows with the Azure Trusted Signing *test* alias
+#   - never creates a GitHub release; artifacts are only attached to the run
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to build (branch, tag, or SHA). Defaults to the dispatching branch.'
+        required: false
+        type: string
+      vms:
+        description: 'Which VMS to pull layout.msgpack from'
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - prod
+      build_windows:
+        description: 'Build Windows executable (test-signed)'
+        required: false
+        type: boolean
+        default: true
+      build_macos:
+        description: 'Build macOS executable'
+        required: false
+        type: boolean
+        default: false
+      build_linux:
+        description: 'Build Linux executable'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  # Derive a version string from the ref + short SHA, e.g. v7.1.5-test-a1b2c3d
+  # or rj-BHP1-1234-foo-test-a1b2c3d. Used for version.edn and artifact names.
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.version.outputs.ref }}
+      build_version: ${{ steps.version.outputs.build_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Set version from ref
+        id: version
+        run: |
+          REF="${{ inputs.ref || github.ref_name }}"
+          SHA=$(git rev-parse --short HEAD)
+          SAFE_REF=$(echo "$REF" | sed -e 's#refs/heads/##' -e 's#refs/tags/##' -e 's#[^A-Za-z0-9._-]#-#g')
+          VERSION="${SAFE_REF}-test-${SHA}"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "build_version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building $REF ($SHA) as $VERSION from ${{ inputs.vms }} VMS"
+
+  # Build the JAR against the selected VMS
+  build-dev:
+    if: ${{ inputs.vms == 'dev' }}
+    needs: [get-version]
+    uses: ./.github/workflows/jar-only.yml
+    with:
+      ref: ${{ needs.get-version.outputs.ref }}
+      version: ${{ needs.get-version.outputs.build_version }}
+    secrets:
+      VMS_URL: ${{ secrets.DEV_VMS_URL }}
+      VMS_AUTH_TOKEN: ${{ secrets.DEV_VMS_SECRET_TOKEN }}
+
+  build-prod:
+    if: ${{ inputs.vms == 'prod' }}
+    needs: [get-version]
+    uses: ./.github/workflows/jar-only.yml
+    with:
+      ref: ${{ needs.get-version.outputs.ref }}
+      version: ${{ needs.get-version.outputs.build_version }}
+    secrets:
+      VMS_URL: ${{ secrets.VMS_URL }}
+      VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
+
+  # Package for Windows
+  package-windows:
+    if: ${{ !cancelled() && inputs.build_windows && (needs.build-dev.result == 'success' || needs.build-prod.result == 'success') }}
+    needs: [build-dev, build-prod]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: windows-zip
+    secrets:
+      CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
+
+  # Sign the Windows package with the TEST alias
+  sign-windows:
+    if: ${{ !cancelled() && inputs.build_windows && needs.package-windows.result == 'success' }}
+    needs: [get-version, package-windows]
+    uses: ./.github/workflows/sign.yml
+    with:
+      version: ${{ needs.get-version.outputs.build_version }}
+    secrets:
+      AZURE_SIGNING_ALIAS: ${{ secrets.AZURE_TEST_SIGNING_ALIAS }}
+      AZURE_SIGNING_REGION: ${{ secrets.AZURE_SIGNING_REGION }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+  # Package for macOS (Intel)
+  package-macos-amd64:
+    if: ${{ !cancelled() && inputs.build_macos && (needs.build-dev.result == 'success' || needs.build-prod.result == 'success') }}
+    needs: [build-dev, build-prod]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: notarized-mac-zip
+      arch: mac.amd64
+    secrets:
+      CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
+      APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
+      APPLE_SIGNING_KEY: ${{ secrets.APPLE_SIGNING_KEY }}
+      MAC_NOTARY_ISSUER: ${{ secrets.MAC_NOTARY_ISSUER }}
+      MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
+      MAC_NOTARY_PRIVATE_KEY_ENCODED: ${{ secrets.MAC_NOTARY_PRIVATE_KEY_ENCODED }}
+
+  # Package for macOS (Apple Silicon)
+  package-macos-aarch64:
+    if: ${{ !cancelled() && inputs.build_macos && (needs.build-dev.result == 'success' || needs.build-prod.result == 'success') }}
+    needs: [build-dev, build-prod]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: notarized-mac-zip
+      arch: mac.aarch64
+    secrets:
+      CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
+      APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
+      APPLE_SIGNING_KEY: ${{ secrets.APPLE_SIGNING_KEY }}
+      MAC_NOTARY_ISSUER: ${{ secrets.MAC_NOTARY_ISSUER }}
+      MAC_NOTARY_KEY: ${{ secrets.MAC_NOTARY_KEY }}
+      MAC_NOTARY_PRIVATE_KEY_ENCODED: ${{ secrets.MAC_NOTARY_PRIVATE_KEY_ENCODED }}
+
+  # Package for Linux
+  package-linux:
+    if: ${{ !cancelled() && inputs.build_linux && (needs.build-dev.result == 'success' || needs.build-prod.result == 'success') }}
+    needs: [build-dev, build-prod]
+    uses: ./.github/workflows/conveyor.yml
+    with:
+      platform: debian-package
+    secrets:
+      CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
+
+  # Collect everything into one versioned bundle on the run (NO GitHub release)
+  collect:
+    needs: [get-version, build-dev, build-prod, sign-windows, package-macos-amd64, package-macos-aarch64, package-linux]
+    if: ${{ !cancelled() && (needs.build-dev.result == 'success' || needs.build-prod.result == 'success') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts/
+
+      - name: Rename JAR with version
+        run: |
+          cd test-artifacts/behave7-jar
+          mv behave7.jar behave-${{ needs.get-version.outputs.build_version }}.jar
+
+      - name: Display structure
+        run: ls -R test-artifacts/
+
+      - name: Upload test bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: behave-${{ needs.get-version.outputs.build_version }}-${{ inputs.vms }}-vms
+          path: |
+            test-artifacts/behave7-jar/*.jar
+            test-artifacts/windows-zip-signed/**/*.zip
+            test-artifacts/mac-zip-*/**/*.zip
+            test-artifacts/linux-app/**/*.deb
+          retention-days: 14
+
+      - name: Summary
+        run: |
+          {
+            echo "## Test build — NOT a release"
+            echo ""
+            echo "- **Ref**: \`${{ needs.get-version.outputs.ref }}\`"
+            echo "- **Version**: \`${{ needs.get-version.outputs.build_version }}\`"
+            echo "- **VMS**: ${{ inputs.vms }}"
+            echo "- **Windows signing**: Azure test alias"
+            echo ""
+            echo "Artifacts are attached to this run only."
+          } >> "$GITHUB_STEP_SUMMARY"
