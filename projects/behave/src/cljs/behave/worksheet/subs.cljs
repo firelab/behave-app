@@ -625,16 +625,19 @@
          graph-settings-y-axis-limits @(rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid  all-outputs-uuids-to-process])]
      (remove
       (fn [[group-var-uuid]]
-        (let [kind (d/q '[:find ?kind .
-                          :in  $ ?group-var-uuid
-                          :where
-                          [?gv :bp/uuid ?group-var-uuid]
-                          [?v :variable/group-variables ?gv]
-                          [?v :variable/kind ?kind]]
-                        @@vms-conn
-                        group-var-uuid)]
+        (let [[kind hide-graph?]
+              (d/q '[:find [?kind ?hide-graph]
+                     :in  $ ?group-var-uuid
+                     :where
+                     [?gv :bp/uuid ?group-var-uuid]
+                     [?v :variable/group-variables ?gv]
+                     [?v :variable/kind ?kind]
+                     [(get-else $ ?gv :group-variable/hide-graph? false) ?hide-graph]]
+                   @@vms-conn
+                   group-var-uuid)]
           (or (= kind :discrete)
               (= kind :text)
+              hide-graph?
               (directional-parent-entity group-var-uuid))))
       graph-settings-y-axis-limits))))
 
@@ -888,25 +891,25 @@
 (rp/reg-sub
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find ?row ?col-uuid ?repeat-id ?value
-                 :in $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/result-table ?rt]
-                 [?rt :result-table/rows ?r]
+   {:type     :query
+    :query    '[:find ?row ?col-uuid ?repeat-id ?value
+                :in $ ?ws-uuid
+                :where
+                [?w :worksheet/uuid ?ws-uuid]
+                [?w :worksheet/result-table ?rt]
+                [?rt :result-table/rows ?r]
 
              ;;get row
-                 [?r :result-row/id ?row]
+                [?r :result-row/id ?row]
 
              ;;get-header
-                 [?r :result-row/cells ?c]
-                 [?c :result-cell/header ?h]
-                 [?h :result-header/group-variable-uuid ?col-uuid]
-                 [?h :result-header/repeat-id ?repeat-id]
+                [?r :result-row/cells ?c]
+                [?c :result-cell/header ?h]
+                [?h :result-header/group-variable-uuid ?col-uuid]
+                [?h :result-header/repeat-id ?repeat-id]
 
              ;;get value
-                 [?c :result-cell/value ?value]]
+                [?c :result-cell/value ?value]]
     :variables
     [ws-uuid]}))
 
