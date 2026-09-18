@@ -9,7 +9,7 @@
   (letters/digits/underscore only) so labels containing spaces, parentheses,
   etc. can't be mis-parsed as function calls when used as param/signal names."
   [legend-id]
-  (str/replace legend-id #"[^A-Za-z0-9]" "_"))
+  (str/replace (str legend-id) #"[^A-Za-z0-9]" "_"))
 
 (defn- ->str-literal
   "A double-quoted Vega expression string literal for `legend-id`, used in a

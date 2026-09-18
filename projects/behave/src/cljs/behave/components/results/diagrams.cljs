@@ -9,6 +9,11 @@
             [re-frame.core                     :refer [subscribe]]
             [version-utils.interface           :as vu]))
 
+(defn- legend-label
+  "Translation for `k`, or `k` itself -- old worksheets store bare labels."
+  [k]
+  (or @(<t k) k))
+
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
   (let [gv-order          @(subscribe [:vms/group-variable-order])
         outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
@@ -153,7 +158,7 @@
                                    #{}
                                    (into #{}
                                          (comp (filter #(false? (:arrow/default-visible? %)))
-                                               (map (fn [a] @(<t (:arrow/legend-id a)))))
+                                               (map (comp legend-label :arrow/legend-id)))
                                          arrows))]
     [:div.diagram.pop-out-anchor
      [output-diagram {:title                    (build-title ws-uuid title row-id)
@@ -180,7 +185,7 @@
                                                                          :ellipse/center-offset-distance :center-offset-distance
                                                                          :ellipse/dashed?                :dashed?
                                                                          :ellipse/color                  :color})
-                                                           (update :legend-id (fn [k] @(<t k))))
+                                                           (update :legend-id legend-label))
                                                       ellipses)
                       :arrows                   (mapv #(-> (rename-keys (into {} %)
                                                                         {:arrow/legend-id       :legend-id
@@ -190,7 +195,7 @@
                                                                          :arrow/offset-rotation :offset-rotation
                                                                          :arrow/color           :color
                                                                          :arrow/dashed?         :dashed?})
-                                                           (update :legend-id (fn [k] @(<t k))))
+                                                           (update :legend-id legend-label))
                                                       arrows)
                       :scatter-plots            (mapv (fn [{legend-id     :scatter-plot/legend-id
                                                             x-coordinates :scatter-plot/x-coordinates
@@ -198,7 +203,7 @@
                                                             color         :scatter-plot/color}]
                                                         (let [x-doubles (map double (str/split x-coordinates ","))
                                                               y-doubles (map double (str/split y-coordinates ","))]
-                                                          {:legend-id @(<t legend-id)
+                                                          {:legend-id (legend-label legend-id)
                                                            :color     color
                                                            :connect?  connect-points?
                                                            :data      (let [pts (mapv (fn [x y] {"x" x "y" y})

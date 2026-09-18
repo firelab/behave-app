@@ -72,7 +72,7 @@
         cell-data                 (or cell-data @(subscribe [:worksheet/result-table-cell-data ws-uuid]))
         header-uuids              (map first headers)
         headers-set               (set header-uuids)
-        table-setting-filters     @(subscribe [:worksheet/table-settings-filters ws-uuid])
+        table-setting-filters     @(subscribe [:worksheet/table-settings-filters-shadeable ws-uuid])
         filters-by-uuid           (shading/filters-by-uuid table-setting-filters)
         sig-digits                @(subscribe [:worksheet/result-table-significant-digits header-uuids])
         directional-uuids         (set @(subscribe [:vms/directional-group-variable-uuids]))

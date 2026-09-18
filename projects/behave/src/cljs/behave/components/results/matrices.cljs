@@ -86,23 +86,23 @@
                   :output-gv-uuid output-gv-uuid}])))
 
 (defn- build-matrix-data
-  [matrix-data-raw row-fmt-fn col-fmt-fn output-fmt-fn shade-set any-filters-enabled?]
+  [matrix-data-raw row-fmt-fn col-fmt-fn output-fmt-fn shade-set show-marks?]
   (reduce-kv
    (fn [acc [row col] value]
      (let [shaded? (contains? shade-set [row col])]
        (assoc acc [(row-fmt-fn row) (col-fmt-fn col)]
-              (format-matrix-cell value output-fmt-fn (when any-filters-enabled? shaded?)))))
+              (format-matrix-cell value output-fmt-fn (when show-marks? shaded?)))))
    {}
    matrix-data-raw))
 
 (defn- build-matrix-data-with-map-units
-  [{:keys [matrix-data-raw row-fmt-fn col-fmt-fn output-fmt-fn output-units map-units map-rep-frac shade-set any-filters-enabled?]}]
+  [{:keys [matrix-data-raw row-fmt-fn col-fmt-fn output-fmt-fn output-units map-units map-rep-frac shade-set show-marks?]}]
   (reduce-kv
    (fn [acc [row col] value]
      (let [shaded?         (contains? shade-set [row col])
            converted-value (convert-to-map-units value output-units map-units map-rep-frac)]
        (assoc acc [(row-fmt-fn row) (col-fmt-fn col)]
-              (format-matrix-cell converted-value output-fmt-fn (when any-filters-enabled? shaded?)))))
+              (format-matrix-cell converted-value output-fmt-fn (when show-marks? shaded?)))))
    {}
    matrix-data-raw))
 
@@ -150,11 +150,12 @@
    fold serves both outputs-on-rows and outputs-on-columns layouts. The raw data is always
    keyed [mvi-val output-uuid]. Returns [regular-data map-units-table-data]."
   [{:keys [matrix-data-raw input-fmt-fn formatters process-map-units? units-lookup
-           map-units map-rep-frac shade-set any-filters-enabled? place]}]
+           map-units map-rep-frac shade-set any-filters-enabled? unfilterable-uuids place]}]
   (reduce-kv
    (fn [[reg mu] [mvi-val output-uuid] v]
      (let [fmt-fn  (get formatters output-uuid identity)
-           shade   (when any-filters-enabled? (contains? shade-set mvi-val))
+           shade   (when (and any-filters-enabled? (not (contains? unfilterable-uuids output-uuid)))
+                     (contains? shade-set mvi-val))
            mvi-key (input-fmt-fn mvi-val)]
        [(assoc reg (place output-uuid mvi-key)
                (format-matrix-cell v fmt-fn shade))
@@ -233,7 +234,8 @@
                  :rows    map-units-rows}))]))
 
 (defmethod construct-result-matrices 1
-  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities units-lookup shade-set any-filters-enabled? title header-color cell-color-gv-uuid]}]
+  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities units-lookup shade-set
+           any-filters-enabled? unfilterable-uuids title header-color cell-color-gv-uuid]}]
   (let [[multi-var-name
          multi-var-units
          multi-var-gv-uuid
@@ -266,6 +268,7 @@
                                                          :map-rep-frac         rep-fraction
                                                          :shade-set            shade-set
                                                          :any-filters-enabled? any-filters-enabled?
+                                                         :unfilterable-uuids   unfilterable-uuids
                                                          :place                place})
         [results-table-column-headers
          map-units-table-column-headers
@@ -310,7 +313,7 @@
 
 (defmethod construct-result-matrices 2
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled?
-           sub-title submatrix-value submatrix-gv-uuid header-color cell-color-gv-uuid]}]
+           unfilterable-uuids sub-title submatrix-value submatrix-gv-uuid header-color cell-color-gv-uuid]}]
   (let [graph-settings                              @(subscribe [:worksheet/graph-settings ws-uuid])
         table-settings                              @(subscribe [:worksheet/table-settings ws-uuid])
         row-axis-gv-uuid                            (or (:table-settings/row-group-variable-uuid table-settings)
@@ -356,22 +359,24 @@
                                                     :output-gv-uuid    output-gv-uuid
                                                     :submatrix-gv-uuid submatrix-gv-uuid
                                                     :submatrix-value   submatrix-value})
-             output-values   (map second matrix-data-raw)]
+             output-values   (map second matrix-data-raw)
+             show-marks?     (and any-filters-enabled?
+                                  (not (contains? unfilterable-uuids output-gv-uuid)))]
          (when-not (every? #(= "-1" %) output-values)
-           (let [matrix-data-formatted (build-matrix-data matrix-data-raw row-fmt-fn col-fmt-fn output-fmt-fn shade-set any-filters-enabled?)]
+           (let [matrix-data-formatted (build-matrix-data matrix-data-raw row-fmt-fn col-fmt-fn output-fmt-fn shade-set show-marks?)]
              [:<>
               (when (process-map-units? output-gv-uuid)
                 [:div.print__result-table
-                 (let [data (build-matrix-data-with-map-units {:matrix-data-raw      matrix-data-raw
-                                                               :row-fmt-fn           row-fmt-fn
-                                                               :col-fmt-fn           col-fmt-fn
-                                                               :output-fmt-fn        output-fmt-fn
-                                                               :output-units         output-units
-                                                               :map-units            units
-                                                               :map-rep-frac         rep-fraction
-                                                               :shade-set            shade-set
-                                                               :any-filters-enabled? any-filters-enabled?
-                                                               :color-map            color-map})]
+                 (let [data (build-matrix-data-with-map-units {:matrix-data-raw matrix-data-raw
+                                                               :row-fmt-fn      row-fmt-fn
+                                                               :col-fmt-fn      col-fmt-fn
+                                                               :output-fmt-fn   output-fmt-fn
+                                                               :output-units    output-units
+                                                               :map-units       units
+                                                               :map-rep-frac    rep-fraction
+                                                               :shade-set       shade-set
+                                                               :show-marks?     show-marks?
+                                                               :color-map       color-map})]
                    (c/matrix-table {:title          (gstring/format @(<t (bp "s_map_units_(s)")) output-name units)
                                     :header-color   header-color
                                     :sub-title      sub-title
@@ -393,7 +398,8 @@
                                 :cell-colors    cell-colors})]]))))]))
 
 (defmethod construct-result-matrices 3
-  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled? units-lookup header-color cell-color-gv-uuid]}]
+  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities shade-set any-filters-enabled?
+           unfilterable-uuids units-lookup header-color cell-color-gv-uuid]}]
   (let [graph-settings                             @(subscribe [:worksheet/graph-settings ws-uuid])
         table-settings                             @(subscribe [:worksheet/table-settings ws-uuid])
         z2-axis-group-variable-uuid                (or (:table-settings/submatrix-group-variable-uuid table-settings)
@@ -426,7 +432,8 @@
           :header-color         header-color
           :cell-color-gv-uuid   cell-color-gv-uuid
           :shade-set            (get shade-set value)
-          :any-filters-enabled? any-filters-enabled?}]])]))
+          :any-filters-enabled? any-filters-enabled?
+          :unfilterable-uuids   unfilterable-uuids}]])]))
 
 ;;==============================================================================
 ;; Discrete Color Selector & Legend
@@ -492,7 +499,7 @@
         map-units-enabled?              (:map-units-settings/enabled? map-units-settings-entity)
         map-unit-convertible-variables  @(subscribe [:wizard/map-unit-convertible-variables])
         units-lookup                    @(subscribe [:worksheet/result-table-units ws-uuid])
-        table-setting-filters           @(subscribe [:worksheet/table-settings-filters ws-uuid])
+        table-setting-filters           @(subscribe [:worksheet/table-settings-filters-shadeable ws-uuid])
         gv-order                        @(subscribe [:vms/group-variable-order ws-uuid])
         pivot-tables                    @(subscribe [:worksheet/pivot-tables ws-uuid])
         directional-uuids               (set @(subscribe [:vms/directional-group-variable-uuids]))
@@ -515,7 +522,11 @@
         heading-gv-uuids                (when heading-direction
                                           (filter #(deref (subscribe [:vms/group-variable-is-directional? % heading-direction]))
                                                   directional-gv-uuids))
-        any-filters-enabled?            (boolean (some (fn [[_ _ _ enabled?]] enabled?) table-setting-filters))]
+        any-filters-enabled?            (boolean (some (fn [[_ _ _ enabled?]] enabled?) table-setting-filters))
+        ;; Outputs the Fire Lab opted out of shading: no filter row, and no
+        ;; in-range/out-of-range mark even when another output's filter is on.
+        unfilterable-uuids              (set (filter #(deref (subscribe [:vms/hide-table-filter? %]))
+                                                     all-output-gv-uuids))]
     (when (and (seq discrete-outputs-with-colors) (nil? color-output-state))
       (dispatch-sync [:wizard/set-discrete-color-output (:bp/uuid (first discrete-outputs-with-colors))]))
     (when (seq all-output-gv-uuids)
@@ -544,7 +555,8 @@
                :formatters           formatters
                :cell-color-gv-uuid   cell-color-gv-uuid
                :shade-set            @(subscribe [:worksheet/shade-set ws-uuid output-gv-uuids])
-               :any-filters-enabled? any-filters-enabled?}])))
+               :any-filters-enabled? any-filters-enabled?
+               :unfilterable-uuids   unfilterable-uuids}])))
        (when (seq non-directional-output-gv-uuids)
          (let [group-variables (map (fn [gv-uuid] @(subscribe [:wizard/group-variable gv-uuid])) non-directional-output-gv-uuids)
                output-entities (map (fn [gv] (merge gv {:units (get units-lookup (:bp/uuid gv))})) group-variables)
@@ -563,4 +575,5 @@
              :formatters           formatters
              :cell-color-gv-uuid   cell-color-gv-uuid
              :shade-set            @(subscribe [:worksheet/shade-set ws-uuid shade-scope])
-             :any-filters-enabled? any-filters-enabled?}]))])))
+             :any-filters-enabled? any-filters-enabled?
+             :unfilterable-uuids   unfilterable-uuids}]))])))

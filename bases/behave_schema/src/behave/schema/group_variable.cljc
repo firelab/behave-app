@@ -19,6 +19,7 @@
 (s/def :group-variable/translation-key     valid-key?)
 (s/def :group-variable/research?           boolean?)
 (s/def :group-variable/hide-graph?         boolean?)
+(s/def :group-variable/hide-table-filter?  boolean?)
 (s/def :group-variable/direction           valid-direction?)
 (s/def :group-variable/direction-variables (s/coll-of int?))
 
@@ -30,6 +31,7 @@
                                       :opt [:group-variable/research?
                                             :group-variable/direction-variables
                                             :group-variable/hide-graph?
+                                            :group-variable/hide-table-filter?
                                             :group-variable/direction
                                             :group-variable/cpp-class
                                             :group-variable/cpp-namespace
@@ -163,6 +165,11 @@
 
    {:db/ident       :group-variable/hide-graph?
     :db/doc         "Whether a Group Variable is excluded from being graphed."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/hide-table-filter?
+    :db/doc         "Whether a Group Variable is excluded from Table Shading Filters: no row on the Table Shading Filters page, and no in-range/out-of-range mark on Results."
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}])
 
