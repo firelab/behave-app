@@ -35,14 +35,12 @@
 (s/def :record-field/key?          boolean?)
 (s/def :record-field/variable      single-ref?)
 (s/def :record-field/cpp-parameter string?)
-(s/def :record-field/value         string?)
 
 (s/def :behave/record-field (s/keys :req [:record-field/order
                                           :record-field/source
                                           :record-field/cpp-parameter]
                                     :opt [:record-field/key?
-                                          :record-field/variable
-                                          :record-field/value]))
+                                          :record-field/variable]))
 
 ;;; Schema
 
@@ -119,10 +117,11 @@
 
    {:db/ident       :record-field/source
     :db/doc
-    (str "Who is responsible for the field's value. :input means the user supplies it. :generated means "
-         "the app does: pinned to :record-field/value when that is set, and otherwise computed as a value "
-         "that clashes with nothing already in use, in which case the field is still rendered, prefilled "
-         "and editable.")
+    (str "Whether the app protects this field's value. :input leaves it to the user, validated only by the "
+         "bound variable. :generated means the app proposes a value that collides with nothing already in "
+         "use and re-checks the user's edits against the same rule; the field is still rendered and "
+         "editable. The key field is normally :generated, but any field needing a collision-free value "
+         "may be.")
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
@@ -135,20 +134,21 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :record-field/variable
-    :db/doc         "Variable supplying the field's kind, bounds, units, label and help."
+    :db/doc
+    (str "Optional variable refining the field. The input's type is always derived from the bound "
+         "cpp.parameter's type; a variable adds what that cannot supply — minimum and maximum for "
+         "placeholders and validation, dimension and units for the unit selector, a list for discrete "
+         "options, and a translated label and help key. Omit it for a parameter with no BehavePlus "
+         "variable behind it, such as a bare bool flag, which then renders from its C++ type alone and "
+         "labels itself from the parameter name.")
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :record-field/cpp-parameter
     :db/doc
     (str "UUID of the cpp.parameter entity this field's value fills. When the following parameter is a "
-         "*Units type, the field's units fill that one.")
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :record-field/value
-    :db/doc
-    (str "Literal value of a :generated field, pinning it and hiding it from the editor. Absent means the "
-         "app computes the value instead.")
+         "*Units type, the field's units fill that one. Its :cpp.parameter/type also decides how the field "
+         "renders: bool as a checkbox, char*/char/std::string as text, double as a decimal number, "
+         "int/long as an integer, and an enum type as a select over that cpp.enum's members.")
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])
