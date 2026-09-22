@@ -10,7 +10,6 @@
 
 (s/def :record-type/name                   string?)
 (s/def :record-type/translation-key        valid-key?)
-(s/def :record-type/help-key               valid-key?)
 (s/def :record-type/cpp-namespace          string?)
 (s/def :record-type/cpp-class              string?)
 (s/def :record-type/cpp-function           string?)
@@ -26,8 +25,7 @@
                                          :record-type/cpp-function
                                          :record-type/lib-ns
                                          :record-type/fields]
-                                   :opt [:record-type/help-key
-                                         :record-type/cpp-namespace
+                                   :opt [:record-type/cpp-namespace
                                          :record-type/target-group-variables
                                          :record-type/label-template
                                          :record-type/order]))
