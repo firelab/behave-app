@@ -1,6 +1,6 @@
 (ns behave.schema.application
   (:require [behave.schema.utils :refer [valid-key? uuid-string?]]
-            [clojure.spec.alpha :as s]))
+            [clojure.spec.alpha  :as s]))
 
 ;;; Spec
 
@@ -11,6 +11,7 @@
 (s/def :application/version-patch   integer?)
 (s/def :application/help-key        valid-key?)
 (s/def :application/modules         set?)
+(s/def :application/record-types    set?)
 
 (s/def :behave/application (s/keys :req [:application/uuid
                                          :application/name
@@ -19,7 +20,8 @@
                                          :application/version-patch
                                          :application/translation-key
                                          :application/help-key]
-                                   :opt [:application/modules]))
+                                   :opt [:application/modules
+                                         :application/record-types]))
 
 ;;; Schema
 
@@ -89,6 +91,12 @@
 
    {:db/ident       :application/note-categories
     :db/doc         "Application's note categories."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :application/record-types
+    :db/doc         "Application's custom record types."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}])

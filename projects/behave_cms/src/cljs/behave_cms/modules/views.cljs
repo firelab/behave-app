@@ -5,6 +5,7 @@
    [behave-cms.components.table-entity-form :refer [table-entity-form table-entity-form-on-select]]
    [behave-cms.components.translations      :refer [app-translations]]
    [behave-cms.help.views                   :refer [help-editor]]
+   [behave-cms.record-types.views           :refer [record-types-section]]
    [clojure.string                          :as str]
    [map-utils.interface                     :refer [index-by]]
    [re-frame.core                           :as rf]
@@ -168,4 +169,8 @@
        "Application's Note Categories"
        [:div.col-12
         [:div.row
-         [note-categories-table app-id]]]]]]))
+         [note-categories-table app-id]]]]
+      [:hr]
+      [accordion
+       "Application's Custom Records"
+       [record-types-section app-id]]]]))

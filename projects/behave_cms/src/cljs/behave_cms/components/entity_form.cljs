@@ -100,6 +100,11 @@
         translation-attr   (gen-attr "translation-key")
         help-attr          (gen-attr "help-key")
         parent-translation (parent-translation-key parent)
+        ;; `some->`: an entity whose form has no `/name` field (e.g. :record-field)
+        ;; would otherwise throw here, killing the submit before anything is
+        ;; transacted. The keys below are only *used* when the entity actually
+        ;; declares them, so a nil name simply yields an unused key.
+        entity-name        (some-> (get state name-attr) ->snake)
         translation-key    (str parent-translation
                                 ":"
                                 (cond
@@ -113,7 +118,7 @@
                                   "search-table:"
 
                                   :else nil)
-                                (->snake (get state name-attr)))
+                                entity-name)
         help-key           (str translation-key ":help")]
     (merge state
            {parent-field parent-id}
@@ -402,6 +407,54 @@
       :on-select #(on-change (u/input-value %))
       :selected  @state}]))
 
+(def ^:private cpp-levels
+  {:namespace {:sub :cpp/namespaces :name-attr :cpp.namespace/name}
+   :class     {:sub :cpp/classes :name-attr :cpp.class/name}
+   :function  {:sub :cpp/functions :name-attr :cpp.function/name}
+   :parameter {:sub :cpp/parameters :name-attr :cpp.parameter/name}})
+
+;; A dropdown over the CPP entity registry, scoped by a *sibling* field in the
+;; same form (e.g. the class list is scoped by the chosen namespace). Reads that
+;; sibling out of the shared form state the way :group-variable-value does.
+;; Field keys:
+;;  - :cpp-level       one of #{:namespace :class :function :parameter}
+;;  - :scope-field-key sibling field-key holding the parent's uuid; omit at the root
+;;  - :clears          field-keys to reset when this field changes
+(defmethod field-input :cpp-select
+  [{:keys [label cpp-level scope-field-key clears state-path state on-change original]}]
+  (let [{:keys [sub name-attr]} (get cpp-levels cpp-level)
+        scope-uuid              (when scope-field-key
+                                  (let [edited (get @(rf/subscribe [:state state-path]) scope-field-key)]
+                                    (if (nil? edited) (get original scope-field-key) edited)))
+        entities                (cond
+                                  (nil? scope-field-key) @(rf/subscribe [sub])
+                                  (some? scope-uuid)     @(rf/subscribe [sub scope-uuid])
+                                  :else                  [])
+        options                 (map (fn [entity] {:value (:bp/uuid entity) :label (name-attr entity)}) entities)]
+    [dropdown
+     {:label     label
+      :options   options
+      :disabled? (and (some? scope-field-key) (nil? scope-uuid))
+      :selected  @state
+      :on-select (fn [event]
+                   (on-change (u/input-value event))
+                   (doseq [field-key clears]
+                     (rf/dispatch [:state/set-state (conj state-path field-key) nil])))}]))
+
+;; Edits a component-ref-many child collection from inside the parent's form
+;; (e.g. :record-type/fields). `:render` is a fn of the saved parent's entity id
+;; returning hiccup — usually a [table-entity-form] bound to that parent — so
+;; this method stays ignorant of any particular child entity. Like
+;; :group-variables, the parent must exist before children can be attached.
+(defmethod field-input :sub-table
+  [{:keys [label render original]}]
+  (let [entity-id (:db/id original)]
+    [:div.mb-3
+     (when label [:label.form-label label])
+     (if-not entity-id
+       [:p.text-muted (str "Save first to add " (str/lower-case (or label "items")) ".")]
+       (render entity-id))]))
+
 (defmethod field-input :translation-key
   [{:keys [state]}]
   (when (not-empty @state)
@@ -431,7 +484,7 @@
       (if-not entity-id
         [:div.mb-3
          (when label [:label.form-label label])
-         [:p.text-muted "Save the diagram first to add group variables."]]
+         [:p.text-muted (str "Save first to add " (str/lower-case (or label "group variables")) ".")]]
         (let [gv-refs (get @(rf/subscribe [:entity entity-id]) field-key)
               rows    (mapv (fn [{gv-eid :db/id}]
                               {:db/id         gv-eid
