@@ -2,6 +2,13 @@ ifndef WEBIDL
 		WEBIDL := $(shell brew --prefix emscripten)/libexec/tools/webidl_binder
 endif
 
+# webidl_binder needs Python 3; `python` is still Python 2 on some machines.
+PYTHON ?= python3
+
+# WEBIDL is sometimes set to the wrapper script (no extension) and sometimes to
+# the .py itself. Normalize to the .py, which is what PYTHON can actually run.
+WEBIDL_PY := $(patsubst %.py,%,$(WEBIDL)).py
+
 BUILD_DIR = build
 TEST_DIR = test-build
 .DEFAULT_GOAL := install
@@ -15,7 +22,7 @@ all: clean install
 
 # NOTE Make sure to set WEBIDL in Enviornment Variables
 bind:
-	python ${WEBIDL} include/idl/behave.idl include/js/glue
+	${PYTHON} ${WEBIDL_PY} include/idl/behave.idl include/js/glue
 	mv include/js/glue.cpp include/cpp/emscripten/glue.cpp
 
 compile: clean bind

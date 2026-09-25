@@ -230,6 +230,14 @@ IF(TEST_BEHAVE)
         ${HEADERS})
     TARGET_LINK_LIBRARIES(testContain)
 
+    SET(FUEL_MODELS_TEST_SOURCE
+        test/cpp/testFuelModels.cpp)
+    ADD_EXECUTABLE(testFuelModels
+        ${SOURCE}
+        ${FUEL_MODELS_TEST_SOURCE}
+        ${HEADERS})
+    TARGET_LINK_LIBRARIES(testFuelModels)
+
     SET(CROWN_TEST_SOURCE
         test/cpp/testCrown.cpp)
     ADD_EXECUTABLE(testCrown

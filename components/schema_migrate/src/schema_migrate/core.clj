@@ -99,7 +99,7 @@
    Accepts a Datomic conn or db."
   ([db nnamespace cclass fn-name param-name]
    (d/q '[:find ?uuid .
-          :in $ ?namespace ?class ?fn-name
+          :in $ ?namespace ?class ?fn-name ?param-name
           :where
           [?ns :cpp.namespace/name ?namespace]
           [?ns :cpp.namespace/class ?c]
@@ -548,6 +548,65 @@
    :bp/nid           (nano-id)
    :link/source      source-eid
    :link/destination destination-eid})
+
+(defn- ->cpp-name
+  "Keys in a hatchet export are keywords; the stored names are strings."
+  [x]
+  (if (keyword? x) (name x) (str x)))
+
+(defn ->cpp-parameter
+  "Payload for a C++ function parameter, from an exported {:id .. :type ..} map."
+  [order {param-name :id param-type :type}]
+  {:bp/uuid             (rand-uuid)
+   :bp/nid              (nano-id)
+   :cpp.parameter/name  param-name
+   :cpp.parameter/type  param-type
+   :cpp.parameter/order order})
+
+(defn ->cpp-function
+  "Payload for a C++ function, from an exported {:id .. :type .. :parameters [..]} map.
+   A constructor has no `:type`, and that absence is how it is recognized later."
+  [{fn-name :id return-type :type parameters :parameters}]
+  (cond-> {:bp/uuid                (rand-uuid)
+           :bp/nid                 (nano-id)
+           :cpp.function/name      fn-name
+           :cpp.function/parameter (vec (map-indexed ->cpp-parameter parameters))}
+    return-type
+    (assoc :cpp.function/return-type return-type)))
+
+(defn ->cpp-class
+  "Payload for a C++ class, from one `[class-name functions]` entry of a hatchet export
+   (i.e. `(first (:global exported))`). Accepts a Datomic conn or db.
+
+   Idempotent: if the class already exists the payload carries its `:db/id` instead of
+   creating a second one, and functions already attached to it are omitted."
+  [db [class-name functions]]
+  (let [db*          (ds/unwrap-db db)
+        class-name   (->cpp-name class-name)
+        named?       (comp some? :cpp.function/name)
+        existing-fn? (fn [f]
+                       (some? (d/q '[:find ?e .
+                                     :in $ ?class-name ?fn-name
+                                     :where
+                                     [?c :cpp.class/name ?class-name]
+                                     [?c :cpp.class/function ?e]
+                                     [?e :cpp.function/name ?fn-name]]
+                                   db* class-name (->cpp-name (:cpp.function/name f)))))
+        class-eid    (d/q '[:find ?e .
+                            :in $ ?class-name
+                            :where [?e :cpp.class/name ?class-name]]
+                          db* class-name)]
+    (cond-> {:cpp.class/name     class-name
+             :cpp.class/function (vec (->> functions
+                                           (map (comp ->cpp-function val))
+                                           (filter named?)
+                                           (remove existing-fn?)))}
+      class-eid
+      (assoc :db/id class-eid)
+
+      (nil? class-eid)
+      (merge {:bp/uuid (rand-uuid)
+              :bp/nid  (nano-id)}))))
 
 (defn ->migration
   "New migration."

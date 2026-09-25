@@ -87,6 +87,88 @@ bool SIGFuelModels::setCustomFuelModel(int fuelModelNumber,
                                         isDynamic);
 }
 
+bool SIGFuelModels::defineCustomFuelModel(int fuelModelNumber,
+                                          char* code,
+                                          char* name,
+                                          double fuelBedDepth,
+                                          LengthUnits::LengthUnitsEnum fuelBedDepthUnits,
+                                          double moistureOfExtinctionDead,
+                                          FractionUnits::FractionUnitsEnum moistureOfExtinctionDeadUnits,
+                                          double heatOfCombustionDead,
+                                          HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionDeadUnits,
+                                          double heatOfCombustionLive,
+                                          HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionLiveUnits,
+                                          double fuelLoadOneHour,
+                                          LoadingUnits::LoadingUnitsEnum fuelLoadOneHourUnits,
+                                          double fuelLoadTenHour,
+                                          LoadingUnits::LoadingUnitsEnum fuelLoadTenHourUnits,
+                                          double fuelLoadHundredHour,
+                                          LoadingUnits::LoadingUnitsEnum fuelLoadHundredHourUnits,
+                                          double fuelLoadLiveHerbaceous,
+                                          LoadingUnits::LoadingUnitsEnum fuelLoadLiveHerbaceousUnits,
+                                          double fuelLoadLiveWoody,
+                                          LoadingUnits::LoadingUnitsEnum fuelLoadLiveWoodyUnits,
+                                          double savrOneHour,
+                                          SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrOneHourUnits,
+                                          double savrLiveHerbaceous,
+                                          SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrLiveHerbaceousUnits,
+                                          double savrLiveWoody,
+                                          SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrLiveWoodyUnits,
+                                          bool isDynamic)
+{
+  // Each value is converted to its base unit here, because the engine's setCustomFuelModel accepts only
+  // one unit per property class (one LoadingUnits for all five loads, one SurfaceAreaToVolumeUnits for
+  // all three SAVRs, one HeatOfCombustionUnits for both heats of combustion). Converting up front lets
+  // every property carry its own unit, and the base-unit enums below make the engine's own conversion
+  // a no-op.
+  const double fuelBedDepthBase =
+      LengthUnits::toBaseUnits(fuelBedDepth, fuelBedDepthUnits);
+  const double moistureOfExtinctionDeadBase =
+      FractionUnits::toBaseUnits(moistureOfExtinctionDead, moistureOfExtinctionDeadUnits);
+  const double heatOfCombustionDeadBase =
+      HeatOfCombustionUnits::toBaseUnits(heatOfCombustionDead, heatOfCombustionDeadUnits);
+  const double heatOfCombustionLiveBase =
+      HeatOfCombustionUnits::toBaseUnits(heatOfCombustionLive, heatOfCombustionLiveUnits);
+  const double fuelLoadOneHourBase =
+      LoadingUnits::toBaseUnits(fuelLoadOneHour, fuelLoadOneHourUnits);
+  const double fuelLoadTenHourBase =
+      LoadingUnits::toBaseUnits(fuelLoadTenHour, fuelLoadTenHourUnits);
+  const double fuelLoadHundredHourBase =
+      LoadingUnits::toBaseUnits(fuelLoadHundredHour, fuelLoadHundredHourUnits);
+  const double fuelLoadLiveHerbaceousBase =
+      LoadingUnits::toBaseUnits(fuelLoadLiveHerbaceous, fuelLoadLiveHerbaceousUnits);
+  const double fuelLoadLiveWoodyBase =
+      LoadingUnits::toBaseUnits(fuelLoadLiveWoody, fuelLoadLiveWoodyUnits);
+  const double savrOneHourBase =
+      SurfaceAreaToVolumeUnits::toBaseUnits(savrOneHour, savrOneHourUnits);
+  const double savrLiveHerbaceousBase =
+      SurfaceAreaToVolumeUnits::toBaseUnits(savrLiveHerbaceous, savrLiveHerbaceousUnits);
+  const double savrLiveWoodyBase =
+      SurfaceAreaToVolumeUnits::toBaseUnits(savrLiveWoody, savrLiveWoodyUnits);
+
+  return FuelModels::setCustomFuelModel(fuelModelNumber,
+                                        std::string(code),
+                                        std::string(name),
+                                        fuelBedDepthBase,
+                                        LengthUnits::Feet,
+                                        moistureOfExtinctionDeadBase,
+                                        FractionUnits::Fraction,
+                                        heatOfCombustionDeadBase,
+                                        heatOfCombustionLiveBase,
+                                        HeatOfCombustionUnits::BtusPerPound,
+                                        fuelLoadOneHourBase,
+                                        fuelLoadTenHourBase,
+                                        fuelLoadHundredHourBase,
+                                        fuelLoadLiveHerbaceousBase,
+                                        fuelLoadLiveWoodyBase,
+                                        LoadingUnits::PoundsPerSquareFoot,
+                                        savrOneHourBase,
+                                        savrLiveHerbaceousBase,
+                                        savrLiveWoodyBase,
+                                        SurfaceAreaToVolumeUnits::SquareFeetOverCubicFeet,
+                                        isDynamic);
+}
+
 char* SIGFuelModels::getFuelCode(int fuelModelNumber) const
 {
     return SIGString::str2charptr(FuelModels::getFuelCode(fuelModelNumber));

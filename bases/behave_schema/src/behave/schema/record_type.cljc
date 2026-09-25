@@ -99,8 +99,8 @@
 
    {:db/ident       :record-type/label-template
     :db/doc
-    (str "Template for a record's option label, interpolating field values by their variable's name, "
-         "(e.g., \"{code} — {name}\").")
+    (str "Template for a record's option label, interpolating field values by the name of the C++ parameter "
+         "each field fills, (e.g., \"{code} — {name}\").")
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -138,7 +138,8 @@
     (str "Optional variable refining the field. The input's type is always derived from the bound "
          "cpp.parameter's type; a variable adds what that cannot supply — minimum and maximum for "
          "placeholders and validation, dimension and units for the unit selector, a list for discrete "
-         "options, and a translated label and help key. Omit it for a parameter with no BehavePlus "
+         "options, and a label (its :variable/name — variables carry no translation keys). Omit it for a "
+         "parameter with no BehavePlus "
          "variable behind it, such as a bare bool flag, which then renders from its C++ type alone and "
          "labels itself from the parameter name.")
     :db/valueType   :db.type/ref

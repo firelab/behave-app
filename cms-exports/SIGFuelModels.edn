@@ -1,0 +1,185 @@
+{:global
+ {:SIGFuelModels
+  {:getHeatOfCombustionLive
+   {:type "double",
+    :id "getHeatOfCombustionLive",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getFuelName
+   {:type "char",
+    :id "getFuelName",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelLoadLiveWoody
+   {:type "double",
+    :id "getFuelLoadLiveWoody",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :isAllFuelLoadZero
+   {:type "bool",
+    :id "isAllFuelLoadZero",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :SIGFuelModels {:id "SIGFuelModels", :parameters []},
+   :getSavrLiveHerbaceous
+   {:type "double",
+    :id "getSavrLiveHerbaceous",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getHeatOfCombustionDead
+   {:type "double",
+    :id "getHeatOfCombustionDead",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getFuelCode
+   {:type "char",
+    :id "getFuelCode",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :isFuelModelReserved
+   {:type "bool",
+    :id "isFuelModelReserved",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getMoistureOfExtinctionDead
+   {:type "double",
+    :id "getMoistureOfExtinctionDead",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "moistureUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+   :setCustomFuelModel
+   {:type "bool",
+    :id "setCustomFuelModel",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "code", :type "char"}
+     {:id "name", :type "char"}
+     {:id "fuelBedDepth", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "moistureOfExtinctionDead", :type "double"}
+     {:id "moistureUnits", :type "FractionUnits::FractionUnitsEnum"}
+     {:id "heatOfCombustionDead", :type "double"}
+     {:id "heatOfCombustionLive", :type "double"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}
+     {:id "fuelLoadOneHour", :type "double"}
+     {:id "fuelLoadTenHour", :type "double"}
+     {:id "fuelLoadHundredHour", :type "double"}
+     {:id "fuelLoadLiveHerbaceous", :type "double"}
+     {:id "fuelLoadLiveWoody", :type "double"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}
+     {:id "savrOneHour", :type "double"}
+     {:id "savrLiveHerbaceous", :type "double"}
+     {:id "savrLiveWoody", :type "double"}
+     {:id "savrUnits",
+      :type "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}
+     {:id "isDynamic", :type "bool"}]},
+   :clearCustomFuelModel
+   {:type "bool",
+    :id "clearCustomFuelModel",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelLoadLiveHerbaceous
+   {:type "double",
+    :id "getFuelLoadLiveHerbaceous",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getSavrOneHour
+   {:type "double",
+    :id "getSavrOneHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getFuelLoadTenHour
+   {:type "double",
+    :id "getFuelLoadTenHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getIsDynamic
+   {:type "bool",
+    :id "getIsDynamic",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelLoadOneHour
+   {:type "double",
+    :id "getFuelLoadOneHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :equal
+   {:type "SIGFuelModels",
+    :id "equal",
+    :parameters [{:id "rhs", :type "SIGFuelModels"}]},
+   :getFuelLoadHundredHour
+   {:type "double",
+    :id "getFuelLoadHundredHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :isFuelModelDefined
+   {:type "bool",
+    :id "isFuelModelDefined",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelbedDepth
+   {:type "double",
+    :id "getFuelbedDepth",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :defineCustomFuelModel
+   {:type "bool",
+    :id "defineCustomFuelModel",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "code", :type "char"}
+     {:id "name", :type "char"}
+     {:id "fuelBedDepth", :type "double"}
+     {:id "fuelBedDepthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "moistureOfExtinctionDead", :type "double"}
+     {:id "moistureOfExtinctionDeadUnits",
+      :type "FractionUnits::FractionUnitsEnum"}
+     {:id "heatOfCombustionDead", :type "double"}
+     {:id "heatOfCombustionDeadUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}
+     {:id "heatOfCombustionLive", :type "double"}
+     {:id "heatOfCombustionLiveUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}
+     {:id "fuelLoadOneHour", :type "double"}
+     {:id "fuelLoadOneHourUnits",
+      :type "LoadingUnits::LoadingUnitsEnum"}
+     {:id "fuelLoadTenHour", :type "double"}
+     {:id "fuelLoadTenHourUnits",
+      :type "LoadingUnits::LoadingUnitsEnum"}
+     {:id "fuelLoadHundredHour", :type "double"}
+     {:id "fuelLoadHundredHourUnits",
+      :type "LoadingUnits::LoadingUnitsEnum"}
+     {:id "fuelLoadLiveHerbaceous", :type "double"}
+     {:id "fuelLoadLiveHerbaceousUnits",
+      :type "LoadingUnits::LoadingUnitsEnum"}
+     {:id "fuelLoadLiveWoody", :type "double"}
+     {:id "fuelLoadLiveWoodyUnits",
+      :type "LoadingUnits::LoadingUnitsEnum"}
+     {:id "savrOneHour", :type "double"}
+     {:id "savrOneHourUnits",
+      :type "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}
+     {:id "savrLiveHerbaceous", :type "double"}
+     {:id "savrLiveHerbaceousUnits",
+      :type "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}
+     {:id "savrLiveWoody", :type "double"}
+     {:id "savrLiveWoodyUnits",
+      :type "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}
+     {:id "isDynamic", :type "bool"}]},
+   :getSavrLiveWoody
+   {:type "double",
+    :id "getSavrLiveWoody",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]}}}}

@@ -36,6 +36,20 @@
        :doc      "Get the :bp/uuid using the cpp function name and parameter name. Accepts a Datomic conn or db."}
   cpp-param->uuid c/cpp-param->uuid)
 
+(def ^{:arglists '([db [class-name functions]])
+       :doc      "Payload for a C++ class, from one `[class-name functions]` entry of a hatchet export
+                  (i.e. `(first (:global exported))`). Idempotent: reuses an existing class's :db/id and
+                  omits functions already attached to it. Accepts a Datomic conn or db."}
+  ->cpp-class c/->cpp-class)
+
+(def ^{:arglists '([m])
+       :doc      "Payload for a C++ function, from an exported {:id .. :type .. :parameters [..]} map."}
+  ->cpp-function c/->cpp-function)
+
+(def ^{:arglists '([order m])
+       :doc      "Payload for a C++ function parameter, from an exported {:id .. :type ..} map."}
+  ->cpp-parameter c/->cpp-parameter)
+
 (def ^{:arglists '([db eid])
        :doc      "Returns an entity's translation key. Accepts a Datomic conn or db."}
   eid->t-key c/eid->t-key)

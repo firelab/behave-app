@@ -66,6 +66,38 @@ public:
                             SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits,
                             bool isDynamic);
 
+    // Units-interleaved form of setCustomFuelModel: every value is immediately followed by the units it
+    // is expressed in, so each property can carry its own unit and the VMS/solver convention
+    // ("a *Units parameter applies to the value before it") holds. Converts to base units and delegates.
+    bool defineCustomFuelModel(int fuelModelNumber,
+                               char* code,
+                               char* name,
+                               double fuelBedDepth,
+                               LengthUnits::LengthUnitsEnum fuelBedDepthUnits,
+                               double moistureOfExtinctionDead,
+                               FractionUnits::FractionUnitsEnum moistureOfExtinctionDeadUnits,
+                               double heatOfCombustionDead,
+                               HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionDeadUnits,
+                               double heatOfCombustionLive,
+                               HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionLiveUnits,
+                               double fuelLoadOneHour,
+                               LoadingUnits::LoadingUnitsEnum fuelLoadOneHourUnits,
+                               double fuelLoadTenHour,
+                               LoadingUnits::LoadingUnitsEnum fuelLoadTenHourUnits,
+                               double fuelLoadHundredHour,
+                               LoadingUnits::LoadingUnitsEnum fuelLoadHundredHourUnits,
+                               double fuelLoadLiveHerbaceous,
+                               LoadingUnits::LoadingUnitsEnum fuelLoadLiveHerbaceousUnits,
+                               double fuelLoadLiveWoody,
+                               LoadingUnits::LoadingUnitsEnum fuelLoadLiveWoodyUnits,
+                               double savrOneHour,
+                               SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrOneHourUnits,
+                               double savrLiveHerbaceous,
+                               SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrLiveHerbaceousUnits,
+                               double savrLiveWoody,
+                               SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrLiveWoodyUnits,
+                               bool isDynamic);
+
     char* getFuelCode(int fuelModelNumber) const;
     char* getFuelName(int fuelModelNumber) const;
 };

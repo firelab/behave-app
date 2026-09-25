@@ -6,11 +6,10 @@
    [behave-cms.store :refer [default-conn]]
    [behave-cms.server :as cms]
    [datomic.api :as d]
-   [datascript.core :refer [squuid]]
+   [schema-migrate.interface :as sm]
    [string-utils.interface :refer [->str]]
    [datom-utils.interface :refer [safe-deref unwrap]]
-   [me.raynes.fs :as fs]
-   [nano-id.core :refer [nano-id]]))
+   [me.raynes.fs :as fs]))
 
 (defn dissoc-in [m keys]
   (update-in m (butlast keys) dissoc (last keys)))
@@ -35,46 +34,6 @@
 
     (write-pprint-edn merged-edn (str "cms-exports/" out-file-name))))
 
-(defn ->class [conn [class-name functions]]
-  (let [->param            (fn [i p] (merge {:cpp.parameter/order i
-                                             :bp/nid              (nano-id)
-                                             :bp/uuid             (str (squuid))}
-                                            (rename-keys p {:id   :cpp.parameter/name
-                                                            :type :cpp.parameter/type})))
-        ->fn               (fn [[_ {:keys [type id parameters]}]]
-                             (merge {:bp/uuid                (str (squuid))
-                                     :bp/nid                 (nano-id)
-                                     :cpp.function/name      id
-                                     :cpp.function/parameter (vec (map-indexed ->param parameters))}
-                                    (when type {:cpp.function/return-type type})))
-        has-name?          (comp some? :cpp.function/name)
-        existing-fn?       #(some?
-                             (d/q '[:find ?e .
-                                    :in $ ?class-name ?fn-name
-                                    :where
-                                    [?c :cpp.class/name ?class-name]
-                                    [?c :cpp.class/function ?e]
-                                    [?e :cpp.function/name ?fn-name]]
-                                  (d/db conn)
-                                  (->str class-name)
-                                  (->str (:cpp.function/name %))))
-        existing-class-eid (d/q '[:find ?e .
-                                  :in $ ?class-name
-                                  :where
-                                  [?e :cpp.class/name ?class-name]]
-                                (d/db conn)
-                                (->str class-name))]
-    (cond-> {:cpp.class/name     (->str class-name)
-             :cpp.class/function (vec (->> (filter has-name? (map ->fn functions))
-                                           (remove existing-fn?)))}
-
-      existing-class-eid
-      (assoc :db/id existing-class-eid)
-
-      (not existing-class-eid)
-      (merge {:bp/uuid (str (squuid))
-              :bp/nid  (nano-id)}))))
-
 (defn lookup-ns-id [ns-name conn]
   (d/q '[:find ?e .
          :in $ ?name
@@ -86,7 +45,7 @@
         namespaces (reduce (fn [acc ns] (assoc acc ns (lookup-ns-id (->str ns) (d/db conn)))) {} (keys source-edn))
         tx         (mapv (fn [[ns-key ns-id]]
                            (merge {:cpp.namespace/name  (->str ns-key)
-                                   :cpp.namespace/class (mapv (partial ->class conn) (get source-edn ns-key))}
+                                   :cpp.namespace/class (mapv (partial sm/->cpp-class conn) (get source-edn ns-key))}
                                   (when ns-id {:db/id ns-id})))
                          namespaces)]
     (d/transact conn tx)))
