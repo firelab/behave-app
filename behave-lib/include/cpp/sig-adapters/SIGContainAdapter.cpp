@@ -243,13 +243,17 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
         }
 
         const char* desc = "AutoComputed";
+        autoComputedResourceProductionRate_ = 0.0; // stays 0 if no rate contains the fire
         auto initialSim = runSimAtProductionRate(10000, resourceArrivalTime_, resourceDuration_, desc);
         ContainStatus::ContainStatusEnum initialStatus = convertSemStatusToAdapterStatus(initialSim->status());
 
         if (initialStatus == ContainStatus::ContainStatusEnum::Contained) {
             int left = 0;
             int right = 9999; // assumes 10000 chains per hour is the maximum
-            std::unique_ptr<Sem::ContainSim> bestSim;
+            // 10000 ch/h contains the fire, so it is the best until a lower rate does
+            // (otherwise bestSim stays null when only (9999, 10000] contains it).
+            setAutoComputedResourceProductionRate(10000, SpeedUnits::ChainsPerHour);
+            std::unique_ptr<Sem::ContainSim> bestSim = std::move(initialSim);
             while (left <= right) {
                 int mid = (left + right) / 2;
                 auto sim = runSimAtProductionRate(mid, resourceArrivalTime_, resourceDuration_, desc);

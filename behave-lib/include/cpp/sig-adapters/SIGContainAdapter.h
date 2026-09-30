@@ -85,10 +85,10 @@ public:
   void   setAutoComputedResourceProductionRate(double resourceProductionRate, SpeedUnits::SpeedUnitsEnum speedUnits);
 
 protected:
-  double autoComputedResourceProductionRate_;
+  double autoComputedResourceProductionRate_ = 0.0; // 0 when no rate contains the fire
   ContainMode containMode_ = ContainMode::Default;
-  double  resourceArrivalTime_; //min
-  double  resourceDuration_; //min
+  double  resourceArrivalTime_ = 0.0; //min
+  double  resourceDuration_ = 0.0; //min
   std::vector<double> optimizedContainProductionRates_;
   std::vector<double> optimizedContainAreas_;
 
