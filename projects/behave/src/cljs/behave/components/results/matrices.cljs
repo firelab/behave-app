@@ -51,17 +51,11 @@
     {:units        (:map-units-settings/units entity)
      :rep-fraction (:map-units-settings/map-rep-fraction entity)}))
 
-(defn- missing-value?
-  "A result cell the last solve never produced. `neg?`/`pos?` coerce `nil` silently, so every
-  value test here has to check for it explicitly."
-  [value]
-  (or (nil? value) (= "" value)))
-
 (defn- format-matrix-cell [value formatter shaded?]
   [:div {:class (cond-> ["result-matrix-cell-value"]
                   (true? shaded?)  (conj "table-cell__shaded")
                   (false? shaded?) (conj "table-cell__in-range"))}
-   (if (or (missing-value? value) (neg? value))
+   (if (neg? value)
      "-"
      (formatter value))])
 
@@ -202,7 +196,7 @@
                                                   fmt-fn   (get formatters output-gv-uuid identity)
                                                   var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])]
                                               (conj acc {:output var-name
-                                                         :value  (if (or (missing-value? value) (neg? value))
+                                                         :value  (if (neg? value)
                                                                    "-"
                                                                    (fmt-fn value))
                                                          :units  units})))
@@ -215,8 +209,7 @@
                                                     fmt-fn   (get formatters output-gv-uuid identity)
                                                     var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])]
                                                 (conj acc {:output (gstring/format @(<t (bp "s_map_units")) var-name)
-                                                           :value  (if (and (not (missing-value? value))
-                                                                            (pos? value))
+                                                           :value  (if (pos? value)
                                                                      (-> value
                                                                          (to-map-units units map-units map-rep-frac)
                                                                          fmt-fn)
