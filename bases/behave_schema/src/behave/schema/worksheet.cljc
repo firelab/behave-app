@@ -225,6 +225,12 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :output/implicit?
+    :db/doc
+    "Whether an output was implicitly enabled. This controls whether or not the output is computed and stored but not checked in the outputs page and not shown in the results page"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    ;; Result Table
    {:db/ident       :result-table/headers
     :db/doc         "Result table's heaers."

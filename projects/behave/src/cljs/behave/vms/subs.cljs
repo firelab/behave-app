@@ -403,6 +403,31 @@
  (fn [_ [_ gv-uuid]]
    (directional-parent-entity gv-uuid)))
 
+(defn implicitly-set-output-uuids
+  "Group-variable uuids that a diagram's summary table or a search table pulls in — the members of
+  `:diagram/output-group-variables`, and the group-variables behind a search table's filters and
+  columns.
+  These are the outputs the app may enable purely as plumbing: the summary table and the search tables
+  read the stored result table, so the output has to be computed, but it earns no result column unless
+  the user asked for it. Everything else a `:select` action enables is an ordinary default (\"Enable by
+  default for Surface & Contain\", \"Enable whenever mortality is ran\") and stays visible."
+  []
+  (set (d/q '[:find [?uuid ...]
+              :where
+              (or-join [?gv]
+                       [_ :diagram/output-group-variables ?gv]
+                       (and [_ :search-table/filters ?f]
+                            [?f :search-table-filter/group-variable ?gv])
+                       (and [_ :search-table/columns ?c]
+                            [?c :search-table-column/group-variable ?gv]))
+              [?gv :bp/uuid ?uuid]]
+            @@vms-conn)))
+
+(reg-sub
+ :vms/implicitly-set-output-uuids
+ (fn [_ _]
+   (implicitly-set-output-uuids)))
+
 (defn hide-table-filter-entity?
   "Whether group-variable `entity` opts out of Table Shading Filters — no row on
   the Table Shading Filters page and no in-range/out-of-range mark on Results.

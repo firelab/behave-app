@@ -103,6 +103,65 @@
         (first)
         (:output/enabled?))))
 
+;; Outputs that are computed but must not be shown — no result matrix column, no table or graph entry,
+;; and an unticked checkbox on the outputs page.
+;;
+;; Two facts have to coincide. `:output/implicit?` says the **app** enabled the output rather than the
+;; user, and `:vms/implicitly-set-output-uuids` says the output is only ever wanted as **plumbing** for a
+;; diagram's summary table or a search table. Neither alone is enough: most `:select` actions are
+;; ordinary defaults ("Enable by default for Surface & Contain", "Enable whenever mortality is ran"),
+;; which are app-enabled and must still show; and a user who ticks a summary-table output by hand has
+;; earned its column.
+;;
+;; A directional child is never ticked on its own — it only exists as a fan-out of its parent — so the
+;; parent's ownership decides for it. A parent with no output at all reads as app-owned, which keeps the
+;; fire shape diagram's forced spread distances hidden until the user asks for Spread Distance itself.
+(rf/reg-sub
+ :worksheet/hidden-output-uuids
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet ws-uuid])
+    (rf/subscribe [:vms/implicitly-set-output-uuids])])
+
+ (fn [[worksheet implicitly-set?] _]
+   (let [outputs     (:worksheet/outputs worksheet)
+         ;; A *live* user choice: enabled, and not the app's doing. Absent `:output/implicit?` means
+         ;; the user's, so worksheets saved before the attribute existed keep showing. An output the
+         ;; user has since switched off is not a live choice, so it stops vouching for its children.
+         user-chosen (into #{}
+                           (comp (filter #(true? (:output/enabled? %)))
+                                 (remove #(true? (:output/implicit? %)))
+                                 (map :output/group-variable-uuid))
+                           outputs)
+         app-owned?  (fn [gv-uuid]
+                       (let [parent (:bp/uuid (directional-parent-entity gv-uuid))]
+                         (not (contains? user-chosen (or parent gv-uuid)))))]
+     (into #{}
+           (comp (map :output/group-variable-uuid)
+                 (filter implicitly-set?)
+                 (filter app-owned?))
+           outputs))))
+
+;; Whether the outputs page should render this output's checkbox as ticked.
+;;
+;; Deliberately *not* `:worksheet/output-enabled?`: that one answers "is this computed?", and is what a
+;; `:group-variable`/`:equal` conditional on an `:output` evaluates (`wizard/subs.cljs`), so it has to
+;; keep counting app-enabled outputs or the `:select` actions that fan a directional parent out to its
+;; children stop firing. A tick means the output shows in the results, so the two agree by construction.
+(rf/reg-sub
+ :worksheet/output-checked?
+ (fn [[_ ws-uuid _variable-uuid]]
+   [(rf/subscribe [:worksheet ws-uuid])
+    (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid])])
+
+ (fn [[worksheet hidden?] [_ _ws-uuid variable-uuid]]
+   (let [output (->> worksheet
+                     (:worksheet/outputs)
+                     (filter (fn matching-uuid [output]
+                               (= (:output/group-variable-uuid output) variable-uuid)))
+                     (first))]
+     (and (true? (:output/enabled? output))
+          (not (contains? hidden? variable-uuid))))))
+
 ;; Get the Input entity
 (rf/reg-sub
  :worksheet/input
@@ -494,8 +553,9 @@
 (rf/reg-sub
  :worksheet/output-uuids-conditionally-filtered
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet ws-uuid]))
- (fn [worksheet [_ ws-uuid]]
+   [(rf/subscribe [:worksheet ws-uuid])
+    (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid])])
+ (fn [[worksheet hidden?] [_ ws-uuid]]
    (->> (d/q '[:find  ?gv ?hide-result
                :in    $ $ws % ?ws-uuid
                :where
@@ -517,11 +577,15 @@
                                            (:group-variable/hide-result-conditional-operator %)
                                            (:group-variable/hide-result-conditionals %))
                    false))
-        (map :bp/uuid))))
+        (map :bp/uuid)
+        ;; Computed for a diagram summary table or a search table, so not the user's to see.
+        (remove hidden?))))
 
 (rf/reg-sub
  :worksheet/output-uuids-filtered
- (fn [_ [_ ws-uuid]]
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid]))
+ (fn [hidden? [_ ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result
                :in    $ $ws % ?ws-uuid
                :where
@@ -536,7 +600,8 @@
              rules
              ws-uuid)
         (remove (fn [[_ hide-result?]] (true? hide-result?)))
-        (map first))))
+        (map first)
+        (remove hidden?))))
 
 (rf/reg-sub
  :worksheet/directional-parent-output-uuids
@@ -559,8 +624,9 @@
  :worksheet/graphed-output-uuids
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet ws-uuid])
-    (rf/subscribe [:vms/group-variable-order])])
- (fn [[worksheet group-variable-order] [_ ws-uuid]]
+    (rf/subscribe [:vms/group-variable-order])
+    (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid])])
+ (fn [[worksheet group-variable-order hidden?] [_ ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
                :in    $ $ws % ?ws-uuid
                :where
@@ -578,6 +644,7 @@
         (sort-by #(.indexOf group-variable-order (first %)))
         (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
         (map first)
+        (remove hidden?)
         (map (fn [gv-uuid] @(rf/subscribe [:vms/entity-from-uuid gv-uuid])))
         (remove #(if (seq (:group-variable/hide-result-conditionals %))
                    (all-conditionals-pass? worksheet

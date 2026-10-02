@@ -45,9 +45,30 @@
          [?i :input/value ?value]]
        conn ws-uuid group-uuid repeat-id))
 
+(defn- implicit-output-uuids
+  "Group-variable uuids of outputs the app turned on itself — the only ones it may turn off again.
+
+  Read from the db rather than the `:worksheet` reactive-entity, for the same reason
+  `:worksheet/upsert-output` does: these passes run right after other writes in the same tick."
+  [ds ws-uuid]
+  (set (d/q '[:find [?gv-uuid ...]
+              :in $ ?ws-uuid
+              :where
+              [?w :worksheet/uuid ?ws-uuid]
+              [?w :worksheet/outputs ?o]
+              [?o :output/group-variable-uuid ?gv-uuid]
+              [?o :output/enabled? true]
+              [?o :output/implicit? true]]
+            ds ws-uuid)))
+
 (defn- process-output-actions->fx
-  [worksheet group-variables ws-uuid]
-  (let [reset-map   (zipmap (map :bp/uuid group-variables) (repeat false))
+  [ds worksheet group-variables ws-uuid]
+  (let [implicit?   (implicit-output-uuids ds ws-uuid)
+        reset-map   (->> group-variables
+                         (map :bp/uuid)
+                         (filter implicit?)
+                         (map (fn [gv-uuid] [gv-uuid false]))
+                         (into {}))
         enabled-map (->> group-variables
                          (mapcat (fn [{group-variable-uuid :bp/uuid
                                        actions             :group-variable/actions}]
@@ -59,7 +80,9 @@
                                      [group-variable-uuid true])))
                          (into {}))
         merged-map  (merge reset-map enabled-map)
-        payload     (mapv (fn [[gv-uuid v]] [:dispatch [:worksheet/upsert-output ws-uuid gv-uuid v]]) merged-map)]
+        payload     (mapv (fn [[gv-uuid v]]
+                            [:dispatch [:worksheet/upsert-output ws-uuid gv-uuid v true]])
+                          merged-map)]
     {:fx payload}))
 
 (defn ^:private add-input-group-tx [ws-uuid group-uuid repeat-id]
@@ -245,27 +268,40 @@
 
 (rp/reg-event-fx
  :worksheet/upsert-output
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
- (fn [{:keys [worksheet]} [_ ws-uuid group-variable-uuid enabled?]]
-   (if-let [output-id (some->> worksheet
-                               (:worksheet/outputs)
-                               (filter #(= (:output/group-variable-uuid %) group-variable-uuid))
-                               (first)
-                               (:db/id))]
-     (cond-> {:transact [{:db/id output-id :output/enabled? enabled?}]}
-       (true? enabled?)
-       (update :fx #(into (vec %) [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
-                                   [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]))
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid enabled? implicit?]]
+   (let [[output-id was-enabled? was-implicit?]
+         (d/q '[:find [?o ?enabled ?implicit]
+                :in $ ?ws-uuid ?gv-uuid
+                :where
+                [?w :worksheet/uuid ?ws-uuid]
+                [?w :worksheet/outputs ?o]
+                [?o :output/group-variable-uuid ?gv-uuid]
+                [(get-else $ ?o :output/enabled? false) ?enabled]
+                [(get-else $ ?o :output/implicit? false) ?implicit]]
+              ds ws-uuid group-variable-uuid)
 
-       (false? enabled?)
-       (update :fx #(into (vec %) [[:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]]
-                                   [:dispatch [:worksheet/remove-y-axis-limit ws-uuid group-variable-uuid]]])))
-     ;;else
-     {:transact [{:worksheet/_outputs         [:worksheet/uuid ws-uuid]
-                  :output/group-variable-uuid group-variable-uuid
-                  :output/enabled?            enabled?}]
-      :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
-                 [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]})))
+         existing?                              (some? output-id)
+         implicit?                              (boolean (and implicit?
+                                                              (or (not existing?) (not was-enabled?) was-implicit?)))]
+     (if output-id
+       (cond-> {:transact [{:db/id            output-id
+                            :output/enabled?  enabled?
+                            :output/implicit? implicit?}]}
+         (and (true? enabled?) (not (true? was-enabled?)))
+         (update :fx #(into (vec %) [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+                                     [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]))
+
+         (and (false? enabled?) (and existing? (not (false? was-enabled?))))
+         (update :fx #(into (vec %) [[:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]]
+                                     [:dispatch [:worksheet/remove-y-axis-limit ws-uuid group-variable-uuid]]])))
+       ;;else
+       {:transact [{:worksheet/_outputs         [:worksheet/uuid ws-uuid]
+                    :output/group-variable-uuid group-variable-uuid
+                    :output/enabled?            enabled?
+                    :output/implicit?           implicit?}]
+        :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+                   [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]}))))
 
 (rf/reg-event-fx
  :worksheet/delete-existing-result-table
@@ -321,12 +357,18 @@
  :worksheet/add-y-axis-limit
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
-   (let [limit {:y-axis-limit/group-variable-uuid gv-uuid}]
-     (if-let [id (get-in worksheet [:worksheet/graph-settings :db/id])]
-       {:transact [{:db/id                        id
-                    :graph-settings/y-axis-limits [limit]}]}
-       {:transact [{:worksheet/_graph-settings    [:worksheet/uuid ws-uuid]
-                    :graph-settings/y-axis-limits [limit]}]}))))
+   (let [existing (->> (get-in worksheet [:worksheet/graph-settings :graph-settings/y-axis-limits])
+                       (map :y-axis-limit/group-variable-uuid)
+                       (set))
+         limit    {:y-axis-limit/group-variable-uuid gv-uuid}]
+     ;; Idempotent, as :worksheet/add-table-filter already is — the limits are a cardinality-many
+     ;; component ref, so re-adding one appends a duplicate rather than replacing it.
+     (when-not (contains? existing gv-uuid)
+       (if-let [id (get-in worksheet [:worksheet/graph-settings :db/id])]
+         {:transact [{:db/id                        id
+                      :graph-settings/y-axis-limits [limit]}]}
+         {:transact [{:worksheet/_graph-settings    [:worksheet/uuid ws-uuid]
+                      :graph-settings/y-axis-limits [limit]}]})))))
 
 (rp/reg-event-fx
  :worksheet/remove-y-axis-limit
@@ -904,22 +946,26 @@
 (rf/reg-event-fx
  :worksheet/proccess-output-group-variables-with-actions
 
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/output-group-variables-with-actions ws-uuid]))]
 
- (fn [{worksheet       :worksheet
+ (fn [{ds              :ds
+       worksheet       :worksheet
        group-variables :wizard/output-group-variables-with-actions} [_ ws-uuid]]
-   (process-output-actions->fx worksheet group-variables ws-uuid)))
+   (process-output-actions->fx ds worksheet group-variables ws-uuid)))
 
 (rf/reg-event-fx
  :worksheet/proccess-conditonally-set-output-group-variables
 
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-group-variables ws-uuid :output]))]
 
- (fn [{worksheet       :worksheet
+ (fn [{ds              :ds
+       worksheet       :worksheet
        group-variables :wizard/conditionally-set-group-variables} [_ ws-uuid]]
-   (process-output-actions->fx worksheet group-variables ws-uuid)))
+   (process-output-actions->fx ds worksheet group-variables ws-uuid)))
 
 (rf/reg-event-fx
  :worksheet/select-single-select-output
@@ -929,11 +975,12 @@
  (fn [{group :vms/entity-from-eid} [_ ws-uuid _group-id target-group-variable-uuid]]
    (let [siblings (remove #(= (:bp/uuid %) target-group-variable-uuid)
                           (:group/group-variables group))]
-     {:fx (into [[:dispatch [:worksheet/upsert-output ws-uuid target-group-variable-uuid true]]]
+     {:fx (into [[:dispatch [:worksheet/upsert-output ws-uuid target-group-variable-uuid true false]]]
                 (mapv #(identity
                         [:dispatch [:worksheet/upsert-output
                                     ws-uuid
                                     (:bp/uuid %)
+                                    false
                                     false]])
                       siblings))})))
 
@@ -950,14 +997,25 @@
 
 (rf/reg-event-fx
  :worksheet/process-search-table-output-group-variables
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/search-table-output-group-variables ws-uuid]))]
- (fn [{group-variables :wizard/search-table-output-group-variables}
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/search-table-output-group-variables ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/all-search-table-output-group-variables ws-uuid]))]
+ (fn [{ds              :ds
+       group-variables :wizard/search-table-output-group-variables
+       all-gvs         :wizard/all-search-table-output-group-variables}
       [_ ws-uuid]]
-   (let [payload (for [group-variable group-variables]
-                   [:dispatch [:worksheet/upsert-output
-                               ws-uuid
-                               (:bp/uuid group-variable)
-                               true]])]
+   (let [needed     (set (map :bp/uuid group-variables))
+         implicit?  (implicit-output-uuids ds ws-uuid)
+         reset-map  (->> all-gvs
+                         (map :bp/uuid)
+                         (remove needed)
+                         (filter implicit?)
+                         (map (fn [gv-uuid] [gv-uuid false]))
+                         (into {}))
+         merged-map (merge reset-map (zipmap needed (repeat true)))
+         payload    (mapv (fn [[gv-uuid v]]
+                            [:dispatch [:worksheet/upsert-output ws-uuid gv-uuid v true]])
+                          merged-map)]
      {:fx payload})))
 
 (rf/reg-event-fx
