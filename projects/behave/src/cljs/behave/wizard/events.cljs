@@ -97,6 +97,7 @@
  :wizard/before-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
    {:fx [[:dispatch [:worksheet/remove-unused-inputs ws-uuid]]
+         [:dispatch [:worksheet/proccess-output-group-variables-with-actions ws-uuid]]
          [:dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]]
          [:dispatch [:worksheet/process-search-table-output-group-variables ws-uuid]]
          [:dispatch [:worksheet/proccess-conditonally-set-input-group-variables ws-uuid]]
@@ -127,6 +128,7 @@
   {:first-dispatch [:wizard/before-solve params]
    :rules          [{:when     :seen-all-of?
                      :events   [:worksheet/remove-unused-inputs
+                                :worksheet/proccess-output-group-variables-with-actions
                                 :worksheet/proccess-conditonally-set-output-group-variables
                                 :worksheet/process-search-table-output-group-variables
                                 :worksheet/proccess-conditonally-set-input-group-variables
