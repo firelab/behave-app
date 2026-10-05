@@ -109,7 +109,9 @@
               "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
               "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
               "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
-              "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
+              "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+              ;; Dev may download JCEF into .jcef-bundle (see jcef.setup)
+              "-Dbehave.jcef.allow-download=true"]}
 
   :test {:extra-paths [;; Components
                        "components/browser_utils/test"
@@ -121,6 +123,7 @@
                        "components/datom_utils/test"
                        "components/dom_utils/test"
                        "components/ds_schema_utils/test"
+                       "components/jcef/test"
                        "components/markdown2hiccup/test"
                        "components/map_utils/test"
                        "components/number_utils/test"

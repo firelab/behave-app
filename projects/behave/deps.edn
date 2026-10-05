@@ -81,7 +81,9 @@
                                             "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
                                             "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
                                             "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
-                                            "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
+                                            "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+                                            ;; Dev may download JCEF into .jcef-bundle (see jcef.setup)
+                                            "-Dbehave.jcef.allow-download=true"]}
              :server           {:main-opts ["-m" "behave.server"]}
              :build            {:deps       {io.github.seancorfield/build-clj
                                              {:git/tag   "v0.8.5"
