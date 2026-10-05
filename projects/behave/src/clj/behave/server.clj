@@ -21,7 +21,8 @@
                        (if cef? "prod" "dev"))
         jar-local? (and (= mode "prod") cef?)]
     (merge-config! {:server {:mode mode}
-                    :client {:jar-local? jar-local?}})))
+                    :client {:jar-local?  jar-local?
+                             :test-build? (true? (get-config :build :test?))}})))
 
 (defn init-db!
   "Initialize DB using configuration."

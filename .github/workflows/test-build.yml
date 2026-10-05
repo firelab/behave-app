@@ -70,6 +70,7 @@ jobs:
     with:
       ref: ${{ needs.get-version.outputs.ref }}
       version: ${{ needs.get-version.outputs.build_version }}
+      test_build: true
     secrets:
       VMS_URL: ${{ secrets.DEV_VMS_URL }}
       VMS_AUTH_TOKEN: ${{ secrets.DEV_VMS_SECRET_TOKEN }}
@@ -81,6 +82,7 @@ jobs:
     with:
       ref: ${{ needs.get-version.outputs.ref }}
       version: ${{ needs.get-version.outputs.build_version }}
+      test_build: true
     secrets:
       VMS_URL: ${{ secrets.VMS_URL }}
       VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}

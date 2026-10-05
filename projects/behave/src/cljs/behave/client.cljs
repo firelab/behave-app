@@ -6,6 +6,7 @@
             [behave.demo.views               :refer [demo-output-diagram-page]]
             [behave.events]
             [behave.help.views               :refer [help-area]]
+            [behave.logger                   :as logger]
             [behave.modal.views              :refer [modal-root]]
             [behave.print.views              :refer [print-page]]
             [behave.settings.views           :as settings]
@@ -132,6 +133,8 @@
   "Defines the init function to be called from window.onload()."
   [params]
   (let [params (js->clj params :keywordize-keys true)]
+    (when (:test-build? params)
+      (logger/install-re-frame-loggers!))
     (reset! route-params-atom params)
     (rf/dispatch-sync [:initialize])
     (rf/dispatch-sync [:state/set :app-version (:app-version params)])

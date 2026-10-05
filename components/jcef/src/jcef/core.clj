@@ -10,10 +10,11 @@
             CefDisplayHandlerAdapter
             CefFocusHandlerAdapter
             CefJSDialogHandler CefLifeSpanHandlerAdapter
+            CefLoadHandlerAdapter
             CefMessageRouterHandler]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
            [java.awt.event ActionListener ComponentAdapter WindowAdapter]
-           [javax.swing JFrame JMenu JMenuBar JMenuItem JTextField KeyStroke SwingUtilities]))
+           [javax.swing JCheckBoxMenuItem JFrame JMenu JMenuBar JMenuItem JTextField KeyStroke SwingUtilities]))
 
 ;;; Helpers
 
@@ -53,7 +54,9 @@
    - :label       - Label of the Menu Item
    - :description - Description for accessibility
    - :mnemonic    - Key that will automatically select the Menu Item
-   - :on-select   - Function to be called when Menu Item is selected
+   - :on-select   - Function to be called when Menu Item is selected, with
+                    `{:event :app :selected?}` (`:selected?` is the checkbox state)
+   - :checked     - Optional boolean; makes the item a checkbox with this initial state
    - :shortcut    - Optional key (along with CTRL/CMD) to trigger Menu Item"
   ([app menus]
    (let [menu-bar (JMenuBar.)]
@@ -66,11 +69,13 @@
      (.add menu-bar menu)
 
      ;; Iterate over each Item
-     (doseq [{:keys [separator? label description mnemonic on-select shortcut]} items]
+     (doseq [{:keys [separator? label description mnemonic on-select shortcut checked]} items]
        (if separator?
          (.addSeparator menu)
          ;; Create Menu Item
-         (let [menu-item (JMenuItem. label)]
+         (let [menu-item (if (some? checked)
+                           (doto (JCheckBoxMenuItem. ^String label) (.setSelected (boolean checked)))
+                           (JMenuItem. ^String label))]
            (cond-doto menu-item
              mnemonic
              (.setMnemonic (get-keycode mnemonic))
@@ -81,7 +86,7 @@
              on-select
              (.addActionListener (proxy [ActionListener] []
                                    (actionPerformed [e]
-                                     (on-select {:event e :app app})))))
+                                     (on-select {:event e :app app :selected? (.isSelected menu-item)})))))
            (when description
              (.. menu-item
                  (getAccessibleContext)
@@ -130,6 +135,8 @@
    - `:on-close`           [Opt.] - Function to execute when the window closes.
    - `:on-console-message` [Opt.] - Function called with `{:level :message :source :line}`
                                     for every browser console message.
+   - `:on-load-end`        [Opt.] - Function called with the app map each time the
+                                    main frame finishes loading.
    - `:use-osr?`           [Opt.] - Use Windowless Rendering (Default: false)
    - `:transparent?`       [Opt.] - Transparent window (Default: false)
    - `:address-bar?`       [Opt.] - Show an address bar. (Default: false)
@@ -140,7 +147,7 @@
   - `:client`  - `CefClient`"
   [{:keys [title menu url use-osr? size request-handler cache-path remote-debug-port
            transparent? address-bar? fullscreen? dev-tools?
-           on-close on-blur on-focus on-hidden on-shown on-before-launch on-console-message]
+           on-close on-blur on-focus on-hidden on-shown on-before-launch on-console-message on-load-end]
     :or   {use-osr? false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
   (let [builder       (jcef-builder)
         settings      (.getCefSettings builder)
@@ -200,6 +207,11 @@
                                   (getUIComponent)
                                   (setCursor (Cursor/getPredefinedCursor cursorType)))
                               false)))
+
+      (.addLoadHandler (proxy [CefLoadHandlerAdapter] []
+                         (onLoadEnd [_ frame _]
+                           (when (and (fn? on-load-end) (.isMain frame))
+                             (on-load-end app)))))
 
       (.addFocusHandler (proxy [CefFocusHandlerAdapter] []
                           (onGotFocus [& args]
