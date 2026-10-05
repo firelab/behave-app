@@ -5,13 +5,34 @@
             [reagent.core :as r]
             [reagent.dom  :as rd]))
 
+(defn- finalize-view!
+  "Release the Vega embed attached to `elem`, if any.
+
+  `vegaEmbed` returns a View that owns a dataflow graph, a canvas context and
+  window-level event listeners, and (with the actions menu) registers a
+  document-level `click` listener that closes over the View. Dropping the
+  reference releases none of these, and `view.finalize()` leaves the document
+  listener in place — only the embed result's own `finalize()` removes it and
+  finalizes the view. Without this a re-render or unmount orphans the whole
+  graph for the life of the page."
+  [elem]
+  (when-let [embed (.-behaveVegaEmbed elem)]
+    (try
+      (.finalize embed)
+      (catch :default e (js/console.log e)))
+    (set! (.-behaveVegaEmbed elem) nil)))
+
 (defn- render-vega [spec elem]
+  ;; Free the previous view before replacing it — `component-did-update` renders
+  ;; into the same node on every prop change.
+  (finalize-view! elem)
   (go
     (try
-      (<p! (js/vegaEmbed elem
-                         (clj->js spec)
-                         (clj->js {:renderer "canvas"
-                                   :mode     "vega-lite"})))
+      (let [result (<p! (js/vegaEmbed elem
+                                      (clj->js spec)
+                                      (clj->js {:renderer "canvas"
+                                                :mode     "vega-lite"})))]
+        (set! (.-behaveVegaEmbed elem) result))
       (catch ExceptionInfo e (js/console.log (ex-cause e))))))
 
 (defn- vega-canvas []
@@ -25,6 +46,10 @@
     (fn [this _]
       (let [{:keys [spec]} (r/props this)]
         (render-vega spec (rd/dom-node this))))
+
+    :component-will-unmount
+    (fn [this]
+      (finalize-view! (rd/dom-node this)))
 
     :render
     (fn [this]
