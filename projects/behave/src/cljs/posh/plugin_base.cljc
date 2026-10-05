@@ -87,6 +87,26 @@
              :ratoms (dissoc (:ratoms posh-atom-val) storage-key)
              :reactions (dissoc (:reactions posh-atom-val) storage-key)))))
 
+;; BEHAVE PATCH (vendored from denistakeda/posh 0.5.7): the query reaction is
+;; built in its own function. Built inline in make-query-reaction's swap! fn,
+;; its closures shared a JS scope with the `posh-atom-with-query` snapshot, so
+;; every reaction retained the whole posh state -- including every other
+;; reaction -- as of its creation, and disposed reactions were never collected
+;; (~220 per Contain solve, plus their cached results and old DB values).
+(defn- new-query-reaction
+  [dcfg posh-atom storage-key query-ratom options]
+  ((:make-reaction dcfg)
+   (fn []
+     @query-ratom)
+   :on-dispose
+   (fn [_ _]
+     (when-not (= (:cache options) :forever)
+       (swap! posh-atom
+              (fn [posh-atom-val]
+                (assoc (p/remove-item posh-atom-val storage-key)
+                       :ratoms (dissoc (:ratoms posh-atom-val) storage-key)
+                       :reactions (dissoc (:reactions posh-atom-val) storage-key))))))))
+
 (defn make-query-reaction
   ([dcfg posh-atom storage-key add-query-fn options]
    (if-let [r (get-in @posh-atom [:reactions storage-key])]
@@ -99,19 +119,7 @@
                query-result         (:results (get (:cache posh-atom-with-query) storage-key))
                query-ratom          (or (get (:ratoms posh-atom-with-query) storage-key)
                                         ((:ratom dcfg) query-result))
-               query-reaction       ((:make-reaction dcfg)
-                                     (fn []
-                                       ;;(println "RENDERING: " storage-key)
-                                       @query-ratom)
-                                     :on-dispose
-                                     (fn [_ _]
-                                       ;;(println "no DISPOSING: " storage-key)
-                                       (when-not (= (:cache options) :forever)
-                                         (swap! posh-atom
-                                                (fn [posh-atom-val]
-                                                  (assoc (p/remove-item posh-atom-val storage-key)
-                                                         :ratoms (dissoc (:ratoms posh-atom-val) storage-key)
-                                                         :reactions (dissoc (:reactions posh-atom-val) storage-key)))))))]
+               query-reaction       (new-query-reaction dcfg posh-atom storage-key query-ratom options)]
            (assoc posh-atom-with-query
                   :ratoms (assoc (:ratoms posh-atom-with-query) storage-key query-ratom)
                   :reactions (assoc (:reactions posh-atom-with-query) storage-key query-reaction)))))
