@@ -11,6 +11,11 @@ on:
         description: 'Version string (e.g., v7.1.4)'
         required: false
         type: string
+      test_build:
+        description: 'Set :build {:test? true} in config.edn (test-build diagnostics)'
+        required: false
+        type: boolean
+        default: false
     secrets:
       VMS_URL:
         required: true
@@ -76,6 +81,9 @@ jobs:
           clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
           bb build-js
           mv resources/config.standalone.edn resources/config.edn
+          if [ "${{ inputs.test_build }}" = "true" ]; then
+            bb -e '(spit "resources/config.edn" (pr-str (assoc-in (clojure.edn/read-string (slurp "resources/config.edn")) [:build :test?] true)))'
+          fi
           echo '{:version "${{ env.version }}"}' > resources/version.edn
           bb uber
 
