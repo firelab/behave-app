@@ -303,12 +303,15 @@
                    [:worksheet/input-value ws-uuid group-uuid repeat-id group-variable-uuid]))
 
  (fn [{ws-input-value :worksheet/input-value} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
-   (let [effects (cond-> [[:dispatch [:worksheet/upsert-input-variable
-                                      ws-uuid group-uuid repeat-id group-variable-uuid value]]]
+   ;; nil = the field was never filled (e.g. focused then blurred); nothing to save.
+   (if (nil? value)
+     {}
+     (let [effects (cond-> [[:dispatch [:worksheet/upsert-input-variable
+                                        ws-uuid group-uuid repeat-id group-variable-uuid value]]]
 
-                   (not= ws-input-value value)
-                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]]))]
-     {:fx effects})))
+                     (not= ws-input-value value)
+                     (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]]))]
+       {:fx effects}))))
 
 ;; Update input variable with units
 ;; If units provided is different from the stored units, set the progress bar's furthest step back to inputs.
