@@ -83,6 +83,30 @@
             :input-group/inputs     [{:input/group-variable-uuid group-variable-uuid
                                       :input/value               value}]}))))
 
+(deftest upsert-input-variable-nil-value-test
+  (let [*worksheet          (rf/subscribe [:worksheet fx/test-ws-uuid])
+        input-group-uuid    "some-input-group-uuid"
+        group-variable-uuid "some-group-variable-uuid"
+        repeat-id           0]
+    (testing "an untouched field (nil value) creates no input instead of throwing"
+      (rf/dispatch-sync [:worksheet/upsert-input-variable
+                         fx/test-ws-uuid input-group-uuid repeat-id group-variable-uuid nil])
+      (is (empty? (:worksheet/input-groups @*worksheet))))
+
+    (testing "a stored value is left alone"
+      (rf/dispatch-sync [:worksheet/upsert-input-variable
+                         fx/test-ws-uuid input-group-uuid repeat-id group-variable-uuid "10"])
+      (rf/dispatch-sync [:worksheet/upsert-input-variable
+                         fx/test-ws-uuid input-group-uuid repeat-id group-variable-uuid nil])
+      (is (= [{:input/group-variable-uuid group-variable-uuid
+               :input/value               "10"}]
+             (->> *worksheet
+                  deref
+                  :worksheet/input-groups
+                  first
+                  utils/re-entity->cljs
+                  :input-group/inputs))))))
+
 ;; =================================================================================================
 ;; :worksheet/delete-repeat-input-test
 ;; =================================================================================================

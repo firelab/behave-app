@@ -137,22 +137,25 @@
  :worksheet/upsert-input-variable
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
-   (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
-         var-id   (q-input-variable ds group-id group-variable-uuid)
-         payload  (cond-> []
-                    var-id
-                    (conj {:db/id       var-id
-                           :input/value value})
+   ;; DataScript can't store nil; an untouched field has no value to save.
+   (if (nil? value)
+     {}
+     (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
+           var-id   (q-input-variable ds group-id group-variable-uuid)
+           payload  (cond-> []
+                      var-id
+                      (conj {:db/id       var-id
+                             :input/value value})
 
-                    (neg? group-id)
-                    (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
+                      (neg? group-id)
+                      (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
 
-                    (nil? var-id)
-                    (conj {:db/id                     -2
-                           :input-group/_inputs       group-id
-                           :input/group-variable-uuid group-variable-uuid
-                           :input/value               value}))]
-     {:transact payload})))
+                      (nil? var-id)
+                      (conj {:db/id                     -2
+                             :input-group/_inputs       group-id
+                             :input/group-variable-uuid group-variable-uuid
+                             :input/value               value}))]
+       {:transact payload}))))
 
 (rp/reg-event-fx
  :worksheet/upsert-multi-select-input
