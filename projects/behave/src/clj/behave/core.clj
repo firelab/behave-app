@@ -1,8 +1,9 @@
 (ns behave.core
   (:gen-class)
   (:import [javax.imageio ImageIO]
-           [javax.swing JFrame SwingUtilities UIManager])
-  (:require [behave.handlers      :refer [create-cef-handler-stack]]
+           [javax.swing JFrame JPopupMenu SwingUtilities UIManager])
+  (:require [behave.browser-log   :as browser-log]
+            [behave.handlers      :refer [create-cef-handler-stack]]
             [behave.server        :as server]
             [clojure.java.io      :as io]
             [config.interface     :refer [get-config]]
@@ -65,6 +66,30 @@
   []
   (some? (System/getProperty "app.dir")))
 
+(defn- test-build?
+  "True for test builds (`:build {:test? true}` in config.edn), which add the
+  Help menu diagnostics."
+  []
+  (true? (get-config :build :test?)))
+
+(defn- diagnostics-options
+  "`create-cef-app!` options for the test-build Help menu: Show Browser Logs
+  and Enable Solver Logging (re-applied on every page load)."
+  [data-dir log-dir]
+  {:on-load-end (fn [{:keys [browser]}]
+                  (browser-log/push-solver-logging!
+                   browser (browser-log/solver-logging? data-dir)))
+   :menu        [{:title "Help"
+                  :items [{:label     "Show Browser Logs"
+                           :mnemonic  "B"
+                           :on-select (fn [_] (browser-log/show-viewer! log-dir))}
+                          {:label     "Enable Solver Logging"
+                           :mnemonic  "S"
+                           :checked   (browser-log/solver-logging? data-dir)
+                           :on-select (fn [{:keys [app selected?]}]
+                                        (browser-log/set-solver-logging!
+                                         data-dir (:browser app) selected?))}]}]})
+
 ;;; Entry Points
 
 (defn- start-cef!
@@ -94,25 +119,35 @@
                                 {:protocol     "http"
                                  :authority    (format "localhost:%s" http-port)
                                  :resource-dir "public"
-                                 :ring-handler (create-cef-handler-stack)})]
+                                 :ring-handler (create-cef-handler-stack)})
+        test?                  (test-build?)]
 
     (start-logging! log-config)
     (server/init-db! db-config)
 
+    ;; The CEF browser is a heavyweight component; lightweight Swing menus
+    ;; would render behind it.
+    (when test?
+      (JPopupMenu/setDefaultLightWeightPopupEnabled false))
+
     (create-cef-app!
-     {:title                                                (get-config :site :title)
-      :url                                                  (str "http://localhost:" http-port)
-      :cache-path                                           cache-path
-      :fullscreen?                                          true
-      :on-shown                                             (fn [app & _]
-                                                              (reset! the-app app)
-                                                              (.dispose (:frame loader)))
-      :on-console-message                                   (fn [{:keys [level message source line]}]
-                                                              (log-str "[BROWSER " level "] " source ":" line " - " message))
-      :request-handler                                      request-handler
-      :on-before-launch
-      (fn [{:keys [frame]}]
-        (on-before-launch frame (get-config :site :title)))})))
+     (merge
+      {:title                                                (get-config :site :title)
+       :url                                                  (str "http://localhost:" http-port)
+       :cache-path                                           cache-path
+       :fullscreen?                                          true
+       :on-shown                                             (fn [app & _]
+                                                               (reset! the-app app)
+                                                               (.dispose (:frame loader)))
+       :on-console-message                                   (fn [{:keys [level message source line] :as msg}]
+                                                               (when test? (browser-log/record! msg))
+                                                               (log-str "[BROWSER " level "] " source ":" line " - " message))
+       :request-handler                                      request-handler
+       :on-before-launch
+       (fn [{:keys [frame]}]
+         (on-before-launch frame (get-config :site :title)))}
+      (when test?
+        (diagnostics-options my-app-data-dir (:log-dir log-config)))))))
 
 (defn -main
   "Unified entry point. Detects runtime environment and starts
