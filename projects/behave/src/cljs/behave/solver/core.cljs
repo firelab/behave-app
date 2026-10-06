@@ -45,7 +45,10 @@
       (= 1 (count params))
       (f module value)
 
-      (and (= 2 (count params)) (some? unit))
+      (nil? unit)
+      (js/console.error "Cannot process Module with nil unit for:" gv-id fn-name)
+
+      (= 2 (count params))
       (let [[_ _ param-type] (first params)]
         (if (is-unit? param-type)
           (f module unit value)
@@ -242,7 +245,7 @@
          all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
 
      (doseq [[group-uuid repeat-id gv-uuid _value unit-uuid] all-inputs]
-       (when (not= unit-uuid :none)
+       (when (and (some? unit-uuid) (not= unit-uuid :none))
          (rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id gv-uuid unit-uuid])))
 
      (-> (solve-worksheet ws-uuid modules all-inputs all-outputs)
