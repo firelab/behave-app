@@ -20,6 +20,10 @@
                            :unresolved-var           {:level :off}
                            :underscore-in-namespace  {:level :off}}}}
 
+ ;; Vendored third-party code (patched posh/plugin_base.cljc) — kept
+ ;; byte-for-byte diffable against upstream, so it isn't held to our lint.
+ :output {:exclude-files ["projects/behave/src/cljs/posh/"]}
+
  :lint-as {;; Herb
            herb.core/defglobal                clojure.core/def
 
