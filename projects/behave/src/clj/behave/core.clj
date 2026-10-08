@@ -4,6 +4,7 @@
            [javax.swing JFrame SwingUtilities UIManager])
   (:require [behave.handlers      :refer [create-cef-handler-stack]]
             [behave.server        :as server]
+            [behave.views         :refer [reset-app-version!]]
             [clojure.java.io      :as io]
             [config.interface     :refer [get-config]]
             [file-utils.interface :refer [os-type app-data-dir]]
@@ -58,6 +59,17 @@
 
 (defonce ^:private the-app (atom nil))
 
+;;; CEF Cache
+
+(defn- cache-dir
+  "Returns the CEF cache dir for `version` under `data-dir`.
+
+  Each version gets its own dir (and so its own LocalStorage, IndexedDB and
+  HTTP cache), letting older versions keep their state and run side by side.
+  Pre-versioning installs keep using `.cache`, which is left untouched."
+  [data-dir version]
+  (io/file data-dir "cache" (or version "unversioned")))
+
 ;;; Runtime Detection
 
 (defn- conveyor?
@@ -89,7 +101,7 @@
                                            [:store :path]
                                            (str (io/file my-app-data-dir "db.sqlite")))
                                  (get-config :database :config))
-        cache-path             (str (io/file my-app-data-dir ".cache"))
+        cache-path             (str (cache-dir my-app-data-dir (reset-app-version!)))
         request-handler        (custom-request-handler
                                 {:protocol     "http"
                                  :authority    (format "localhost:%s" http-port)
