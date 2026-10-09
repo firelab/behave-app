@@ -389,6 +389,16 @@
                   [?d ?units-system-attr ?unit-uuid]]
                 @@vms-conn @@s/conn rules ws-uuid units-system-attr)))))
 
+(defn cached-units-xf
+  "Transducer from input rows `[group-uuid repeat-id gv-uuid domain-uuid]` to
+  `[group-uuid repeat-id gv-uuid unit-uuid]`, for domains with a cached unit in
+  `units-settings`. Entries that only cache `:decimals` are skipped, so they
+  can't override the domain's unit with nil."
+  [units-settings]
+  (keep (fn [[group-uuid repeat-id gv-uuid domain-uuid]]
+          (when-let [unit-uuid (get-in units-settings [domain-uuid :unit-uuid])]
+            [group-uuid repeat-id gv-uuid unit-uuid]))))
+
 (rf/reg-sub
  :worksheet/all-cached-units
  (fn [_]
@@ -396,9 +406,7 @@
 
  (fn [units-settings [_ ws-uuid]]
    (into []
-         (comp (filter (fn [[_ _ _ domain-uuid]] (contains? units-settings domain-uuid)))
-               (map (fn [[group-uuid repeat-uuid gv-uuid domain-uuid]]
-                      [group-uuid repeat-uuid gv-uuid (get-in units-settings [domain-uuid :unit-uuid])])))
+         (cached-units-xf units-settings)
          (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?domain-uuid
                 :in    $ $ws % ?ws-uuid
                 :where
