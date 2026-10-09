@@ -239,7 +239,7 @@
   ([ws-uuid]
    (let [modules     (set (q/worksheet-modules ws-uuid))
          all-inputs  @(rf/subscribe [:worksheet/all-inputs+units-vector ws-uuid])
-         all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+         all-outputs (q/enabled-output-uuids ws-uuid)]
 
      (doseq [[group-uuid repeat-id gv-uuid _value unit-uuid] all-inputs]
        (when (not= unit-uuid :none)
