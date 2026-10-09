@@ -190,7 +190,7 @@
                       [* {:variable/_group-variables
                           [* {:variable/list
                               [* {:list/options [*]}]}]}]
-                      :group/children                     [*]}]}]
+                      :group/children        [*]}]}]
                group-id]))
 
  (fn [group]
@@ -845,15 +845,16 @@
  :wizard/output-group-variables-with-actions
 
  (fn [[_ ws-uuid]]
-   [(subscribe [:worksheet/modules ws-uuid])
-    (subscribe [:worksheet/all-output-uuids ws-uuid])])
+   (subscribe [:worksheet/modules ws-uuid]))
 
- (fn [[modules worksheet-output-uuids] _]
-   (let [output-set (set worksheet-output-uuids)]
-     (into []
-           (remove #(contains? output-set (:bp/uuid %)))
-           (query-module-group-variables @@vms-conn modules :output
-                                         '[?gv :group-variable/actions _])))))
+ ;; Every output group-variable carrying actions, including ones already enabled. This used to
+ ;; exclude enabled outputs to avoid clobbering the user's own selections; `:output/implicit?` now
+ ;; states that distinction precisely, so `process-output-actions->fx` can reset what the app
+ ;; enabled — which is what makes deselecting a diagram turn its forced outputs back off.
+ (fn [modules _]
+   (into []
+         (query-module-group-variables @@vms-conn modules :output
+                                       '[?gv :group-variable/actions _]))))
 
 (reg-sub
  :wizard/conditionally-set-input-data
@@ -1025,36 +1026,59 @@
  (fn [workflow _]
    workflow))
 
+(defn- search-table-output-gv-eids
+  "Output group-variable eids used as a filter or column of one search table."
+  [search-table-eid]
+  (concat
+   (d/q '[:find [?gv ...]
+          :in $ % ?st
+          :where
+          [?st :search-table/filters ?f]
+          [?f :search-table-filter/group-variable ?gv]
+          (io ?gv :output)]
+        @@vms-conn rules search-table-eid)
+   (d/q '[:find [?gv ...]
+          :in $ % ?st
+          :where
+          [?st :search-table/columns ?c]
+          [?c :search-table-column/group-variable ?gv]
+          (io ?gv :output)]
+        @@vms-conn rules search-table-eid)))
+
+(defn- search-table-shown?
+  "Whether a search table's own `show-conditionals` pass — the same gate the results view applies
+  before rendering it (see behave.components.results.table/search-tables)."
+  [worksheet {conditionals :search-table/show-conditionals
+              operator     :search-table/show-conditionals-operator}]
+  (all-conditionals-pass? worksheet operator conditionals))
+
+(reg-sub
+ :wizard/all-search-table-output-group-variables
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/search-tables ws-uuid]))
+
+ ;; Every search-table output, whether its table is currently shown or not. Used to work out which
+ ;; outputs to switch back off when a table stops being shown.
+ (fn [search-tables _]
+   (->> search-tables
+        (mapcat (comp search-table-output-gv-eids :db/id))
+        (distinct)
+        (map #(d/touch (d/entity @@vms-conn %))))))
+
 (reg-sub
  :wizard/search-table-output-group-variables
 
  (fn [[_ ws-uuid]]
-   (subscribe [:worksheet/modules ws-uuid]))
+   [(subscribe [:worksheet/search-tables ws-uuid])
+    (subscribe [:worksheet ws-uuid])])
 
- (fn [modules _]
-   (letfn [(get-search-table-filter-output-group-variables [module-eid]
-             (d/q '[:find [?gv ...]
-                    :in $ % ?module-eid
-                    :where
-                    [?module-eid :module/search-tables ?st]
-                    [?st :search-table/filters ?f]
-                    [?f :search-table-filter/group-variable ?gv]
-                    (io ?gv :output)]
-                  @@vms-conn
-                  rules
-                  module-eid))
-           (get-search-table-column-output-group-variables [module-eid]
-             (d/q '[:find [?gv ...]
-                    :in $ % ?module-eid
-                    :where
-                    [?module-eid :module/search-tables ?st]
-                    [?st :search-table/columns ?c]
-                    [?c :search-table-column/group-variable ?gv]
-                    (io ?gv :output)]
-                  @@vms-conn
-                  rules
-                  module-eid))]
-
-     (->> (mapcat #(get-search-table-filter-output-group-variables (:db/id %)) modules)
-          (concat (mapcat #(get-search-table-column-output-group-variables (:db/id %)) modules))
-          (map #(d/touch (d/entity @@vms-conn %)))))))
+ ;; Only the tables the user can actually see force their outputs. Without the conditional filter a
+ ;; hidden table's columns are enabled too — e.g. `autocomputed_resource_production_rate` in Contain's
+ ;; Default mode, where its table is not rendered.
+ (fn [[search-tables worksheet] _]
+   (->> search-tables
+        (filter (partial search-table-shown? worksheet))
+        (mapcat (comp search-table-output-gv-eids :db/id))
+        (distinct)
+        (map #(d/touch (d/entity @@vms-conn %))))))

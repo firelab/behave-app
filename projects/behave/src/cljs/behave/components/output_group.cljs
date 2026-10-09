@@ -3,11 +3,19 @@
             [behave.translate       :refer [<t]]
             [re-frame.core          :as rf]))
 
+(defn- toggle-output!
+  "Set an output from the user's own click, then re-evaluate the :select actions so any outputs that
+  were forced by this one (a diagram's summary-table outputs, say) appear or disappear immediately
+  rather than waiting for the next navigation or solve."
+  [ws-uuid gv-uuid enabled?]
+  (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid enabled? false])
+  (rf/dispatch [:worksheet/proccess-output-group-variables-with-actions ws-uuid]))
+
 (defn wizard-output [ws-uuid {gv-uuid  :bp/uuid
                               help-key :group-variable/help-key}]
   (when @(rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
-    (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true]))
-  (let [checked?       (rf/subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])
+    (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true true]))
+  (let [checked?       (rf/subscribe [:worksheet/output-checked? ws-uuid gv-uuid])
         on-focus-click #(rf/dispatch [:help/highlight-section help-key])
         disabled?      (rf/subscribe [:wizard/disabled-output-group-variable? ws-uuid gv-uuid])]
     [:div.wizard-output
@@ -16,14 +24,14 @@
      [c/checkbox {:label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                   :checked?  @checked?
                   :disabled? @disabled?
-                  :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
+                  :on-change #(toggle-output! ws-uuid gv-uuid (not @checked?))}]]))
 
 (defn wizard-single-select-outupt [ws-uuid group all-group-variables]
   (let [selected-options? @(rf/subscribe [:wizard/selected-group-variables ws-uuid (:db/id group)])
         on-focus-click    #(rf/dispatch [:help/highlight-section (:group/help-key group)])
         ->option          (fn [{gv-uuid :bp/uuid}]
                             (when @(rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
-                              (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true]))
+                              (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true true]))
                             {:value     gv-uuid
                              :label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                              :on-change #(rf/dispatch [:worksheet/select-single-select-output
