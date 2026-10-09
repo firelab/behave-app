@@ -30,6 +30,8 @@
  *
  ******************************************************************************/
 
+#include <cmath>
+
 #include "surface.h"
 #include "SIGSurface.h"
 
@@ -106,11 +108,13 @@ double SIGSurface::getDirectionOfInterest() const {
 }
 
 double SIGSurface::getDirectionOfBacking () const {
-  return int(Surface::getDirectionOfMaxSpread() + 180.0) % 360;
+  // Keep the fractional part: the caller rounds for display, and truncating here
+  // would put backing 179 degrees from a rounded heading instead of 180.
+  return std::fmod(Surface::getDirectionOfMaxSpread() + 180.0, 360.0);
 }
 
 double SIGSurface::getDirectionOfFlanking () const {
-  return int(Surface::getDirectionOfMaxSpread() + 90.0) % 360;
+  return std::fmod(Surface::getDirectionOfMaxSpread() + 90.0, 360.0);
 }
 
 void SIGSurface::setDirectionOfInterest(double directionOfInterest) {
