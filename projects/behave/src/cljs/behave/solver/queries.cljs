@@ -260,6 +260,23 @@
              @@vms-conn
              (vec gv-uuids))))
 
+(defn enabled-output-uuids
+  "Group-variable uuids of the worksheet's enabled outputs — the set this solve is being asked for.
+
+  Deliberately a direct read of the conn rather than `@(rf/subscribe [:worksheet/all-output-uuids …])`.
+  Ticking an output writes only to the DataScript conn, never to `app-db`, so a cached subscription
+  can still hold the set from before the user's change."
+  [ws-uuid]
+  (d/q '[:find [?uuid ...]
+         :in $ ?ws-uuid
+         :where
+         [?w :worksheet/uuid ?ws-uuid]
+         [?w :worksheet/outputs ?o]
+         [?o :output/group-variable-uuid ?uuid]
+         [?o :output/enabled? true]]
+       @@store/conn
+       ws-uuid))
+
 (defn worksheet-modules
   "Given a worksheet uuid return a sequence of modules."
   [ws-uuid]

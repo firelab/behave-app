@@ -75,7 +75,7 @@
 (defn store-all-diagrams!
   "Dispatches store events for every diagram whose group-variable is an active worksheet output."
   [{:keys [ws-uuid row-id module diagrams]}]
-  (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+  (let [all-outputs (q/enabled-output-uuids ws-uuid)]
     (doseq [diagram diagrams]
       (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
         (when (some #{group-variable-uuid} all-outputs)
