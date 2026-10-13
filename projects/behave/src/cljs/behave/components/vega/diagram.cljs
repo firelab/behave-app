@@ -1,5 +1,6 @@
 (ns behave.components.vega.diagram
   (:require [behave.components.vega.core :refer [vega-box]]
+            [behave.diagram.core         :refer [resolve-visible]]
             [cljsjs.vega-embed]
             [clojure.string              :as str]
             [goog.string                 :as gstring]))
@@ -175,6 +176,17 @@
    :arrows        - A sequence of arrow parameters
    :scatter-plots - A sequence of scatter-plot parameters
 
+   Legend hide/show:
+   :hidden-by-default-series  - Set of legend labels that start hidden. FIRST RENDER ONLY --
+                                consulted just when :visible-series is nil.
+   :visible-series            - Set of legend labels to show, as tracked by the app
+                                ([[behave.diagram.subs]]), or nil when this diagram has never
+                                been toggled. An empty set means \"hide everything\".
+   :on-legend-select          - Called with the set of shown labels when the USER clicks a
+                                legend entry. Not called when :visible-series changes from
+                                elsewhere (e.g. the pop-out modal), so state can't ping-pong.
+                                Omit it for a read-only diagram (e.g. the print view).
+
    Axis Parameters:
    :domain - tuple determining the min and max values of the axis
    :title  - title displayed on the axis (defaults to \"x\" or \"y\")
@@ -200,7 +212,8 @@
    :color     - Color for the scatter plot
    :data      - sequence of maps of coordinates [{x 0 y 0}, {x 1 y 1}, ...]. x and y key are strings
   "
-  [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots hidden-by-default-series hide-axis-numbers?]}]
+  [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots hidden-by-default-series
+           hide-axis-numbers? visible-series on-legend-select]}]
   (let [base-schema   {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
                        :title       {:text     title
                                      :fontSize 20}
@@ -282,19 +295,10 @@
                         (reduce (fn [acc scatter-plot] (add-scatter-plot acc scatter-plot)) $ scatter-plots))
         ;; The legend-bound selection must live on a SINGLE layer: a top-level param in a
         ;; layered spec is instantiated once per layer, raising "Duplicate signal name".
-        ;; Pre-populate it with every series so all start visible/ungrayed; each plain click
-        ;; (`:toggle "true"`) then adds/removes one series, driving both its mark opacity and
-        ;; its legend `:unselectedOpacity` graying.
         spec          (cond-> spec
                         (seq (:layer spec))
                         (update-in [:layer 0 :params] (fnil conj [])
                                    {:name   "visible_series"
-                                    ;; Pre-select every series EXCEPT those flagged to start hidden
-                                    ;; (arrows with :arrow/default-visible? false); those begin grayed
-                                    ;; and are revealed by clicking the legend.
-                                    :value  (->> (get-in spec [:encoding :color :scale :domain])
-                                                 (remove (or hidden-by-default-series #{}))
-                                                 (mapv (fn [id] {:series id})))
                                     :select {:type "point" :fields ["series"] :toggle "true"}
                                     :bind   "legend"}))
         ;; Optional directional end-labels on the y-axis (e.g. Upslope/Downslope on
@@ -306,4 +310,11 @@
                         (:neg-label y-axis)
                         (update :layer conj (axis-end-label (:neg-label y-axis) y-min "bottom" -2)))]
     [:div
-     [vega-box spec]]))
+     [vega-box spec nil nil
+      {:selection      {:param  "visible_series"
+                        :field  "series"
+                        :values (resolve-visible
+                                 (get-in spec [:encoding :color :scale :domain])
+                                 visible-series
+                                 hidden-by-default-series)}
+       :on-user-select on-legend-select}]]))

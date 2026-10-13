@@ -102,6 +102,7 @@
          [:dispatch [:worksheet/process-search-table-output-group-variables ws-uuid]]
          [:dispatch [:worksheet/proccess-conditonally-set-input-group-variables ws-uuid]]
          [:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]
+         [:dispatch [:diagram/clear-visible-series ws-uuid]]
          [:dispatch [:worksheet/delete-existing-result-table ws-uuid]]
          [:dispatch [:state/set :worksheet-computing? true]]]}))
 

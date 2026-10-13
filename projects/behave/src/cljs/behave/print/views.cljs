@@ -21,9 +21,18 @@
 (defn- epoch->date-string [epoch]
   (.toDateString (js/Date. epoch)))
 
+(defonce ^:private print-armed?
+  ;; This body renders more than once (data loads, diagram legend state arrives), and
+  ;; `window.print()` must not fire once per render.
+  (atom false))
+
+(defn- arm-print! []
+  (when (compare-and-set! print-armed? false true)
+    (dispatch [:dev/close-after-print])
+    (js/setTimeout #(dispatch [:dev/print]) 1000)))
+
 (defn print-page [{:keys [ws-uuid]}]
-  (dispatch [:dev/close-after-print])
-  (js/setTimeout #(dispatch [:dev/print]) 1000)
+  (arm-print!)
   (let [worksheet       @(subscribe [:worksheet ws-uuid])
         ws-date-created (:worksheet/created worksheet)
         ws-version      (:worksheet/version worksheet)
@@ -49,4 +58,4 @@
       [pivot-tables ws-uuid]
       [result-matrices ws-uuid]
       [result-graphs ws-uuid graph-data {:hide-controls? true}]
-      [result-diagrams ws-uuid {:hide-controls? true :show-all-series? true}]]]))
+      [result-diagrams ws-uuid {:hide-controls? true :read-only? true}]]]))
