@@ -4,6 +4,9 @@
  **********************************************************************/
 const Module = {};
 
+// WebIDL binder: frees a bound object (calls its __destroy__).
+Module.destroy = function(obj) {};
+
 Module.SIGContainAdapter = class {
   constructor() {}
   doContainRun() {}

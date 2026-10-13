@@ -1,6 +1,7 @@
 (ns behave.worksheet-subs-test
   (:require
    [behave.fixtures :as fx]
+   [behave.worksheet.subs :as ws-subs]
    [cljs.test :refer [use-fixtures deftest is join-fixtures] :include-macros true]
    [re-frame.core :as rf]))
 
@@ -53,3 +54,13 @@
   ;; is covered exhaustively in behave.shading-test.
   (is (= #{}
          @(rf/subscribe [:worksheet/shade-set fx/test-ws-uuid ["output1" "output2"]]))))
+
+(deftest cached-units-xf-test
+  (let [rows     [["g" 0 "report-size" "area-domain"]
+                  ["g" 0 "slope" "slope-domain"]
+                  ["g" 0 "wind-speed" "speed-domain"]]
+        settings {"area-domain"  {:decimals 2}
+                  "slope-domain" {:unit-uuid "degrees" :decimals 1}}]
+    (is (= [["g" 0 "slope" "degrees"]]
+           (into [] (ws-subs/cached-units-xf settings) rows))
+        "a decimals-only entry yields no row, so it can't override the domain unit with nil")))
