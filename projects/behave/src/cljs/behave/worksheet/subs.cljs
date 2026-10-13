@@ -551,24 +551,30 @@
         (sort-by #(.indexOf gv-order %)))))
 
 (rf/reg-sub
+ :worksheet/enabled-output-uuids
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+ (fn [worksheet _]
+   (into #{}
+         (comp (filter #(true? (:output/enabled? %)))
+               (map :output/group-variable-uuid))
+         (:worksheet/outputs worksheet))))
+
+(rf/reg-sub
  :worksheet/output-uuids-conditionally-filtered
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet ws-uuid])
+    (rf/subscribe [:worksheet/enabled-output-uuids ws-uuid])
     (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid])])
- (fn [[worksheet hidden?] [_ ws-uuid]]
+ (fn [[worksheet enabled-uuids hidden?] [_ _ws-uuid]]
    (->> (d/q '[:find  ?gv ?hide-result
-               :in    $ $ws % ?ws-uuid
+               :in    $ % [?uuid ...]
                :where
-               [$ws ?w :worksheet/uuid ?ws-uuid]
-               [$ws ?w :worksheet/outputs ?o]
-               [$ws ?o :output/group-variable-uuid ?uuid]
-               [$ws ?o :output/enabled? true]
                (lookup ?uuid ?gv)
                [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]]
              @@vms-conn
-             @@s/conn
              rules
-             ws-uuid)
+             (or enabled-uuids []))
         (remove (fn [[_ hide-result?]] (true? hide-result?)))
         (map first)
         (map (fn [gv] @(rf/subscribe [:vms/entity-from-eid gv])))
@@ -584,63 +590,52 @@
 (rf/reg-sub
  :worksheet/output-uuids-filtered
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid]))
- (fn [hidden? [_ ws-uuid]]
+   [(rf/subscribe [:worksheet/enabled-output-uuids ws-uuid])
+    (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid])])
+ (fn [[enabled-uuids hidden?] [_ _ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result
-               :in    $ $ws % ?ws-uuid
+               :in    $ % [?uuid ...]
                :where
-               [$ws ?w :worksheet/uuid ?ws-uuid]
-               [$ws ?w :worksheet/outputs ?o]
-               [$ws ?o :output/group-variable-uuid ?uuid]
-               [$ws ?o :output/enabled? true]
                (lookup ?uuid ?gv)
                [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]]
              @@vms-conn
-             @@s/conn
              rules
-             ws-uuid)
+             (or enabled-uuids []))
         (remove (fn [[_ hide-result?]] (true? hide-result?)))
         (map first)
         (remove hidden?))))
 
 (rf/reg-sub
  :worksheet/directional-parent-output-uuids
- (fn [_ [_ ws-uuid]]
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/enabled-output-uuids ws-uuid]))
+ (fn [enabled-uuids [_ _ws-uuid]]
    (d/q '[:find  [?uuid ...]
-          :in    $ $ws % ?ws-uuid
+          :in    $ % [?uuid ...]
           :where
-          [$ws ?w :worksheet/uuid ?ws-uuid]
-          [$ws ?w :worksheet/outputs ?o]
-          [$ws ?o :output/group-variable-uuid ?uuid]
-          [$ws ?o :output/enabled? true]
           (lookup ?uuid ?gv)
           [?gv :group-variable/direction-variables ?dgv]]
         @@vms-conn
-        @@s/conn
         rules
-        ws-uuid)))
+        (or enabled-uuids []))))
 
 (rf/reg-sub
  :worksheet/graphed-output-uuids
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet ws-uuid])
     (rf/subscribe [:vms/group-variable-order])
+    (rf/subscribe [:worksheet/enabled-output-uuids ws-uuid])
     (rf/subscribe [:worksheet/hidden-output-uuids ws-uuid])])
- (fn [[worksheet group-variable-order hidden?] [_ ws-uuid]]
+ (fn [[worksheet group-variable-order enabled-uuids hidden?] [_ _ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result ?graph-result
-               :in    $ $ws % ?ws-uuid
+               :in    $ % [?uuid ...]
                :where
-               [$ws ?w :worksheet/uuid ?ws-uuid]
-               [$ws ?w :worksheet/outputs ?o]
-               [$ws ?o :output/group-variable-uuid ?uuid]
-               [$ws ?o :output/enabled? true]
                (lookup ?uuid ?gv)
                [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]
                [(get-else $ ?gv :group-variable/hide-graph? false) ?graph-result]]
              @@vms-conn
-             @@s/conn
              rules
-             ws-uuid)
+             (or enabled-uuids []))
         (sort-by #(.indexOf group-variable-order (first %)))
         (remove (fn [[_ hide-result? hide-graph?]] (or hide-result? hide-graph?)))
         (map first)
