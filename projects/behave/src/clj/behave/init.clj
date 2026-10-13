@@ -31,9 +31,23 @@
   (load-config (resource "config.edn"))
   (let [config (update-in (get-config :database :config)
                           [:store :path]
-                          os-path)]
+                          os-path)
+        ;; Test-support (parallel sharding): a per-shard server JVM sets
+        ;; -Dbehave.store.path so each shard resets+connects its OWN db file. config.edn is
+        ;; reloaded on every /api/init (above), so a startup-only override wouldn't survive —
+        ;; the property is re-read here each init. Inert (no property) in dev/prod.
+        config (if-let [p (System/getProperty "behave.store.path")]
+                 (assoc-in config [:store :path] (os-path p))
+                 config)]
     (log-str "LOADED CONFIG" (get-config :database :config))
     (io/make-parents (get-in config [:store :path]))
+    ;; Test-only (config-gated): delete the store before reconnecting so every session
+    ;; starts from an empty DB. Keeps /api/init's export-datoms tiny for cucumber runs
+    ;; (the store otherwise accumulates worksheets and slows the app O(N)). The conn was
+    ;; already released by init-handler, so the file is safe to delete here. Not set in
+    ;; dev/prod configs ⇒ no behavior change (worksheets persist).
+    (when (get-config :database :reset-on-init?)
+      (io/delete-file (get-in config [:store :path]) true))
     (store/connect! config)))
 
 (defn init-handler [{:keys [request-method accept] :as req}]

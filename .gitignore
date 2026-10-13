@@ -232,3 +232,8 @@ projects/behave/resources/public/cljs-test/
 projects/behave/resources/public/js/behave.js
 projects/behave/projects/
 projects/behave/resources/db.sqlite
+
+# Cucumber test run artifacts (logs already covered by *.log above)
+cucumber_results_*.edn
+cucumber_test_results*.org
+ci-db.sqlite
