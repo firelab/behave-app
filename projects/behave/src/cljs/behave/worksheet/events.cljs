@@ -833,6 +833,8 @@
                     direction-of-max-spread
                     max-spread-dist
                     wind-direction
+                    wind-dist
+                    slope-dist
                     flanking-dir
                     flanking-dist
                     backing-dir
@@ -871,13 +873,13 @@
                   ;; when their direction outputs are enabled (they follow the same
                   ;; conditionals that gate the Direction of Flanking/Backing outputs).
                   :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:wind"
-                                                                   :arrow/length    semi-major-axis
+                                                                   :arrow/length    wind-dist
                                                                    :arrow/rotation  wind-direction
                                                                    :arrow/color     "blue"
                                                                    :arrow/dashed?   true}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
-                                                                   :arrow/length    semi-major-axis
+                                                                   :arrow/length    slope-dist
                                                                    :arrow/rotation  0
                                                                    :arrow/color     "green"
                                                                    :arrow/dashed?   true}

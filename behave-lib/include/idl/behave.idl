@@ -801,6 +801,8 @@ interface SIGSurface {
   [Const] double getSpreadDistance(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getSpreadDistanceInDirectionOfInterest(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  [Const] double getNoWindSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  [Const] double getNoSlopeSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   [Const] double getSpreadRateInDirectionOfInterest(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   [Const] double getSurfaceFireReactionIntensityForLifeState(FuelLifeState_FuelLifeStateEnum lifeState);
   [Const] double getTotalLiveFuelLoad(LoadingUnits_LoadingUnitsEnum loadingUnits);
