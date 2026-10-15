@@ -1,12 +1,13 @@
 (ns behave.components.results.diagrams
   (:require [behave.components.results.pop-out :refer [pop-out-button pop-out-size]]
             [behave.components.vega.diagram    :refer [output-diagram]]
+            [behave.diagram.core               :refer [diagram-key]]
             [behave.modal.core                 :refer [modal-content]]
             [behave.translate                  :refer [<t]]
             [clojure.set                       :refer [rename-keys]]
             [clojure.string                    :as str]
             [goog.string                       :as gstring]
-            [re-frame.core                     :refer [subscribe]]
+            [re-frame.core                     :refer [dispatch subscribe]]
             [version-utils.interface           :as vu]))
 
 (defn- legend-label
@@ -113,7 +114,7 @@
                            arrows              :worksheet.diagram/arrows
                            scatter-plots       :worksheet.diagram/scatter-plots
                            group-variable-uuid :worksheet.diagram/group-variable-uuid}
-                          & [{:keys [size hide-controls? show-all-series?] :or {size 500}}]]
+                          & [{:keys [size hide-controls? read-only?] :or {size 500}}]]
 
   (let [scatter-plot-legacy?     (neg? (vu/compare-versions @(subscribe [:worksheet/version ws-uuid]) "7.1.5"))
         cms-diagram              @(subscribe [:wizard/diagram-by-gv-uuid group-variable-uuid])
@@ -152,14 +153,17 @@
                                                    :show-q4?      show-q4?})
         ;; Series (by translated legend label) that should start hidden/grayed in the
         ;; legend — any arrow flagged :arrow/default-visible? false (e.g. flanking).
-        ;; In the print/PDF view (`:show-all-series?`) every hideable component is
-        ;; always shown, so the hidden set is forced empty there.
-        hidden-by-default-series (if show-all-series?
-                                   #{}
-                                   (into #{}
-                                         (comp (filter #(false? (:arrow/default-visible? %)))
-                                               (map (comp legend-label :arrow/legend-id)))
-                                         arrows))]
+        ;; This is the FIRST-RENDER default only: once the user clicks the legend,
+        ;; `visible-series` below is authoritative in every view, print included.
+        hidden-by-default-series (into #{}
+                                       (comp (filter #(false? (:arrow/default-visible? %)))
+                                             (map (comp legend-label :arrow/legend-id)))
+                                       arrows)
+        ;; Legend hide/show is tracked per diagram so the inline page, the pop-out
+        ;; modal and the print window all agree. Transient state — nothing is
+        ;; written to the worksheet database.
+        diagram-k                (diagram-key ws-uuid row-id group-variable-uuid)
+        visible-series           @(subscribe [:diagram/visible-series diagram-k])]
     [:div.diagram.pop-out-anchor
      [output-diagram {:title                    (build-title ws-uuid title row-id)
                       :width                    size
@@ -215,7 +219,11 @@
                                                                                           y-doubles))
                                                                           pts))}))
                                                       scatter-plots)
-                      :hidden-by-default-series hidden-by-default-series}]
+                      :hidden-by-default-series hidden-by-default-series
+                      :visible-series           visible-series
+                      :on-legend-select         (when-not read-only?
+                                                  #(dispatch [:diagram/set-visible-series
+                                                              diagram-k %]))}]
      (when-not hide-controls?
        [pop-out-button :diagram {:ws-uuid             ws-uuid
                                  :row-id              row-id
@@ -236,8 +244,9 @@
 (defn result-diagrams
   "Reagent component rendering all diagrams for a worksheet.
 
-  `:hide-controls?` omits the pop-out control and `:show-all-series?` forces every
-  legend-hideable component visible — e.g. on the printed page."
+  `:hide-controls?` omits the pop-out control. `:read-only?` renders the current
+  legend hide/show state without writing changes back — e.g. on the printed page;
+  note the pop-out modal passes `:hide-controls?` but stays interactive."
   [ws-uuid & [opts]]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))

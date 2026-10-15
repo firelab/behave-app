@@ -136,6 +136,8 @@
     (rf/dispatch-sync [:initialize])
     (rf/dispatch-sync [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
+    (rf/dispatch-sync [:local-storage/init "behave-settings"])
+    (rf/dispatch-sync [:diagram/hydrate-visible-series])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
     ;; Flush pending tx-data on teardown (reload/close).
     (.addEventListener js/window "pagehide" (fn [_] (flush-sync-beacon!)))
