@@ -152,7 +152,7 @@
                                                    :show-q3?      show-q3?
                                                    :show-q4?      show-q4?})
         ;; Series (by translated legend label) that should start hidden/grayed in the
-        ;; legend — any arrow flagged :arrow/default-visible? false (e.g. flanking).
+        ;; legend — any arrow flagged :arrow/default-visible? false (e.g. heading, flanking, backing).
         ;; This is the FIRST-RENDER default only: once the user clicks the legend,
         ;; `visible-series` below is authoritative in every view, print included.
         hidden-by-default-series (into #{}

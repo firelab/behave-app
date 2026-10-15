@@ -1751,6 +1751,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSpreadRate_1(SIG
   return self->getSpreadRate(spreadRateUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getNoWindSpreadRate_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+  return self->getNoWindSpreadRate(spreadRateUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getNoSlopeSpreadRate_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+  return self->getNoSlopeSpreadRate(spreadRateUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getSpreadRateInDirectionOfInterest(spreadRateUnits);
 }

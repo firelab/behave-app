@@ -3003,6 +3003,18 @@ SIGSurface.prototype['getSpreadRate'] = SIGSurface.prototype.getSpreadRate = /**
   return _emscripten_bind_SIGSurface_getSpreadRate_1(self, spreadRateUnits);
 };;
 
+SIGSurface.prototype['getNoWindSpreadRate'] = SIGSurface.prototype.getNoWindSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_SIGSurface_getNoWindSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGSurface.prototype['getNoSlopeSpreadRate'] = SIGSurface.prototype.getNoSlopeSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_SIGSurface_getNoSlopeSpreadRate_1(self, spreadRateUnits);
+};;
+
 SIGSurface.prototype['getSpreadRateInDirectionOfInterest'] = SIGSurface.prototype.getSpreadRateInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
