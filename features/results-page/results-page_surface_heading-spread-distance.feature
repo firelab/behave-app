@@ -2,14 +2,13 @@
 Feature: Surface Results - Heading Spread Distance
 
   @core
-  Scenario: Heading Spread Distance is displayed in results when inputs are set
+  Scenario Outline: Heading Spread Distance is displayed in results when the Direction is Heading or Heading Backing Flanking and these inputs are set
     Given I have started a new Surface Worksheet in Guided Mode
+    When this output path is selected <submodule> : <group> : <value>
     When these output paths are selected
-      | submodule     | group               | value                      |
-      | Fire Behavior | Direction Mode      | Heading                    |
-      | Fire Behavior | Direction Mode      | Heading, Flanking, Backing |
-      | Fire Behavior | Surface Fire        | Rate of Spread             |
-      | Size          | Surface - Fire Size | Spread Distance            |
+      | submodule     | group               | value           |
+      | Fire Behavior | Surface Fire        | Rate of Spread  |
+      | Size          | Surface - Fire Size | Spread Distance |
     When these input paths are selected
       | submodule      | group               | subgroup          | value                                |
       | Fuel Model     | Standard            | Fuel Model        | FB1/1 - Short grass (Static)         |
@@ -23,3 +22,7 @@ Feature: Surface Results - Heading Spread Distance
     Then "the following outputs are displayed in the results page"
       | output                  |
       | Heading Spread Distance |
+    Examples: This scenario is repeated for each of these rows
+      | submodule     | group          | value                      |
+      | Fire Behavior | Direction Mode | Heading                    |
+      | Fire Behavior | Direction Mode | Heading, Flanking, Backing |

@@ -25,6 +25,13 @@ on:
         description: 'Job timeout in minutes (GitHub-hosted runner max is 360 / 6h)'
         type: number
         default: 360
+    secrets:
+      # Dev CMS the run pulls the latest layout.msgpack from (bb cucumber:ci --sync-vms), so VMS
+      # changes don't need a re-exported layout.msgpack committed to the branch.
+      CUCUMBER_VMS_URL:
+        required: true
+      CUCUMBER_VMS_AUTH_TOKEN:
+        required: true
 
 jobs:
   cucumber:
@@ -67,7 +74,8 @@ jobs:
           clojure -P -M:dev:behave/app
           (cd projects/behave && clojure -P -M:compile-cljs)
 
-      # Compiles the advanced CLJS build once, starts N isolated app servers (own port + DB
+      # Syncs the latest layout.msgpack from the dev CMS (fails the job if that fails), then
+      # compiles the advanced CLJS build once, starts N isolated app servers (own port + DB
       # each), splits features across them, runs N headless Chrome drivers in parallel, then
       # merges + tears everything down. Non-zero exit fails the job. Inputs are read via env
       # to avoid ${{ }} script injection.
@@ -79,6 +87,8 @@ jobs:
           FEATURES_DIR: ${{ inputs.features_dir }}
           SERVE_TIMEOUT: ${{ inputs.serve_timeout }}
           SHARDS: ${{ inputs.shards }}
+          CUCUMBER_VMS_URL: ${{ secrets.CUCUMBER_VMS_URL }}
+          CUCUMBER_VMS_AUTH_TOKEN: ${{ secrets.CUCUMBER_VMS_AUTH_TOKEN }}
         run: |
           case "$SCOPE" in
             all) QUERY='(or "core" "extended")' ;;
@@ -86,6 +96,7 @@ jobs:
           esac
           bb cucumber:ci \
             --headless \
+            --sync-vms \
             --shards "$SHARDS" \
             --query "$QUERY" \
             --features-dir "$FEATURES_DIR" \

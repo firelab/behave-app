@@ -4,7 +4,9 @@
 ;; fresh checkout / CI. This tracked file mirrors config.edn's STRUCTURE so the client
 ;; wizard renders (the minimal config.dev.edn does not), with every credential blanked.
 ;; The DB :store :path is overridden at runtime via `--db-path`; :mail and :vms are
-;; unused by the suite (vms-sync! is skipped) and kept only as inert dummies.
+;; unused by the suite (vms-sync! is skipped) and kept only as inert dummies. In CI the
+;; layout.msgpack sync (`bb cucumber:ci --sync-vms`) takes the VMS URL + token from env
+;; CUCUMBER_VMS_URL / CUCUMBER_VMS_AUTH_TOKEN, not from this :vms.
 {:database     {:host     "localhost"
                 :port     5432
                 :dbname   "behave"

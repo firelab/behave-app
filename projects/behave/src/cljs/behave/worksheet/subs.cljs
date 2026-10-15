@@ -119,7 +119,8 @@
 ;; diagram's summary table or a search table. Neither alone is enough: most `:select` actions are
 ;; ordinary defaults ("Enable by default for Surface & Contain", "Enable whenever mortality is ran"),
 ;; which are app-enabled and must still show; and a user who ticks a summary-table output by hand has
-;; earned its column.
+;; earned its column. A summary-table member only counts as plumbing when the diagram itself forces it
+;; on, so Direction of Heading/Flanking/Backing — enabled by their own conditionals — always show.
 ;;
 ;; A directional child is never ticked on its own — it only exists as a fan-out of its parent — so the
 ;; parent's ownership decides for it. A parent with no output at all reads as app-owned, which keeps the

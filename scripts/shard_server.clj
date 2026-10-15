@@ -5,7 +5,8 @@
 ;; port so N of these run in parallel, fully isolated. The DB path comes from
 ;; -Dbehave.store.path (honored again on every /api/init via behave.init/init!, which reloads
 ;; config.edn), the port from -Dshard.port. vms-sync! is intentionally skipped (the suite
-;; serves the pre-exported layout.msgpack).
+;; serves resources/public/layout.msgpack, refreshed from the VMS beforehand by
+;; `bb cucumber:ci --sync-vms` — what GitHub Actions runs).
 ;;
 ;; Launched by scripts/cucumber_ci.clj:
 ;;   clojure -J-Dbehave.store.path=<db> -J-Dshard.port=<port> -M:dev:behave/app scripts/shard_server.clj
