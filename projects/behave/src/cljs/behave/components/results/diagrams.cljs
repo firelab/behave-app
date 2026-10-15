@@ -151,7 +151,7 @@
                                                    :show-q3?      show-q3?
                                                    :show-q4?      show-q4?})
         ;; Series (by translated legend label) that should start hidden/grayed in the
-        ;; legend — any arrow flagged :arrow/default-visible? false (e.g. flanking).
+        ;; legend — any arrow flagged :arrow/default-visible? false (e.g. heading, flanking, backing).
         ;; In the print/PDF view (`:show-all-series?`) every hideable component is
         ;; always shown, so the hidden set is forced empty there.
         hidden-by-default-series (if show-all-series?

@@ -884,16 +884,16 @@
                                                                    :arrow/color     "green"
                                                                    :arrow/dashed?   true}
 
-                                                                  {:arrow/legend-id        "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread"
+                                                                  {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread"
+                                                                   :arrow/length    semi-major-axis
+                                                                   :arrow/rotation  direction-of-max-spread
+                                                                   :arrow/color     "black"}
+
+                                                                  {:arrow/legend-id        "behaveplus:diagram:surface_fire_shape:legend_id:max_spread"
                                                                    :arrow/length           max-spread-dist
                                                                    :arrow/rotation         direction-of-max-spread
                                                                    :arrow/default-visible? false
-                                                                   :arrow/color            "black"}
-
-                                                                  {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:max_spread"
-                                                                   :arrow/length    max-spread-dist
-                                                                   :arrow/rotation  direction-of-max-spread
-                                                                   :arrow/color     "red"}]
+                                                                   :arrow/color            "red"}]
 
                                                            flanking-enabled?
                                                            (into [{:arrow/legend-id        "behaveplus:diagram:wind_slope_spread_direction:legend_id:flanking_1"
@@ -913,10 +913,11 @@
                                                                    :arrow/color            "orange"}])
 
                                                            backing-enabled?
-                                                           (conj {:arrow/legend-id "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"
-                                                                  :arrow/length    backing-dist
-                                                                  :arrow/rotation  backing-dir
-                                                                  :arrow/color     "gray"}))}]})))
+                                                           (conj {:arrow/legend-id        "behaveplus:diagram:wind_slope_spread_direction:legend_id:backing"
+                                                                  :arrow/length           backing-dist
+                                                                  :arrow/rotation         backing-dir
+                                                                  :arrow/default-visible? false
+                                                                  :arrow/color            "gray"}))}]})))
 
 (rf/reg-event-fx
  :worksheet/delete-existing-result-table
