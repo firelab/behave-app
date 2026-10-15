@@ -1,6 +1,6 @@
 (ns behave.components.review-input-group
   (:require [behave.components.core  :as c]
-            [behave.translate        :refer [<t bp]]
+            [behave.translate        :refer [<t bp repeat-item-name]]
             [clojure.string :as str]
             [re-frame.core           :as rf]))
 
@@ -155,9 +155,10 @@
 (defn repeat-group
   "Render each repeat instance of a repeatable `group` with its `variables`."
   [ws-uuid group variables edit-route]
-  (let [{group-name :group/name
-         group-uuid :bp/uuid}   group
-        *repeat-ids             (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])]
+  (let [{group-uuid            :bp/uuid
+         group-translation-key :group/translation-key} group
+        *repeat-ids                                    (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+        item-name                                      (repeat-item-name group-translation-key)]
     [:<>
      (map-indexed
       (fn [index repeat-id]
@@ -165,7 +166,7 @@
         [:<>
          [:div.wizard-repeat-group
           [:div.wizard-repeat-group__header
-           (str group-name " #" (inc index))]]
+           (str item-name " #" (inc index))]]
          [:div.wizard-group__inputs
           (let [variables (sort-by :group-variable/variable-order variables)]
             [:div.wizard-input

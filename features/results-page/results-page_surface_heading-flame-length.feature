@@ -2,14 +2,36 @@
 Feature: Surface Results - Heading Flame Length
 
   @core
-  Scenario: Heading Flame Length is displayed in results when inputs are set
+  Scenario Outline: Heading Flame Length is displayed in results when the Direction is Heading or Heading Backing Flanking and these inputs are set
     Given I have started a new Surface Worksheet in Guided Mode
+    When this output path is selected <submodule> : <group> : <value>
     When these output paths are selected
+      | submodule     | group          | value                      |
+      | Fire Behavior | Surface Fire   | Flame Length               |
+    When these input paths are selected
+      | submodule         | group                 | subgroup          | value                                |
+      | Fuel Model        | Standard              | Fuel Model        | FB1/1 - Short grass (Static)         |
+      | Fuel Moisture     | Moisture Input Mode   |                   | Individual Size Class                |
+      | Fuel Moisture     | By Size Class         | 1-h Fuel Moisture | 1                                    |
+      | Wind and Slope    | Wind Measured at:     |                   | Midflame (Eye Level)                 |
+      | Wind and Slope    | Wind Speed            |                   | 1                                    |
+      | Wind and Slope    | Wind and slope are    |                   | Aligned (Wind is ≤30° from upslope). |
+      | Wind and Slope    | Slope                 |                   | 0                                    |
+    Then "the following outputs are displayed in the results page"
+      | output               |
+      | Heading Flame Length |
+    Examples: This scenario is repeated for each of these rows
       | submodule     | group          | value                      |
       | Fire Behavior | Direction Mode | Heading                    |
       | Fire Behavior | Direction Mode | Heading, Flanking, Backing |
-      | Fire Behavior | Direction Mode | Direction of Interest      |
-      | Fire Behavior | Surface Fire   | Flame Length               |
+
+  @core
+  Scenario: Heading Flame Length is displayed in results when Direction is Direction of Interest and these inputs are set
+    Given I have started a new Surface Worksheet in Guided Mode
+    When these output paths are selected
+      | submodule     | group          | value                 |
+      | Fire Behavior | Direction Mode | Direction of Interest |
+      | Fire Behavior | Surface Fire   | Flame Length          |
     When these input paths are selected
       | submodule         | group                 | subgroup          | value                                |
       | Fuel Model        | Standard              | Fuel Model        | FB1/1 - Short grass (Static)         |

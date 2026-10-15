@@ -86,16 +86,17 @@
    direct-incoming-ref check is wrong (a child of a detached group still points at its detached
    parent), so we follow the single-parent `:db/isComponent` chain to the top:
    group-variable → group (`:group/_group-variables`), group → parent group (`:group/_children`)
-   or submodule (`:submodule/_groups`)."
+   or submodule (`:submodule/_groups`). These are all component attrs, so each reverse lookup
+   returns the single parent entity (not a set) — don't call `first` on it."
   [db eid]
   (loop [e    (d/entity db eid)
          seen #{}]
     (cond
       (nil? e)                        false
-      (seq (:submodule/_groups e))    true
+      (:submodule/_groups e)          true
       (contains? seen (:db/id e))     false
-      :else                           (recur (or (first (:group/_children e))
-                                                 (first (:group/_group-variables e)))
+      :else                           (recur (or (:group/_children e)
+                                                 (:group/_group-variables e))
                                              (conj seen (:db/id e))))))
 
 #_{:clj-kondo/ignore [:missing-docstring]}

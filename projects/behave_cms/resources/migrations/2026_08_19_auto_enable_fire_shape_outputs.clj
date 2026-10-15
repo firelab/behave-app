@@ -1,5 +1,6 @@
 (ns migrations.2026-08-19-auto-enable-fire-shape-outputs
-  (:require [datomic.api              :as d]
+  (:require [clojure.string           :as str]
+            [datomic.api              :as d]
             [schema-migrate.interface :as sm]))
 
 ;; ===========================================================================================================
@@ -24,9 +25,18 @@
 ;; Payload
 ;; ===========================================================================================================
 
+(defn- resolve-key
+  "Translation key `k` as it currently exists in `db`. This migration sorts before
+   2026_08_24_snake_case_translation_keys, so on a DB that has not run that yet the
+   last key segment is still kebab-case (e.g. `fire-shape-diagram`)."
+  [db k]
+  (let [i     (inc (str/last-index-of k ":"))
+        kebab (str (subs k 0 i) (str/replace (subs k i) "_" "-"))]
+    (if (sm/t-key->eid db k) k kebab)))
+
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn payload-fn [db]
-  (let [fs-cond {:conditional/group-variable-uuid (sm/t-key->uuid db "behaveplus:surface:output:size:surface___fire_size:fire_shape_diagram")
+  (let [fs-cond {:conditional/group-variable-uuid (sm/t-key->uuid db (resolve-key db "behaveplus:surface:output:size:surface___fire_size:fire_shape_diagram"))
                  :conditional/type                :group-variable
                  :conditional/operator            :equal
                  :conditional/values              #{"true"}}
@@ -37,7 +47,7 @@
                  ["behaveplus:surface:output:size:surface___fire_size:length_to_width_ratio"
                   "fire-shape-diagram: force length-to-width ratio"]]]
     (mapv (fn [[k action-name]]
-            {:db/id                  (sm/t-key->eid db k)
+            {:db/id                  (sm/t-key->eid db (resolve-key db k))
              :group-variable/actions [{:action/name                  action-name
                                        :action/type                  :select
                                        :action/conditionals-operator :and

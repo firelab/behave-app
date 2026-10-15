@@ -32,6 +32,10 @@
 ;;                       display (WSLg on WSL2).
 ;;   --stop              halt at the first failing scenario; forces 1 shard unless
 ;;                       --shards given
+;;   --sync-vms          before anything else, download the latest layout.msgpack from the VMS
+;;                       (CMS) over the tracked copy. URL + token come from env
+;;                       CUCUMBER_VMS_URL / CUCUMBER_VMS_AUTH_TOKEN, else config.edn :vms.
+;;                       Any failure aborts the run (no silent fallback to a stale layout).
 ;;
 ;; Examples:
 ;;   bb cucumber:ci
@@ -63,18 +67,23 @@
 ;;   bb cucumber:ci --stop
 ;;       Stop at the first failing scenario (single shard) — quickest way to triage a break.
 ;;
+;;   bb cucumber:ci --headless --sync-vms
+;;       Pull the latest layout.msgpack from the VMS first — what GitHub Actions does, so VMS
+;;       changes no longer need a re-exported layout.msgpack committed to the branch.
+;;
 ;;   bb cucumber:ci --headless --features-dir features --base-port 8091 --db-prefix cucumber-shard-db
 ;;       Explicit defaults shown; shard i listens on 8091+i with its own sqlite <db-prefix>-i.sqlite.
 ;;
 ;; Outputs land in logs/cucumber/cucumber_test_results_<timestamp>/ : a combined
 ;; cucumber_test_summary.org, plus per-shard *_results.org and *_{server,run}.log files.
 (ns cucumber-ci
-  (:require [babashka.fs      :as fs]
-            [babashka.process :as p]
-            [browser          :as browser]
-            [clojure.edn      :as edn]
-            [clojure.java.io  :as io]
-            [clojure.string   :as str]))
+  (:require [babashka.fs          :as fs]
+            [babashka.http-client :as http]
+            [babashka.process     :as p]
+            [browser              :as browser]
+            [clojure.edn          :as edn]
+            [clojure.java.io      :as io]
+            [clojure.string       :as str]))
 
 (def default-shards        2)
 (def default-serve-timeout 300)
@@ -86,6 +95,7 @@
 ;; server loads it via behave.server/init-config!, so it must exist before the JVMs boot.
 (def app-config    "projects/behave/resources/config.edn")
 (def ci-config-src "projects/behave/resources/config.ci.edn")
+(def layout-file   "projects/behave/resources/public/layout.msgpack")
 
 ;;; ---------------------------------------------------------------------------
 ;;; Arg helpers
@@ -117,6 +127,52 @@
   (when-not (fs/exists? app-config)
     (fs/copy ci-config-src app-config)
     (println (format "cucumber:ci: provisioned %s from %s (was absent)" app-config ci-config-src))))
+
+(defn- vms-credentials
+  "{:url :token} from env CUCUMBER_VMS_URL / CUCUMBER_VMS_AUTH_TOKEN, else config.edn :vms."
+  []
+  (let [env-url   (System/getenv "CUCUMBER_VMS_URL")
+        env-token (System/getenv "CUCUMBER_VMS_AUTH_TOKEN")]
+    (if (and (not (str/blank? env-url)) (not (str/blank? env-token)))
+      {:url env-url :token env-token :source "env"}
+      (let [{:keys [url secret-token]} (some-> app-config io/file slurp edn/read-string :vms)]
+        {:url url :token secret-token :source app-config}))))
+
+(defn- sha256-short [^bytes bs]
+  (let [digest (.digest (java.security.MessageDigest/getInstance "SHA-256") bs)]
+    (subs (apply str (map #(format "%02x" %) digest)) 0 12)))
+
+(defn sync-vms!
+  "Download the latest layout.msgpack from the VMS (same request as
+   behave.download-vms/export-from-vms) over the tracked copy. Exits non-zero on any failure so
+   the suite never runs against a stale layout. Never logs the token or full URL."
+  []
+  (let [{:keys [url token source]} (vms-credentials)]
+    (when (or (str/blank? url) (str/blank? token))
+      (println "ERROR: --sync-vms needs CUCUMBER_VMS_URL + CUCUMBER_VMS_AUTH_TOKEN (or :vms :url/:secret-token in config.edn)")
+      (System/exit 1))
+    (let [base                                                                                      (str/replace url #"/+$" "")
+          host                                                                                      (.getHost (java.net.URI. base))
+          _                                                                                         (println (format "▶ syncing layout.msgpack from VMS %s (credentials: %s)…" host source))
+          {:keys [status body]}
+          (try (http/get (str base "/sync")
+                         {:query-params {"auth-token" token}
+                          :headers      {"Accept" "application/msgpack"}
+                          :as           :bytes
+                          :throw        false
+                          :timeout      120000})
+               (catch Exception e
+                 (println (format "ERROR: VMS sync request to %s failed: %s" host (.getMessage e)))
+                 (System/exit 1)))]
+      (when-not (and (= 200 status) (pos? (alength ^bytes body)))
+        (println (format "ERROR: VMS sync from %s returned status %s with %d bytes — aborting"
+                         host status (if body (alength ^bytes body) 0)))
+        (System/exit 1))
+      ;; write beside the target then move, so a failure never leaves a truncated layout
+      (let [tmp (fs/create-temp-file {:dir (fs/parent layout-file) :prefix "layout-" :suffix ".msgpack.tmp"})]
+        (fs/write-bytes tmp body)
+        (fs/move tmp layout-file {:replace-existing true :atomic-move true}))
+      (println (format "• layout.msgpack synced: %d bytes, sha256 %s" (alength ^bytes body) (sha256-short body))))))
 
 (defn ensure-manifest! []
   ;; The advanced build is fingerprinted (app-<hash>.js) but the -M:compile-cljs path writes no
@@ -242,6 +298,7 @@
         ;; Visible browser is the DEFAULT now; --headless opts into the headless/CI path.
         headed?       (not headless?)
         stop?         (flag-set? args "--stop")
+        sync-vms?     (flag-set? args "--sync-vms")
         shards-given? (or (flag-set? args "--shards")
                           (boolean (some #(str/starts-with? (str %) "--shards=") args)))
         ;; Each shard opens its own maximized Chrome, and each shard stops at its OWN first
@@ -288,6 +345,8 @@
     (when (empty? all-files)
       (println "ERROR: no .feature files under" features-dir) (System/exit 1))
     (ensure-config!)                           ; provision config.edn before any server JVM boots
+    (when sync-vms?
+      (sync-vms!))                             ; latest layout.msgpack before servers serve it
     (if skip-compile
       (println "• --skip-compile: reusing existing build")
       (compile-once!))
