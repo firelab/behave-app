@@ -18,3 +18,4 @@ jobs:
     with:
       scope: core
       timeout_minutes: 120  # core-only is far smaller than the 360 push-button cap; tune as needed
+    secrets: inherit  # CUCUMBER_VMS_URL / CUCUMBER_VMS_AUTH_TOKEN for the layout.msgpack sync

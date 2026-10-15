@@ -31,3 +31,4 @@ jobs:
       features_dir: ${{ inputs.features_dir }}
       serve_timeout: ${{ inputs.serve_timeout }}
       shards: ${{ inputs.shards }}
+    secrets: inherit  # CUCUMBER_VMS_URL / CUCUMBER_VMS_AUTH_TOKEN for the layout.msgpack sync
