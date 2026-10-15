@@ -399,29 +399,31 @@
 
 (defn- table-settings [ws-uuid]
   (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
-        map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)]
+        map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
+        filters                   @(subscribe [:worksheet/table-settings-filters-filtered ws-uuid])]
     [:div.table-settings
      [c/checkbox {:label     (s/capitalize-words @(<t (bp "convert_to_map_units")))
                   :checked?  map-units-enabled?
                   :on-change #(dispatch [:worksheet/toggle-map-units-settings ws-uuid])}]
      (when map-units-enabled?
        [map-units-form ws-uuid])
-     [settings-form {:ws-uuid            ws-uuid
-                     :title              @(<t (bp "table_shading_filters"))
-                     :headers            (mapv
-                                          #(str/upper-case %)
-                                          [(str @(<t (bp "enabled")) "?")
-                                           @(<t (bp "output_variable"))
-                                           @(<t (bp "range"))
-                                           @(<t (bp "minimum"))
-                                           @(<t (bp "maximum"))])
-                     :rf-event-id        :worksheet/update-table-filter-attr
-                     :rf-sub-id          :worksheet/table-settings-filters-filtered
-                     :min-attr-id        :table-filter/min
-                     :max-attr-id        :table-filter/max
-                     :default-min-values @(subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :min])
-                     :default-max-values @(subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
-                     :on-toggle-row      #(dispatch [:worksheet/toggle-enable-filter ws-uuid %])}]]))
+     (when (seq filters)
+       [settings-form {:ws-uuid            ws-uuid
+                       :title              @(<t (bp "table_shading_filters"))
+                       :headers            (mapv
+                                            #(str/upper-case %)
+                                            [(str @(<t (bp "enabled")) "?")
+                                             @(<t (bp "output_variable"))
+                                             @(<t (bp "range"))
+                                             @(<t (bp "minimum"))
+                                             @(<t (bp "maximum"))])
+                       :rf-event-id        :worksheet/update-table-filter-attr
+                       :rf-sub-id          :worksheet/table-settings-filters-filtered
+                       :min-attr-id        :table-filter/min
+                       :max-attr-id        :table-filter/max
+                       :default-min-values @(subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :min])
+                       :default-max-values @(subscribe [:worksheet/output-uuid->result-min-or-max-values ws-uuid :max])
+                       :on-toggle-row      #(dispatch [:worksheet/toggle-enable-filter ws-uuid %])}])]))
 
 ;; Wizard Results Settings Page
 

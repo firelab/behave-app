@@ -7,6 +7,7 @@
             [behave.wizard.subs]
             [behave.components.results.inputs.subs]
             [behave.components.sidebar.subs]
+            [behave.diagram.subs]
             [behave.print.subs]
             [behave.tool.subs]
             [behave.settings.subs]

@@ -1,6 +1,7 @@
 (ns behave.events
   (:require [ajax.core                     :as ajax]
             [behave.components.sidebar.events]
+            [behave.diagram.events]
             [behave.help.events]
             [behave.tool.events]
             [browser-utils.core            :refer [add-script
