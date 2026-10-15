@@ -405,17 +405,26 @@
 
 (defn implicitly-set-output-uuids
   "Group-variable uuids that a diagram's summary table or a search table pulls in — the members of
-  `:diagram/output-group-variables`, and the group-variables behind a search table's filters and
-  columns.
+  `:diagram/output-group-variables` that a `:select` action force-enables when that diagram is
+  selected (a conditional on the diagram's `:diagram/group-variable`), and the group-variables behind a
+  search table's filters and columns.
   These are the outputs the app may enable purely as plumbing: the summary table and the search tables
   read the stored result table, so the output has to be computed, but it earns no result column unless
   the user asked for it. Everything else a `:select` action enables is an ordinary default (\"Enable by
-  default for Surface & Contain\", \"Enable whenever mortality is ran\") and stays visible."
+  default for Surface & Contain\", \"Enable whenever mortality is ran\") and stays visible — including a
+  summary-table member that its own conditionals enable regardless of the diagram, such as Direction of
+  Flanking/Backing."
   []
   (set (d/q '[:find [?uuid ...]
               :where
               (or-join [?gv]
-                       [_ :diagram/output-group-variables ?gv]
+                       (and [?d :diagram/output-group-variables ?gv]
+                            [?d :diagram/group-variable ?toggle]
+                            [?toggle :bp/uuid ?toggle-uuid]
+                            [?gv :group-variable/actions ?a]
+                            [?a :action/type :select]
+                            [?a :action/conditionals ?ac]
+                            [?ac :conditional/group-variable-uuid ?toggle-uuid])
                        (and [_ :search-table/filters ?f]
                             [?f :search-table-filter/group-variable ?gv])
                        (and [_ :search-table/columns ?c]
