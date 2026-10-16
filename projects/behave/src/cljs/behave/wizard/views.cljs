@@ -400,14 +400,16 @@
 (defn- table-settings [ws-uuid]
   (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
-        filters                   @(subscribe [:worksheet/table-settings-filters-filtered ws-uuid])]
+        filters                   @(subscribe [:worksheet/table-settings-filters-filtered ws-uuid])
+        multi-valued-inputs       @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])]
     [:div.table-settings
      [c/checkbox {:label     (s/capitalize-words @(<t (bp "convert_to_map_units")))
                   :checked?  map-units-enabled?
                   :on-change #(dispatch [:worksheet/toggle-map-units-settings ws-uuid])}]
      (when map-units-enabled?
        [map-units-form ws-uuid])
-     (when (seq filters)
+     ;; A single-valued run produces one result row, so there is nothing to shade.
+     (when (and (seq filters) (seq multi-valued-inputs))
        [settings-form {:ws-uuid            ws-uuid
                        :title              @(<t (bp "table_shading_filters"))
                        :headers            (mapv
