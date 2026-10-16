@@ -567,18 +567,15 @@
         (map first)
         (sort-by #(.indexOf gv-order %)))))
 
-(rp/reg-sub
+(rf/reg-sub
  :worksheet/enabled-output-uuids
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  [?uuid ...]
-                 :in    $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/outputs ?o]
-                 [?o :output/group-variable-uuid ?uuid]
-                 [?o :output/enabled? true]]
-    :variables [ws-uuid]}))
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+ (fn [worksheet _]
+   (into #{}
+         (comp (filter #(true? (:output/enabled? %)))
+               (map :output/group-variable-uuid))
+         (:worksheet/outputs worksheet))))
 
 (rf/reg-sub
  :worksheet/output-uuids-conditionally-filtered
@@ -670,10 +667,16 @@
 
 (rf/reg-sub
  :worksheet/all-output-uuids
- (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/enabled-output-uuids ws-uuid]))
- (fn [enabled-uuids _]
-   (or enabled-uuids [])))
+ (fn [_ [_ ws-uuid]]
+   (->> (d/q '[:find  [?uuid ...]
+               :in  $ ?ws-uuid
+               :where
+               [?w :worksheet/uuid ?ws-uuid]
+               [?w :worksheet/outputs ?o]
+               [?o :output/group-variable-uuid ?uuid]
+               [?o :output/enabled? true]]
+             @@s/conn
+             ws-uuid))))
 
 (rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
