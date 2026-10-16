@@ -885,7 +885,7 @@
                                                                    :arrow/dashed?   true}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread"
-                                                                   :arrow/length    semi-major-axis
+                                                                   :arrow/length    max-spread-dist
                                                                    :arrow/rotation  direction-of-max-spread
                                                                    :arrow/color     "black"}
 
