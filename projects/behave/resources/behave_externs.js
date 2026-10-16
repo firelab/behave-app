@@ -185,6 +185,8 @@ Module.SIGSurface = class {
   getMoistureScenarioTenHourByIndex() {}
   getMoistureScenarioTenHourByName() {}
   getMoistureTenHour() {}
+  getNoSlopeSpreadRate() {}
+  getNoWindSpreadRate() {}
   getNumberOfMoistureScenarios() {}
   getOverstoryBasalArea() {}
   getPalmettoGallberryCoverage() {}
