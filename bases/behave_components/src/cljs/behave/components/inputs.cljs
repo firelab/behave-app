@@ -261,8 +261,7 @@
   (-> event .-target .-value))
 
 (defn- option-key-down
-  "Key handler for a multi-select option: Up/Down/Home/End move focus
-  between sibling options, Enter/Space call `toggle!`."
+  "Arrows/Home/End move focus; Enter/Space call `toggle!`."
   [toggle! e]
   (let [el     (.-currentTarget e)
         parent (.-parentElement el)
@@ -334,8 +333,7 @@
                :selected? (= @selected-tag id)
                :on-click  #(do (reset! selected-tag id)
                                (scroll-to-top!))}]])
-   ;; Always rendered (disabled with no active tag) so the row doesn't
-   ;; reflow when a tag is clicked
+   ;; always rendered to avoid reflow
    [:div.multi-select__tags__tag
     [button {:label     "Clear"
              :variant   "transparent-secondary"
@@ -353,8 +351,7 @@
   [:div.multi-select__no-results "No Results"])
 
 (defn- chip-key-down
-  "Key handler for a selected-option chip: Enter/Space/Backspace/Delete call
-  `deselect!`, first moving focus to a neighboring chip, else to Search."
+  "Enter/Space/Backspace/Delete call `deselect!`; focus moves to a neighbor or Search."
   [deselect! e]
   (when (#{"Enter" " " "Backspace" "Delete"} (.-key e))
     (let [el (.-currentTarget e)]
@@ -410,7 +407,6 @@
                show-options? (r/atom false)
                selected-tag  (r/atom nil)
                search        (r/atom "")
-               ;; label of the option keyboard focus last landed on
                active-label  (r/atom nil)
                options-node  (atom nil)]
     (let [visible-options (cond->> options
@@ -419,8 +415,7 @@
 
                             (seq @search)
                             (filter (partial matches-search? @search)))
-          ;; roving tabindex: the list is one Tab stop, on the last
-          ;; focused option while it's visible, else the first
+          ;; roving tabindex
           tab-label       (if (some #(= @active-label (:label %)) visible-options)
                             @active-label
                             (:label (first visible-options)))

@@ -476,10 +476,7 @@ body {
   flex: 1;
 }
 
-/* Guided: expanded options fill the working area down to the navigation,
-   so the list scrolls instead of the page body. Same approach as the
-   review page below: pin the page to the viewport, then flex every
-   container between the wizard page and the options list. */
+/* Guided options fill the panel (as review page, below) */
 .page:has(.wizard-input--guided .multi-select__options) {
   height: 100vh;
   overflow: hidden;
