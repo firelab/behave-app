@@ -2447,6 +2447,10 @@ p {
 
 /* Keep a border on hover so the button doesn't shift by the 1px
    border that .button--outline-secondary:hover removes */
+.multi-select__tags__tag > button:disabled {
+  color: var(--gray-4);
+}
+
 .multi-select__tags__tag > button:hover:not(:disabled) {
   border: 1px solid var(--medblue-2);
 }
