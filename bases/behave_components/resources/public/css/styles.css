@@ -2375,6 +2375,11 @@ p {
   cursor: pointer;
 }
 
+.multi-select__option:focus-visible {
+  outline: 2px solid var(--medblue-2);
+  outline-offset: -2px;
+}
+
 .multi-select__option--selected {
   background-color: var(--medblue-3);
 }

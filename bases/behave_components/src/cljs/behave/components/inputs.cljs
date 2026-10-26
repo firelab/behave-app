@@ -260,12 +260,38 @@
   [event]
   (-> event .-target .-value))
 
-(defn- multi-select-option [{:keys [selected? label on-click color-tag]}]
-  [:div (cond-> {:class    ["multi-select__option"
-                            (when selected? "multi-select__option--selected")
-                            (when color-tag "multi-select__option__color-tag")]
-                 :style    {}
-                 :on-click on-click}
+(defn- option-key-down
+  "Key handler for a multi-select option: Up/Down/Home/End move focus
+  between sibling options, Enter/Space call `toggle!`."
+  [toggle! e]
+  (let [el     (.-currentTarget e)
+        parent (.-parentElement el)
+        target (case (.-key e)
+                 "ArrowDown" (.-nextElementSibling el)
+                 "ArrowUp"   (.-previousElementSibling el)
+                 "Home"      (.-firstElementChild parent)
+                 "End"       (.-lastElementChild parent)
+                 nil)]
+    (cond
+      target
+      (do (.preventDefault e)
+          (.focus target))
+
+      (#{"Enter" " "} (.-key e))
+      (do (.preventDefault e)
+          (toggle!)))))
+
+(defn- multi-select-option [{:keys [selected? label on-click on-focus color-tag tab-index]}]
+  [:div (cond-> {:class         ["multi-select__option"
+                                 (when selected? "multi-select__option--selected")
+                                 (when color-tag "multi-select__option__color-tag")]
+                 :style         {}
+                 :role          "option"
+                 :aria-selected (boolean selected?)
+                 :tab-index     tab-index
+                 :on-click      on-click
+                 :on-focus      on-focus
+                 :on-key-down   (partial option-key-down on-click)}
           color-tag
           (assoc-in [:style :border-color] (:color color-tag)))
    [:div {:class [(if selected? "multi-select__option__icon--minus" "multi-select__option__icon--plus")]}
@@ -367,6 +393,8 @@
                show-options? (r/atom false)
                selected-tag  (r/atom nil)
                search        (r/atom "")
+               ;; label of the option keyboard focus last landed on
+               active-label  (r/atom nil)
                options-node  (atom nil)]
     (let [visible-options (cond->> options
                             (and filter-tags @selected-tag)
@@ -374,6 +402,11 @@
 
                             (seq @search)
                             (filter (partial matches-search? @search)))
+          ;; roving tabindex: the list is one Tab stop, on the last
+          ;; focused option while it's visible, else the first
+          tab-label       (if (some #(= @active-label (:label %)) visible-options)
+                            @active-label
+                            (:label (first visible-options)))
           select-option!  (fn [opt]
                             (multi-select-on-select selections opt disable-multi-valued-input?)
                             (reset! search ""))
@@ -426,13 +459,18 @@
        (when (or (seq @search) @show-options?)
          ;; --searching enables the first-option highlight that previews
          ;; what pressing Enter will select
-         [:div {:class ["multi-select__options"
-                        (when (seq @search) "multi-select__options--searching")]
-                :ref   #(reset! options-node %)}
+         [:div {:class                ["multi-select__options"
+                                       (when (seq @search) "multi-select__options--searching")]
+                :role                 "listbox"
+                :aria-label           input-label
+                :aria-multiselectable (not disable-multi-valued-input?)
+                :ref                  #(reset! options-node %)}
           (doall
            (for [{:keys [label color-tag] :as opt} visible-options]
              ^{:key label}
              [multi-select-option {:selected? (contains? @selections opt)
                                    :color-tag color-tag
                                    :label     label
+                                   :tab-index (if (= label tab-label) 0 -1)
+                                   :on-focus  #(reset! active-label label)
                                    :on-click  #(select-option! opt)}]))])])))
