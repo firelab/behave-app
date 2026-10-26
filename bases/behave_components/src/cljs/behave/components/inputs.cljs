@@ -352,13 +352,30 @@
 (defn- no-results-message []
   [:div.multi-select__no-results "No Results"])
 
+(defn- chip-key-down
+  "Key handler for a selected-option chip: Enter/Space/Backspace/Delete call
+  `deselect!`, first moving focus to a neighboring chip, else to Search."
+  [deselect! e]
+  (when (#{"Enter" " " "Backspace" "Delete"} (.-key e))
+    (let [el (.-currentTarget e)]
+      (.preventDefault e)
+      (some-> (or (.-nextElementSibling el)
+                  (.-previousElementSibling el)
+                  (-> el (.closest ".multi-select__selections") (.querySelector "input")))
+              (.focus))
+      (deselect!))))
+
 (defn- selected-option-chip
   "Chip for a selected option; clicking it deselects the option."
   [{:keys [label color-tag on-click]}]
-  [:div (cond-> {:class    ["multi-select__option--selected"
-                            (when color-tag "multi-select__option__color-tag")]
-                 :style    {}
-                 :on-click on-click}
+  [:div (cond-> {:class       ["multi-select__option--selected"
+                               (when color-tag "multi-select__option__color-tag")]
+                 :style       {}
+                 :role        "button"
+                 :tab-index   0
+                 :aria-label  (str "Remove " label)
+                 :on-click    on-click
+                 :on-key-down (partial chip-key-down on-click)}
           color-tag
           (assoc-in [:style :border-color] (:color color-tag)))
    [:div.multi-select__option__icon--minus
