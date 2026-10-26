@@ -308,13 +308,15 @@
                :selected? (= @selected-tag id)
                :on-click  #(do (reset! selected-tag id)
                                (scroll-to-top!))}]])
-   (when @selected-tag
-     [:div.multi-select__tags__tag
-      [button {:label    "Clear"
-               :variant  "transparent-secondary"
-               :size     "small"
-               :on-click #(do (reset! selected-tag nil)
-                              (scroll-to-top!))}]])])
+   ;; Always rendered (disabled with no active tag) so the row doesn't
+   ;; reflow when a tag is clicked
+   [:div.multi-select__tags__tag
+    [button {:label     "Clear"
+             :variant   "transparent-secondary"
+             :size      "small"
+             :disabled? (nil? @selected-tag)
+             :on-click  #(do (reset! selected-tag nil)
+                             (scroll-to-top!))}]]])
 
 (defn- matches-search?
   "Whether an option's label contains `search`, case-insensitively."
