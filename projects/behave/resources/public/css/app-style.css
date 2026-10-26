@@ -476,10 +476,42 @@ body {
   flex: 1;
 }
 
-/* Guided options should grow 1:1 with the viewport */
-.wizard-input--guided .multi-select > .multi-select__options {
+/* Guided: expanded options fill the working area down to the navigation,
+   so the list scrolls instead of the page body. Same approach as the
+   review page below: pin the page to the viewport, then flex every
+   container between the wizard page and the options list. */
+.page:has(.wizard-input--guided .multi-select__options) {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.page__main:has(.wizard-input--guided .multi-select__options),
+.working-area:has(.wizard-input--guided .multi-select__options),
+.accordion:has(.wizard-input--guided .multi-select__options),
+.wizard:has(.wizard-input--guided .multi-select__options),
+.wizard-page:has(.wizard-input--guided .multi-select__options) {
+  min-height: 0;
+}
+
+.wizard-page > div:has(.wizard-input--guided .multi-select__options),
+.wizard-page__body:has(.wizard-input--guided .multi-select__options),
+.wizard-page__body div:has(.wizard-input--guided .multi-select__options),
+.wizard-input--guided:has(.multi-select__options),
+.wizard-input--guided .multi-select:has(> .multi-select__options) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.wizard-page__body:has(.wizard-input--guided .multi-select__options) {
   max-height: none;
-  height: calc(100vh - 900px);
+}
+
+.wizard-input--guided .multi-select > .multi-select__options {
+  flex: 1 1 auto;
+  max-height: none;
   min-height: 100px;
 }
 
