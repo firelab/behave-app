@@ -387,6 +387,8 @@
             [:div {:class "multi-select__color-tags__tag"
                    :style {:border-color color}}
              label])])
+       (when filter-tags
+         [filter-tag-buttons filter-tags selected-tag scroll-to-top!])
        [:div.multi-select__selections
         [:div.multi-select__selections__header
          [:div (gstring/format "Selected %s" input-label)]
@@ -417,8 +419,6 @@
                                                 (select-option! opt)))
                      :on-change    #(reset! search (input-value %))
                      :value-atom   search}]]
-       (when (and @show-options? filter-tags)
-         [filter-tag-buttons filter-tags selected-tag scroll-to-top!])
        (when (and (seq @search) (empty? visible-options))
          [no-results-message])
        (when (or (seq @search) @show-options?)
