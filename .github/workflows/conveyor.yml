@@ -30,6 +30,10 @@ on:
         description: 'Architecture (for macOS only: mac.amd64 or mac.aarch64)'
         required: false
         type: string
+      ref:
+        description: 'Git ref to checkout (tag, branch, or SHA). Defaults to the dispatching ref.'
+        required: false
+        type: string
     secrets:
       CONVEYOR_ROOT_KEY:
         required: false
@@ -54,6 +58,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || github.ref }}
           submodules: recursive
 
       - name: Download JAR artifact

@@ -7,6 +7,25 @@ on:
         description: 'Tag to build (e.g., v7.1.4)'
         required: true
         type: string
+      ref:
+        description: 'Git ref to build instead of the tag (e.g., v7.1.5-update)'
+        required: false
+        type: string
+      use_committed_vms:
+        description: 'Use the committed layout.msgpack instead of downloading the VMS'
+        required: false
+        type: boolean
+        default: false
+      update_existing:
+        description: 'Replace the assets of an existing release (keeps its name and notes)'
+        required: false
+        type: boolean
+        default: false
+      make_latest:
+        description: 'Mark as the latest release'
+        required: false
+        type: boolean
+        default: true
       build_windows:
         description: 'Build Windows executable'
         required: false
@@ -46,8 +65,9 @@ jobs:
     needs: [get-version]
     uses: ./.github/workflows/jar-only.yml
     with:
-      ref: ${{ inputs.tag }}
+      ref: ${{ inputs.ref || inputs.tag }}
       version: ${{ needs.get-version.outputs.build_version }}
+      use_committed_vms: ${{ inputs.use_committed_vms }}
     secrets:
       VMS_URL: ${{ secrets.VMS_URL }}
       VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
@@ -59,6 +79,7 @@ jobs:
     uses: ./.github/workflows/conveyor.yml
     with:
       platform: windows-zip
+      ref: ${{ inputs.ref || inputs.tag }}
     secrets:
       CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
 
@@ -84,6 +105,7 @@ jobs:
     with:
       platform: notarized-mac-zip
       arch: mac.amd64
+      ref: ${{ inputs.ref || inputs.tag }}
     secrets:
       CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
       APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
@@ -100,6 +122,7 @@ jobs:
     with:
       platform: notarized-mac-zip
       arch: mac.aarch64
+      ref: ${{ inputs.ref || inputs.tag }}
     secrets:
       CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
       APPLE_SIGNING_P12_ENCODED: ${{ secrets.APPLE_SIGNING_P12_ENCODED }}
@@ -115,6 +138,7 @@ jobs:
     uses: ./.github/workflows/conveyor.yml
     with:
       platform: debian-package
+      ref: ${{ inputs.ref || inputs.tag }}
     secrets:
       CONVEYOR_ROOT_KEY: ${{ secrets.CONVEYOR_ROOT_KEY }}
 
@@ -130,7 +154,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ inputs.ref || inputs.tag }}
           fetch-depth: 0
 
       - name: Generate release notes
@@ -198,7 +222,12 @@ jobs:
             release-artifacts/linux-deb/**/*.deb
           artifactContentType: application/octet-stream
           tag: ${{ inputs.tag }}
-          makeLatest: true
+          commit: ${{ inputs.ref }}
+          makeLatest: ${{ inputs.make_latest }}
+          allowUpdates: ${{ inputs.update_existing }}
+          replacesArtifacts: true
+          omitNameDuringUpdate: true
+          omitBodyDuringUpdate: true
           body: |
             # Behave 7 Release - ${{ env.version }}
 

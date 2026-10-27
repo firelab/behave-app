@@ -11,6 +11,11 @@ on:
         description: 'Version string (e.g., v7.1.4)'
         required: false
         type: string
+      use_committed_vms:
+        description: 'Use the committed layout.msgpack instead of downloading the VMS'
+        required: false
+        type: boolean
+        default: false
     secrets:
       VMS_URL:
         required: true
@@ -73,7 +78,9 @@ jobs:
           VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
         run: |
           cd projects/behave
-          clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
+          if [[ "${{ inputs.use_committed_vms }}" != "true" ]]; then
+            clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
+          fi
           bb build-js
           mv resources/config.standalone.edn resources/config.edn
           echo '{:version "${{ env.version }}"}' > resources/version.edn
