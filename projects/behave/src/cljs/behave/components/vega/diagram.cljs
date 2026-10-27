@@ -168,6 +168,7 @@
 (defn output-diagram
   "Takes a map of parameters:
    :title         - Title of the Diagram
+   :subtitle      - Optional line rendered under the title (e.g. the legend hint)
    :width         - Width in pixels
    :height        - Height in pixels
    :x-axis        - A map of axis parameters
@@ -212,11 +213,14 @@
    :color     - Color for the scatter plot
    :data      - sequence of maps of coordinates [{x 0 y 0}, {x 1 y 1}, ...]. x and y key are strings
   "
-  [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots hidden-by-default-series
+  [{:keys [title subtitle width height x-axis y-axis ellipses arrows scatter-plots hidden-by-default-series
            hide-axis-numbers? visible-series on-legend-select]}]
   (let [base-schema   {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
-                       :title       {:text     title
-                                     :fontSize 20}
+                       :title       (cond-> {:text     title
+                                             :fontSize 20}
+                                      subtitle (assoc :subtitle         subtitle
+                                                      :subtitleFontSize 13
+                                                      :subtitleColor    "#666"))
                        :description "diagram"
                        :width       width
                        :height      height
