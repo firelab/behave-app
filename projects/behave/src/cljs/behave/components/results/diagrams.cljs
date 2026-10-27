@@ -163,9 +163,12 @@
         ;; modal and the print window all agree. Transient state — nothing is
         ;; written to the worksheet database.
         diagram-k                (diagram-key ws-uuid row-id group-variable-uuid)
-        visible-series           @(subscribe [:diagram/visible-series diagram-k])]
+        visible-series           @(subscribe [:diagram/visible-series diagram-k])
+        legend-hint              (when-not read-only?
+                                   @(<t "behaveplus:diagram:legend_hint"))]
     [:div.diagram.pop-out-anchor
      [output-diagram {:title                    (build-title ws-uuid title row-id)
+                      :subtitle                 legend-hint
                       :width                    size
                       :height                   size
                       :hide-axis-numbers?       hide-axis-numbers?
