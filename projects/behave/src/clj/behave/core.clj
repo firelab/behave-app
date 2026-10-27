@@ -1,6 +1,7 @@
 (ns behave.core
   (:gen-class)
-  (:import [javax.imageio ImageIO]
+  (:import [java.awt GraphicsEnvironment SplashScreen]
+           [javax.imageio ImageIO]
            [javax.swing JFrame JPopupMenu SwingUtilities UIManager])
   (:require [behave.browser-log   :as browser-log]
             [behave.handlers      :refer [create-cef-handler-stack]]
@@ -102,6 +103,14 @@
                                         (browser-log/set-solver-logging!
                                          data-dir (:browser app) selected?))}]}]})
 
+;;; Splash Screen
+
+(defn- close-splash!
+  "Closes the splash screen shown by a `java -jar` launch, if any."
+  []
+  (when-not (GraphicsEnvironment/isHeadless)
+    (some-> (SplashScreen/getSplashScreen) .close)))
+
 ;;; Entry Points
 
 (defn- start-cef!
@@ -171,7 +180,10 @@
       (server/enrich-config!)
       (start-cef!))
     (do
-      (server/start-server!)
+      (try
+        (server/start-server!)
+        (finally
+          (close-splash!)))
       ;; `server.core/start-server!` runs Jetty with `:join? false`, and
       ;; neither `vms-sync!` nor `watch-kill-signal!` blocks — so without
       ;; parking here the main thread would return and the JVM would exit
