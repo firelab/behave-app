@@ -246,7 +246,7 @@
                           #_{:icon     :zoom-out
                              :label    (bp "zoom-out")
                              :on-click on-click}]
-                   (not (:jar-local? params))
+                   (not= "prod" (:mode params))
                    (conj {:icon     :share
                           :label    @(<t (bp "vms_sync"))
                           :on-click #(rf/dispatch [:dev/export-from-vms])}))]

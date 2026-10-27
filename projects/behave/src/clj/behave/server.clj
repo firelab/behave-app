@@ -9,6 +9,12 @@
             [logging.interface    :as l :refer [log-str]]
             [server.interface     :as server]))
 
+(defn- server-jar?
+  "True when running from a packaged JAR outside Conveyor (`java -jar`)."
+  []
+  (and (nil? (System/getProperty "app.dir"))
+       (= "jar" (some-> (io/resource "config.edn") .getProtocol))))
+
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
   (load-config (io/resource "config.edn")))
@@ -16,12 +22,11 @@
 (defn enrich-config!
   "Computes runtime values and merges them into loaded config."
   []
-  (let [cef?       (some? (System/getProperty "app.dir"))
-        mode       (or (get-config :server :mode)
-                       (if cef? "prod" "dev"))
-        jar-local? (and (= mode "prod") cef?)]
+  (let [cef? (some? (System/getProperty "app.dir"))
+        mode (or (get-config :server :mode)
+                 (if cef? "prod" "dev"))]
     (merge-config! {:server {:mode mode}
-                    :client {:jar-local? jar-local?}})))
+                    :client {:jar-local? (server-jar?)}})))
 
 (defn init-db!
   "Initialize DB using configuration."
