@@ -2,7 +2,8 @@ name: Test Build (no release)
 
 # Mirrors release.yml but:
 #   - builds from any ref (branch, tag, or SHA)
-#   - pulls the VMS from either Dev or Prod
+#   - pulls the VMS from either Dev or Prod, or uses the ref's committed
+#     layout.msgpack
 #   - signs Windows with the Azure Trusted Signing *test* alias
 #   - never creates a GitHub release; artifacts are only attached to the run
 
@@ -14,13 +15,14 @@ on:
         required: false
         type: string
       vms:
-        description: 'Which VMS to pull layout.msgpack from'
+        description: 'Which VMS to pull layout.msgpack from (committed = use the one in the ref)'
         required: true
         type: choice
         default: dev
         options:
           - dev
           - prod
+          - committed
       build_windows:
         description: 'Build Windows executable (test-signed)'
         required: false
@@ -74,13 +76,15 @@ jobs:
       VMS_URL: ${{ secrets.DEV_VMS_URL }}
       VMS_AUTH_TOKEN: ${{ secrets.DEV_VMS_SECRET_TOKEN }}
 
+  # Also builds `committed`, which skips the download (the secrets go unused)
   build-prod:
-    if: ${{ inputs.vms == 'prod' }}
+    if: ${{ inputs.vms != 'dev' }}
     needs: [get-version]
     uses: ./.github/workflows/jar-only.yml
     with:
       ref: ${{ needs.get-version.outputs.ref }}
       version: ${{ needs.get-version.outputs.build_version }}
+      use_committed_vms: ${{ inputs.vms == 'committed' }}
     secrets:
       VMS_URL: ${{ secrets.VMS_URL }}
       VMS_AUTH_TOKEN: ${{ secrets.VMS_AUTH_TOKEN }}
