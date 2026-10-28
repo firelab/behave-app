@@ -87,8 +87,10 @@
     (doseq [path paths]
       (let [[submodule & groups] path
             output-name          (last path)
-            last-group           (h/navigate-to-group driver path)
-            is-checked?          (h/output-checked? last-group)]
+            ;; re-navigate on a stale reference so a mid-check re-render can't fail the
+            ;; step (or be misread as 'unchecked')
+            is-checked?          (h/retry-on-stale
+                                  #(h/output-checked? (h/navigate-to-group driver path)))]
         (when is-checked?
           (throw (ex-info (str "Output should NOT be selected but was: " output-name)
                           {:output    output-name

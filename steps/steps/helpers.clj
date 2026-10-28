@@ -274,18 +274,26 @@
 ;;; Button Operations
 ;;; =============================================================================
 
+(defn retry-on-stale
+  "Call `f` and return its value, re-calling it (up to 3 retries, 200ms apart) when it
+   throws a stale-element reference — the DOM can re-render between locating an element
+   and using it, so `f` should re-locate whatever it acts on."
+  [f]
+  (loop [attempts 3]
+    (let [outcome (try {:value (f)}
+                       (catch org.openqa.selenium.StaleElementReferenceException e
+                         (if (pos? attempts) ::retry (throw e))))]
+      (if (= outcome ::retry)
+        (do (Thread/sleep 200)
+            (recur (dec attempts)))
+        (:value outcome)))))
+
 (defn click-el!
   "Find `selector` and click it, re-finding + retrying on a stale-element reference
    (the DOM can re-render between locating and clicking). `e/click!` itself already
    scrolls the element into view and falls back to a JS click on interception."
   [driver selector]
-  (loop [attempts 3]
-    (let [outcome (try (e/click! (find-element driver selector)) :ok
-                       (catch org.openqa.selenium.StaleElementReferenceException e
-                         (if (pos? attempts) :retry (throw e))))]
-      (when (= outcome :retry)
-        (Thread/sleep 200)
-        (recur (dec attempts))))))
+  (retry-on-stale #(e/click! (find-element driver selector))))
 
 (defn click-highlighted-button
   "Click the highlighted button in the current view.
@@ -437,6 +445,10 @@
    Returns:
      Boolean - true if checked (class found), false otherwise
 
+   Throws:
+     StaleElementReferenceException if `element` re-renders mid-walk — rethrown rather
+     than read as 'unchecked', so callers can re-find and retry (see retry-on-stale)
+
    Example:
      (let [output-elem (h/find-element driver {:text \"Rate of Spread\"})]
        (h/output-checked? output-elem))
@@ -461,9 +473,12 @@
             :else
             (let [parent (try
                            (e/find-el current-element (by/xpath ".."))
+                           (catch org.openqa.selenium.StaleElementReferenceException e (throw e))
                            (catch Exception _ nil))]
               (recur parent (inc iterations)))))
         false))
+    (catch org.openqa.selenium.StaleElementReferenceException e
+      (throw e))
     (catch Exception _
       false)))
 
