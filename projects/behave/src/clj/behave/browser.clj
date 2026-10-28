@@ -44,7 +44,7 @@
 (defn- open-app-window!
   "Opens `url` in an `--app` window of the browser at `exe`."
   [exe url]
-  (-> (ProcessBuilder. [exe (str "--app=" url)])
+  (-> (ProcessBuilder. [exe "--start-maximized" (str "--app=" url)])
       (.redirectOutput ProcessBuilder$Redirect/DISCARD)
       (.redirectError ProcessBuilder$Redirect/DISCARD)
       (.start)))
