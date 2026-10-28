@@ -57,6 +57,19 @@
                [:div.wizard-subgroup__indent
                 [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
 
+(defn- visible-input-count
+  "Number of group variables `build-groups` would render for `groups`."
+  [ws-uuid groups]
+  (->> groups
+       (filter #(and (not (:group/research? %))
+                     @(subscribe [:wizard/show-group?
+                                  ws-uuid
+                                  (:db/id %)
+                                  (:group/conditionals-operator %)])))
+       (map #(+ (count (:group/group-variables %))
+                (visible-input-count ws-uuid (:group/children %))))
+       (reduce + 0)))
+
 (defmulti submodule-page (fn [_ io _ _] io))
 
 (defmethod submodule-page :input [params _ groups]
@@ -234,14 +247,17 @@
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ]
     [:div.wizard-page
-     [:div
+     [:div.wizard-page__content
       [wizard-header params modules]
       [:div.wizard-page__body
        (when @*show-notes?
          [add-note-section ws-uuid modules])
-       [:div
+       [:div.wizard-page__module
         {:data-theme-color module}
-        [submodule-page params io @*groups]]
+        [submodule-page
+         (assoc params :sole-input? (= 1 (visible-input-count ws-uuid @*groups)))
+         io
+         @*groups]]
        (when (true? @*warn-limit?)
          [:div.wizard-warning
           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]]
