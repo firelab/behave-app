@@ -39,35 +39,38 @@
 (def ^:const multi-value-input-limit 3)
 
 ;;; Components
+(defn- visible-groups
+  "Groups `build-groups` renders: non-research groups whose conditionals pass."
+  [ws-uuid groups]
+  (filter #(and (not (:group/research? %)) ;; TODO: Remove when "Research Mode" is enabled
+                @(subscribe [:wizard/show-group?
+                             ws-uuid
+                             (:db/id %)
+                             (:group/conditionals-operator %)]))
+          groups))
+
 (defn build-groups [{:keys [ws-uuid] :as params} groups component-fn & [level]]
   (let [level (if (nil? level) 0 level)]
     (when groups
       [:<>
        (doall
-        (for [group groups]
-          ^{:key (:db/id group)}
-          (when (and (not (:group/research? group)) ;; TODO: Remove when "Research Mode" is enabled
-                     @(subscribe [:wizard/show-group?
-                                  ws-uuid
-                                  (:db/id group)
-                                  (:group/conditionals-operator group)]))
-            (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
-              [:<>
-               [component-fn params group variables level]
-               [:div.wizard-subgroup__indent
-                [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
+        (for [group (visible-groups ws-uuid groups)]
+          (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
+            ^{:key (:db/id group)}
+            [:<>
+             [component-fn params group variables level]
+             [:div.wizard-subgroup__indent
+              [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]])))])))
 
 (defn- visible-input-count
-  "Number of group variables `build-groups` would render for `groups`."
+  "Number of inputs `build-groups` would render for `groups`; repeat groups
+  render their variables once per repeat."
   [ws-uuid groups]
-  (->> groups
-       (filter #(and (not (:group/research? %))
-                     @(subscribe [:wizard/show-group?
-                                  ws-uuid
-                                  (:db/id %)
-                                  (:group/conditionals-operator %)])))
-       (map #(+ (count (:group/group-variables %))
-                (visible-input-count ws-uuid (:group/children %))))
+  (->> (visible-groups ws-uuid groups)
+       (map (fn [{:group/keys [group-variables children repeat?] group-uuid :bp/uuid}]
+              (+ (cond-> (count group-variables)
+                   repeat? (* (count @(subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid]))))
+                 (visible-input-count ws-uuid children))))
        (reduce + 0)))
 
 (defmulti submodule-page (fn [_ io _ _] io))
