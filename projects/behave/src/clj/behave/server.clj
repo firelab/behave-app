@@ -1,8 +1,8 @@
 (ns behave.server
   (:gen-class)
-  (:require [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
+  (:require [behave.browser       :as browser]
+            [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
             [behave.store         :as store]
-            [clojure.java.browse  :refer [browse-url]]
             [clojure.java.io      :as io]
             [config.interface     :refer [get-config load-config merge-config!]]
             [file-utils.interface :refer [os-path]]
@@ -70,7 +70,7 @@
 
       "prod"
       (when (get-config :client :jar-local?)
-        (browse-url (format "http://localhost:%s" http-port))
+        (browser/open! (format "http://localhost:%s" http-port))
         (watch-kill-signal!)))))
 
 (defn -main
