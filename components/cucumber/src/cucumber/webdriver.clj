@@ -1,7 +1,7 @@
 (ns cucumber.webdriver
   (:require [cucumber.remote :as remote])
   (:import [java.time Duration]
-           [org.openqa.selenium By WebDriver]
+           [org.openqa.selenium By StaleElementReferenceException WebDriver]
            [org.openqa.selenium JavascriptExecutor]
            [org.openqa.selenium.chrome ChromeDriver ChromeOptions]
            [org.openqa.selenium.firefox FirefoxDriver]
@@ -40,9 +40,12 @@
   (.getTitle driver))
 
 (defn wait
-  "Wait for a given duration."
+  "Wait for a given duration. Keeps polling through stale-element references: a Reagent
+   re-render can detach an element between a condition locating it and using it (e.g.
+   presence-of-nested-elements finds the parent, then searches inside it)."
   [^WebDriver driver duration]
-  (WebDriverWait. driver (Duration/ofMillis duration)))
+  (-> (WebDriverWait. driver (Duration/ofMillis duration))
+      (.ignoring StaleElementReferenceException)))
 
 (defn execute-script!
   "Executes JavaScript code."

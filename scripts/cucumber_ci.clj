@@ -36,6 +36,10 @@
 ;;                       (CMS) over the tracked copy. URL + token come from env
 ;;                       CUCUMBER_VMS_URL / CUCUMBER_VMS_AUTH_TOKEN, else config.edn :vms.
 ;;                       Any failure aborts the run (no silent fallback to a stale layout).
+;;   --repeat N          run the driver pass N times against the same build + servers
+;;                       (default 1). N > 1 writes each pass to <run-dir>/iter-NN/ and a
+;;                       tally to cucumber_repeat_summary.org — for reproducing flakes.
+;;   --until-fail        with --repeat, stop after the first failing pass
 ;;
 ;; Examples:
 ;;   bb cucumber:ci
@@ -70,6 +74,11 @@
 ;;   bb cucumber:ci --headless --sync-vms
 ;;       Pull the latest layout.msgpack from the VMS first — what GitHub Actions does, so VMS
 ;;       changes no longer need a re-exported layout.msgpack committed to the branch.
+;;
+;;   bb cucumber:ci --headless --feature crown-input_spot_downwind-canopy-fuel.feature \
+;;                  --repeat 20 --until-fail
+;;       Hunt a flake: compile + boot once, run the feature up to 20 times, stop at the first
+;;       failure and report which pass failed and why.
 ;;
 ;;   bb cucumber:ci --headless --features-dir features --base-port 8091 --db-prefix cucumber-shard-db
 ;;       Explicit defaults shown; shard i listens on 8091+i with its own sqlite <db-prefix>-i.sqlite.
@@ -290,6 +299,156 @@
           summaries))
 
 ;;; ---------------------------------------------------------------------------
+;;; One pass (drivers → merge → report)
+;;; ---------------------------------------------------------------------------
+
+(defn run-pass!
+  "Run one driver per shard against the already-running `servers`, each on its slice of
+   `groups`, writing per-shard org/run logs + the combined summary org into `out-dir`.
+   Returns {:code 0|1 :failed-files [...]}."
+  [{:keys [servers groups out-dir features-dir headless? stop? query chrome keep-open?]}]
+  (let [n            (count servers)
+        driver-procs (doall
+                      (for [{:keys [port i]} servers]
+                        (let [subset (nth groups i)
+                              org    (str out-dir "/" (format "cucumber_shard_%d_results.org" i))
+                              edn    (str out-dir "/" (format "cucumber_shard_%d_results.edn" i))
+                              cfg    {:features-dir features-dir                                   :steps-dir     steps-dir
+                                      :url          (format "http://localhost:%d/worksheets" port)
+                                      :headless     headless?                                      :stop          stop?     :query        query
+                                      :org          org                                            :edn           edn       :retry-failed 0
+                                      :browser-path chrome                                         :feature-files subset
+                                      :keep-open    keep-open?}
+                              cfg-f  (str (fs/create-temp-file {:prefix (format "shard-%d-cfg-" i) :suffix ".edn"}))
+                              logf   (io/file out-dir (format "cucumber_shard_%d_run.log" i))]
+                          (spit cfg-f (pr-str cfg))
+                          (spit logf "")
+                          (println (format "▶ shard-%d: %d feature(s) → %s (log: %s)" i (count subset) org logf))
+                          {:i    i                                                                                 :edn edn :org org
+                           :proc (p/process {:out :append :out-file logf :err :append :err-file logf}
+                                            "clojure" "-M:dev:behave/cms" "scripts/cucumber_run_driver.clj" cfg-f)})))]
+    ;; wait for all shards
+    (doseq [{:keys [proc]} driver-procs] @proc)
+
+    (let [summaries (mapv (comp read-summary :edn) driver-procs)
+          merged    (merge-summaries (keep identity summaries))
+          missing   (keep-indexed (fn [idx s] (when (nil? s) idx)) summaries)]
+      (println "\n==== SHARDED RUN COMPLETE ====")
+      (doseq [{:keys [i edn org]} driver-procs]
+        (let [s (read-summary edn)]
+          (println (format "  shard-%d: %s  (org: %s)" i
+                           (if s (format "%d passed, %d failed, %d skipped | scenarios %d/%d pass/fail"
+                                         (:passed s) (:failed s) (:skipped s)
+                                         (:scenarios-passed s) (:scenarios-failed s))
+                               "NO SUMMARY (crashed?)")
+                           org))))
+      (println (format "  TOTAL: %d files passed, %d failed, %d skipped | Scenarios: %d passed, %d failed"
+                       (:passed merged) (:failed merged) (:skipped merged)
+                       (:scenarios-passed merged) (:scenarios-failed merged)))
+      (when (seq (:failed-files merged))
+        (println "  Failing files:") (doseq [f (:failed-files merged)] (println "    -" f)))
+      ;; combined org (concatenate the per-shard bodies)
+      (let [combined    (str out-dir "/cucumber_test_summary.org")
+            max-elapsed (apply max 0.0 (keep read-elapsed (map :edn driver-procs)))
+            total-files (+ (:passed merged) (:failed merged) (:skipped merged) (:pending merged))]
+        (spit combined
+              (str "#+TITLE: Cucumber Test Summary\n"
+                   "# Sharded cucumber run — " n " shards\n\n"
+                   "* Summary\n"
+                   (format "- Feature files: %d passed, %d failed, %d skipped%s (%d total)\n"
+                           (:passed merged) (:failed merged) (:skipped merged)
+                           (if (pos? (:pending merged)) (format ", %d pending" (:pending merged)) "")
+                           total-files)
+                   (format "- Scenarios: %d passed, %d failed\n"
+                           (:scenarios-passed merged) (:scenarios-failed merged))
+                   (format "- Max shard runtime: %s\n\n" (fmt-elapsed max-elapsed))
+                   (str/join "\n"
+                             (for [{:keys [i org edn]} driver-procs]
+                               (let [s       (read-summary edn)
+                                     elapsed (read-elapsed edn)
+                                     summary (if s
+                                               (format " — %d passed, %d failed, %d skipped | scenarios %d/%d pass/fail | %s"
+                                                       (:passed s) (:failed s) (:skipped s)
+                                                       (:scenarios-passed s) (:scenarios-failed s) (fmt-elapsed elapsed))
+                                               " — NO SUMMARY")]
+                                 (str "* shard-" i summary "\n"
+                                      "- Results\n"
+                                      (results-body org) "\n"))))))
+        (println "  Combined org:" combined))
+      ;; per-shard EDNs are intermediate — their summaries are now folded into the
+      ;; combined org above, so drop them once everything's been read.
+      (doseq [{:keys [edn]} driver-procs]
+        (try (fs/delete-if-exists edn) (catch Exception _ nil)))
+      ;; non-zero on any failure or missing summary
+      {:code         (if (and (empty? missing)
+                              (zero? (:failed merged))
+                              (zero? (:scenarios-failed merged)))
+                       0 1)
+       :failed-files (:failed-files merged)
+       :out-dir      out-dir})))
+
+;;; ---------------------------------------------------------------------------
+;;; Repeat summary
+;;; ---------------------------------------------------------------------------
+
+(defn failure-details
+  "Map of failing feature file → its scenario failure lines, read from the per-shard
+   results orgs in `out-dir` (a failing file is a `- [ ] f` item; its scenario lines
+   follow it, indented)."
+  [out-dir]
+  (->> (fs/glob out-dir "cucumber_shard_*_results.org")
+       (mapcat (fn [org]
+                 (:acc (reduce (fn [{:keys [file] :as st} line]
+                                 (cond
+                                   (re-find #"^- \[ \] " line) (assoc st :file (subs line 6))
+                                   (re-find #"^- \[" line)     (assoc st :file nil)
+                                   (and file (re-find #"^\s+- " line))
+                                   (update st :acc conj [file (str/trim (subs (str/trim line) 2))])
+                                   :else                       st))
+                               {:file nil :acc []}
+                               (str/split-lines (slurp (str org)))))))
+       (reduce (fn [m [f d]] (update m f (fnil conj []) d)) {})))
+
+(defn print-repeat-summary!
+  "Print + write run-dir/cucumber_repeat_summary.org: per-iteration pass/fail, the pass
+   tally, and how often each feature failed with its first failure detail."
+  [run-dir planned results]
+  (let [passed   (count (filter (comp zero? :code) results))
+        failures (for [[k r] (map-indexed vector results)
+                       :when (pos? (:code r))]
+                   [(inc k) r (failure-details (:out-dir r))])
+        by-file  (reduce (fn [m [k r details]]
+                           (reduce (fn [m f]
+                                     (-> m
+                                         (update-in [f :iters] (fnil conj []) k)
+                                         (update-in [f :detail] #(or % (first (get details f))))))
+                                   m
+                                   (:failed-files r)))
+                         {}
+                         failures)
+        lines    (concat
+                  [(format "- Iterations: %d/%d passed%s" passed (count results)
+                           (if (< (count results) planned)
+                             (format " (stopped early of %d planned)" planned)
+                             ""))]
+                  (for [[k r] (map-indexed vector results)]
+                    (format "- iter %02d: %s%s" (inc k)
+                            (if (zero? (:code r)) "PASS" "FAIL")
+                            (if (seq (:failed-files r))
+                              (str " — " (str/join ", " (:failed-files r)))
+                              "")))
+                  (when (seq by-file) ["" "Flaky features:"])
+                  (for [[f {:keys [iters detail]}] (sort-by (comp - count :iters val) by-file)]
+                    (format "- %s — failed %d/%d (iters %s)%s" f (count iters) (count results)
+                            (str/join "," iters)
+                            (if detail (str "\n  - first: " detail) ""))))
+        org      (str run-dir "/cucumber_repeat_summary.org")]
+    (println "\n==== REPEAT SUMMARY ====")
+    (doseq [l lines] (println (str "  " l)))
+    (spit org (str "#+TITLE: Cucumber Repeat Summary\n\n* Summary\n" (str/join "\n" lines) "\n"))
+    (println "  Repeat org:" org)))
+
+;;; ---------------------------------------------------------------------------
 ;;; Main
 ;;; ---------------------------------------------------------------------------
 
@@ -319,6 +478,8 @@
         db-prefix     (flag-val args "--db-prefix" "cucumber-shard-db")
         base-port     (Integer/parseInt (str (flag-val args "--base-port" (str default-base-port))))
         skip-compile  (flag-set? args "--skip-compile")
+        repeat-n      (Integer/parseInt (str (flag-val args "--repeat" "1")))
+        until-fail?   (flag-set? args "--until-fail")
         chrome        (browser/find-browser)
         discovered    (feature-files features-dir)
         all-files     (if feature
@@ -337,8 +498,13 @@
                      n (count all-files) (if headed? "headed" "headless") chrome))
     (when feature
       (println (format "▶ single feature: %s | query: %s" (first all-files) (or query "all scenarios"))))
+    (when (< repeat-n 1)
+      (println "ERROR: --repeat must be >= 1") (System/exit 1))
     (when stop?
       (println "▶ --stop: halting at first failure"))
+    (when (or (> repeat-n 1) until-fail?)
+      (println (format "▶ --repeat %d%s: servers boot once, each pass writes to %s/iter-NN/"
+                       repeat-n (if until-fail? " (until first failure)" "") run-dir)))
     (when headed?
       (println "▶ visible browser: 1 shard; on failure the browser + server stay open for inspection (Ctrl-C to close), on success everything tears down (use --headless for a headless, sharded run)"))
     (println "▶ run outputs →" run-dir)
@@ -352,7 +518,7 @@
       (compile-once!))
     (ensure-manifest!)
 
-    (let [servers                                                                                                                            (atom [])
+    (let [servers                                                                                                  (atom [])
           ;; Compute the exit code inside the try so the finally can tear the servers down
           ;; FIRST — System/exit skips finally blocks, so it must come after.
           code
@@ -377,85 +543,30 @@
                 (println "ERROR: not all shard servers came up; see" (str run-dir "/cucumber_shard_*_server.log"))
                 (throw (ex-info "server startup failed" {}))))
 
-        ;; 2. run N drivers in parallel, each on its shard's features
-            (let [driver-procs
-                  (doall
-                   (for [{:keys [port i]} @servers]
-                     (let [subset (nth groups i)
-                           org    (str run-dir "/" (format "cucumber_shard_%d_results.org" i))
-                           edn    (str run-dir "/" (format "cucumber_shard_%d_results.edn" i))
-                           cfg    {:features-dir features-dir                                   :steps-dir     steps-dir
-                                   :url          (format "http://localhost:%d/worksheets" port)
-                                   :headless     headless?                                      :stop          stop?     :query        query
-                                   :org          org                                            :edn           edn       :retry-failed 0
-                                   :browser-path chrome                                         :feature-files subset
-                                   :keep-open    headed?}
-                           cfg-f  (str (fs/create-temp-file {:prefix (format "shard-%d-cfg-" i) :suffix ".edn"}))
-                           logf   (io/file run-dir (format "cucumber_shard_%d_run.log" i))]
-                       (spit cfg-f (pr-str cfg))
-                       (spit logf "")
-                       (println (format "▶ shard-%d: %d feature(s) → %s (log: %s)" i (count subset) org logf))
-                       {:i    i                                                                                 :edn edn :org org
-                        :proc (p/process {:out :append :out-file logf :err :append :err-file logf}
-                                         "clojure" "-M:dev:behave/cms" "scripts/cucumber_run_driver.clj" cfg-f)})))]
-          ;; wait for all shards
-              (doseq [{:keys [proc]} driver-procs] @proc)
-
-          ;; 3. merge + report
-              (let [summaries (mapv (comp read-summary :edn) driver-procs)
-                    merged    (merge-summaries (keep identity summaries))
-                    missing   (keep-indexed (fn [idx s] (when (nil? s) idx)) summaries)]
-                (println "\n==== SHARDED RUN COMPLETE ====")
-                (doseq [{:keys [i edn org]} driver-procs]
-                  (let [s (read-summary edn)]
-                    (println (format "  shard-%d: %s  (org: %s)" i
-                                     (if s (format "%d passed, %d failed, %d skipped | scenarios %d/%d pass/fail"
-                                                   (:passed s) (:failed s) (:skipped s)
-                                                   (:scenarios-passed s) (:scenarios-failed s))
-                                         "NO SUMMARY (crashed?)")
-                                     org))))
-                (println (format "  TOTAL: %d files passed, %d failed, %d skipped | Scenarios: %d passed, %d failed"
-                                 (:passed merged) (:failed merged) (:skipped merged)
-                                 (:scenarios-passed merged) (:scenarios-failed merged)))
-                (when (seq (:failed-files merged))
-                  (println "  Failing files:") (doseq [f (:failed-files merged)] (println "    -" f)))
-            ;; combined org (concatenate the per-shard bodies)
-                (let [combined    (str run-dir "/cucumber_test_summary.org")
-                      max-elapsed (apply max 0.0 (keep read-elapsed (map :edn driver-procs)))
-                      total-files (+ (:passed merged) (:failed merged) (:skipped merged) (:pending merged))]
-                  (spit combined
-                        (str "#+TITLE: Cucumber Test Summary\n"
-                             "# Sharded cucumber run — " n " shards\n\n"
-                             "* Summary\n"
-                             (format "- Feature files: %d passed, %d failed, %d skipped%s (%d total)\n"
-                                     (:passed merged) (:failed merged) (:skipped merged)
-                                     (if (pos? (:pending merged)) (format ", %d pending" (:pending merged)) "")
-                                     total-files)
-                             (format "- Scenarios: %d passed, %d failed\n"
-                                     (:scenarios-passed merged) (:scenarios-failed merged))
-                             (format "- Max shard runtime: %s\n\n" (fmt-elapsed max-elapsed))
-                             (str/join "\n"
-                                       (for [{:keys [i org edn]} driver-procs]
-                                         (let [s       (read-summary edn)
-                                               elapsed (read-elapsed edn)
-                                               summary (if s
-                                                         (format " — %d passed, %d failed, %d skipped | scenarios %d/%d pass/fail | %s"
-                                                                 (:passed s) (:failed s) (:skipped s)
-                                                                 (:scenarios-passed s) (:scenarios-failed s) (fmt-elapsed elapsed))
-                                                         " — NO SUMMARY")]
-                                           (str "* shard-" i summary "\n"
-                                                "- Results\n"
-                                                (results-body org) "\n"))))))
-                  (println "  Combined org:" combined))
-            ;; per-shard EDNs are intermediate — their summaries are now folded into the
-            ;; combined org above, so drop them once everything's been read.
-                (doseq [{:keys [edn]} driver-procs]
-                  (try (fs/delete-if-exists edn) (catch Exception _ nil)))
-            ;; non-zero on any failure or missing summary — returned, exited after teardown
-                (if (and (empty? missing)
-                         (zero? (:failed merged))
-                         (zero? (:scenarios-failed merged)))
-                  0 1)))
+            ;; 2. run the driver pass --repeat times against the same servers. With N > 1
+            ;; each pass gets its own iter-NN dir; a single pass keeps the flat layout CI uses.
+            ;; A visible run's keep-open blocks on failure, so only allow it when that failure
+            ;; ends the loop anyway (last pass, or --until-fail).
+            (loop [k 1, results []]
+              (let [out-dir (if (= repeat-n 1) run-dir (format "%s/iter-%02d" run-dir k))
+                    _       (fs/create-dirs out-dir)
+                    _       (when (> repeat-n 1)
+                              (println (format "\n━━━ iteration %d/%d ━━━" k repeat-n)))
+                    r       (run-pass! {:servers      @servers
+                                        :groups       groups
+                                        :out-dir      out-dir
+                                        :features-dir features-dir
+                                        :headless?    headless?
+                                        :stop?        stop?
+                                        :query        query
+                                        :chrome       chrome
+                                        :keep-open?   (and headed? (or until-fail? (= k repeat-n)))})
+                    results (conj results r)]
+                (if (or (= k repeat-n) (and until-fail? (pos? (:code r))))
+                  (do (when (> repeat-n 1)
+                        (print-repeat-summary! run-dir repeat-n results))
+                      (if (every? (comp zero? :code) results) 0 1))
+                  (recur (inc k) results))))
             (catch Throwable t
               (println "ERROR: sharded run failed —" (.getMessage t))
               1)
