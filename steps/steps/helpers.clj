@@ -324,6 +324,17 @@
    (wait-for-element-by-selector driver {:text text} timeout-ms)
    (click-button-with-text driver text)))
 
+(defn click-enabled-next!
+  "Click the wizard's highlighted Next once it is enabled.
+   Args:
+     driver     - WebDriver instance
+     timeout-ms - Max wait for Next to become enabled (default 10000)"
+  ([driver] (click-enabled-next! driver 10000))
+  ([driver timeout-ms]
+   (let [selector-map {:css ".wizard-navigation__next .button--highlight:not([disabled])"}]
+     (wait-for-element-by-selector driver selector-map timeout-ms)
+     (click-el! driver selector-map))))
+
 ;;; =============================================================================
 ;;; Input Operations
 ;;; =============================================================================
