@@ -398,10 +398,11 @@
      - `:id`    - id of the tag (keyword or number)
   - [Optional] `color-tags`:
      - `:label` - label of the option
-     - `:color` - color of the tag"
+     - `:color` - color of the tag
+  - [Optional] `fill?`: expanded options grow to fill a flex parent"
   [{:keys [input-label prompt1 prompt2 prompt3 expand-options-button-label
            collapse-options-button-label options filter-tags color-tags
-           disable-multi-valued-input?]}]
+           disable-multi-valued-input? fill?]}]
   (r/with-let [selections    (r/atom (into empty-selections
                                            (filter #(true? (:selected? %)) options)))
                show-options? (r/atom false)
@@ -425,7 +426,7 @@
           scroll-to-top!  (fn []
                             (when-let [n @options-node]
                               (set! (.-scrollTop n) 0)))]
-      [:div.multi-select
+      [:div {:class ["multi-select" (when fill? "multi-select--fill")]}
        [:div.multi-select__prompt prompt1]
        (when (seq color-tags)
          [:div.multi-select__color-tags

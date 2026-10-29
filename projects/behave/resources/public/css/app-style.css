@@ -476,25 +476,27 @@ body {
   flex: 1;
 }
 
-/* Guided options fill the panel (as review page, below) */
-.page:has(.wizard-input--guided .multi-select__options) {
+/* Sole Guided multi-select: options fill the panel (as review page, below) */
+.page:has(.multi-select--fill .multi-select__options) {
   height: 100vh;
   overflow: hidden;
 }
 
-.page__main:has(.wizard-input--guided .multi-select__options),
-.working-area:has(.wizard-input--guided .multi-select__options),
-.accordion:has(.wizard-input--guided .multi-select__options),
-.wizard:has(.wizard-input--guided .multi-select__options),
-.wizard-page:has(.wizard-input--guided .multi-select__options) {
+.page__main:has(.multi-select--fill .multi-select__options),
+.working-area:has(.multi-select--fill .multi-select__options),
+.accordion:has(.multi-select--fill .multi-select__options),
+.wizard:has(.multi-select--fill .multi-select__options),
+.wizard-page:has(.multi-select--fill .multi-select__options) {
   min-height: 0;
 }
 
-.wizard-page > div:has(.wizard-input--guided .multi-select__options),
-.wizard-page__body:has(.wizard-input--guided .multi-select__options),
-.wizard-page__body div:has(.wizard-input--guided .multi-select__options),
-.wizard-input--guided:has(.multi-select__options),
-.wizard-input--guided .multi-select:has(> .multi-select__options) {
+.wizard-page__content:has(.multi-select--fill .multi-select__options),
+.wizard-page__body:has(.multi-select--fill .multi-select__options),
+.wizard-page__module:has(.multi-select--fill .multi-select__options),
+.wizard-subgroup__indent:has(.multi-select--fill .multi-select__options),
+.wizard-group:has(.multi-select--fill .multi-select__options),
+.wizard-group__inputs:has(.multi-select--fill .multi-select__options),
+.wizard-input:has(.multi-select--fill .multi-select__options) {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -502,14 +504,8 @@ body {
   min-height: 0;
 }
 
-.wizard-page__body:has(.wizard-input--guided .multi-select__options) {
+.wizard-page__body:has(.multi-select--fill .multi-select__options) {
   max-height: none;
-}
-
-.wizard-input--guided .multi-select > .multi-select__options {
-  flex: 1 1 auto;
-  max-height: none;
-  min-height: 100px;
 }
 
 .wizard-header {
