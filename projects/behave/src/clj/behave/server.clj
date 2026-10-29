@@ -7,7 +7,8 @@
             [config.interface     :refer [get-config load-config]]
             [file-utils.interface :refer [os-path]]
             [logging.interface    :as l :refer [log-str]]
-            [server.interface     :as server]))
+            [server.interface     :as server])
+  (:import [java.awt GraphicsEnvironment SplashScreen]))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
@@ -56,10 +57,21 @@
         (browse-url (format "http://localhost:%s" http-port))
         (watch-kill-signal!)))))
 
+;;; Splash Screen
+
+(defn- close-splash!
+  "Closes the splash screen shown by a `java -jar` launch, if any."
+  []
+  (when-not (GraphicsEnvironment/isHeadless)
+    (some-> (SplashScreen/getSplashScreen) .close)))
+
 (defn -main
   "Server start method."
   [& _args]
-  (start-server!))
+  (try
+    (start-server!)
+    (finally
+      (close-splash!))))
 
 (comment
   (-main)
