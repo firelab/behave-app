@@ -26,7 +26,8 @@
             [ring.util.codec                   :refer [url-decode]]
             [ring.util.response                :refer [not-found]]
             [server.interface                  :as server]
-            [transport.interface               :refer [->clj mime->type]]))
+            [transport.interface               :refer [->clj mime->type]])
+  (:import [java.awt GraphicsEnvironment SplashScreen]))
 
 ;;; Constants
 
@@ -208,9 +209,7 @@
   development-app
   (create-handler-stack {:figwheel? true :reload? true}))
 
-(defn -main
-  "Server start method."
-  [& _args]
+(defn- start-server! []
   (init-config!)
   (start-logging! (get-config :logging))
   (init-db! (get-config :database))
@@ -223,6 +222,22 @@
     (when (= "prod" mode)
       (watch-kill-signal!) ;; Watch on the main thread
       (browse-url (str "http://localhost:" http-port)))))
+
+;;; Splash Screen
+
+(defn- close-splash!
+  "Closes the splash screen shown by a `java -jar` launch, if any."
+  []
+  (when-not (GraphicsEnvironment/isHeadless)
+    (some-> (SplashScreen/getSplashScreen) .close)))
+
+(defn -main
+  "Server start method."
+  [& _args]
+  (try
+    (start-server!)
+    (finally
+      (close-splash!))))
 
 (comment
   (-main)
