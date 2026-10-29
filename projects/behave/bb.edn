@@ -8,7 +8,7 @@
   stop      {:depends [-project]
              :task (shell (format "systemctl --user stop %s" -project))}
   build-js  (clojure "-M:compile-cljs")
-  uber      (clojure "-X triangulum.packaging/build-uberjar :app-name behave7 :main-ns behave.core")
+  uber      (clojure "-X:build-uberjar")
   pull      (do
               (shell "git pull")
               (shell "git submodule init")
