@@ -17,9 +17,10 @@
 (defn init-db!
   "Initialize DB using configuration."
   [database-config]
-  (log-str [:DB-CONFIG database-config])
-  (io/make-parents (get-in database-config [:store :path]))
-  (store/connect! database-config))
+  (let [database-config (update-in database-config [:store :path] os-path)]
+    (log-str [:DB-CONFIG database-config])
+    (io/make-parents (get-in database-config [:store :path]))
+    (store/connect! database-config)))
 
 ;;; Logging
 
