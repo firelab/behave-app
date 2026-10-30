@@ -63,7 +63,7 @@
    - :name      - Find by name attribute
 
    Args:
-     selector - Map with a single selector key/value pair
+     selector-map - Map with a single selector key/value pair
 
    Returns:
      Selenium By object
@@ -76,27 +76,27 @@
      (selector->by {:css \".wizard-header\"})    ; => By.cssSelector(\".wizard-header\")
      (selector->by {:text \"New Run\"})          ; => By with xpath for text
      (selector->by {:tag :div})                  ; => By.tagName(\"div\")"
-  [selector]
+  [selector-map]
   (cond
-    (:id selector) (by/id (:id selector))
-    (:css selector) (by/css (:css selector))
-    (:xpath selector) (by/xpath (:xpath selector))
-    (:tag selector) (by/tag-name (name (:tag selector)))
-    (:class selector) (by/class-name (:class selector))
-    (:text selector) (by/attr= :text (:text selector))
-    (:name selector) (by/input-name (:name selector))
-    :else (throw (ex-info "Unknown selector type" {:selector selector}))))
+    (:id selector-map) (by/id (:id selector-map))
+    (:css selector-map) (by/css (:css selector-map))
+    (:xpath selector-map) (by/xpath (:xpath selector-map))
+    (:tag selector-map) (by/tag-name (name (:tag selector-map)))
+    (:class selector-map) (by/class-name (:class selector-map))
+    (:text selector-map) (by/attr= :text (:text selector-map))
+    (:name selector-map) (by/input-name (:name selector-map))
+    :else (throw (ex-info "Unknown selector type" {:selector selector-map}))))
 
 ;;; =============================================================================
 ;;; Waiting Utilities
 ;;; =============================================================================
 
 (defn wait-for-element-by-selector
-  "Wait for an element matching selector to be present in the DOM."
-  ([driver selector] (wait-for-element-by-selector driver selector 2000))
-  ([driver selector timeout-ms]
+  "Wait for an element matching selector-map to be present in the DOM."
+  ([driver selector-map] (wait-for-element-by-selector driver selector-map 2000))
+  ([driver selector-map timeout-ms]
    (let [wait (w/wait driver timeout-ms)]
-     (.until wait (w/presence-of (selector->by selector))))))
+     (.until wait (w/presence-of (selector->by selector-map))))))
 
 (defn wait-for-wizard
   "Wait for the wizard interface to be present."
@@ -180,8 +180,8 @@
    - :name      - Find by name attribute
 
    Args:
-     driver   - WebDriver instance
-     selector - Map with a single selector key/value pair
+     driver       - WebDriver instance
+     selector-map - Map with a single selector key/value pair
 
    Returns:
      WebElement if found
@@ -201,9 +201,9 @@
 
    See also:
      selector->by - For converting selectors to Selenium By objects"
-  [driver selector]
-  ;; (wait-for-element-by-selector driver selector)
-  (e/find-el driver (selector->by selector)))
+  [driver selector-map]
+  ;; (wait-for-element-by-selector driver selector-map)
+  (e/find-el driver (selector->by selector-map)))
 
 (defn find-input-by-label
   "Find an input element (text field, radio, or dropdown) by its label text.
@@ -274,18 +274,26 @@
 ;;; Button Operations
 ;;; =============================================================================
 
+(defn retry-on-stale
+  "Call `f` and return its value, re-calling it (up to 3 retries, 200ms apart) when it
+   throws a stale-element reference — the DOM can re-render between locating an element
+   and using it, so `f` should re-locate whatever it acts on."
+  [f]
+  (loop [attempts 3]
+    (let [outcome (try {:value (f)}
+                       (catch org.openqa.selenium.StaleElementReferenceException e
+                         (if (pos? attempts) ::retry (throw e))))]
+      (if (= outcome ::retry)
+        (do (Thread/sleep 200)
+            (recur (dec attempts)))
+        (:value outcome)))))
+
 (defn click-el!
-  "Find `selector` and click it, re-finding + retrying on a stale-element reference
+  "Find `selector-map` and click it, re-finding + retrying on a stale-element reference
    (the DOM can re-render between locating and clicking). `e/click!` itself already
    scrolls the element into view and falls back to a JS click on interception."
-  [driver selector]
-  (loop [attempts 3]
-    (let [outcome (try (e/click! (find-element driver selector)) :ok
-                       (catch org.openqa.selenium.StaleElementReferenceException e
-                         (if (pos? attempts) :retry (throw e))))]
-      (when (= outcome :retry)
-        (Thread/sleep 200)
-        (recur (dec attempts))))))
+  [driver selector-map]
+  (retry-on-stale #(e/click! (find-element driver selector-map))))
 
 (defn click-highlighted-button
   "Click the highlighted button in the current view.
@@ -437,6 +445,10 @@
    Returns:
      Boolean - true if checked (class found), false otherwise
 
+   Throws:
+     StaleElementReferenceException if `element` re-renders mid-walk — rethrown rather
+     than read as 'unchecked', so callers can re-find and retry (see retry-on-stale)
+
    Example:
      (let [output-elem (h/find-element driver {:text \"Rate of Spread\"})]
        (h/output-checked? output-elem))
@@ -461,9 +473,12 @@
             :else
             (let [parent (try
                            (e/find-el current-element (by/xpath ".."))
+                           (catch org.openqa.selenium.StaleElementReferenceException e (throw e))
                            (catch Exception _ nil))]
               (recur parent (inc iterations)))))
         false))
+    (catch org.openqa.selenium.StaleElementReferenceException e
+      (throw e))
     (catch Exception _
       false)))
 
