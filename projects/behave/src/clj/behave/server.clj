@@ -2,8 +2,10 @@
   (:gen-class)
   (:require [behave.handlers      :refer [server-handler-stack vms-sync! watch-kill-signal!]]
             [behave.store         :as store]
+            [clojure.edn          :as edn]
             [clojure.java.browse  :refer [browse-url]]
             [clojure.java.io      :as io]
+            [clojure.string       :as str]
             [config.interface     :refer [get-config load-config merge-config!]]
             [file-utils.interface :refer [os-path]]
             [logging.interface    :as l :refer [log-str]]
@@ -27,6 +29,30 @@
                  (if cef? "prod" "dev"))]
     (merge-config! {:server {:mode mode}
                     :client {:jar-local? (server-jar?)}})))
+
+;;; Database
+
+(defn- app-version
+  "The version in `version.edn` (e.g. \"v7.1.5\"), or nil."
+  []
+  (some-> (io/resource "version.edn") slurp edn/read-string :version str))
+
+(defn- versioned-db-path
+  "Puts the database file in a folder named for `version`, so JARs of
+  different versions never share one: `~/.behave/db.sqlite` becomes
+  `~/.behave/v7.1.5/db.sqlite`."
+  [path version]
+  (let [f (io/file path)]
+    (str (io/file (.getParent f) (str/replace version #"[^A-Za-z0-9._-]" "_") (.getName f)))))
+
+(defn- versioned-database-config
+  "The configured database, moved to a per-version folder when run as a JAR."
+  []
+  (let [db-config (get-config :database :config)
+        version   (app-version)]
+    (if (and version (get-config :client :jar-local?))
+      (update-in db-config [:store :path] versioned-db-path version)
+      db-config)))
 
 (defn init-db!
   "Initialize DB using configuration."
@@ -60,7 +86,7 @@
         org-name  (get-config :site :org-name)
         app-name  (get-config :site :app-name)]
     (start-logging! (get-config :logging))
-    (init-db! (get-config :database :config))
+    (init-db! (versioned-database-config))
     (log-str (format "Starting %s %s server at http://localhost:%s" org-name app-name http-port))
     (server/start-server! {:handler (server-handler-stack {:reload? (= mode "dev") :figwheel? false})
                            :port    http-port})
