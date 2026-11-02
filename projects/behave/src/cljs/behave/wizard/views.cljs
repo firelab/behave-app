@@ -39,23 +39,39 @@
 (def ^:const multi-value-input-limit 3)
 
 ;;; Components
+(defn- visible-groups
+  "Groups `build-groups` renders: non-research groups whose conditionals pass."
+  [ws-uuid groups]
+  (filter #(and (not (:group/research? %)) ;; TODO: Remove when "Research Mode" is enabled
+                @(subscribe [:wizard/show-group?
+                             ws-uuid
+                             (:db/id %)
+                             (:group/conditionals-operator %)]))
+          groups))
+
 (defn build-groups [{:keys [ws-uuid] :as params} groups component-fn & [level]]
   (let [level (if (nil? level) 0 level)]
     (when groups
       [:<>
        (doall
-        (for [group groups]
-          ^{:key (:db/id group)}
-          (when (and (not (:group/research? group)) ;; TODO: Remove when "Research Mode" is enabled
-                     @(subscribe [:wizard/show-group?
-                                  ws-uuid
-                                  (:db/id group)
-                                  (:group/conditionals-operator group)]))
-            (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
-              [:<>
-               [component-fn params group variables level]
-               [:div.wizard-subgroup__indent
-                [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
+        (for [group (visible-groups ws-uuid groups)]
+          (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
+            ^{:key (:db/id group)}
+            [:<>
+             [component-fn params group variables level]
+             [:div.wizard-subgroup__indent
+              [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]])))])))
+
+(defn- visible-input-count
+  "Number of inputs `build-groups` would render for `groups`; repeat groups
+  render their variables once per repeat."
+  [ws-uuid groups]
+  (->> (visible-groups ws-uuid groups)
+       (map (fn [{:group/keys [group-variables children repeat?] group-uuid :bp/uuid}]
+              (+ (cond-> (count group-variables)
+                   repeat? (* (count @(subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid]))))
+                 (visible-input-count ws-uuid children))))
+       (reduce + 0)))
 
 (defmulti submodule-page (fn [_ io _ _] io))
 
@@ -234,14 +250,17 @@
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ]
     [:div.wizard-page
-     [:div
+     [:div.wizard-page__content
       [wizard-header params modules]
       [:div.wizard-page__body
        (when @*show-notes?
          [add-note-section ws-uuid modules])
-       [:div
+       [:div.wizard-page__module
         {:data-theme-color module}
-        [submodule-page params io @*groups]]
+        [submodule-page
+         (assoc params :sole-input? (= 1 (visible-input-count ws-uuid @*groups)))
+         io
+         @*groups]]
        (when (true? @*warn-limit?)
          [:div.wizard-warning
           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]]

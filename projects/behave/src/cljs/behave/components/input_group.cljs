@@ -164,7 +164,7 @@
          :options   (concat [{:label "Select..." :value "nil"}]
                             (map ->option options))}])]))
 
-(defmethod wizard-input :multi-discrete [variable {:keys [ws-uuid workflow]} group-uuid repeat-id _repeat-group?]
+(defmethod wizard-input :multi-discrete [variable {:keys [ws-uuid workflow sole-input?]} group-uuid repeat-id _repeat-group?]
   (r/with-let [{gv-uuid  :bp/uuid
                 llist    :variable/list
                 help-key :group-variable/help-key} variable
@@ -203,6 +203,8 @@
                  :expand-options-button-label   (gstring/format @(<t (bp "behave_components:input:multi_select:search:expand_options_button_label")) @*variable-name)
                  :collapse-options-button-label (gstring/format @(<t (bp "behave_components:input:multi_select:search:collapse_options_button_label")) @*variable-name)
                  :disable-multi-valued-input?   @*disable-multi-valued-input?
+                 ;; options list fills the panel (app-style.css)
+                 :fill?                         (and (= workflow :guided) sole-input?)
                  :options                       (doall (map ->option options))}
 
           (:list/tag-set llist)

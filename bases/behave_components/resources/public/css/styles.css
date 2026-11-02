@@ -2339,6 +2339,20 @@ p {
   padding: 0px 12px 0px 12px;
 }
 
+.multi-select--fill:has(.multi-select__options) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.multi-select--fill .multi-select__options {
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 100px;
+}
+
 .multi-select__option--selected,
 .multi-select__option {
   display: flex;
