@@ -831,10 +831,11 @@
                     elliptical-A
                     elliptical-B
                     direction-of-max-spread
-                    max-spread-dist
+                    max-spread-dist-1hr
                     wind-direction
-                    wind-dist
-                    slope-dist
+                    wind-dist-1hr
+                    slope-dist-1hr
+                    max-spread-dist
                     flanking-dir
                     flanking-dist
                     backing-dir
@@ -873,19 +874,19 @@
                   ;; when their direction outputs are enabled (they follow the same
                   ;; conditionals that gate the Direction of Flanking/Backing outputs).
                   :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:wind"
-                                                                   :arrow/length    wind-dist
+                                                                   :arrow/length    wind-dist-1hr
                                                                    :arrow/rotation  wind-direction
                                                                    :arrow/color     "blue"
                                                                    :arrow/dashed?   true}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
-                                                                   :arrow/length    slope-dist
+                                                                   :arrow/length    slope-dist-1hr
                                                                    :arrow/rotation  0
                                                                    :arrow/color     "green"
                                                                    :arrow/dashed?   true}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread"
-                                                                   :arrow/length    max-spread-dist
+                                                                   :arrow/length    max-spread-dist-1hr
                                                                    :arrow/rotation  direction-of-max-spread
                                                                    :arrow/color     "black"}
 

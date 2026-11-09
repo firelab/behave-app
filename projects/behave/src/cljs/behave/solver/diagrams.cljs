@@ -61,18 +61,20 @@
      (surface/getEllipticalB module (enums/length-units "Chains"))
      (surface/getDirectionOfMaxSpread module)
      (* (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
-        elapsed-time-h)
+        1) ; Resultant Vector
      (surface/getWindDirection module)
      (* (surface/getNoSlopeSpreadRate module (enums/speed-units "ChainsPerHour"))
-        elapsed-time-h)
+        1) ; Slope Vector
      (* (surface/getNoWindSpreadRate module (enums/speed-units "ChainsPerHour"))
-        elapsed-time-h)
+        1) ; Wind Vector
+     (* (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
+        elapsed-time-h) ; Heading
      (surface/getDirectionOfFlanking module)
      (* (surface/getFlankingSpreadRate module (enums/speed-units "ChainsPerHour"))
-        elapsed-time-h)
+        elapsed-time-h) ; Flanking
      (surface/getDirectionOfBacking module)
      (* (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
-        elapsed-time-h)
+        elapsed-time-h) ; Backing
      flanking-enabled?
      backing-enabled?]))
 
