@@ -61,12 +61,18 @@
               [?o :output/implicit? true]]
             ds ws-uuid)))
 
+(defn- app-owned-output?
+  "Required for backwards compatability for worksheets created prior to `:output/implicit?` was introduced"
+  [gv]
+  (and (:group-variable/conditionally-set? gv)
+       (some #(= :select (:action/type %)) (:group-variable/actions gv))))
+
 (defn- process-output-actions->fx
   [ds worksheet group-variables ws-uuid]
   (let [implicit?   (implicit-output-uuids ds ws-uuid)
         reset-map   (->> group-variables
+                         (filter #(or (implicit? (:bp/uuid %)) (app-owned-output? %)))
                          (map :bp/uuid)
-                         (filter implicit?)
                          (map (fn [gv-uuid] [gv-uuid false]))
                          (into {}))
         enabled-map (->> group-variables
