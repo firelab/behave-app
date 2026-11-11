@@ -589,6 +589,14 @@
                               (seq children-payload) (concat children-payload))]
        {:transact payload}))))
 
+(rf/reg-event-fx
+ :worksheet/edit-table-filter-attr
+ (fn [_ [_ ws-uuid group-var-uuid attr value]]
+   ;; A user edit: also flag the filter so re-runs keep its range (BHP1-1704).
+   {:fx [[:dispatch [:worksheet/update-table-filter-attr ws-uuid group-var-uuid attr value]]
+         [:dispatch [:worksheet/update-table-filter-attr ws-uuid group-var-uuid
+                     :table-filter/user-set? true]]]}))
+
 (rp/reg-event-fx
  :worksheet/add-table-filter
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet-entity ws-uuid]))]
@@ -606,14 +614,15 @@
          {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                       :table-settings/filters    [filter-entry]}]})))))
 
-(defn- filter-seeded?
-  "True when `gv-uuid` (or any of its direction children) already has a min."
+(defn- filter-user-set?
+  "True when the user has edited the filter for `gv-uuid` (or any of its
+  direction children)."
   [ds ws-uuid gv-uuid]
   (let [gv-uuids (cons gv-uuid (map :bp/uuid (direction-variables gv-uuid)))]
     (boolean
      (some (fn [u]
              (when-let [eid (get-table-filter-eid ds ws-uuid u)]
-               (some? (:table-filter/min (d/entity ds eid)))))
+               (:table-filter/user-set? (d/entity ds eid))))
            gv-uuids))))
 
 (rp/reg-event-fx
@@ -621,9 +630,9 @@
  [(rp/inject-cofx :ds)
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
  (fn [{ds :ds output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
-   ;; Seed only unseeded filters, so re-runs keep user-set ranges.
+   ;; Re-seed every filter from the new results, except ones the user edited.
    {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
-                  (if (filter-seeded? ds ws-uuid gv-uuid)
+                  (if (filter-user-set? ds ws-uuid gv-uuid)
                     acc
                     (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
                                                     (get output-min-max-values directional-parent-uuid)

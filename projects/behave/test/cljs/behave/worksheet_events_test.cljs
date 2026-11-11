@@ -320,16 +320,32 @@
    (let [ws fx/test-ws-uuid
          gv "output1"]
      (rf/dispatch [:worksheet/add-table-filter ws gv])
-     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/min 15])
-     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/max 25])
+     (rf/dispatch [:worksheet/edit-table-filter-attr ws gv :table-filter/min 15])
+     (rf/dispatch [:worksheet/edit-table-filter-attr ws gv :table-filter/max 25])
      (is (= ["output1" 15 25 false] (table-filter-for ws gv))
          "precondition: the filter has a user-set range")
 
      ;; Re-running a solve dispatches this event again — it must not clobber the
-     ;; user's range (the bug this guards against).
+     ;; user's range (BHP1-1569).
      (rf/dispatch [:worksheet/update-all-table-filters-from-results ws])
      (is (= ["output1" 15 25 false] (table-filter-for ws gv))
-         "a re-run preserves an already-seeded / user-set range"))))
+         "a re-run preserves a user-set range"))))
+
+(deftest update-all-table-filters-reseeds-auto-filter-test
+  (fx/with-dummy-results-table)
+  (rf-test/run-test-sync
+   (let [ws fx/test-ws-uuid
+         gv "output1"]
+     (rf/dispatch [:worksheet/add-table-filter ws gv])
+     ;; Stand in for a previous run's auto-seeded range (not a user edit).
+     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/min 1])
+     (rf/dispatch [:worksheet/update-table-filter-attr ws gv :table-filter/max 2])
+     (is (= ["output1" 1 2 false] (table-filter-for ws gv))
+         "precondition: the filter holds a stale auto-seeded range")
+
+     (rf/dispatch [:worksheet/update-all-table-filters-from-results ws])
+     (is (= ["output1" 10 30 false] (table-filter-for ws gv))
+         "a re-run re-seeds a filter the user never edited (BHP1-1704)"))))
 
 ;; =================================================================================================
 ;; :worksheet/toggle-table-settings
