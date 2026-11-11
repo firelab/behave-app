@@ -80,25 +80,24 @@
   ;; Click "New Run" button — generous timeout for the initial route load
   (h/wait-and-click-button-with-text driver "New Run" 25000)
 
-  ;; Proceed through initial dialog
-  (h/wait-and-click-button-with-text driver "Next")
+  ;; Proceed through initial dialog. Each card selection below enables Next only after
+  ;; the app re-renders, so click it once enabled — a click on the disabled button is
+  ;; silently dropped and the page never advances.
+  (h/click-enabled-next! driver)
 
   ;; Select "Guided Workflow"
   (h/wait-and-click-button-with-text driver "Open using Guided Workflow")
 
   ;; Proceed to module selection
-  (h/click-highlighted-button driver)
+  (h/click-enabled-next! driver)
 
   ;; Select the desired module type. Wait for the module button to render before
   ;; clicking — the module-selection screen paints asynchronously after the highlight
   ;; button advances the wizard, and an immediate find (implicit wait 0) can lose the race.
   (h/wait-and-click-button-with-text driver (get worksheet-modules modules))
 
-  ;; Scroll to the next button and click it
-  (let [el (h/find-element driver {:text "Next"})]
-    (h/scroll-to-element driver el))
-
-  (h/click-button-with-text driver "Next")
+  ;; Proceed to the worksheet (e/click! scrolls Next into view)
+  (h/click-enabled-next! driver)
   (h/scroll-to-top driver)
 
   ;; Wait for the worksheet wizard to finish rendering before returning

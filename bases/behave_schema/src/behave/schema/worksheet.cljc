@@ -343,6 +343,11 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :table-filter/user-set?
+    :db/doc         "Whether the user edited the min/max (re-runs keep it)"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    ;; Map Units
    {:db/ident       :map-units-settings/enabled?
     :db/doc         "Whether the map unit conversion is enabled"

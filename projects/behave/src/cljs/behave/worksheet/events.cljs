@@ -61,12 +61,18 @@
               [?o :output/implicit? true]]
             ds ws-uuid)))
 
+(defn- app-owned-output?
+  "Required for backwards compatability for worksheets created prior to `:output/implicit?` was introduced"
+  [gv]
+  (and (:group-variable/conditionally-set? gv)
+       (some #(= :select (:action/type %)) (:group-variable/actions gv))))
+
 (defn- process-output-actions->fx
   [ds worksheet group-variables ws-uuid]
   (let [implicit?   (implicit-output-uuids ds ws-uuid)
         reset-map   (->> group-variables
+                         (filter #(or (implicit? (:bp/uuid %)) (app-owned-output? %)))
                          (map :bp/uuid)
-                         (filter implicit?)
                          (map (fn [gv-uuid] [gv-uuid false]))
                          (into {}))
         enabled-map (->> group-variables
@@ -589,6 +595,14 @@
                               (seq children-payload) (concat children-payload))]
        {:transact payload}))))
 
+(rf/reg-event-fx
+ :worksheet/edit-table-filter-attr
+ (fn [_ [_ ws-uuid group-var-uuid attr value]]
+   ;; A user edit: also flag the filter so re-runs keep its range (BHP1-1704).
+   {:fx [[:dispatch [:worksheet/update-table-filter-attr ws-uuid group-var-uuid attr value]]
+         [:dispatch [:worksheet/update-table-filter-attr ws-uuid group-var-uuid
+                     :table-filter/user-set? true]]]}))
+
 (rp/reg-event-fx
  :worksheet/add-table-filter
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet-entity ws-uuid]))]
@@ -606,14 +620,15 @@
          {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                       :table-settings/filters    [filter-entry]}]})))))
 
-(defn- filter-seeded?
-  "True when `gv-uuid` (or any of its direction children) already has a min."
+(defn- filter-user-set?
+  "True when the user has edited the filter for `gv-uuid` (or any of its
+  direction children)."
   [ds ws-uuid gv-uuid]
   (let [gv-uuids (cons gv-uuid (map :bp/uuid (direction-variables gv-uuid)))]
     (boolean
      (some (fn [u]
              (when-let [eid (get-table-filter-eid ds ws-uuid u)]
-               (some? (:table-filter/min (d/entity ds eid)))))
+               (:table-filter/user-set? (d/entity ds eid))))
            gv-uuids))))
 
 (rp/reg-event-fx
@@ -621,9 +636,9 @@
  [(rp/inject-cofx :ds)
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
  (fn [{ds :ds output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
-   ;; Seed only unseeded filters, so re-runs keep user-set ranges.
+   ;; Re-seed every filter from the new results, except ones the user edited.
    {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
-                  (if (filter-seeded? ds ws-uuid gv-uuid)
+                  (if (filter-user-set? ds ws-uuid gv-uuid)
                     acc
                     (let [[min-to-use max-to-use] (if-let [directional-parent-uuid (:bp/uuid (directional-parent-entity gv-uuid))]
                                                     (get output-min-max-values directional-parent-uuid)
@@ -831,10 +846,11 @@
                     elliptical-A
                     elliptical-B
                     direction-of-max-spread
-                    max-spread-dist
+                    max-spread-dist-1hr
                     wind-direction
-                    wind-dist
-                    slope-dist
+                    wind-dist-1hr
+                    slope-dist-1hr
+                    max-spread-dist
                     flanking-dir
                     flanking-dist
                     backing-dir
@@ -873,19 +889,19 @@
                   ;; when their direction outputs are enabled (they follow the same
                   ;; conditionals that gate the Direction of Flanking/Backing outputs).
                   :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:wind"
-                                                                   :arrow/length    wind-dist
+                                                                   :arrow/length    wind-dist-1hr
                                                                    :arrow/rotation  wind-direction
                                                                    :arrow/color     "blue"
                                                                    :arrow/dashed?   true}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:slope"
-                                                                   :arrow/length    slope-dist
+                                                                   :arrow/length    slope-dist-1hr
                                                                    :arrow/rotation  0
                                                                    :arrow/color     "green"
                                                                    :arrow/dashed?   true}
 
                                                                   {:arrow/legend-id "behaveplus:diagram:surface_fire_shape:legend_id:surface_fire_spread"
-                                                                   :arrow/length    max-spread-dist
+                                                                   :arrow/length    max-spread-dist-1hr
                                                                    :arrow/rotation  direction-of-max-spread
                                                                    :arrow/color     "black"}
 
