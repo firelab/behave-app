@@ -133,8 +133,7 @@
   "Defines the init function to be called from window.onload()."
   [params]
   (let [params (js->clj params :keywordize-keys true)]
-    (when (:test-build? params)
-      (logger/install-re-frame-loggers!))
+    (logger/install-re-frame-loggers!)
     (reset! route-params-atom params)
     (rf/dispatch-sync [:initialize])
     (rf/dispatch-sync [:state/set :app-version (:app-version params)])

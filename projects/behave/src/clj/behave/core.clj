@@ -79,15 +79,9 @@
   []
   (some? (System/getProperty "app.dir")))
 
-(defn- test-build?
-  "True for test builds (`:build {:test? true}` in config.edn), which add the
-  Help menu diagnostics."
-  []
-  (true? (get-config :build :test?)))
-
 (defn- diagnostics-options
-  "`create-cef-app!` options for the test-build Help menu: Show Browser Logs
-  and Enable Solver Logging (re-applied on every page load)."
+  "`create-cef-app!` options for the Help menu: Show Browser Logs and Enable
+  Solver Logging (re-applied on every page load)."
   [data-dir log-dir]
   {:on-load-end (fn [{:keys [browser]}]
                   (browser-log/push-solver-logging!
@@ -140,16 +134,14 @@
                                 {:protocol     "http"
                                  :authority    (format "localhost:%s" http-port)
                                  :resource-dir "public"
-                                 :ring-handler (create-cef-handler-stack)})
-        test?                  (test-build?)]
+                                 :ring-handler (create-cef-handler-stack)})]
 
     (start-logging! log-config)
     (server/init-db! db-config)
 
     ;; The CEF browser is a heavyweight component; lightweight Swing menus
     ;; would render behind it.
-    (when test?
-      (JPopupMenu/setDefaultLightWeightPopupEnabled false))
+    (JPopupMenu/setDefaultLightWeightPopupEnabled false)
 
     (create-cef-app!
      (merge
@@ -161,14 +153,13 @@
                                                                (reset! the-app app)
                                                                (.dispose (:frame loader)))
        :on-console-message                                   (fn [{:keys [level message source line] :as msg}]
-                                                               (when test? (browser-log/record! msg))
+                                                               (browser-log/record! msg)
                                                                (log-str "[BROWSER " level "] " source ":" line " - " message))
        :request-handler                                      request-handler
        :on-before-launch
        (fn [{:keys [frame]}]
          (on-before-launch frame (get-config :site :title)))}
-      (when test?
-        (diagnostics-options my-app-data-dir (:log-dir log-config)))))))
+      (diagnostics-options my-app-data-dir (:log-dir log-config))))))
 
 (defn -main
   "Unified entry point. Detects runtime environment and starts
