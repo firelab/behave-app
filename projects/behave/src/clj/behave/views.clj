@@ -2,6 +2,7 @@
   (:require [clojure.data.json  :as json]
             [clojure.string     :as str]
             [clojure.edn        :as edn]
+            [clojure.java.io    :as io]
             [config.interface   :refer [get-config]]
             [hiccup.page        :refer [html5] :as p]
             [clj-commons.digest :as digest]))
@@ -9,9 +10,11 @@
 ;;; Macros
 
 (defn resource
-  "Retrieve resource from SystemClassLoader."
+  "Retrieve resource from SystemClassLoader, falling back to the context
+  classloader (e.g. Polylith's isolated test classloader)."
   [path]
-  (.getResource (ClassLoader/getSystemClassLoader) path))
+  (or (.getResource (ClassLoader/getSystemClassLoader) path)
+      (io/resource path)))
 
 (defmacro inline-resource
   "Inlines a file from the /resources directory."
