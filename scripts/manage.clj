@@ -9,18 +9,25 @@
   (-> (slurp file)
       (replace-name replacement)))
 
+(defn- template-dir
+  "Scaffolding for `basedir` (bases, components, projects). Kept outside the
+  brick folders so Polylith doesn't read the templates as real bricks."
+  [basedir]
+  (io/file "scripts" "templates" basedir))
+
 (defn replace-filename [f dir replacement]
-  (let [snake (str/replace replacement #"-" "_")]
+  (let [snake (str/replace replacement #"-" "_")
+        depth (count (str/split (str (template-dir dir)) #"\/"))]
     (as-> f %
       (.getPath %)
       (replace-name % snake)
       (str/split % #"\/")
-      (drop 2 %)
+      (drop depth %)
       (apply io/file dir snake %))))
 
 (defn- copy-template [basedir new-name]
   (let [files (map (fn [f] [(replace-filename f basedir new-name) f])
-                   (filter #(.isFile %) (file-seq (io/file basedir ".template"))))]
+                   (filter #(.isFile %) (file-seq (template-dir basedir))))]
 
     (doall (map (fn [[new-file template-file]]
                   (let [contents (replace-in-file template-file new-name)]

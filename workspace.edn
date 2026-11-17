@@ -1,4 +1,4 @@
-{:top-namespace "behave"
+{:top-namespace ""
  :interface-ns "interface"
  :default-profile-name "default"
  :compact-views #{}
