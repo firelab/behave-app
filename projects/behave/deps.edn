@@ -110,4 +110,9 @@
                                 :main-opts  ["-m" "depot.outdated.main"]}
              :download-vms     {:exec-fn behave.download-vms/exec-export-from-vms}
              :test             {:extra-paths ["test/cljs"]
-                                :extra-deps  {}}}}
+                                :extra-deps  {}}
+             ;; JVM-side tests: clojure -M:clj-test
+             :clj-test         {:extra-paths ["test/clj"]
+                                :extra-deps  {io.github.cognitect-labs/test-runner
+                                              {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+                                :main-opts   ["-m" "cognitect.test-runner" "-d" "test/clj"]}}}
