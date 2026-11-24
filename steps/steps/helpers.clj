@@ -708,3 +708,82 @@
           (find-element driver {:text (last groups)}))
       (find-element driver {:text submodule}))))
 
+;;; =============================================================================
+;;; Absence Checks
+;;; =============================================================================
+;;
+;; Negative assertions can't reuse the wait-for-presence helpers above: a missing element
+;; just times out (TimeoutException after several seconds). Instead we wait for something
+;; that IS on the page (a settled anchor), then take one non-throwing `findElements` pass
+;; with selectors scoped relative to their container (`.//`, not `//`, which would search
+;; the whole document).
+
+(defn- xpath-literal
+  "Quote `s` as an XPath string literal (handles embedded double quotes)."
+  [s]
+  (if (str/includes? s "\"")
+    (str "concat(\"" (str/replace s "\"" "\", '\"', \"") "\")")
+    (str "\"" s "\"")))
+
+(def ^:private selected-submodule-xpath
+  (str "//div[contains(concat(' ', normalize-space(@class), ' '), ' tab--selected ')]"
+       "[.//*[normalize-space(text())=%s]]"))
+
+(defn submodule-tab-present?
+  "True if a submodule tab labelled `submodule` is rendered in the wizard header. Hidden
+   submodules (filtered by :wizard/show-submodule?) are not rendered. Never throws on absence."
+  [driver submodule]
+  (let [header (wait-for-element-by-selector driver {:css ".wizard-header__submodules"} 10000)]
+    (boolean (seq (e/find-els header (by/xpath (str ".//*[normalize-space(text())="
+                                                    (xpath-literal submodule)
+                                                    "]")))))))
+
+(defn- find-group-header
+  "First `.wizard-group__header` inside `scope` whose text is exactly `group-name`, or nil."
+  [scope group-name]
+  (first (e/find-els scope (by/xpath (str ".//div[contains(@class,'wizard-group__header')]"
+                                          "[normalize-space(text())=" (xpath-literal group-name) "]")))))
+
+(defn- subgroups-container
+  "The element holding the child groups of the group whose header is `header`.
+   `build-groups` renders it as the next sibling of the group's `.wizard-group`
+   (the header's parent), not inside it."
+  [header]
+  (e/find-el header (by/xpath "../following-sibling::div[1]")))
+
+(defn- group-path-present?
+  "Drill down from `scope` one group at a time (parent → child): find each group's header,
+   then look for the next group inside its subgroups. False as soon as a level is missing."
+  [scope groups]
+  (loop [scope          scope
+         [group & more] groups]
+    (let [header (find-group-header scope group)]
+      (cond
+        (nil? header) false
+        (empty? more) true
+        :else         (recur (subgroups-container header) more)))))
+
+(defn input-group-present?
+  "True if the input group path [submodule group subgroup ...] is rendered on the current
+   (Inputs) page. A hidden submodule counts as absent. Waits for the target submodule's page
+   to settle (its tab selected and at least one group header rendered) before checking, so
+   absence isn't reported before conditional rendering finishes."
+  [driver [submodule & groups]]
+  (retry-on-stale
+   (fn []
+     (if-not (submodule-tab-present? driver submodule)
+       false
+       (do
+         (select-submodule-tab driver submodule)
+         (wait-for-element-by-selector driver
+                                       {:xpath (str "//div[contains(@class,'wizard-header__submodules')]"
+                                                    (format selected-submodule-xpath
+                                                            (xpath-literal submodule)))}
+                                       10000)
+         ;; Settled anchor: the submodule page has rendered its group headers.
+         (wait-for-element-by-selector driver {:css ".wizard-page__body .wizard-group__header"} 10000)
+         (if (seq groups)
+           (group-path-present? (find-element driver {:css ".wizard-page__body"}) groups)
+           ;; No groups: the submodule tab itself is what's being checked.
+           true))))))
+

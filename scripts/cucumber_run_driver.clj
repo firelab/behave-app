@@ -42,6 +42,30 @@
               (all-feature-files features-dir))))
 
 ;;; ---------------------------------------------------------------------------
+;;; Scenario Outline example tagging
+;;; ---------------------------------------------------------------------------
+
+(defn- table-rows
+  "Cells of every `| a | b |` table line in feature-file text, in file order."
+  [content]
+  (keep #(some->> (re-matches #"\s*\|(.*)\|\s*" %) second (re-seq #"[^|]+") (mapv str/trim))
+        (str/split-lines content)))
+
+(defn stamp-examples
+  [feat content]
+  (let [rows (table-rows content)
+        cols (fn [row] (or (some #(when (= (set %) (set (keys row))) %) rows) (sort (keys row))))]
+    (update feat :tegere.parser/scenarios
+            (fn [scs]
+              (mapv (fn [{row :tegere.parser/examples-row :as sc}]
+                      (if (and row (seq (:tegere.parser/steps sc)))
+                        (update sc :tegere.parser/steps
+                                #(update (vec %) 0 assoc :cucumber/example
+                                         (mapv (fn [c] [c (get row c)]) (cols row))))
+                        sc))
+                    scs)))))
+
+;;; ---------------------------------------------------------------------------
 ;;; Run
 ;;; ---------------------------------------------------------------------------
 
@@ -63,7 +87,8 @@
       (let [results (tr/run [feat] @tsteps/registry
                             {:tegere.query/query-tree query :tegere.runner/stop stop}
                             :initial-ctx {:driver driver :url url})]
-        (mapv (fn [ex] {:feature fname :scenario (report/scenario-title ex) :failure (report/ex-failure ex)})
+        (mapv (fn [ex] (cond-> {:feature fname :scenario (report/scenario-title ex) :failure (report/ex-failure ex)}
+                         (report/ex-example ex) (assoc :example (report/ex-example ex))))
               (:tegere.runner/executables results)))
       (catch Throwable t
         [{:feature fname                                                     :scenario "(feature errored)"
@@ -113,7 +138,11 @@
     (write!)                                   ; initial all-pending org
     (let [features   (cond->> (tl/load-feature-files (io/file features-dir))
                        ;; restrict to this shard's files (match each feature to its file via n->f)
-                       subset (filter #(subset (get n->f (:tegere.parser/name %) (:tegere.parser/name %)))))
+                       subset (filter #(subset (get n->f (:tegere.parser/name %) (:tegere.parser/name %))))
+                       ;; tag outline-expanded scenarios with their Examples row for the report
+                       true   (map (fn [ft]
+                                     (let [f (io/file features-dir (get n->f (:tegere.parser/name ft) ""))]
+                                       (stamp-examples ft (if (.isFile f) (slurp f) ""))))))
           file->feat (into {} (for [ft features]
                                 (let [nm (:tegere.parser/name ft)]
                                   [(get n->f nm nm) ft])))

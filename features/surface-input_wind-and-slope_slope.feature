@@ -10,14 +10,14 @@ Feature: Surface Input - Wind and Slope -> Slope
       | Wind and Slope | Slope |
 
     Examples: This scenario is repeated for each of these rows
-      | submodule     | group               | value                      |
-      | Fire Behavior | Direction Mode      | Heading                    |
-      | Fire Behavior | Direction Mode      | Heading, Flanking, Backing |
-      | Fire Behavior | Direction Mode      | Direction of Interest      |
-      | Size          | Surface - Fire Size | Spread Distance            |
-      | Size          | Surface - Fire Size | Fire Area                  |
-      | Size          | Surface - Fire Size | Fire Perimeter             |
-      | Size          | Surface - Fire Size | Length-to-Width Ratio      |
+      | submodule     | group               | value                 |
+      | Fire Behavior | Fire Behavior       | Rate of Spread        |
+      | Fire Behavior | Fire Behavior       | Flame Length          |
+      | Fire Behavior | Fire Behavior       | Fireline Intensity    |
+      | Size          | Surface - Fire Size | Spread Distance       |
+      | Size          | Surface - Fire Size | Fire Area             |
+      | Size          | Surface - Fire Size | Fire Perimeter        |
+      | Size          | Surface - Fire Size | Length-to-Width Ratio |
 
   @core
   Scenario Outline: Slope is displayed with Surface & Crown outputs

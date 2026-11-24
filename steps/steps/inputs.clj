@@ -17,14 +17,9 @@
 
 (defn- verify-groups-not-exist
   [driver path]
-  (try
-    (h/navigate-to-group driver path)
-    ;; If we found the element, that's an error - it should NOT exist
+  (when (h/input-group-present? driver path)
     (throw (ex-info (str "Group should NOT be displayed but was found: " path)
-                    {:path path}))
-    (catch org.openqa.selenium.NoSuchElementException _
-      ;; This is good - the element doesn't exist as expected
-      nil)))
+                    {:path path}))))
 
 (defn- enter-single-input
   [driver path]
@@ -134,9 +129,8 @@
   For each row in the data table the driver will follow the path to verify it is NOT displayed:
   submodule -> group -> subgroup -> value"
   [{:keys [driver] :as context}]
-  (h/navigate-to-inputs driver)
   (h/wait-for-wizard driver)
-
+  (h/navigate-to-inputs driver)
   (let [step-data (get-in context [:tegere.parser/step :tegere.parser/step-data])
         paths     (h/parse-step-data step-data)]
     (doseq [path paths]
