@@ -12,7 +12,7 @@ Feature: Surface Input - Wind and Slope -> Wind and slope are -> Wind Direction 
       | submodule      | group              | value                         |
       | Wind and Slope | Wind and slope are | Wind Direction (from upslope) |
     Examples: This scenario is repeated for each of these rows
-      | submodule     | group          | value                      |
-      | Fire Behavior | Direction Mode | Heading                    |
-      | Fire Behavior | Direction Mode | Heading, Flanking, Backing |
-      | Fire Behavior | Direction Mode | Direction of Interest      |
+      | submodule     | group         | value              |
+      | Fire Behavior | Fire Behavior | Rate of Spread     |
+      | Fire Behavior | Fire Behavior | Flame Length       |
+      | Fire Behavior | Fire Behavior | Fireline Intensity |

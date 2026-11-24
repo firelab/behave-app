@@ -22,10 +22,24 @@
   (let [sc (:tegere.runner/scenario ex)]
     (or (:tegere.parser/description sc) (:tegere.parser/name sc) "(unnamed scenario)")))
 
+(defn ex-example
+  "The Scenario Outline example row an executable was expanded from, or nil for a
+   plain Scenario. tegere drops `::examples-row` when building executables, so the
+   driver stamps `:cucumber/example` ([[column value] ...]) onto each outline
+   scenario's first step before running; step maps survive execution intact."
+  [ex]
+  (some :cucumber/example (:tegere.parser/steps ex)))
+
+(defn fmt-example
+  "e.g. `{submodule: Fire Behavior, group: Surface Fire, value: Flame Length}`."
+  [values]
+  (str "{" (str/join ", " (map (fn [[k v]] (str k ": " v)) values)) "}"))
+
 (defn- step-err [step] (get-in step [:tegere.runner/execution :tegere.runner/err]))
 
 (defn ex-failure
-  "nil if the executable passed, else {:scenario :type :step :reason}."
+  "nil if the executable passed, else {:scenario :example :type :step :reason}
+   (:example only for Scenario Outline rows)."
   [ex]
   (when-let [bad (some (fn [st] (when-let [e (step-err st)] [st e]))
                        (:tegere.parser/steps ex))]
@@ -35,10 +49,11 @@
                      (name (:tegere.runner/type e :fail)))
           stept  (str (some-> (:tegere.parser/type st) name str/capitalize) " "
                       (:tegere.parser/text st))]
-      {:scenario (scenario-title ex)
-       :type     (:tegere.runner/type e)
-       :step     (str/trim stept)
-       :reason   (str/replace (str/trim msg) #"\s*\n\s*" " | ")})))
+      (cond-> {:scenario (scenario-title ex)
+               :type     (:tegere.runner/type e)
+               :step     (str/trim stept)
+               :reason   (str/replace (str/trim msg) #"\s*\n\s*" " | ")}
+        (ex-example ex) (assoc :example (ex-example ex))))))
 
 (defn counts [all-files status executables]
   (let [state-of (fn [f] (:state (get status f)))]
@@ -78,7 +93,9 @@
           :pending (.append sb (str "- [ ] " file "  :PENDING:\n"))
           :fail    (do (.append sb (str "- [ ] " file "\n"))
                        (doseq [f fails]
-                         (.append sb (str "  - Scenario \"" (:scenario f) "\": "
+                         (.append sb (str "  - Scenario \"" (:scenario f) "\""
+                                          (when-let [ex (:example f)] (str " — " (fmt-example ex)))
+                                          ": "
                                           (str/upper-case (name (:type f)))
                                           " at step [" (:step f) "] — " (clean-reason (:reason f)) "\n")))))))
     (.toString sb)))

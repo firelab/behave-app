@@ -1,6 +1,6 @@
 @core
 Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
-
+-
   @core
   Scenario Outline: Wind Adjustment Factor is displayed with Surface outputs (Wind Measured at: 20-Foot)
     Given I have started a new Surface Worksheet in Guided Mode
@@ -13,11 +13,11 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Wind and Slope | Wind Adjustment Factor |
 
     Examples: This scenario is repeated for each of these rows
-      | submodule     | group          | value                      |
-      | Fire Behavior | Direction Mode | Heading                    |
-      | Fire Behavior | Direction Mode | Heading, Flanking, Backing |
-      | Fire Behavior | Direction Mode | Direction of Interest      |
-      | Wind and Fuel | Wind           | Midflame Wind Speed        |
+      | submodule     | group        | value               |
+      | Fire Behavior | Surface Fire | Rate of Spread      |
+      | Fire Behavior | Surface Fire | Flame Length        |
+      | Fire Behavior | Surface Fire | Fireline Intensity  |
+      | Wind and Fuel | Wind         | Midflame Wind Speed |
 
   @core
   Scenario Outline: Wind Adjustment Factor is displayed with Surface outputs (Wind Measured at: 10-Meter)
@@ -31,11 +31,11 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Wind and Slope | Wind Adjustment Factor |
 
     Examples: This scenario is repeated for each of these rows
-      | submodule     | group          | value                      |
-      | Fire Behavior | Direction Mode | Heading                    |
-      | Fire Behavior | Direction Mode | Heading, Flanking, Backing |
-      | Fire Behavior | Direction Mode | Direction of Interest      |
-      | Wind and Fuel | Wind           | Midflame Wind Speed        |
+      | submodule     | group        | value               |
+      | Fire Behavior | Surface Fire | Rate of Spread      |
+      | Fire Behavior | Surface Fire | Flame Length        |
+      | Fire Behavior | Surface Fire | Fireline Intensity  |
+      | Wind and Fuel | Wind         | Midflame Wind Speed |
 
   @core
   Scenario Outline: Wind Adjustment Factor is displayed with Surface & Crown outputs (Wind Measured at: 20-Foot)
@@ -88,3 +88,30 @@ Feature: Surface Input - Wind and Slope -> Wind Adjustment Factor
       | Size          | Crown - Fire Size        | Fire Perimeter                      |
       | Size          | Crown - Fire Size        | Length-to-Width Ratio               |
       | Size          | Crown - Fire Size        | Spread Distance                     |
+      
+  @core
+  Scenario Outline: Wind Adjustment Factor is NOT displayed with Spot outputs in Surface
+    Given I have started a new Surface Worksheet in Guided Mode
+    When this output path is selected <submodule> : <group> : <value>
+    Then the following input paths are NOT displayed:
+      | submodule      | group                  |
+      | Wind and Slope | Wind Adjustment Factor |
+
+    Examples: This scenario is repeated for each of these rows
+      | submodule | group                     | value                                 |
+      | Spot      | Maximum Spotting Distance | Burning Pile                          |
+      | Spot      | Maximum Spotting Distance | Wind-Driven Surface Fire (Grass Only) |
+
+      
+  @core
+  Scenario Outline: Wind Adjustment Factor is NOT displayed with Spot outputs in Surface & Crown
+    Given I have started a new Surface & Crown Worksheet in Guided Mode
+    When this output path is selected <submodule> : <group> : <value>
+    Then the following input paths are NOT displayed:
+      | submodule      | group                  |
+      | Wind and Slope | Wind Adjustment Factor |
+
+    Examples: This scenario is repeated for each of these rows
+      | submodule | group                     | value             |
+      | Spot      | Maximum Spotting Distance | Torching Trees    |
+      | Spot      | Maximum Spotting Distance | Active Crown Fire |
