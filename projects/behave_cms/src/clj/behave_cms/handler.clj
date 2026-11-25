@@ -1,5 +1,6 @@
 (ns behave-cms.handler
   (:require [behave-cms.file-io                 :refer [file-handler]]
+            [behave-cms.health                  :refer [health-handler]]
             [behave-cms.remote-api              :refer [api-handler clj-handler]]
             [behave-cms.routes                  :refer [app-routes api-routes public-routes]]
             [behave-cms.sync                    :refer [sync-handler]]
@@ -59,6 +60,7 @@
 (defn routing-handler [{:keys [uri session params] :as request}]
   (let [next-handler (cond
                        (bad-uri? uri)                  (constantly (data-response "Forbidden" {:status 403}))
+                       (= uri "/health")               #'health-handler
                        (str/starts-with? uri "/sync")  (token-resp params sync-handler)
                        (match-route api-routes uri)    (authenticated-api uri session api-handler)
                        (str/starts-with? uri "/clj/")  (token-resp params clj-handler)

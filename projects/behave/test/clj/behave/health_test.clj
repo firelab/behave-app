@@ -7,6 +7,7 @@
             [clojure.test        :refer [deftest is testing use-fixtures]]
             [config.interface    :refer [load-config]]
             [datom-store.main    :as s]
+            [health.core         :as hc]
             [me.raynes.fs        :as fs]
             [transport.interface :refer [json->clj]])
   (:import (java.io File RandomAccessFile)))
@@ -75,7 +76,7 @@
 (defmacro ^:private with-disk-pct
   "Runs `body` with every disk reporting `pct` percent used."
   [pct & body]
-  `(with-redefs [h/used-pct (constantly ~pct)] ~@body))
+  `(with-redefs [hc/used-pct (constantly ~pct)] ~@body))
 
 ;;; Response shape
 
@@ -126,7 +127,7 @@
 (deftest disk-write-failure-test
   (testing "a disk that can't be written fails even when % used looks fine"
     (with-disk-pct 10.0
-      (with-redefs [h/write-probe! (fn [_] (throw (java.io.IOException. "No space left on device")))]
+      (with-redefs [hc/write-probe! (fn [_] (throw (java.io.IOException. "No space left on device")))]
         (let [{:keys [status body]} (get-health)
               db                    (check body :disk:utilization)]
           (is (= 503 status))
@@ -241,12 +242,3 @@
   (let [up (check (report) :uptime)]
     (is (= "s" (:observedUnit up)))
     (is (nat-int? (:observedValue up)))))
-
-;;; Status rollup
-
-(deftest worst-status-test
-  (let [worst #'h/worst-status]
-    (is (= "pass" (worst [])))
-    (is (= "pass" (worst ["pass" "pass"])))
-    (is (= "warn" (worst ["pass" "warn" "pass"])))
-    (is (= "fail" (worst ["warn" "fail" "pass"])))))

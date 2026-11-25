@@ -10,7 +10,10 @@
             [msgpack.core      :as msg]
             [msgpack.extensions]))
 
-(defn- find-app-js []
+(defn find-app-js
+  "URL path of the compiled app bundle, honoring the fingerprinted name in
+  `public/cljs/manifest.edn` when present."
+  []
   (if-let [manifest (io/resource "public/cljs/manifest.edn")]
     (as-> (slurp manifest) app
       (edn/read-string app)

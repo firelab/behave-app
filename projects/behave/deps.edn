@@ -57,6 +57,7 @@
              sig/markdown2hiccup           {:local/root "../../components/markdown2hiccup"}
              sig/server                    {:local/root "../../components/server"}
              sig/string-utils              {:local/root "../../components/string_utils"}
+             sig/health                    {:local/root "../../components/health"}
              sig/transport                 {:local/root "../../components/transport"}
              sig/version-utils             {:local/root "../../components/version_utils"}
              sig/datom-compressor          {:local/root "../../components/datom_compressor"}

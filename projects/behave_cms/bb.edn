@@ -8,6 +8,8 @@
   stop      {:depends [-project]
              :task (shell (format "systemctl --user stop %s" -project))}
   build-js  (clojure "-M:compile-cljs")
+  test:clj  {:doc  "Run the JVM-side Clojure tests (test/clj) and exit with a pass/fail code."
+             :task (clojure "-M:clj-test")}
   uber      (clojure "-X triangulum.packaging/build-uberjar :app-name behave-cms :main-ns behave-cms.server")
   pull      (shell "git pull")
   restart   (do

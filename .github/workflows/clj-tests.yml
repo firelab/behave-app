@@ -8,8 +8,16 @@ on:
 
 jobs:
   clj-tests:
+    name: clj-tests (${{ matrix.dir }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        dir:
+          - projects/behave
+          - projects/behave_cms
+          - components/health
     steps:
       - uses: actions/checkout@v4
 
@@ -21,26 +29,25 @@ jobs:
       - uses: DeLaGuardo/setup-clojure@13.0
         with:
           cli: latest
-          bb: latest
 
       - uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
             ~/.gitlibs
-          key: cljdeps-clj-${{ hashFiles('deps.edn', 'projects/behave/deps.edn') }}
-          restore-keys: cljdeps-
+          key: cljdeps-clj-${{ matrix.dir }}-${{ hashFiles(format('{0}/deps.edn', matrix.dir), 'components/*/deps.edn', 'bases/*/deps.edn') }}
+          restore-keys: cljdeps-clj-${{ matrix.dir }}-
 
       - name: Prefetch deps
-        working-directory: projects/behave
+        working-directory: ${{ matrix.dir }}
         run: clojure -P -M:clj-test
 
-      # JVM-side tests under projects/behave/test/clj (cognitect test-runner).
-      # The runner exits 0 when it finds no tests, so also require a non-zero
-      # "Ran N tests" line rather than trusting the exit code alone.
+      # JVM-side tests run by each directory's :clj-test alias (cognitect
+      # test-runner). The runner exits 0 when it finds no tests, so also require
+      # a non-zero "Ran N tests" line rather than trusting the exit code alone.
       - name: Run CLJ test suite
-        working-directory: projects/behave
+        working-directory: ${{ matrix.dir }}
         run: |
           set -o pipefail
-          bb test:clj 2>&1 | tee clj-tests.log
+          clojure -M:clj-test 2>&1 | tee clj-tests.log
           grep -Eq '^Ran [1-9][0-9]* tests' clj-tests.log
