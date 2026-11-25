@@ -10,8 +10,7 @@
       (replace-name replacement)))
 
 (defn- template-dir
-  "Scaffolding for `basedir` (bases, components, projects). Kept outside the
-  brick folders so Polylith doesn't read the templates as real bricks."
+  "Templates for `basedir`, outside the brick folders so poly ignores them."
   [basedir]
   (io/file "scripts" "templates" basedir))
 

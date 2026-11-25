@@ -31,9 +31,7 @@ jobs:
           key: cljdeps-poly-${{ hashFiles('**/deps.edn') }}
           restore-keys: cljdeps-
 
-      # bases/behave-docs is the (private) help-docs submodule, not a brick,
-      # and has no deps.edn upstream. Polylith reads every folder under bases/,
-      # so give it an empty one. Drop this once the submodule leaves bases/.
+      # The behave-docs submodule has no deps.edn, which poly needs.
       - name: Stub behave-docs submodule for Polylith
         run: |
           mkdir -p bases/behave-docs
@@ -45,9 +43,7 @@ jobs:
       - name: Validate workspace (poly check)
         run: clojure -M:poly check color-mode:none
 
-      # Runs every brick's and project's JVM tests (behave + behave_cms),
-      # including projects/behave/test/clj. A run that loads no tests still
-      # exits 0, so also require at least one passing assertion.
+      # A run with no tests exits 0, so require at least one pass.
       - name: Run all Polylith tests (poly test :all)
         run: |
           set -o pipefail

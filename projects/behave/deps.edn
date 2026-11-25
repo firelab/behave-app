@@ -110,7 +110,7 @@
              :check-deps       {:extra-deps {olical/depot {:mvn/version "2.3.0"}}
                                 :main-opts  ["-m" "depot.outdated.main"]}
              :download-vms     {:exec-fn behave.download-vms/exec-export-from-vms}
-             ;; Polylith's `poly test` uses this alias for the behave project.
+             ;; Used by `poly test`.
              :test             {:extra-paths ["test/cljs" "test/clj"]
                                 :extra-deps  {}}
              ;; JVM-side tests: clojure -M:clj-test

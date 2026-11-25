@@ -10,8 +10,7 @@
 ;;; Macros
 
 (defn resource
-  "Retrieve resource from SystemClassLoader, falling back to the context
-  classloader (e.g. Polylith's isolated test classloader)."
+  "Retrieve resource from SystemClassLoader, else the context classloader."
   [path]
   (or (.getResource (ClassLoader/getSystemClassLoader) path)
       (io/resource path)))
