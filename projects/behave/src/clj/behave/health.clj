@@ -1,7 +1,7 @@
 (ns behave.health
-  "`GET /health` for the Behave server, in the IETF Health Check Response
-  Format (see [[health.interface]]). Adds the worksheet database, temp
-  worksheet, and app asset checks to the shared disk/heap/uptime checks."
+  "`GET /health` for the Behave server (see [[health.interface]]). Adds the
+  worksheet database, temp worksheet, and app asset checks to the shared
+  disk/heap/uptime checks."
   (:require [behave.store        :refer [db-file]]
             [behave.views        :refer [find-app-js resource]]
             [clojure.edn         :as edn]

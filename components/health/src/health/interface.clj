@@ -1,6 +1,5 @@
 (ns health.interface
-  "Shared checks and response handling for `/health` endpoints in the IETF
-  Health Check Response Format (draft-inadarei-api-health-check):
+  "Shared checks and response handling for `/health` endpoints:
   `application/health+json`, an overall `status` of `pass` / `warn` / `fail`,
   and a `checks` map keyed by `component:measurement`. HTTP 200 for
   `pass`/`warn`, 503 for `fail`, so a plain uptime monitor alerts on status

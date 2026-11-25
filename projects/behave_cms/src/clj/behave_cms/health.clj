@@ -1,7 +1,7 @@
 (ns behave-cms.health
-  "`GET /health` for the Behave CMS, in the IETF Health Check Response Format
-  (see [[health.interface]]). Adds the Datomic transactor and app asset checks
-  to the shared disk/heap/uptime checks."
+  "`GET /health` for the Behave CMS (see [[health.interface]]). Adds the
+  Datomic transactor and app asset checks to the shared disk/heap/uptime
+  checks."
   (:require [behave-cms.views    :refer [find-app-js]]
             [clojure.java.io     :as io]
             [datomic-store.main  :as s]

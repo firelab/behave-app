@@ -1,6 +1,5 @@
 (ns health.core
-  "Building blocks for an IETF Health Check Response Format
-  (draft-inadarei-api-health-check) endpoint."
+  "Building blocks for a `/health` endpoint."
   (:require [clojure.data.json :as json])
   (:import (java.io File)
            (java.lang.management ManagementFactory)
