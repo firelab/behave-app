@@ -57,6 +57,7 @@
              sig/markdown2hiccup           {:local/root "../../components/markdown2hiccup"}
              sig/server                    {:local/root "../../components/server"}
              sig/string-utils              {:local/root "../../components/string_utils"}
+             sig/health                    {:local/root "../../components/health"}
              sig/transport                 {:local/root "../../components/transport"}
              sig/version-utils             {:local/root "../../components/version_utils"}
              sig/datom-compressor          {:local/root "../../components/datom_compressor"}
@@ -110,4 +111,9 @@
                                 :main-opts  ["-m" "depot.outdated.main"]}
              :download-vms     {:exec-fn behave.download-vms/exec-export-from-vms}
              :test             {:extra-paths ["test/cljs"]
-                                :extra-deps  {}}}}
+                                :extra-deps  {}}
+             ;; JVM-side tests: clojure -M:clj-test
+             :clj-test         {:extra-paths ["test/clj"]
+                                :extra-deps  {io.github.cognitect-labs/test-runner
+                                              {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+                                :main-opts   ["-m" "cognitect.test-runner" "-d" "test/clj"]}}}

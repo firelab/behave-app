@@ -44,7 +44,9 @@
 (defn- include-js [& paths]
   (apply p/include-js (add-v-query paths)))
 
-(defn- find-app-js []
+(defn find-app-js
+  "App bundle URL path, per `public/cljs/manifest.edn` when present."
+  []
   (if-let [manifest (resource "public/cljs/manifest.edn")]
     (as-> (slurp manifest) app
       (edn/read-string app)

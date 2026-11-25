@@ -63,6 +63,7 @@
              sig/number-utils               {:local/root "../../components/number_utils"}
              sig/server                     {:local/root "../../components/server"}
              sig/string-utils               {:local/root "../../components/string_utils"}
+             sig/health                     {:local/root "../../components/health"}
              sig/transport                  {:local/root "../../components/transport"}
              sig/map-utils                  {:local/root "../../components/map_utils"}
              sig/cucumber-test-generator    {:local/root "../../components/cucumber_test_generator"}
@@ -95,4 +96,7 @@
              :check-deps       {:extra-deps {olical/depot {:mvn/version "2.3.0"}}
                                 :main-opts  ["-m" "depot.outdated.main"]}
              :test             {:extra-paths ["test/cljs"]
-                                :extra-deps  {}}}}
+                                :extra-deps  {}}
+             :clj-test         {:extra-paths ["test/clj"]
+                                :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+                                :main-opts   ["-m" "cognitect.test-runner" "-d" "test/clj"]}}}

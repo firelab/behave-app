@@ -1,0 +1,51 @@
+name: CLJ tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  clj-tests:
+    name: clj-tests (${{ matrix.dir }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        dir:
+          - projects/behave
+          - projects/behave_cms
+          - components/health
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: DeLaGuardo/setup-clojure@13.0
+        with:
+          cli: latest
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+          key: cljdeps-clj-${{ matrix.dir }}-${{ hashFiles(format('{0}/deps.edn', matrix.dir), 'components/*/deps.edn', 'bases/*/deps.edn') }}
+          restore-keys: cljdeps-clj-${{ matrix.dir }}-
+
+      - name: Prefetch deps
+        working-directory: ${{ matrix.dir }}
+        run: clojure -P -M:clj-test
+
+      # The runner exits 0 with no tests, so require "Ran N tests" (N > 0).
+      - name: Run CLJ test suite
+        working-directory: ${{ matrix.dir }}
+        run: |
+          set -o pipefail
+          clojure -M:clj-test 2>&1 | tee clj-tests.log
+          grep -Eq '^Ran [1-9][0-9]* tests' clj-tests.log

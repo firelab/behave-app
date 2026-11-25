@@ -5,7 +5,6 @@
             [config.interface           :refer [get-config load-config]]
             [datom-compressor.interface :as c]
             [datom-store.main           :as s]
-            [file-utils.interface       :refer [os-path]]
             [logging.interface          :refer [log-str]]
             [transport.interface        :refer [clj-> mime->type]])
   (:import (java.io ByteArrayInputStream)))
@@ -29,16 +28,7 @@
 
 (defn init! []
   (load-config (resource "config.edn"))
-  (let [config (update-in (get-config :database :config)
-                          [:store :path]
-                          os-path)
-        ;; Test-support (parallel sharding): a per-shard server JVM sets
-        ;; -Dbehave.store.path so each shard resets+connects its OWN db file. config.edn is
-        ;; reloaded on every /api/init (above), so a startup-only override wouldn't survive —
-        ;; the property is re-read here each init. Inert (no property) in dev/prod.
-        config (if-let [p (System/getProperty "behave.store.path")]
-                 (assoc-in config [:store :path] (os-path p))
-                 config)]
+  (let [config (store/db-config)]
     (log-str "LOADED CONFIG" (get-config :database :config))
     (io/make-parents (get-in config [:store :path]))
     ;; Test-only (config-gated): delete the store before reconnecting so every session

@@ -1,6 +1,7 @@
 (ns behave.handlers
   (:require [behave-routing.main               :refer [routes]]
             [behave.download-vms               :refer [export-from-vms export-images-from-vms]]
+            [behave.health                     :refer [health-handler]]
             [behave.init                       :refer [active-clients init-handler]]
             [behave.open                       :refer [open-handler]]
             [behave.save                       :refer [save-handler]]
@@ -98,6 +99,7 @@
 (defn- routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
                        (bad-uri? uri)                         (not-found "404 Not Found")
+                       (= uri "/health")                      #'health-handler
                        (str/starts-with? uri "/api/init")     #'init-handler
                        (str/starts-with? uri "/api/vms-sync") #'vms-sync-handler
                        (str/starts-with? uri "/api/sync")     #'sync-handler
