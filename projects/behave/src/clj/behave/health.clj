@@ -1,7 +1,6 @@
 (ns behave.health
-  "`GET /health` for the Behave server (see [[health.interface]]). Adds the
-  worksheet database, temp worksheet, and app asset checks to the shared
-  disk/heap/uptime checks."
+  "Behave `GET /health`: shared checks plus worksheet DB, temp worksheets and
+  assets."
   (:require [behave.store        :refer [db-file]]
             [behave.views        :refer [find-app-js resource]]
             [clojure.edn         :as edn]
@@ -19,7 +18,7 @@
 ;;; Helpers
 
 (defn- temp-dir
-  "java.io.tmpdir, where /api/open and /api/save write worksheet copies."
+  "Where /api/open and /api/save copy worksheets."
   ^File []
   (io/file (System/getProperty "java.io.tmpdir")))
 
@@ -30,11 +29,10 @@
    (health/disk-check "tmp" (temp-dir))])
 
 ;;; Temp worksheets
-;; /api/open and /api/save write `.bp7` copies to java.io.tmpdir; left behind,
-;; they are what filled the prod disk (BHP1-1708).
+;; Leftover `.bp7` copies filled the prod disk (BHP1-1708).
 
 (defn- temp-worksheets
-  "The `.bp7` files sitting in `dir`."
+  "`.bp7` files in `dir`."
   [^File dir]
   (filter #(.endsWith (.getName ^File %) ".bp7") (.listFiles dir)))
 
@@ -51,7 +49,7 @@
 ;;; Assets
 
 (defn- required-assets
-  "Classpath paths of the files the browser needs to boot the app."
+  "Files the browser needs to boot."
   []
   ["public/layout.msgpack"
    "public/js/behave-min.js"
@@ -61,9 +59,9 @@
 ;;; Database
 
 (defn- sqlite-ping!
-  "Opens the worksheet database and runs a trivial read; returns elapsed ms."
+  "Trivial worksheet DB read; returns ms."
   [path]
-  ;; The SQLite driver silently creates a missing file, so check first.
+  ;; The driver would create a missing file.
   (when-not (.exists (io/file path))
     (throw (ex-info "Worksheet database file not found" {})))
   (let [start (System/nanoTime)]
@@ -88,7 +86,7 @@
   (delay (some-> (resource "version.edn") slurp edn/read-string :version)))
 
 (defn health
-  "Runs all checks and returns the health report map."
+  "Runs all checks."
   []
   (health/report {"disk:utilization"    (disk-checks)
                   "sqlite:responseTime" [(sqlite-check)]
@@ -99,6 +97,6 @@
                  @version))
 
 (defn health-handler
-  "Ring handler for `GET /health`."
+  "`GET /health`."
   [_request]
   (health/response (health)))

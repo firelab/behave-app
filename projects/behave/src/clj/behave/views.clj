@@ -45,8 +45,7 @@
   (apply p/include-js (add-v-query paths)))
 
 (defn find-app-js
-  "URL path of the compiled app bundle, honoring the fingerprinted name in
-  `public/cljs/manifest.edn` when present."
+  "App bundle URL path, per `public/cljs/manifest.edn` when present."
   []
   (if-let [manifest (resource "public/cljs/manifest.edn")]
     (as-> (slurp manifest) app

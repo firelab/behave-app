@@ -1,5 +1,5 @@
 (ns health.core
-  "Building blocks for a `/health` endpoint."
+  "`/health` building blocks."
   (:require [clojure.data.json :as json])
   (:import (java.io File)
            (java.lang.management ManagementFactory)
@@ -16,12 +16,12 @@
 (def ^:private severity {"pass" 0 "warn" 1 "fail" 2})
 
 (defn worst-status
-  "Returns the most severe of `statuses`, or `pass` when empty."
+  "Most severe of `statuses`; `pass` when empty."
   [statuses]
   (reduce #(max-key severity %1 %2) "pass" statuses))
 
 (defn threshold-status
-  "Status for a percentage `pct` given `warn` and optional `fail` limits."
+  "pass/warn/fail for `pct`; `fail` is optional."
   [pct warn fail]
   (cond
     (and fail (>= pct fail)) "fail"
@@ -29,7 +29,7 @@
     :else                    "pass"))
 
 (defn round1
-  "Rounds `x` to one decimal place."
+  "Rounds `x` to one decimal."
   [x]
   (/ (Math/round (* 10.0 x)) 10.0))
 
@@ -41,8 +41,7 @@
 (defn- now [] (str (Instant/now)))
 
 (defn run-check
-  "Merges the `component` keys and a timestamp into the result of `check-fn`.
-  Any exception becomes a `fail` result carrying its message in `output`."
+  "`(check-fn)` plus `component` and a timestamp; exceptions become `fail`."
   [component check-fn]
   (merge component
          (try
@@ -54,18 +53,18 @@
 ;;; Disk
 
 (defn- used-pct
-  "Percent of the filesystem holding `dir` that is unavailable to this JVM."
+  "Percent of `dir`'s filesystem in use."
   [^File dir]
   (let [total (.getTotalSpace dir)]
     (percent (- total (.getUsableSpace dir)) total)))
 
 (defn- write-probe!
-  "Creates and deletes a temp file in `dir`, throwing if the disk can't be written."
+  "Writes and deletes a temp file in `dir`."
   [^File dir]
   (.delete (File/createTempFile "health" ".probe" dir)))
 
 (defn disk-check
-  "Disk utilization of the filesystem holding `dir`, plus a write probe."
+  "Disk use of `dir`, plus a write probe."
   [component-id ^File dir]
   (run-check
    {:componentId component-id :componentType "system"}
@@ -78,8 +77,7 @@
 ;;; Memory
 
 (defn heap-check
-  "JVM heap in use as a percentage of the maximum heap (-Xmx).
-  Warn-only: heap usage spikes between GCs, so it shouldn't page anyone alone."
+  "Heap used as % of -Xmx. Warn-only: it spikes between GCs."
   []
   (run-check
    {:componentId "jvm" :componentType "system"}
@@ -93,7 +91,7 @@
 ;;; Uptime
 
 (defn uptime-check
-  "Seconds since this JVM started."
+  "JVM uptime in seconds."
   []
   (run-check
    {:componentType "system"}
@@ -105,7 +103,7 @@
 ;;; Assets
 
 (defn asset-check
-  "Passes when `lookup` (e.g. `io/resource`) finds the classpath resource `path`."
+  "Fails when `(lookup path)` is nil."
   [lookup path]
   (run-check
    {:componentId path :componentType "component"}
@@ -116,15 +114,14 @@
 ;;; Report
 
 (defn report
-  "Health report for `checks`, a map of `component:measurement` to a vector of
-  check results. `version` is included when non-nil."
+  "Report for `checks` (`component:measurement` → results); omits nil `version`."
   [checks version]
   (cond-> {:status (worst-status (map :status (apply concat (vals checks))))
            :checks checks}
     version (assoc :version version)))
 
 (defn response
-  "Ring response for `health-report`: 200 for pass/warn, 503 for fail, never cached."
+  "200 for pass/warn, 503 for fail; never cached."
   [{:keys [status] :as health-report}]
   {:status  (if (= status "fail") 503 200)
    :headers {"Content-Type"  "application/health+json"

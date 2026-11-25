@@ -11,11 +11,11 @@
 (def ^:private real-required-assets @#'h/required-assets)
 
 (def ^:private test-assets
-  "Assets tracked in git, so the default run passes without a CLJS build."
+  "Git-tracked assets; no CLJS build needed."
   ["public/js/katex.min.js" "public/js/fontawesome.js"])
 
 (defn- with-mem-datomic
-  "Connects to a fresh in-memory Datomic DB, with every disk at 10% used."
+  "Fresh in-memory Datomic; disks at 10%."
   [f]
   (let [uri (str "datomic:mem://cms-health-" (random-uuid))]
     (d/create-database uri)
@@ -33,7 +33,7 @@
 ;;; Helpers
 
 (defn- get-health
-  "Calls `handler` (default: the health handler) with GET /health and parses the JSON body."
+  "GET /health via `handler`, JSON body parsed."
   ([] (get-health h/health-handler))
   ([handler]
    (update (handler {:uri "/health" :request-method :get :headers {}})

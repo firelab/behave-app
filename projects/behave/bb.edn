@@ -42,7 +42,7 @@
                                              :open-url            "http://localhost:9500/api/test-headless"})
                              "-co" "test-headless.cljs.edn"
                              "-m" "behave.headless-test-runner")}
-  test:clj   {:doc  "Run the JVM-side Clojure tests (test/clj) and exit with a pass/fail code."
+  test:clj   {:doc  "Run test/clj."
               :task (clojure "-M:clj-test")}
   uber       (clojure "-X:build-uberjar")
   pull       (do

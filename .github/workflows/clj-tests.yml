@@ -42,9 +42,7 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: clojure -P -M:clj-test
 
-      # JVM-side tests run by each directory's :clj-test alias (cognitect
-      # test-runner). The runner exits 0 when it finds no tests, so also require
-      # a non-zero "Ran N tests" line rather than trusting the exit code alone.
+      # The runner exits 0 with no tests, so require "Ran N tests" (N > 0).
       - name: Run CLJ test suite
         working-directory: ${{ matrix.dir }}
         run: |

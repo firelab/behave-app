@@ -5,12 +5,8 @@
             [file-utils.interface :refer [os-path]]))
 
 (defn db-config
-  "The `:database :config` map with its store path resolved for this OS.
-
-  Test-support (parallel sharding): a per-shard server JVM sets
-  `-Dbehave.store.path` so each shard resets+connects its OWN db file. Read on
-  every call because config.edn is reloaded on every /api/init. Inert (no
-  property) in dev/prod."
+  "`:database :config` with an OS path. `-Dbehave.store.path` (test shards)
+  overrides it; read per call since /api/init reloads config."
   []
   (let [config (update-in (get-config :database :config) [:store :path] os-path)]
     (if-let [p (System/getProperty "behave.store.path")]
@@ -18,11 +14,11 @@
       config)))
 
 (defn db-file
-  "Absolute path of the worksheet SQLite database file."
+  "Worksheet SQLite file path."
   []
   (s/get-db-file (db-config)))
 
 (defn connect!
-  "Connects (or returns the existing connection) to the worksheet store at `config`."
+  "Connects to, or reuses, the worksheet store."
   [config]
   (s/default-conn all-schemas config))

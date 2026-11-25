@@ -15,27 +15,27 @@
 ;;; Fixtures
 
 (def ^:dynamic *db-path*
-  "Path of the temp worksheet DB for the current test."
+  "Temp worksheet DB path."
   nil)
 
 (def ^:dynamic *tmp-dir*
-  "Stand-in for java.io.tmpdir, so stray .bp7 files on the host don't leak in."
+  "Isolated java.io.tmpdir."
   nil)
 
 (def ^:private real-required-assets @#'h/required-assets)
 
 (def ^:private test-assets
-  "Assets tracked in git, so the default run passes without a CLJS build."
+  "Git-tracked assets; no CLJS build needed."
   ["public/layout.msgpack" "public/js/behave-min.wasm"])
 
 (defn- write-config!
-  "Writes a minimal config.edn into `dir` pointing the store at `db-path`."
+  "Writes a config.edn using `db-path`."
   [dir db-path]
   (doto (io/file dir "config.edn")
     (spit (pr-str {:database {:config {:store {:backend :file :path db-path}}}}))))
 
 (defn- with-temp-store
-  "Points config at a fresh temp DB and connects to it; tears everything down."
+  "Fresh temp DB per test."
   [f]
   (let [dir     (fs/temp-dir "behave-health")
         db-path (str (io/file dir "db.sqlite"))
@@ -59,22 +59,22 @@
 ;;; Helpers
 
 (defn- get-health
-  "Calls the handler and returns the response with its JSON body parsed."
+  "Handler response, JSON body parsed."
   []
   (update (h/health-handler {}) :body json->clj))
 
 (defn- report
-  "The parsed JSON health report, as a monitor sees it."
+  "Parsed report body."
   []
   (:body (get-health)))
 
 (defn- check
-  "The first result for check `k` (e.g. `:sqlite:responseTime`) in `body`."
+  "First result for check `k`."
   [body k]
   (first (get-in body [:checks k])))
 
 (defmacro ^:private with-disk-pct
-  "Runs `body` with every disk reporting `pct` percent used."
+  "Every disk reports `pct` % used."
   [pct & body]
   `(with-redefs [hc/used-pct (constantly ~pct)] ~@body))
 
@@ -99,8 +99,7 @@
 (deftest routed-test
   (testing "/health is wired into the server handler stack"
     (with-disk-pct 10.0
-      ;; Resolved lazily: loading behave.handlers reads config.edn (its
-      ;; top-level `development-app`), which only exists once the fixture runs.
+      ;; Lazy: loading behave.handlers reads config.edn.
       (let [app ((requiring-resolve 'behave.handlers/server-handler-stack) {})
             res (app {:uri "/health" :request-method :get :headers {}})]
         (is (= 200 (:status res)))
@@ -185,7 +184,7 @@
 ;;; Temp worksheets
 
 (defn- sized-file!
-  "Creates `filename` in the temp dir with a (sparse) length of `mb` megabytes."
+  "Sparse `mb` MB file in the temp dir."
   [filename mb]
   (with-open [f (RandomAccessFile. (io/file *tmp-dir* filename) "rw")]
     (.setLength f (* mb 1024 1024))))

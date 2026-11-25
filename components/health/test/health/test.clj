@@ -17,7 +17,7 @@
   (run! io/delete-file (reverse (file-seq dir))))
 
 (defmacro ^:private with-disk-pct
-  "Runs `body` with every disk reporting `pct` percent used."
+  "Every disk reports `pct` % used."
   [pct & body]
   `(with-redefs [c/used-pct (constantly ~pct)] ~@body))
 
