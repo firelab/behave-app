@@ -357,7 +357,7 @@
                              :metric  :variable/metric-unit-uuid)]
      (into []
            (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
-                  :in    $ $ws % ?ws-uuid ?units-system
+                  :in    $ $ws % ?ws-uuid ?units-system-attr
                   :where
                   [$ws ?w :worksheet/uuid ?ws-uuid]
                   [$ws ?w :worksheet/input-groups ?g]
@@ -464,7 +464,11 @@
           [$ws ?i :input/group-variable-uuid ?gv-uuid]
           (lookup ?gv-uuid ?gv)
           (group-variable _ ?gv ?v)
-          [$ws ?i :input/units-uuid ?unit-uuid]]
+          [$ws ?i :input/units-uuid ?unit-uuid]
+          ;; Only accept values that resolve to a real unit. Earlier solves
+          ;; could persist non-unit values here (variable names, nids, ...).
+          (lookup ?unit-uuid ?u)
+          [?u :unit/name _]]
         @@vms-conn @@s/conn rules ws-uuid)))
 
 (rf/reg-sub
